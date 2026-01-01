@@ -1,0 +1,10 @@
+{
+  "name": "wellness-mobile-app",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.27.0",
+  "scripts": {
+    "lint": "echo \"lint later\"",
+    "typecheck": "echo \"typecheck later\""
+  }
+}
