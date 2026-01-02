@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View, Text, Pressable, StyleSheet, Alert } from "react-native";
+import { View, Text, Pressable, StyleSheet, Alert, Platform } from "react-native";
 import * as Linking from "expo-linking";
+import * as IntentLauncher from "expo-intent-launcher";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AuthStackParamList } from "../../navigation/types";
@@ -9,6 +10,9 @@ import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "VerifyEmail">;
+
+// Android Intent flags
+const FLAG_ACTIVITY_NEW_TASK = 0x10000000; // 268435456 :contentReference[oaicite:2]{index=2}
 
 export default function VerifyEmailScreen({ route, navigation }: Props) {
   const email = route.params.email;
@@ -23,8 +27,19 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
     return () => clearInterval(t);
   }, [cooldown]);
 
-  async function openEmailApp() {
+  async function openEmailInbox() {
     try {
+      if (Platform.OS === "android") {
+        // Open the user's email app as its own task (outside our task),
+        // so our app remains running and the user can return normally.
+        await IntentLauncher.startActivityAsync("android.intent.action.MAIN", {
+          category: "android.intent.category.APP_EMAIL",
+          flags: FLAG_ACTIVITY_NEW_TASK, // supported by expo-intent-launcher :contentReference[oaicite:3]{index=3}
+        });
+        return;
+      }
+
+      // iOS best-effort fallback
       const ok = await Linking.canOpenURL("mailto:");
       if (!ok) {
         Alert.alert(id.common.errorTitle, id.common.tryAgain);
@@ -32,23 +47,23 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
       }
       await Linking.openURL("mailto:");
     } catch {
-      Alert.alert(id.common.errorTitle, id.common.tryAgain);
+      // Last fallback
+      try {
+        await Linking.openURL("mailto:");
+      } catch {
+        Alert.alert(id.common.errorTitle, id.common.tryAgain);
+      }
     }
   }
 
   async function resend() {
     setBusy(true);
     try {
-      const { error } = await supabase.auth.resend({
-        type: "signup",
-        email
-      });
-
+      const { error } = await supabase.auth.resend({ type: "signup", email });
       if (error) {
         Alert.alert(id.common.errorTitle, error.message);
         return;
       }
-
       setCooldown(30);
     } finally {
       setBusy(false);
@@ -56,9 +71,13 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
   }
 
   async function changeEmail() {
-    // MVP decision: re-signup with a new email (simplest, least risky).
     await supabase.auth.signOut();
     navigation.replace("SignUp", { initialEmail: "" });
+  }
+
+  function iHaveVerified() {
+    // Fallback when the verification link does not deep-link back to the app (common in Expo Go).
+    navigation.replace("Login", { initialEmail: email });
   }
 
   return (
@@ -66,11 +85,27 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
       <Text style={styles.title}>{id.verify.title}</Text>
       <Text style={styles.subtitle}>{id.verify.subtitle}</Text>
       <Text style={styles.email}>{email}</Text>
-      <Text style={styles.help}>{id.verify.help}</Text>
+
+      <View style={{ marginTop: spacing.sm }}>
+        <Text style={styles.help}>
+          Setelah klik tautan verifikasi, kembali ke aplikasi Wellness.
+          Jika tautan tidak membuka aplikasi, tap “Saya sudah verifikasi” lalu masuk.
+        </Text>
+      </View>
 
       <View style={{ marginTop: spacing.lg, gap: spacing.sm }}>
-        <Pressable onPress={openEmailApp} style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
+        <Pressable
+          onPress={openEmailInbox}
+          style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}
+        >
           <Text style={styles.primaryButtonText}>{id.verify.openEmail}</Text>
+        </Pressable>
+
+        <Pressable
+          onPress={iHaveVerified}
+          style={({ pressed }) => [styles.primaryOutlineButton, pressed && styles.pressed]}
+        >
+          <Text style={styles.primaryOutlineButtonText}>Saya sudah verifikasi</Text>
         </Pressable>
 
         <Pressable
@@ -79,7 +114,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
           style={({ pressed }) => [
             styles.secondaryButton,
             !canResend && styles.disabled,
-            pressed && canResend && styles.pressed
+            pressed && canResend && styles.pressed,
           ]}
         >
           <Text style={styles.secondaryButtonText}>
@@ -91,7 +126,10 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
           </Text>
         </Pressable>
 
-        <Pressable onPress={changeEmail} style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
+        <Pressable
+          onPress={changeEmail}
+          style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+        >
           <Text style={styles.secondaryButtonText}>{id.verify.changeEmail}</Text>
         </Pressable>
 
@@ -111,13 +149,54 @@ const styles = StyleSheet.create({
   title: { fontSize: typography.h2, color: colors.text, fontWeight: "700" },
   subtitle: { marginTop: spacing.xs, fontSize: typography.body, color: colors.mutedText },
   email: { marginTop: spacing.xs, fontSize: typography.body, color: colors.text, fontWeight: "700" },
-  help: { marginTop: spacing.sm, fontSize: typography.small, color: colors.mutedText, lineHeight: 20 },
-  primaryButton: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.primary },
-  primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
-  secondaryButton: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.secondary, borderWidth: 1, borderColor: colors.border },
-  secondaryButtonText: { color: colors.secondaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
+  help: { fontSize: typography.small, color: colors.mutedText, lineHeight: 20 },
+
+  primaryButton: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.sm,
+    backgroundColor: colors.primary,
+  },
+  primaryButtonText: {
+    color: colors.primaryText,
+    fontSize: typography.body,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+
+  primaryOutlineButton: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.sm,
+    backgroundColor: colors.bg,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  primaryOutlineButtonText: {
+    color: colors.text,
+    fontSize: typography.body,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+
+  secondaryButton: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.sm,
+    backgroundColor: colors.secondary,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  secondaryButtonText: {
+    color: colors.secondaryText,
+    fontSize: typography.body,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+
   linkButton: { paddingVertical: spacing.xs, paddingHorizontal: spacing.md },
   linkText: { color: colors.text, fontSize: typography.small, fontWeight: "700", textAlign: "center" },
+
   disabled: { opacity: 0.6 },
-  pressed: { opacity: 0.85 }
+  pressed: { opacity: 0.85 },
 });

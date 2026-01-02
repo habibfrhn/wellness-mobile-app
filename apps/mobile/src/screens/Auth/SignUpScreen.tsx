@@ -16,24 +16,36 @@ function isValidEmail(email: string) {
 export default function SignUpScreen({ navigation, route }: Props) {
   const [email, setEmail] = useState(route.params?.initialEmail ?? "");
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  const canSubmit = useMemo(() => {
-    return isValidEmail(email) && password.length >= 8 && !busy;
-  }, [email, password, busy]);
+  const canPress = useMemo(() => !busy, [busy]);
 
-  async function onSubmit() {
+  function validate(): string[] {
+    const issues: string[] = [];
     const e = email.trim().toLowerCase();
 
-    if (!isValidEmail(e)) {
-      Alert.alert(id.common.invalidEmail, id.common.invalidEmailBody);
+    if (!isValidEmail(e)) issues.push("Email tidak valid.");
+    if (password.length < 8) issues.push("Kata sandi minimal 8 karakter.");
+    if (confirm.length < 8) issues.push("Ulangi kata sandi minimal 8 karakter.");
+    if (password && confirm && password !== confirm) issues.push("Kata sandi dan konfirmasi tidak sama.");
+
+    return issues;
+  }
+
+  async function onSubmit() {
+    const issues = validate();
+    if (issues.length > 0) {
+      Alert.alert(
+        "Periksa kembali",
+        issues.map((x) => `• ${x}`).join("\n")
+      );
       return;
     }
-    if (password.length < 8) {
-      Alert.alert(id.common.weakPassword, id.common.weakPasswordBody);
-      return;
-    }
+
+    const e = email.trim().toLowerCase();
 
     setBusy(true);
     try {
@@ -85,7 +97,6 @@ export default function SignUpScreen({ navigation, route }: Props) {
               <Text style={styles.linkText}>{showPassword ? "Sembunyikan" : "Lihat"}</Text>
             </Pressable>
           </View>
-
           <TextInput
             value={password}
             onChangeText={setPassword}
@@ -98,13 +109,36 @@ export default function SignUpScreen({ navigation, route }: Props) {
           />
         </View>
 
+        <View>
+          <View style={styles.rowBetween}>
+            <Text style={styles.label}>{id.signup.confirmPasswordLabel}</Text>
+            <Pressable
+              onPress={() => setShowConfirm((v) => !v)}
+              hitSlop={10}
+              style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]}
+            >
+              <Text style={styles.linkText}>{showConfirm ? "Sembunyikan" : "Lihat"}</Text>
+            </Pressable>
+          </View>
+          <TextInput
+            value={confirm}
+            onChangeText={setConfirm}
+            autoCapitalize="none"
+            autoCorrect={false}
+            secureTextEntry={!showConfirm}
+            placeholder={id.signup.confirmPasswordPlaceholder}
+            placeholderTextColor={colors.mutedText}
+            style={styles.input}
+          />
+        </View>
+
         <Pressable
           onPress={onSubmit}
-          disabled={!canSubmit}
+          disabled={!canPress}
           style={({ pressed }) => [
             styles.primaryButton,
-            (!canSubmit || busy) && styles.disabled,
-            pressed && canSubmit && styles.pressed
+            !canPress && styles.disabled,
+            pressed && canPress && styles.pressed
           ]}
         >
           <Text style={styles.primaryButtonText}>
@@ -129,6 +163,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: spacing.lg, backgroundColor: colors.bg },
   title: { fontSize: typography.h2, color: colors.text, fontWeight: "700" },
   subtitle: { marginTop: spacing.xs, fontSize: typography.body, color: colors.mutedText, lineHeight: 22 },
+
   label: { fontSize: typography.small, color: colors.text, fontWeight: "700", marginBottom: spacing.xs },
   input: {
     borderWidth: 1,
@@ -140,21 +175,32 @@ const styles = StyleSheet.create({
     color: colors.text,
     backgroundColor: colors.secondary
   },
-  rowBetween: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between"
-  },
+
+  rowBetween: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   linkButton: { paddingVertical: spacing.xs, paddingHorizontal: spacing.xs },
   linkText: { color: colors.text, fontSize: typography.small, fontWeight: "700" },
 
-  primaryButton: { marginTop: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.primary },
+  primaryButton: {
+    marginTop: spacing.sm,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.sm,
+    backgroundColor: colors.primary
+  },
   primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
 
-  secondaryButton: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.secondary, borderWidth: 1, borderColor: colors.border },
+  secondaryButton: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.sm,
+    backgroundColor: colors.secondary,
+    borderWidth: 1,
+    borderColor: colors.border
+  },
   secondaryButtonText: { color: colors.secondaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
 
   finePrint: { marginTop: spacing.sm, fontSize: typography.small, color: colors.mutedText, textAlign: "center" },
+
   disabled: { opacity: 0.6 },
   pressed: { opacity: 0.85 }
 });
