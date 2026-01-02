@@ -17,20 +17,16 @@ export default function App() {
     let subscription: { remove: () => void } | undefined;
 
     async function init() {
-      // Handle app opened from deep link
       const initialUrl = await Linking.getInitialURL();
       if (initialUrl) await handleAuthLink(initialUrl);
 
-      // Listen for links while running
       subscription = Linking.addEventListener("url", async ({ url }) => {
         await handleAuthLink(url);
       });
 
-      // Load session
       const { data } = await supabase.auth.getSession();
       setSession(data.session);
 
-      // Sync session changes
       supabase.auth.onAuthStateChange((_event, sess) => {
         setSession(sess);
       });
@@ -55,8 +51,7 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      {/* Step 9.2: show auth flow when not logged in */}
-      {!session ? <AuthStack /> : <AuthStack /> /* temp: we’ll replace with AppStack in Step 10 */}
+      {!session ? <AuthStack /> : <AuthStack /> /* Step 10: replace with AppStack */}
     </NavigationContainer>
   );
 }
