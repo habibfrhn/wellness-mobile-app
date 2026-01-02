@@ -3,6 +3,7 @@ import { View, Text, Pressable, StyleSheet } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../../navigation/types";
 import { colors, spacing, radius, typography } from "../../theme/tokens";
+import { id } from "../../i18n/strings";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Welcome">;
 
@@ -10,31 +11,23 @@ export default function WelcomeScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
       <View style={{ gap: spacing.sm }}>
-        <Text style={styles.title}>Wellness</Text>
-        <Text style={styles.subtitle}>
-          Verify once. Then you can play tonight.
-        </Text>
+        <Text style={styles.title}>{id.welcome.title}</Text>
+        <Text style={styles.subtitle}>{id.welcome.subtitle}</Text>
       </View>
 
       <View style={{ gap: spacing.sm, marginTop: spacing.lg }}>
         <Pressable
           onPress={() => navigation.navigate("SignUp")}
-          style={({ pressed }) => [
-            styles.primaryButton,
-            pressed && styles.pressed
-          ]}
+          style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}
         >
-          <Text style={styles.primaryButtonText}>Sign up to start tonight</Text>
+          <Text style={styles.primaryButtonText}>{id.welcome.primaryCta}</Text>
         </Pressable>
 
         <Pressable
           onPress={() => navigation.navigate("Login")}
-          style={({ pressed }) => [
-            styles.secondaryButton,
-            pressed && styles.pressed
-          ]}
+          style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
         >
-          <Text style={styles.secondaryButtonText}>Log in</Text>
+          <Text style={styles.secondaryButtonText}>{id.welcome.secondaryCta}</Text>
         </Pressable>
       </View>
     </View>
@@ -84,7 +77,5 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     textAlign: "center"
   },
-  pressed: {
-    opacity: 0.85
-  }
+  pressed: { opacity: 0.85 }
 });

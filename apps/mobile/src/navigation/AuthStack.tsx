@@ -15,11 +15,11 @@ export default function AuthStack() {
   return (
     <Stack.Navigator screenOptions={{ headerTitleAlign: "center" }}>
       <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ title: "" }} />
-      <Stack.Screen name="SignUp" component={SignUpScreen} options={{ title: "Sign up" }} />
-      <Stack.Screen name="Login" component={LoginScreen} options={{ title: "Log in" }} />
-      <Stack.Screen name="VerifyEmail" component={VerifyEmailScreen} options={{ title: "Verify email" }} />
-      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ title: "Forgot password" }} />
-      <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} options={{ title: "Reset password" }} />
+      <Stack.Screen name="SignUp" component={SignUpScreen} options={{ title: "Daftar" }} />
+      <Stack.Screen name="Login" component={LoginScreen} options={{ title: "Masuk" }} />
+      <Stack.Screen name="VerifyEmail" component={VerifyEmailScreen} options={{ title: "Verifikasi email" }} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ title: "Lupa kata sandi" }} />
+      <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} options={{ title: "Atur ulang kata sandi" }} />
     </Stack.Navigator>
   );
 }
