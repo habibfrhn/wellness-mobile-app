@@ -16,6 +16,7 @@ function isValidEmail(email: string) {
 export default function SignUpScreen({ navigation, route }: Props) {
   const [email, setEmail] = useState(route.params?.initialEmail ?? "");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const canSubmit = useMemo(() => {
@@ -74,13 +75,23 @@ export default function SignUpScreen({ navigation, route }: Props) {
         </View>
 
         <View>
-          <Text style={styles.label}>{id.signup.passwordLabel}</Text>
+          <View style={styles.rowBetween}>
+            <Text style={styles.label}>{id.signup.passwordLabel}</Text>
+            <Pressable
+              onPress={() => setShowPassword((v) => !v)}
+              hitSlop={10}
+              style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]}
+            >
+              <Text style={styles.linkText}>{showPassword ? "Sembunyikan" : "Lihat"}</Text>
+            </Pressable>
+          </View>
+
           <TextInput
             value={password}
             onChangeText={setPassword}
             autoCapitalize="none"
             autoCorrect={false}
-            secureTextEntry
+            secureTextEntry={!showPassword}
             placeholder={id.signup.passwordPlaceholder}
             placeholderTextColor={colors.mutedText}
             style={styles.input}
@@ -129,10 +140,20 @@ const styles = StyleSheet.create({
     color: colors.text,
     backgroundColor: colors.secondary
   },
+  rowBetween: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between"
+  },
+  linkButton: { paddingVertical: spacing.xs, paddingHorizontal: spacing.xs },
+  linkText: { color: colors.text, fontSize: typography.small, fontWeight: "700" },
+
   primaryButton: { marginTop: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.primary },
   primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
+
   secondaryButton: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.secondary, borderWidth: 1, borderColor: colors.border },
   secondaryButtonText: { color: colors.secondaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
+
   finePrint: { marginTop: spacing.sm, fontSize: typography.small, color: colors.mutedText, textAlign: "center" },
   disabled: { opacity: 0.6 },
   pressed: { opacity: 0.85 }
