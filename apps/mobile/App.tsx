@@ -1,51 +1,38 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ActivityIndicator } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import * as Linking from "expo-linking";
+import { NavigationContainer } from "@react-navigation/native";
 
 import { supabase } from "./src/services/supabase";
 import { handleAuthLink } from "./src/services/authLinks";
+import AuthStack from "./src/navigation/AuthStack";
 
 export default function App() {
   const [ready, setReady] = useState(false);
-  const [email, setEmail] = useState<string | null>(null);
-  const [status, setStatus] = useState<string>("");
+  const [session, setSession] = useState<Awaited<
+    ReturnType<typeof supabase.auth.getSession>
+  >["data"]["session"]>(null);
 
   useEffect(() => {
     let subscription: { remove: () => void } | undefined;
 
     async function init() {
-      // 1) Handle app opened via a deep link (verification/reset)
+      // Handle app opened from deep link
       const initialUrl = await Linking.getInitialURL();
-      if (initialUrl) {
-        const res = await handleAuthLink(initialUrl);
-        if (res.handled) {
-          setStatus(
-            res.ok
-              ? `Auth link handled: ${res.path}`
-              : `Auth link error: ${res.error}`
-          );
-        }
-      }
+      if (initialUrl) await handleAuthLink(initialUrl);
 
-      // 2) Handle deep links while app is running
+      // Listen for links while running
       subscription = Linking.addEventListener("url", async ({ url }) => {
-        const res = await handleAuthLink(url);
-        if (res.handled) {
-          setStatus(
-            res.ok
-              ? `Auth link handled: ${res.path}`
-              : `Auth link error: ${res.error}`
-          );
-        }
+        await handleAuthLink(url);
       });
 
-      // 3) Load existing session from secure storage
+      // Load session
       const { data } = await supabase.auth.getSession();
-      setEmail(data.session?.user?.email ?? null);
+      setSession(data.session);
 
-      // 4) Keep UI in sync with auth changes
-      supabase.auth.onAuthStateChange((_event, session) => {
-        setEmail(session?.user?.email ?? null);
+      // Sync session changes
+      supabase.auth.onAuthStateChange((_event, sess) => {
+        setSession(sess);
       });
 
       setReady(true);
@@ -67,20 +54,9 @@ export default function App() {
   }
 
   return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24 }}>
-      <Text style={{ fontSize: 18, textAlign: "center" }}>
-        {email ? `Logged in as: ${email}` : "Not logged in"}
-      </Text>
-
-      {status ? (
-        <Text style={{ marginTop: 12, textAlign: "center", opacity: 0.7 }}>
-          {status}
-        </Text>
-      ) : null}
-
-      <Text style={{ marginTop: 18, textAlign: "center", opacity: 0.6 }}>
-        Step 8.3: Deep links wired. Next: build auth screens (signup/login/verify/reset).
-      </Text>
-    </View>
+    <NavigationContainer>
+      {/* Step 9.2: show auth flow when not logged in */}
+      {!session ? <AuthStack /> : <AuthStack /> /* temp: we’ll replace with AppStack in Step 10 */}
+    </NavigationContainer>
   );
 }
