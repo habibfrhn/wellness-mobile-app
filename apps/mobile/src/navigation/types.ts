@@ -1,8 +1,12 @@
 export type AuthStackParamList = {
   Welcome: undefined;
-  SignUp: undefined;
-  Login: undefined;
+  SignUp: { initialEmail?: string } | undefined;
+  Login: { initialEmail?: string } | undefined;
   VerifyEmail: { email: string };
-  ForgotPassword: undefined;
+  ForgotPassword: { initialEmail?: string } | undefined;
   ResetPassword: undefined;
+};
+
+export type AppStackParamList = {
+  Home: undefined;
 };

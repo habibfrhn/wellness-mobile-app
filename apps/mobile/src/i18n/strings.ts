@@ -1,6 +1,18 @@
 export const id = {
   appName: "Wellness",
 
+  common: {
+    ok: "OK",
+    invalidEmail: "Email tidak valid",
+    invalidEmailBody: "Masukkan alamat email yang benar.",
+    weakPassword: "Kata sandi terlalu lemah",
+    weakPasswordBody: "Kata sandi minimal 8 karakter.",
+    passwordsNotMatch: "Kata sandi tidak sama",
+    passwordsNotMatchBody: "Pastikan kedua kata sandi sama.",
+    errorTitle: "Terjadi kesalahan",
+    tryAgain: "Silakan coba lagi."
+  },
+
   welcome: {
     title: "Selamat datang",
     subtitle: "Verifikasi sekali. Setelah itu, Anda bisa mulai sesi kapan pun.",
@@ -25,6 +37,12 @@ export const id = {
     title: "Masuk",
     subtitle:
       "Jika email Anda belum terverifikasi, kami akan mengarahkan Anda ke halaman verifikasi.",
+    emailLabel: "Email",
+    passwordLabel: "Kata sandi",
+    emailPlaceholder: "anda@email.com",
+    passwordPlaceholder: "Kata sandi Anda",
+    primaryCta: "Masuk",
+    busyCta: "Memproses...",
     forgot: "Lupa kata sandi",
     create: "Buat akun"
   },
@@ -34,36 +52,42 @@ export const id = {
     subtitle: "Kami mengirim tautan verifikasi ke:",
     openEmail: "Buka aplikasi email",
     resend: "Kirim ulang email",
+    resendBusy: "Mengirim ulang...",
+    resendWait: "Tunggu",
     changeEmail: "Ganti email",
-    backToLogin: "Kembali ke masuk"
+    backToLogin: "Kembali ke masuk",
+    help: "Jika tidak masuk, cek folder Spam/Promosi dan tunggu 1–2 menit."
   },
 
   forgot: {
     title: "Lupa kata sandi",
     subtitle: "Kami akan mengirim tautan untuk mengatur ulang kata sandi lewat email.",
+    emailLabel: "Email",
+    emailPlaceholder: "anda@email.com",
     send: "Kirim email reset",
-    backToLogin: "Kembali ke masuk"
+    sending: "Mengirim...",
+    backToLogin: "Kembali ke masuk",
+    successTitle: "Email terkirim",
+    successBody: "Silakan cek email Anda untuk tautan reset kata sandi."
   },
 
   reset: {
     title: "Atur ulang kata sandi",
-    subtitle:
-      "Buka tautan reset dari email, lalu atur kata sandi baru di aplikasi.",
+    subtitle: "Masukkan kata sandi baru Anda.",
+    newPassword: "Kata sandi baru",
+    confirmPassword: "Ulangi kata sandi",
+    placeholderNew: "Minimal 8 karakter",
+    placeholderConfirm: "Ulangi kata sandi baru",
     set: "Simpan kata sandi baru",
-    backToLogin: "Kembali ke masuk"
+    saving: "Menyimpan...",
+    backToLogin: "Kembali ke masuk",
+    successTitle: "Berhasil",
+    successBody: "Kata sandi berhasil diperbarui. Silakan masuk kembali."
   },
 
-  placeholders: {
-    nextStepTitle: "Langkah berikutnya",
-    nextStepBodySignUp:
-      "Kami akan menambahkan input email + kata sandi, lalu memanggil Supabase signUp dengan redirect ke wellnessapp://auth/callback.",
-    nextStepBodyLogin:
-      "Kami akan menambahkan login (signInWithPassword) dan tautan Lupa kata sandi.",
-    nextStepBodyVerify:
-      "Kami akan implement: buka email, kirim ulang dengan cooldown, dan ganti email (MVP: daftar ulang dengan email baru).",
-    nextStepBodyForgot:
-      "Kami akan menambahkan input email dan memanggil resetPasswordForEmail dengan redirect wellnessapp://auth/reset.",
-    nextStepBodyReset:
-      "Setelah deep link ditangani, kami akan memanggil supabase.auth.updateUser({ password }) untuk menyimpan kata sandi baru."
+  home: {
+    title: "Beranda",
+    subtitle: "Anda sudah masuk.",
+    logout: "Keluar"
   }
 };
