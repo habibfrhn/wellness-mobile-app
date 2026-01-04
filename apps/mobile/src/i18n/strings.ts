@@ -10,14 +10,14 @@ export const id = {
     passwordsNotMatch: "Kata sandi tidak sama",
     passwordsNotMatchBody: "Pastikan kedua kata sandi sama.",
     errorTitle: "Terjadi kesalahan",
-    tryAgain: "Silakan coba lagi."
+    tryAgain: "Silakan coba lagi.",
   },
 
   welcome: {
     title: "Selamat datang",
     subtitle: "Verifikasi sekali. Setelah itu, Anda bisa mulai sesi kapan pun.",
     primaryCta: "Daftar untuk mulai",
-    secondaryCta: "Masuk"
+    secondaryCta: "Masuk",
   },
 
   signup: {
@@ -32,7 +32,7 @@ export const id = {
     primaryCta: "Buat akun",
     busyCta: "Membuat akun...",
     secondaryCta: "Sudah punya akun? Masuk",
-    finePrint: "Dengan melanjutkan, Anda menyetujui S&K dan Kebijakan Privasi."
+    finePrint: "Dengan melanjutkan, Anda menyetujui S&K dan Kebijakan Privasi.",
   },
 
   login: {
@@ -46,7 +46,7 @@ export const id = {
     primaryCta: "Masuk",
     busyCta: "Memproses...",
     forgot: "Lupa kata sandi",
-    create: "Buat akun"
+    create: "Buat akun",
   },
 
   verify: {
@@ -58,7 +58,7 @@ export const id = {
     resendWait: "Tunggu",
     changeEmail: "Ganti email",
     backToLogin: "Kembali ke masuk",
-    help: "Jika tidak masuk, cek folder Spam/Promosi dan tunggu 1–2 menit."
+    help: "Jika tidak masuk, cek folder Spam/Promosi dan tunggu 1–2 menit.",
   },
 
   forgot: {
@@ -70,7 +70,7 @@ export const id = {
     sending: "Mengirim...",
     backToLogin: "Kembali ke masuk",
     successTitle: "Email terkirim",
-    successBody: "Silakan cek email Anda untuk tautan reset kata sandi."
+    successBody: "Silakan cek email Anda untuk tautan reset kata sandi.",
   },
 
   reset: {
@@ -84,12 +84,30 @@ export const id = {
     saving: "Menyimpan...",
     backToLogin: "Kembali ke masuk",
     successTitle: "Berhasil",
-    successBody: "Kata sandi berhasil diperbarui. Silakan masuk kembali."
+    successBody: "Kata sandi berhasil diperbarui. Silakan masuk kembali.",
   },
 
   home: {
     title: "Beranda",
     subtitle: "Anda sudah masuk.",
-    logout: "Keluar"
-  }
+    logout: "Keluar",
+  },
+
+  account: {
+    title: "Akun",
+    emailLabel: "Email",
+    logout: "Keluar",
+    deleteTitle: "Hapus akun",
+    deleteWarning:
+      "Aksi ini permanen. Data akun Anda akan dihapus dan tidak dapat dipulihkan.",
+    deleteTypeLabel: 'Ketik "HAPUS" untuk konfirmasi',
+    deletePlaceholder: "HAPUS",
+    deleteFinal: "Hapus akun permanen",
+    deleting: "Menghapus...",
+    deletedTitle: "Akun dihapus",
+    deletedBody: "Akun Anda berhasil dihapus.",
+    confirmLogoutTitle: "Keluar?",
+    confirmLogoutBody: "Anda yakin ingin keluar?",
+    cancel: "Batal",
+  },
 };
