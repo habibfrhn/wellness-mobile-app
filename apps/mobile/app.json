@@ -1,12 +1,13 @@
 {
   "expo": {
     "name": "Wellness",
-    "slug": "wellness",
+    "slug": "wellnessapp",
+    "scheme": "wellnessapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "scheme": "wellnessapp",
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -14,10 +15,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.wellnessmobileapp.app"
+      "bundleIdentifier": "com.wellnessapp.mobile"
     },
     "android": {
-      "package": "com.wellnessmobileapp.app",
+      "package": "com.wellnessapp.mobile",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -25,8 +26,10 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
+    "extra": {
+      "eas": {
+        "projectId": "03b17f91-5b62-4954-98b7-f4b70a8ec29f"
+      }
     }
   }
 }
