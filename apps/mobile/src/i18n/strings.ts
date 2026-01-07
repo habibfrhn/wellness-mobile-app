@@ -87,10 +87,24 @@ export const id = {
     successBody: "Kata sandi berhasil diperbarui. Silakan masuk kembali.",
   },
 
+  // UPDATED to match the new audio-library Home screen
   home: {
-    title: "Beranda",
-    subtitle: "Anda sudah masuk.",
-    logout: "Keluar",
+    title: "Audio untuk Malam Ini",
+    subtitle: "Pilih yang paling sesuai dengan kondisi Anda sekarang.",
+    durationBadge: "5 menit",
+    noteNoAutoplay: "Tidak ada autoplay. Anda yang memulai saat sudah siap.",
+  },
+
+  // NEW: Player strings
+  player: {
+    back: "Kembali",
+    timerLabel: "Timer",
+    timerOff: "Off",
+    timerEnd: "Akhiri saat selesai",
+    restart: "Ulang dari awal",
+    start: "Mulai",
+    pause: "Pause",
+    noteNoAutoplay: "Audio tidak diputar otomatis. Anda yang memulai saat sudah siap.",
   },
 
   account: {
