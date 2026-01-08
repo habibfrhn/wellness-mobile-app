@@ -10,7 +10,7 @@ export const colors = {
   secondary: "#FFFFFF",
   secondaryText: "#111111",
 
-  danger: "#B00020"
+  danger: "#B00020",
 };
 
 export const spacing = {
@@ -18,18 +18,18 @@ export const spacing = {
   sm: 12,
   md: 16,
   lg: 24,
-  xl: 32
+  xl: 32,
 };
 
 export const radius = {
   sm: 10,
   md: 14,
-  lg: 18
+  lg: 18,
 };
 
 export const typography = {
   h1: 28,
   h2: 20,
   body: 16,
-  small: 14
+  small: 14,
 };

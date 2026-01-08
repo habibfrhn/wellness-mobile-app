@@ -1,5 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View, Text, Pressable, StyleSheet, Alert, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  Alert,
+  TextInput,
+  ScrollView,
+  Linking,
+  Platform,
+} from "react-native";
 import { colors, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
@@ -7,9 +17,21 @@ import { supabase } from "../../services/supabase";
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
+// Keep MVP simple: match apps/mobile/app.json ("version": "1.0.0")
+const APP_VERSION = "1.0.0";
+// Build is optional in MVP; keep "-" unless you want to manage it
+const APP_BUILD = Platform.OS === "android" ? "-" : "-";
+
+// Placeholders for MVP (replace later with real URLs)
+const PRIVACY_URL = "";
+const TERMS_URL = "";
+const SUPPORT_EMAIL = "support@wellnessapp.id";
+
 async function callDeleteAccount(accessToken: string) {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    throw new Error("Missing Supabase env (EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_ANON_KEY).");
+    throw new Error(
+      "Missing Supabase env (EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_ANON_KEY)."
+    );
   }
 
   const endpoint = `${SUPABASE_URL}/functions/v1/delete-account`;
@@ -17,9 +39,9 @@ async function callDeleteAccount(accessToken: string) {
   const res = await fetch(endpoint, {
     method: "POST",
     headers: {
-    "Content-Type": "application/json",
-    apikey: SUPABASE_ANON_KEY,
-    "x-user-jwt": accessToken
+      "Content-Type": "application/json",
+      apikey: SUPABASE_ANON_KEY,
+      "x-user-jwt": accessToken,
     },
     body: JSON.stringify({}),
   });
@@ -33,7 +55,6 @@ async function callDeleteAccount(accessToken: string) {
   }
 
   if (!res.ok) {
-    // Prefer { error: "..."}; otherwise show raw or {message:"..."}
     const msg =
       parsed?.error ||
       parsed?.message ||
@@ -45,10 +66,37 @@ async function callDeleteAccount(accessToken: string) {
   return parsed ?? { ok: true };
 }
 
+async function safeOpenUrl(url: string) {
+  try {
+    if (!url) {
+      Alert.alert(id.account.comingSoonTitle, id.account.comingSoonBody);
+      return;
+    }
+    const can = await Linking.canOpenURL(url);
+    if (!can) {
+      Alert.alert(id.common.errorTitle, id.account.openLinkFailed);
+      return;
+    }
+    await Linking.openURL(url);
+  } catch {
+    Alert.alert(id.common.errorTitle, id.account.openLinkFailed);
+  }
+}
+
+async function safeOpenEmail(email: string) {
+  const mailto = `mailto:${email}`;
+  await safeOpenUrl(mailto);
+}
+
 export default function AccountScreen() {
   const [emailValue, setEmailValue] = useState<string>("");
   const [confirmText, setConfirmText] = useState("");
   const [busyDelete, setBusyDelete] = useState(false);
+
+  const appMeta = useMemo(
+    () => ({ version: APP_VERSION, build: APP_BUILD }),
+    []
+  );
 
   useEffect(() => {
     let mounted = true;
@@ -89,17 +137,19 @@ export default function AccountScreen() {
     Alert.alert(id.account.deleteTitle, id.account.deleteWarning, [
       { text: id.account.cancel, style: "cancel" },
       {
-        text: "Lanjut",
+        text: id.account.deleteContinue,
         style: "destructive",
         onPress: async () => {
           if (!canDelete) {
-            Alert.alert("Konfirmasi belum valid", 'Ketik "HAPUS" untuk melanjutkan.');
+            Alert.alert(id.account.deleteConfirmTitle, id.account.deleteConfirmBody);
             return;
           }
 
           setBusyDelete(true);
           try {
-            const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
+            const { data: sessionData, error: sessionErr } =
+              await supabase.auth.getSession();
+
             if (sessionErr) {
               Alert.alert(id.common.errorTitle, sessionErr.message);
               return;
@@ -107,7 +157,7 @@ export default function AccountScreen() {
 
             const accessToken = sessionData.session?.access_token;
             if (!accessToken) {
-              Alert.alert(id.common.errorTitle, "Sesi tidak ditemukan. Silakan masuk kembali.");
+              Alert.alert(id.common.errorTitle, id.account.sessionMissing);
               return;
             }
 
@@ -132,9 +182,58 @@ export default function AccountScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.sectionTitle}>{id.account.emailLabel}</Text>
-      <Text style={styles.email}>{emailValue || "-"}</Text>
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={styles.container}
+      keyboardShouldPersistTaps="handled"
+    >
+      <View>
+        <Text style={styles.sectionTitle}>{id.account.emailLabel}</Text>
+        <Text style={styles.email}>{emailValue || "-"}</Text>
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>{id.account.aboutTitle}</Text>
+
+        <View style={styles.metaRow}>
+          <Text style={styles.metaLabel}>{id.account.versionLabel}</Text>
+          <Text style={styles.metaValue}>{appMeta.version}</Text>
+        </View>
+
+        <View style={styles.metaRow}>
+          <Text style={styles.metaLabel}>{id.account.buildLabel}</Text>
+          <Text style={styles.metaValue}>{appMeta.build}</Text>
+        </View>
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>{id.account.legalTitle}</Text>
+
+        <Pressable
+          onPress={() => safeOpenUrl(PRIVACY_URL)}
+          style={({ pressed }) => [styles.linkRow, pressed && styles.pressed]}
+          hitSlop={8}
+        >
+          <Text style={styles.linkText}>{id.account.privacy}</Text>
+        </Pressable>
+
+        <Pressable
+          onPress={() => safeOpenUrl(TERMS_URL)}
+          style={({ pressed }) => [styles.linkRow, pressed && styles.pressed]}
+          hitSlop={8}
+        >
+          <Text style={styles.linkText}>{id.account.terms}</Text>
+        </Pressable>
+
+        <Pressable
+          onPress={() => safeOpenEmail(SUPPORT_EMAIL)}
+          style={({ pressed }) => [styles.linkRow, pressed && styles.pressed]}
+          hitSlop={8}
+        >
+          <Text style={styles.linkText}>{id.account.support}</Text>
+          <Text style={styles.linkSub}>{SUPPORT_EMAIL}</Text>
+        </Pressable>
+      </View>
 
       <View style={styles.card}>
         <Text style={styles.cardTitle}>{id.account.deleteTitle}</Text>
@@ -172,17 +271,23 @@ export default function AccountScreen() {
       >
         <Text style={styles.secondaryButtonText}>{id.account.logout}</Text>
       </Pressable>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: spacing.lg, backgroundColor: colors.bg, gap: spacing.md },
+  screen: { flex: 1, backgroundColor: colors.bg },
+  container: {
+    padding: spacing.lg,
+    backgroundColor: colors.bg,
+    gap: spacing.md,
+    paddingBottom: spacing.xl,
+  },
+
   sectionTitle: { fontSize: typography.small, color: colors.mutedText, fontWeight: "700" },
   email: { fontSize: typography.body, color: colors.text, fontWeight: "700" },
 
   card: {
-    marginTop: spacing.sm,
     padding: spacing.md,
     borderRadius: radius.sm,
     backgroundColor: colors.secondary,
@@ -192,6 +297,22 @@ const styles = StyleSheet.create({
   },
   cardTitle: { fontSize: typography.body, color: colors.text, fontWeight: "800" },
   cardBody: { fontSize: typography.small, color: colors.mutedText, lineHeight: 20 },
+
+  metaRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  metaLabel: { fontSize: typography.small, color: colors.mutedText, fontWeight: "700" },
+  metaValue: { fontSize: typography.small, color: colors.text, fontWeight: "800" },
+
+  linkRow: {
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.bg,
+    gap: 4,
+  },
+  linkText: { fontSize: typography.body, color: colors.text, fontWeight: "800" },
+  linkSub: { fontSize: typography.small, color: colors.mutedText },
 
   label: { fontSize: typography.small, color: colors.text, fontWeight: "700" },
   input: {
@@ -210,12 +331,16 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     borderRadius: radius.sm,
-    backgroundColor: "#B00020",
+    backgroundColor: colors.danger,
   },
-  dangerButtonText: { color: "#fff", fontSize: typography.body, fontWeight: "800", textAlign: "center" },
+  dangerButtonText: {
+    color: colors.primaryText,
+    fontSize: typography.body,
+    fontWeight: "800",
+    textAlign: "center",
+  },
 
   secondaryButton: {
-    marginTop: spacing.sm,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     borderRadius: radius.sm,

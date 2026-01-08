@@ -4,8 +4,8 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import type { AppStackParamList } from "./types";
 
 import HomeScreen from "../screens/App/HomeScreen";
-import AccountScreen from "../screens/App/AccountScreen";
 import PlayerScreen from "../screens/App/PlayerScreen";
+import AccountScreen from "../screens/App/AccountScreen";
 import { colors, typography, spacing } from "../theme/tokens";
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
@@ -21,7 +21,10 @@ export default function AppStack() {
           headerRight: () => (
             <Pressable
               onPress={() => navigation.navigate("Account")}
-              style={({ pressed }) => ({ opacity: pressed ? 0.75 : 1, paddingHorizontal: spacing.sm })}
+              style={({ pressed }) => ({
+                opacity: pressed ? 0.75 : 1,
+                paddingHorizontal: spacing.sm,
+              })}
               hitSlop={10}
             >
               <Text style={{ color: colors.text, fontSize: typography.small, fontWeight: "700" }}>
@@ -32,7 +35,12 @@ export default function AppStack() {
         })}
       />
 
-      <Stack.Screen name="Player" component={PlayerScreen} options={{ title: "Audio" }} />
+      <Stack.Screen
+        name="Player"
+        component={PlayerScreen}
+        options={{ title: "" }}
+      />
+
       <Stack.Screen name="Account" component={AccountScreen} options={{ title: "Akun" }} />
     </Stack.Navigator>
   );

@@ -2,7 +2,8 @@ export type AudioId =
   | "napas-pelan"
   | "body-scan"
   | "pikiran-tenang"
-  | "cerita-tidur";
+  | "cerita-menenangkan"
+  | "cerita-untuk-tidur";
 
 export type AudioTrack = {
   id: AudioId;
@@ -37,18 +38,27 @@ export const AUDIO_TRACKS = [
     id: "pikiran-tenang",
     order: 3,
     title: "Pikiran Tenang",
-    subtitle: "Cocok saat pikiran ramai",
+    subtitle: "Cocok saat pikiran terasa ramai",
     durationSec: 5 * 60,
     asset: require("../../assets/audio/03-pikiran-tenang-5m.m4a"),
     isPremium: false,
   },
   {
-    id: "cerita-tidur",
+    id: "cerita-menenangkan",
     order: 4,
-    title: "Cerita Tidur",
-    subtitle: "Cocok saat ingin ditemani sampai ngantuk",
+    title: "Cerita Menenangkan",
+    subtitle: "Cocok saat ingin ditemani sampai mengantuk",
     durationSec: 5 * 60,
-    asset: require("../../assets/audio/04-cerita-tidur-5m.m4a"),
+    asset: require("../../assets/audio/04-cerita-menenangkan-5m.m4a"),
+    isPremium: false,
+  },
+  {
+    id: "cerita-untuk-tidur",
+    order: 5,
+    title: "Cerita Untuk Tidur",
+    subtitle: "Cocok saat pikiran butuh jeda sebelum tidur",
+    durationSec: 5 * 60,
+    asset: require("../../assets/audio/05-cerita-untuk-tidur-5m.m4a"),
     isPremium: false,
   },
 ] satisfies AudioTrack[];

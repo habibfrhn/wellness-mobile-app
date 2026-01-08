@@ -87,41 +87,59 @@ export const id = {
     successBody: "Kata sandi berhasil diperbarui. Silakan masuk kembali.",
   },
 
-  // UPDATED to match the new audio-library Home screen
   home: {
-    title: "Audio untuk Malam Ini",
-    subtitle: "Pilih yang paling sesuai dengan kondisi Anda sekarang.",
+    title: "Beranda",
+    subtitle: "Pilih sesi singkat untuk menutup hari dengan lebih tenang.",
     durationBadge: "5 menit",
-    noteNoAutoplay: "Tidak ada autoplay. Anda yang memulai saat sudah siap.",
+    continueLabel: "Lanjutkan",
+    continueFrom: "Mulai dari",
+    noteNoAutoplay: "Audio tidak diputar otomatis. Anda yang memulai saat sudah siap.",
   },
 
-  // NEW: Player strings
   player: {
     back: "Kembali",
-    timerLabel: "Timer",
-    timerOff: "Off",
-    timerEnd: "Akhiri saat selesai",
-    restart: "Ulang dari awal",
     start: "Mulai",
     pause: "Pause",
-    noteNoAutoplay: "Audio tidak diputar otomatis. Anda yang memulai saat sudah siap.",
+    restart: "Ulang dari awal",
+    timerLabel: "Timer",
+    timerOff: "Off",
+    timerEnd: "Akhiri saat audio selesai",
+    noteNoAutoplay: "Tidak ada autoplay. Tekan Mulai jika Anda ingin memutar audio.",
   },
 
   account: {
     title: "Akun",
     emailLabel: "Email",
+
+    aboutTitle: "Tentang aplikasi",
+    versionLabel: "Versi",
+    buildLabel: "Build",
+
+    legalTitle: "Legal & bantuan",
+    privacy: "Kebijakan Privasi",
+    terms: "Syarat & Ketentuan",
+    support: "Kontak dukungan",
+    openLinkFailed: "Tidak bisa membuka tautan di perangkat ini.",
+    comingSoonTitle: "Belum tersedia",
+    comingSoonBody: "Tautan ini akan kami tambahkan pada versi berikutnya.",
+
     logout: "Keluar",
+    confirmLogoutTitle: "Keluar?",
+    confirmLogoutBody: "Anda yakin ingin keluar?",
+    cancel: "Batal",
+
     deleteTitle: "Hapus akun",
-    deleteWarning:
-      "Aksi ini permanen. Data akun Anda akan dihapus dan tidak dapat dipulihkan.",
+    deleteWarning: "Aksi ini permanen. Data akun Anda akan dihapus dan tidak dapat dipulihkan.",
     deleteTypeLabel: 'Ketik "HAPUS" untuk konfirmasi',
     deletePlaceholder: "HAPUS",
     deleteFinal: "Hapus akun permanen",
     deleting: "Menghapus...",
     deletedTitle: "Akun dihapus",
     deletedBody: "Akun Anda berhasil dihapus.",
-    confirmLogoutTitle: "Keluar?",
-    confirmLogoutBody: "Anda yakin ingin keluar?",
-    cancel: "Batal",
+
+    deleteContinue: "Lanjut",
+    deleteConfirmTitle: "Konfirmasi belum valid",
+    deleteConfirmBody: 'Ketik "HAPUS" untuk melanjutkan.',
+    sessionMissing: "Sesi tidak ditemukan. Silakan masuk kembali.",
   },
 };
