@@ -38,7 +38,11 @@ export default function AppStack() {
       <Stack.Screen
         name="Player"
         component={PlayerScreen}
-        options={{ title: "" }}
+        options={{
+          // Player already provides its own header row (Kembali + Timer).
+          // Hide native header to keep UX clean.
+          headerShown: false,
+        }}
       />
 
       <Stack.Screen name="Account" component={AccountScreen} options={{ title: "Akun" }} />

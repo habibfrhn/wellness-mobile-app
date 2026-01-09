@@ -25,7 +25,7 @@
         "expo-navigation-bar",
         {
           "backgroundColor": "#000000",
-          "barStyle": "light-content",
+          "barStyle": "light",
           "visibility": "visible"
         }
       ]
@@ -45,6 +45,12 @@
       },
       "edgeToEdgeEnabled": false,
       "predictiveBackGestureEnabled": false
+    },
+    "updates": {
+      "url": "https://u.expo.dev/03b17f91-5b62-4954-98b7-f4b70a8ec29f"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
     },
     "extra": {
       "eas": {

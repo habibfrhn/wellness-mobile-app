@@ -10,6 +10,7 @@ import {
   Linking,
   Platform,
 } from "react-native";
+import * as Updates from "expo-updates";
 import { colors, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
@@ -29,9 +30,7 @@ const SUPPORT_EMAIL = "support@wellnessapp.id";
 
 async function callDeleteAccount(accessToken: string) {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    throw new Error(
-      "Missing Supabase env (EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_ANON_KEY)."
-    );
+    throw new Error("Missing Supabase env (EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_ANON_KEY).");
   }
 
   const endpoint = `${SUPABASE_URL}/functions/v1/delete-account`;
@@ -55,11 +54,7 @@ async function callDeleteAccount(accessToken: string) {
   }
 
   if (!res.ok) {
-    const msg =
-      parsed?.error ||
-      parsed?.message ||
-      text ||
-      `Edge function failed with status ${res.status}`;
+    const msg = parsed?.error || parsed?.message || text || `Edge function failed with status ${res.status}`;
     throw new Error(msg);
   }
 
@@ -69,17 +64,20 @@ async function callDeleteAccount(accessToken: string) {
 async function safeOpenUrl(url: string) {
   try {
     if (!url) {
-      Alert.alert(id.account.comingSoonTitle, id.account.comingSoonBody);
+      Alert.alert(
+        "Belum tersedia",
+        "Bagian ini belum tersedia di MVP. Akan kami lengkapi pada rilis berikutnya."
+      );
       return;
     }
     const can = await Linking.canOpenURL(url);
     if (!can) {
-      Alert.alert(id.common.errorTitle, id.account.openLinkFailed);
+      Alert.alert(id.common.errorTitle, "Tidak bisa membuka tautan.");
       return;
     }
     await Linking.openURL(url);
   } catch {
-    Alert.alert(id.common.errorTitle, id.account.openLinkFailed);
+    Alert.alert(id.common.errorTitle, "Tidak bisa membuka tautan.");
   }
 }
 
@@ -93,9 +91,21 @@ export default function AccountScreen() {
   const [confirmText, setConfirmText] = useState("");
   const [busyDelete, setBusyDelete] = useState(false);
 
+  const updateChannel = useMemo(() => {
+    // expo-updates: channel should exist when using EAS Update channels.
+    // Keep safe fallbacks for Expo Go / older runtime cases.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const anyUpdates = Updates as any;
+    return (anyUpdates?.channel ?? anyUpdates?.releaseChannel ?? "-") as string;
+  }, []);
+
   const appMeta = useMemo(
-    () => ({ version: APP_VERSION, build: APP_BUILD }),
-    []
+    () => ({
+      version: APP_VERSION,
+      build: APP_BUILD,
+      channel: updateChannel,
+    }),
+    [updateChannel]
   );
 
   useEffect(() => {
@@ -137,19 +147,17 @@ export default function AccountScreen() {
     Alert.alert(id.account.deleteTitle, id.account.deleteWarning, [
       { text: id.account.cancel, style: "cancel" },
       {
-        text: id.account.deleteContinue,
+        text: "Lanjut",
         style: "destructive",
         onPress: async () => {
           if (!canDelete) {
-            Alert.alert(id.account.deleteConfirmTitle, id.account.deleteConfirmBody);
+            Alert.alert("Konfirmasi belum valid", 'Ketik "HAPUS" untuk melanjutkan.');
             return;
           }
 
           setBusyDelete(true);
           try {
-            const { data: sessionData, error: sessionErr } =
-              await supabase.auth.getSession();
-
+            const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
             if (sessionErr) {
               Alert.alert(id.common.errorTitle, sessionErr.message);
               return;
@@ -157,7 +165,7 @@ export default function AccountScreen() {
 
             const accessToken = sessionData.session?.access_token;
             if (!accessToken) {
-              Alert.alert(id.common.errorTitle, id.account.sessionMissing);
+              Alert.alert(id.common.errorTitle, "Sesi tidak ditemukan. Silakan masuk kembali.");
               return;
             }
 
@@ -193,28 +201,46 @@ export default function AccountScreen() {
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>{id.account.aboutTitle}</Text>
+        <Text style={styles.cardTitle}>Tentang aplikasi</Text>
 
         <View style={styles.metaRow}>
-          <Text style={styles.metaLabel}>{id.account.versionLabel}</Text>
+          <Text style={styles.metaLabel}>Versi</Text>
           <Text style={styles.metaValue}>{appMeta.version}</Text>
         </View>
 
         <View style={styles.metaRow}>
-          <Text style={styles.metaLabel}>{id.account.buildLabel}</Text>
+          <Text style={styles.metaLabel}>Build</Text>
           <Text style={styles.metaValue}>{appMeta.build}</Text>
+        </View>
+
+        <View style={styles.metaRow}>
+          <Text style={styles.metaLabel}>Channel</Text>
+          <Text style={styles.metaValue}>{appMeta.channel}</Text>
         </View>
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>{id.account.legalTitle}</Text>
+        <Text style={styles.cardTitle}>Bantuan</Text>
+        <Text style={styles.cardBody}>
+          Audio tidak diputar otomatis. Anda bisa menekan tombol “Mulai” saat sudah siap.
+        </Text>
+        <Text style={styles.cardBody}>
+          Jika verifikasi email belum masuk, cek folder Spam/Promosi dan tunggu 1–2 menit. Anda juga bisa kirim ulang dari layar verifikasi.
+        </Text>
+        <Text style={styles.cardBody}>
+          Jika terjadi error saat pemutaran, coba tutup aplikasi lalu buka lagi. Untuk build “preview/production”, update kecil bisa dikirim lewat EAS Update.
+        </Text>
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Legal</Text>
 
         <Pressable
           onPress={() => safeOpenUrl(PRIVACY_URL)}
           style={({ pressed }) => [styles.linkRow, pressed && styles.pressed]}
           hitSlop={8}
         >
-          <Text style={styles.linkText}>{id.account.privacy}</Text>
+          <Text style={styles.linkText}>Kebijakan Privasi</Text>
         </Pressable>
 
         <Pressable
@@ -222,7 +248,7 @@ export default function AccountScreen() {
           style={({ pressed }) => [styles.linkRow, pressed && styles.pressed]}
           hitSlop={8}
         >
-          <Text style={styles.linkText}>{id.account.terms}</Text>
+          <Text style={styles.linkText}>Syarat & Ketentuan</Text>
         </Pressable>
 
         <Pressable
@@ -230,7 +256,7 @@ export default function AccountScreen() {
           style={({ pressed }) => [styles.linkRow, pressed && styles.pressed]}
           hitSlop={8}
         >
-          <Text style={styles.linkText}>{id.account.support}</Text>
+          <Text style={styles.linkText}>Dukungan</Text>
           <Text style={styles.linkSub}>{SUPPORT_EMAIL}</Text>
         </Pressable>
       </View>

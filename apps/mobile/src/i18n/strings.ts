@@ -111,25 +111,16 @@ export const id = {
     title: "Akun",
     emailLabel: "Email",
 
-    aboutTitle: "Tentang aplikasi",
-    versionLabel: "Versi",
-    buildLabel: "Build",
-
-    legalTitle: "Legal & bantuan",
-    privacy: "Kebijakan Privasi",
-    terms: "Syarat & Ketentuan",
-    support: "Kontak dukungan",
-    openLinkFailed: "Tidak bisa membuka tautan di perangkat ini.",
-    comingSoonTitle: "Belum tersedia",
-    comingSoonBody: "Tautan ini akan kami tambahkan pada versi berikutnya.",
-
+    // Existing logout strings already used in AccountScreen
     logout: "Keluar",
     confirmLogoutTitle: "Keluar?",
     confirmLogoutBody: "Anda yakin ingin keluar?",
     cancel: "Batal",
 
+    // Delete account (used in AccountScreen)
     deleteTitle: "Hapus akun",
-    deleteWarning: "Aksi ini permanen. Data akun Anda akan dihapus dan tidak dapat dipulihkan.",
+    deleteWarning:
+      "Aksi ini permanen. Data akun Anda akan dihapus dan tidak dapat dipulihkan.",
     deleteTypeLabel: 'Ketik "HAPUS" untuk konfirmasi',
     deletePlaceholder: "HAPUS",
     deleteFinal: "Hapus akun permanen",
@@ -137,6 +128,27 @@ export const id = {
     deletedTitle: "Akun dihapus",
     deletedBody: "Akun Anda berhasil dihapus.",
 
+    // Added for consistency (so you can remove hardcoded AccountScreen copy cleanly next)
+    aboutTitle: "Tentang aplikasi",
+    versionLabel: "Versi",
+    buildLabel: "Build",
+    channelLabel: "Channel",
+
+    helpTitle: "Bantuan",
+    helpLine1: "Audio tidak diputar otomatis. Anda bisa menekan tombol “Mulai” saat sudah siap.",
+    helpLine2:
+      "Jika verifikasi email belum masuk, cek folder Spam/Promosi dan tunggu 1–2 menit. Anda juga bisa kirim ulang dari layar verifikasi.",
+    helpLine3:
+      "Jika terjadi error saat pemutaran, coba tutup aplikasi lalu buka lagi. Untuk build “preview/production”, update kecil bisa dikirim lewat EAS Update.",
+
+    legalTitle: "Legal",
+    privacy: "Kebijakan Privasi",
+    terms: "Syarat & Ketentuan",
+    support: "Dukungan",
+
+    comingSoonTitle: "Belum tersedia",
+    comingSoonBody: "Bagian ini belum tersedia di MVP. Akan kami lengkapi pada rilis berikutnya.",
+    openLinkFailed: "Tidak bisa membuka tautan.",
     deleteContinue: "Lanjut",
     deleteConfirmTitle: "Konfirmasi belum valid",
     deleteConfirmBody: 'Ketik "HAPUS" untuk melanjutkan.',
