@@ -1,12 +1,15 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { ActivityIndicator, Alert, View } from "react-native";
 import * as Linking from "expo-linking";
+import * as Updates from "expo-updates";
 import { NavigationContainer } from "@react-navigation/native";
 
 import { supabase } from "./src/services/supabase";
 import { handleAuthLink } from "./src/services/authLinks";
 import AuthStack from "./src/navigation/AuthStack";
 import AppStack from "./src/navigation/AppStack";
+import { id } from "./src/i18n/strings";
+import { setPendingUpdate } from "./src/services/updatesState";
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
 
@@ -16,6 +19,8 @@ export default function App() {
 
   // If user comes from reset link, force AuthStack to start at ResetPassword.
   const [forceReset, setForceReset] = useState(false);
+
+  const didCheckUpdatesRef = useRef(false);
 
   const isVerified = useMemo(() => {
     const user = session?.user;
@@ -60,6 +65,55 @@ export default function App() {
   useEffect(() => {
     if (!session) setForceReset(false);
   }, [session]);
+
+  // Check OTA updates once per launch (only for standalone/dev-client builds where updates are enabled).
+  useEffect(() => {
+    if (!ready) return;
+    if (didCheckUpdatesRef.current) return;
+    didCheckUpdatesRef.current = true;
+
+    if (!Updates.isEnabled) return;
+
+    (async () => {
+      try {
+        const update = await Updates.checkForUpdateAsync();
+        if (!update.isAvailable) {
+          await setPendingUpdate(false);
+          return;
+        }
+
+        Alert.alert(
+          id.account.updatesAvailableTitle,
+          id.account.updatesAvailableBody,
+          [
+            {
+              text: id.account.updatesLater,
+              style: "cancel",
+              onPress: async () => {
+                await setPendingUpdate(true);
+                Alert.alert(id.account.updatesLaterTitle, id.account.updatesLaterBody);
+              },
+            },
+            {
+              text: id.common.ok,
+              onPress: async () => {
+                try {
+                  await Updates.fetchUpdateAsync();
+                  await setPendingUpdate(false);
+                  await Updates.reloadAsync();
+                } catch {
+                  await setPendingUpdate(true);
+                  Alert.alert(id.common.errorTitle, id.account.updatesFailed);
+                }
+              },
+            },
+          ]
+        );
+      } catch {
+        // silent fail on startup; user can still manually check in Account
+      }
+    })();
+  }, [ready]);
 
   if (!ready) {
     return (

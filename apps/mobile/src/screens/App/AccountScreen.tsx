@@ -14,19 +14,38 @@ import * as Updates from "expo-updates";
 import { colors, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
+import { getPendingUpdate, setPendingUpdate } from "../../services/updatesState";
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
-// Keep MVP simple: match apps/mobile/app.json ("version": "1.0.0")
-const APP_VERSION = "1.0.0";
+// Read version from apps/mobile/app.json without expo-constants.
+// Safe fallback if bundler cannot resolve for some reason.
+function readAppVersionFromAppJson(): string {
+  try {
+    // AccountScreen.tsx is at apps/mobile/src/screens/App/AccountScreen.tsx
+    // "../../../app.json" -> apps/mobile/app.json
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const cfg = require("../../../app.json") as any;
+    const v = cfg?.expo?.version;
+    if (typeof v === "string" && v.trim().length > 0) return v.trim();
+    return "1.0.0";
+  } catch {
+    return "1.0.0";
+  }
+}
+
+const APP_VERSION = readAppVersionFromAppJson();
+
 // Build is optional in MVP; keep "-" unless you want to manage it
 const APP_BUILD = Platform.OS === "android" ? "-" : "-";
 
-// Placeholders for MVP (replace later with real URLs)
+// Replace with real hosted URLs when ready (recommended for store compliance).
 const PRIVACY_URL = "";
 const TERMS_URL = "";
-const SUPPORT_EMAIL = "support@wellnessapp.id";
+
+// Updated support email (your requested address)
+const SUPPORT_EMAIL = "habibfrhn@gmail.com";
 
 async function callDeleteAccount(accessToken: string) {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
@@ -64,20 +83,17 @@ async function callDeleteAccount(accessToken: string) {
 async function safeOpenUrl(url: string) {
   try {
     if (!url) {
-      Alert.alert(
-        "Belum tersedia",
-        "Bagian ini belum tersedia di MVP. Akan kami lengkapi pada rilis berikutnya."
-      );
+      Alert.alert(id.account.comingSoonTitle, id.account.comingSoonBody);
       return;
     }
     const can = await Linking.canOpenURL(url);
     if (!can) {
-      Alert.alert(id.common.errorTitle, "Tidak bisa membuka tautan.");
+      Alert.alert(id.common.errorTitle, id.account.openLinkFailed);
       return;
     }
     await Linking.openURL(url);
   } catch {
-    Alert.alert(id.common.errorTitle, "Tidak bisa membuka tautan.");
+    Alert.alert(id.common.errorTitle, id.account.openLinkFailed);
   }
 }
 
@@ -91,34 +107,54 @@ export default function AccountScreen() {
   const [confirmText, setConfirmText] = useState("");
   const [busyDelete, setBusyDelete] = useState(false);
 
+  const [busyUpdateCheck, setBusyUpdateCheck] = useState(false);
+  const [busyUpdateDownload, setBusyUpdateDownload] = useState(false);
+  const [hasPendingUpdate, setHasPendingUpdate] = useState(false);
+
   const updateChannel = useMemo(() => {
-    // expo-updates: channel should exist when using EAS Update channels.
+    // expo-updates: channel exists when using EAS Update channels.
     // Keep safe fallbacks for Expo Go / older runtime cases.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const anyUpdates = Updates as any;
     return (anyUpdates?.channel ?? anyUpdates?.releaseChannel ?? "-") as string;
+  }, []);
+
+  const runtimeVersion = useMemo(() => {
+    try {
+      const rv = (Updates as any)?.runtimeVersion;
+      if (typeof rv === "string" && rv.trim().length > 0) return rv.trim();
+      if (typeof rv === "number") return String(rv);
+      return "-";
+    } catch {
+      return "-";
+    }
   }, []);
 
   const appMeta = useMemo(
     () => ({
       version: APP_VERSION,
       build: APP_BUILD,
+      runtimeVersion,
       channel: updateChannel,
     }),
-    [updateChannel]
+    [updateChannel, runtimeVersion]
   );
 
   useEffect(() => {
     let mounted = true;
+
     (async () => {
       const { data, error } = await supabase.auth.getUser();
       if (!mounted) return;
       if (error) {
         setEmailValue("");
-        return;
+      } else {
+        setEmailValue(data.user?.email ?? "");
       }
-      setEmailValue(data.user?.email ?? "");
+
+      const pending = await getPendingUpdate();
+      if (mounted) setHasPendingUpdate(pending);
     })();
+
     return () => {
       mounted = false;
     };
@@ -147,11 +183,11 @@ export default function AccountScreen() {
     Alert.alert(id.account.deleteTitle, id.account.deleteWarning, [
       { text: id.account.cancel, style: "cancel" },
       {
-        text: "Lanjut",
+        text: id.account.deleteContinue,
         style: "destructive",
         onPress: async () => {
           if (!canDelete) {
-            Alert.alert("Konfirmasi belum valid", 'Ketik "HAPUS" untuk melanjutkan.');
+            Alert.alert(id.account.deleteConfirmTitle, id.account.deleteConfirmBody);
             return;
           }
 
@@ -165,7 +201,7 @@ export default function AccountScreen() {
 
             const accessToken = sessionData.session?.access_token;
             if (!accessToken) {
-              Alert.alert(id.common.errorTitle, "Sesi tidak ditemukan. Silakan masuk kembali.");
+              Alert.alert(id.common.errorTitle, id.account.sessionMissing);
               return;
             }
 
@@ -189,58 +225,171 @@ export default function AccountScreen() {
     ]);
   }
 
+  async function downloadAndReload() {
+    if (busyUpdateDownload) return;
+
+    // Updates may be disabled in Expo Go / dev environments.
+    if (!Updates.isEnabled) {
+      Alert.alert(id.account.updatesDisabledTitle, id.account.updatesDisabledBody);
+      return;
+    }
+
+    setBusyUpdateDownload(true);
+    try {
+      const update = await Updates.checkForUpdateAsync();
+      if (!update.isAvailable) {
+        await setPendingUpdate(false);
+        setHasPendingUpdate(false);
+        Alert.alert(id.account.updatesUpToDateTitle, id.account.updatesUpToDateBody);
+        return;
+      }
+
+      await Updates.fetchUpdateAsync();
+      await setPendingUpdate(false);
+      setHasPendingUpdate(false);
+      await Updates.reloadAsync();
+    } catch {
+      await setPendingUpdate(true);
+      setHasPendingUpdate(true);
+      Alert.alert(id.common.errorTitle, id.account.updatesFailed);
+    } finally {
+      setBusyUpdateDownload(false);
+    }
+  }
+
+  async function onCheckUpdates() {
+    if (busyUpdateCheck) return;
+
+    // Updates may be disabled in Expo Go / dev environments.
+    if (!Updates.isEnabled) {
+      Alert.alert(id.account.updatesDisabledTitle, id.account.updatesDisabledBody);
+      return;
+    }
+
+    setBusyUpdateCheck(true);
+    try {
+      const update = await Updates.checkForUpdateAsync();
+      if (!update.isAvailable) {
+        await setPendingUpdate(false);
+        setHasPendingUpdate(false);
+        Alert.alert(id.account.updatesUpToDateTitle, id.account.updatesUpToDateBody);
+        return;
+      }
+
+      // Update available: ask permission to download now
+      Alert.alert(id.account.updatesAvailableTitle, id.account.updatesAvailableBody, [
+        {
+          text: id.account.updatesLater,
+          style: "cancel",
+          onPress: async () => {
+            await setPendingUpdate(true);
+            setHasPendingUpdate(true);
+            Alert.alert(id.account.updatesLaterTitle, id.account.updatesLaterBody);
+          },
+        },
+        {
+          text: id.common.ok,
+          onPress: async () => {
+            await downloadAndReload();
+          },
+        },
+      ]);
+    } catch {
+      Alert.alert(id.common.errorTitle, id.account.updatesFailed);
+    } finally {
+      setBusyUpdateCheck(false);
+    }
+  }
+
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.container}
-      keyboardShouldPersistTaps="handled"
-    >
+    <ScrollView style={styles.screen} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
       <View>
         <Text style={styles.sectionTitle}>{id.account.emailLabel}</Text>
         <Text style={styles.email}>{emailValue || "-"}</Text>
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Tentang aplikasi</Text>
+        <Text style={styles.cardTitle}>{id.account.aboutTitle}</Text>
 
         <View style={styles.metaRow}>
-          <Text style={styles.metaLabel}>Versi</Text>
+          <Text style={styles.metaLabel}>{id.account.versionLabel}</Text>
           <Text style={styles.metaValue}>{appMeta.version}</Text>
         </View>
 
         <View style={styles.metaRow}>
-          <Text style={styles.metaLabel}>Build</Text>
+          <Text style={styles.metaLabel}>{id.account.buildLabel}</Text>
           <Text style={styles.metaValue}>{appMeta.build}</Text>
         </View>
 
         <View style={styles.metaRow}>
-          <Text style={styles.metaLabel}>Channel</Text>
+          <Text style={styles.metaLabel}>{id.account.runtimeLabel}</Text>
+          <Text style={styles.metaValue}>{appMeta.runtimeVersion}</Text>
+        </View>
+
+        <View style={styles.metaRow}>
+          <Text style={styles.metaLabel}>{id.account.channelLabel}</Text>
           <Text style={styles.metaValue}>{appMeta.channel}</Text>
         </View>
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Bantuan</Text>
+        <Text style={styles.cardTitle}>{id.account.helpTitle}</Text>
+        <Text style={styles.cardBody}>{id.account.helpNoAutoplay}</Text>
+        <Text style={styles.cardBody}>{id.account.helpVerify}</Text>
+        <Text style={styles.cardBody}>{id.account.helpPlayback}</Text>
+        <Text style={styles.cardBody}>{id.account.helpStoreUpdateNote}</Text>
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>{id.account.updatesTitle}</Text>
+
+        <Pressable
+          onPress={onCheckUpdates}
+          disabled={busyUpdateCheck || busyUpdateDownload}
+          style={({ pressed }) => [
+            styles.primaryButton,
+            (busyUpdateCheck || busyUpdateDownload) && styles.disabled,
+            pressed && !(busyUpdateCheck || busyUpdateDownload) && styles.pressed,
+          ]}
+        >
+          <Text style={styles.primaryButtonText}>
+            {busyUpdateCheck ? id.account.updatesChecking : id.account.updatesButton}
+          </Text>
+        </Pressable>
+
+        <Pressable
+          onPress={downloadAndReload}
+          disabled={!hasPendingUpdate || busyUpdateCheck || busyUpdateDownload}
+          style={({ pressed }) => [
+            styles.secondaryActionButton,
+            (!hasPendingUpdate || busyUpdateCheck || busyUpdateDownload) && styles.disabled,
+            pressed && hasPendingUpdate && !(busyUpdateCheck || busyUpdateDownload) && styles.pressed,
+          ]}
+        >
+          <Text style={styles.secondaryActionButtonText}>
+            {busyUpdateDownload ? id.account.updatesDownloading : id.account.updatesDownloadButton}
+          </Text>
+        </Pressable>
+
         <Text style={styles.cardBody}>
-          Audio tidak diputar otomatis. Anda bisa menekan tombol “Mulai” saat sudah siap.
+          {id.account.channelLabel}:{" "}
+          <Text style={{ fontWeight: "800", color: colors.text }}>{appMeta.channel}</Text>
         </Text>
         <Text style={styles.cardBody}>
-          Jika verifikasi email belum masuk, cek folder Spam/Promosi dan tunggu 1–2 menit. Anda juga bisa kirim ulang dari layar verifikasi.
-        </Text>
-        <Text style={styles.cardBody}>
-          Jika terjadi error saat pemutaran, coba tutup aplikasi lalu buka lagi. Untuk build “preview/production”, update kecil bisa dikirim lewat EAS Update.
+          {id.account.runtimeLabel}:{" "}
+          <Text style={{ fontWeight: "800", color: colors.text }}>{appMeta.runtimeVersion}</Text>
         </Text>
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Legal</Text>
+        <Text style={styles.cardTitle}>{id.account.legalTitle}</Text>
 
         <Pressable
           onPress={() => safeOpenUrl(PRIVACY_URL)}
           style={({ pressed }) => [styles.linkRow, pressed && styles.pressed]}
           hitSlop={8}
         >
-          <Text style={styles.linkText}>Kebijakan Privasi</Text>
+          <Text style={styles.linkText}>{id.account.privacy}</Text>
         </Pressable>
 
         <Pressable
@@ -248,7 +397,7 @@ export default function AccountScreen() {
           style={({ pressed }) => [styles.linkRow, pressed && styles.pressed]}
           hitSlop={8}
         >
-          <Text style={styles.linkText}>Syarat & Ketentuan</Text>
+          <Text style={styles.linkText}>{id.account.terms}</Text>
         </Pressable>
 
         <Pressable
@@ -256,7 +405,7 @@ export default function AccountScreen() {
           style={({ pressed }) => [styles.linkRow, pressed && styles.pressed]}
           hitSlop={8}
         >
-          <Text style={styles.linkText}>Dukungan</Text>
+          <Text style={styles.linkText}>{id.account.support}</Text>
           <Text style={styles.linkSub}>{SUPPORT_EMAIL}</Text>
         </Pressable>
       </View>
@@ -285,16 +434,11 @@ export default function AccountScreen() {
             pressed && canDelete && styles.pressed,
           ]}
         >
-          <Text style={styles.dangerButtonText}>
-            {busyDelete ? id.account.deleting : id.account.deleteFinal}
-          </Text>
+          <Text style={styles.dangerButtonText}>{busyDelete ? id.account.deleting : id.account.deleteFinal}</Text>
         </Pressable>
       </View>
 
-      <Pressable
-        onPress={onLogout}
-        style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
-      >
+      <Pressable onPress={onLogout} style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
         <Text style={styles.secondaryButtonText}>{id.account.logout}</Text>
       </Pressable>
     </ScrollView>
@@ -327,6 +471,36 @@ const styles = StyleSheet.create({
   metaRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   metaLabel: { fontSize: typography.small, color: colors.mutedText, fontWeight: "700" },
   metaValue: { fontSize: typography.small, color: colors.text, fontWeight: "800" },
+
+  primaryButton: {
+    backgroundColor: colors.primary,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.sm,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  primaryButtonText: {
+    color: colors.primaryText,
+    fontSize: typography.body,
+    fontWeight: "800",
+    textAlign: "center",
+  },
+
+  secondaryActionButton: {
+    backgroundColor: colors.bg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.sm,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  secondaryActionButtonText: {
+    color: colors.text,
+    fontSize: typography.body,
+    fontWeight: "800",
+    textAlign: "center",
+  },
 
   linkRow: {
     paddingVertical: 10,
@@ -381,6 +555,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-  disabled: { opacity: 0.5 },
+  disabled: { opacity: 0.6 },
   pressed: { opacity: 0.85 },
 });

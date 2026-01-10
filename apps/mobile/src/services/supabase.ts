@@ -8,7 +8,12 @@ const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error(
-    "Missing Supabase env. Set EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY in apps/mobile/.env"
+    [
+      "Missing Supabase env.",
+      'Set "EXPO_PUBLIC_SUPABASE_URL" and "EXPO_PUBLIC_SUPABASE_ANON_KEY".',
+      "- Local dev: put them in apps/mobile/.env (loaded by Expo).",
+      "- EAS builds: set them in EAS environment variables (development/preview/production).",
+    ].join(" ")
   );
 }
 
@@ -18,8 +23,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: false,
-    lock: processLock
-  }
+    lock: processLock,
+  },
 });
 
 if (Platform.OS !== "web") {
