@@ -16,11 +16,40 @@ export async function handleAuthLink(url: string) {
     typeof parsed.queryParams?.code === "string" ? parsed.queryParams.code : null;
   const type =
     typeof parsed.queryParams?.type === "string" ? parsed.queryParams.type : null;
+  const accessToken =
+    typeof parsed.queryParams?.access_token === "string" ? parsed.queryParams.access_token : null;
+  const refreshToken =
+    typeof parsed.queryParams?.refresh_token === "string" ? parsed.queryParams.refresh_token : null;
 
-  if (!code) return { handled: false as const };
+  if (!code && !accessToken) return { handled: false as const };
 
   if (path === "auth/callback" || path === "auth/reset") {
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    if (code) {
+      const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
+      if (error) {
+        return {
+          handled: true as const,
+          ok: false as const,
+          path,
+          type,
+          error: error.message
+        };
+      }
+
+      return {
+        handled: true as const,
+        ok: true as const,
+        path,
+        type,
+        session: data.session
+      };
+    }
+
+    const { data, error } = await supabase.auth.setSession({
+      access_token: accessToken ?? "",
+      refresh_token: refreshToken ?? "",
+    });
 
     if (error) {
       return {
