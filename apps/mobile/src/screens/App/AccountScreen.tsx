@@ -59,6 +59,7 @@ async function callDeleteAccount(accessToken: string) {
     headers: {
       "Content-Type": "application/json",
       apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${accessToken}`,
       "x-user-jwt": accessToken,
     },
     body: JSON.stringify({}),

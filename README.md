@@ -1,6 +1,8 @@
 ﻿# wellness-mobile-app
 
-MVP: Sleep-first wellness app (signup + verified email required, no autoplay, freemium + premium, offline downloads with encryption).
+MVP: Sleep-first wellness app (signup + verified email required, no autoplay).
+
+Planned: freemium + premium, offline downloads with encryption.
 
 ## Structure
 - apps/mobile: React Native (TypeScript)

@@ -10,8 +10,12 @@ function json(status: number, body: Record<string, unknown>) {
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json(405, { error: "Method not allowed" });
 
-  // Since verify_jwt = false, we must authenticate manually.
-  const token = req.headers.get("x-user-jwt") ?? "";
+  const authHeader = req.headers.get("authorization") ?? "";
+  const bearerToken = authHeader.toLowerCase().startsWith("bearer ")
+    ? authHeader.slice(7)
+    : "";
+  const legacyToken = req.headers.get("x-user-jwt") ?? "";
+  const token = bearerToken || legacyToken;
   if (!token) return json(401, { error: "Missing user token" });
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
