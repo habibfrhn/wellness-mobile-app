@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "echo \"lint later\"",
     "typecheck": "echo \"typecheck later\"",
-    "test": "node scripts/verify-app.mjs",
-    "test:smoke": "node scripts/verify-app.mjs"
+    "test": "node scripts/verify-app.mjs && node scripts/verify-auth.mjs",
+    "test:smoke": "node scripts/verify-app.mjs",
+    "test:auth": "node scripts/verify-auth.mjs"
   }
 }
