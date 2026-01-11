@@ -33,8 +33,10 @@ export default function App() {
 
     async function processUrl(url: string) {
       const res = await handleAuthLink(url);
-      if (res.handled && res.ok && res.path === "auth/reset") {
-        setForceReset(true);
+      if (res.handled && res.ok) {
+        if (res.path === "auth/reset" || res.type === "recovery") {
+          setForceReset(true);
+        }
       }
     }
 

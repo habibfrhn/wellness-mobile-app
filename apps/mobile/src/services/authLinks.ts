@@ -14,6 +14,8 @@ export async function handleAuthLink(url: string) {
   const path = (parsed.path ?? "").toLowerCase();
   const code =
     typeof parsed.queryParams?.code === "string" ? parsed.queryParams.code : null;
+  const type =
+    typeof parsed.queryParams?.type === "string" ? parsed.queryParams.type : null;
 
   if (!code) return { handled: false as const };
 
@@ -25,6 +27,7 @@ export async function handleAuthLink(url: string) {
         handled: true as const,
         ok: false as const,
         path,
+        type,
         error: error.message
       };
     }
@@ -33,6 +36,7 @@ export async function handleAuthLink(url: string) {
       handled: true as const,
       ok: true as const,
       path,
+      type,
       session: data.session
     };
   }
