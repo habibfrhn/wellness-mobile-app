@@ -5,6 +5,8 @@
   "packageManager": "pnpm@10.27.0",
   "scripts": {
     "lint": "echo \"lint later\"",
-    "typecheck": "echo \"typecheck later\""
+    "typecheck": "echo \"typecheck later\"",
+    "test": "node scripts/verify-app.mjs",
+    "test:smoke": "node scripts/verify-app.mjs"
   }
 }
