@@ -11,7 +11,7 @@ import {
   Platform,
 } from "react-native";
 import * as Updates from "expo-updates";
-import { colors, spacing, radius, typography } from "../../theme/tokens";
+import { colors, shadow, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
 import { getPendingUpdate, setPendingUpdate } from "../../services/updatesState";
@@ -465,6 +465,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     gap: spacing.sm,
+    ...shadow.card,
   },
   cardTitle: { fontSize: typography.body, color: colors.text, fontWeight: "800" },
   cardBody: { fontSize: typography.small, color: colors.mutedText, lineHeight: 20 },
@@ -479,6 +480,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     alignItems: "center",
     justifyContent: "center",
+    ...shadow.button,
   },
   primaryButtonText: {
     color: colors.primaryText,
@@ -533,6 +535,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     borderRadius: radius.sm,
     backgroundColor: colors.danger,
+    ...shadow.button,
   },
   dangerButtonText: {
     color: colors.primaryText,

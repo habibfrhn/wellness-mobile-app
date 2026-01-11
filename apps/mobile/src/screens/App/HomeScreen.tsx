@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, Pressable, StyleSheet, FlatList } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { colors, spacing, radius, typography } from "../../theme/tokens";
+import { colors, spacing, radius, shadow, typography } from "../../theme/tokens";
 import { AUDIO_TRACKS, getTrackById, type AudioTrack } from "../../content/audioCatalog";
 import { id } from "../../i18n/strings";
 
@@ -145,6 +145,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radius.sm,
     padding: spacing.md,
+    ...shadow.card,
   },
   continueLabel: {
     fontSize: typography.small,
@@ -170,6 +171,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radius.sm,
     padding: spacing.md,
+    ...shadow.card,
   },
   cardTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   cardTitle: { fontSize: typography.body, fontWeight: "700", color: colors.text },

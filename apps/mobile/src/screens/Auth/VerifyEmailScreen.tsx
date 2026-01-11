@@ -5,7 +5,7 @@ import * as IntentLauncher from "expo-intent-launcher";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AuthStackParamList } from "../../navigation/types";
-import { colors, spacing, radius, typography } from "../../theme/tokens";
+import { colors, shadow, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
 
@@ -156,6 +156,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     borderRadius: radius.sm,
     backgroundColor: colors.primary,
+    ...shadow.button,
   },
   primaryButtonText: {
     color: colors.primaryText,

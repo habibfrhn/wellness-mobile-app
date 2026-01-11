@@ -4,7 +4,7 @@ import Slider from "@react-native-community/slider";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { getTrackById } from "../../content/audioCatalog";
 import CalmPulse from "../../components/CalmPulse";
-import { colors, spacing, radius, typography } from "../../theme/tokens";
+import { colors, shadow, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -226,6 +226,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     alignItems: "center",
     justifyContent: "center",
+    ...shadow.button,
   },
   primaryText: { color: colors.bg, fontSize: typography.body, fontWeight: "700" },
   secondaryBtn: {

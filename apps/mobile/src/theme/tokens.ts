@@ -1,14 +1,14 @@
 export const colors = {
-  bg: "#FFFFFF",
-  text: "#111111",
-  mutedText: "rgba(17,17,17,0.7)",
-  border: "rgba(17,17,17,0.15)",
+  bg: "#F7F4EE",
+  text: "#1C2C27",
+  mutedText: "rgba(28,44,39,0.65)",
+  border: "rgba(28,44,39,0.12)",
 
   // Brand (MVP)
-  primary: "#111111",
+  primary: "#1F4B3F",
   primaryText: "#FFFFFF",
   secondary: "#FFFFFF",
-  secondaryText: "#111111",
+  secondaryText: "#1C2C27",
 
   danger: "#B00020",
 };
@@ -32,4 +32,21 @@ export const typography = {
   h2: 20,
   body: 16,
   small: 14,
+};
+
+export const shadow = {
+  card: {
+    shadowColor: "rgba(16, 24, 20, 0.12)",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 1,
+    shadowRadius: 14,
+    elevation: 3,
+  },
+  button: {
+    shadowColor: "rgba(16, 24, 20, 0.18)",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 1,
+    shadowRadius: 10,
+    elevation: 2,
+  },
 };
