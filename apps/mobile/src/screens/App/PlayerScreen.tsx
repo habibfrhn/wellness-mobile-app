@@ -147,15 +147,20 @@ export default function PlayerScreen({ route, navigation }: Props) {
         </Pressable>
       </View>
 
-      <Text style={styles.title}>{track.title}</Text>
-      <Text style={styles.subtitle}>{track.subtitle}</Text>
+      <View style={styles.metaCard}>
+        <Text style={styles.eyebrow}>{id.home.durationBadge}</Text>
+        <Text style={styles.title}>{track.title}</Text>
+        <Text style={styles.subtitle}>{track.subtitle}</Text>
+      </View>
 
       <View style={styles.artWrap}>
-        <CalmPulse isActive={!!status.playing} />
+        <View style={styles.artHalo} />
+        <CalmPulse isActive={!!status.playing} style={styles.pulseOuter} />
+        <CalmPulse isActive={!!status.playing} style={styles.pulseInner} />
         <View style={styles.centerDot} />
       </View>
 
-      <View style={styles.progressWrap}>
+      <View style={styles.progressCard}>
         <Slider
           minimumValue={0}
           maximumValue={duration}
@@ -197,7 +202,17 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   headerLink: { color: colors.text, opacity: 0.8, fontSize: typography.small, fontWeight: "700" },
-  title: { fontSize: typography.h2, color: colors.text, fontWeight: "700", marginTop: spacing.sm },
+  metaCard: {
+    marginTop: spacing.sm,
+    padding: spacing.md,
+    backgroundColor: colors.secondary,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...shadow.card,
+  },
+  eyebrow: { fontSize: typography.small, color: colors.mutedText, fontWeight: "700", marginBottom: spacing.xs },
+  title: { fontSize: typography.h2, color: colors.text, fontWeight: "700" },
   subtitle: { marginTop: spacing.xs, fontSize: typography.body, color: colors.mutedText, lineHeight: 22 },
   artWrap: {
     height: 220,
@@ -206,6 +221,18 @@ const styles = StyleSheet.create({
     marginTop: spacing.lg,
     marginBottom: spacing.md,
   },
+  artHalo: {
+    position: "absolute",
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: colors.secondary,
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...shadow.card,
+  },
+  pulseOuter: { width: 180, height: 180, borderRadius: 90 },
+  pulseInner: { width: 140, height: 140, borderRadius: 70 },
   centerDot: {
     position: "absolute",
     width: 92,
@@ -214,8 +241,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondary,
     borderWidth: 1,
     borderColor: colors.border,
+    ...shadow.card,
   },
-  progressWrap: { marginTop: spacing.md, marginBottom: spacing.md },
+  progressCard: {
+    marginTop: spacing.md,
+    marginBottom: spacing.md,
+    padding: spacing.md,
+    backgroundColor: colors.secondary,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...shadow.card,
+  },
   timeRow: { flexDirection: "row", justifyContent: "space-between", marginTop: spacing.xs },
   timeText: { fontSize: typography.small, color: colors.mutedText },
   controlsRow: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.md },
