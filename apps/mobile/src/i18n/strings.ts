@@ -160,6 +160,9 @@ export const id = {
     confirmLogoutBody: "Anda yakin ingin keluar?",
     cancel: "Batal",
 
+    resetPassword: "Atur ulang kata sandi",
+    resetPasswordBody: "Kami akan mengirim tautan reset ke email Anda.",
+
     deleteTitle: "Hapus akun",
     deleteWarning: "Aksi ini permanen. Data akun Anda akan dihapus dan tidak dapat dipulihkan.",
     deleteTypeLabel: 'Ketik "HAPUS" untuk konfirmasi',

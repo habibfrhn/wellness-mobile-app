@@ -13,7 +13,7 @@ import {
 import * as Updates from "expo-updates";
 import { colors, shadow, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
-import { supabase } from "../../services/supabase";
+import { supabase, AUTH_RESET } from "../../services/supabase";
 import { getPendingUpdate, setPendingUpdate } from "../../services/updatesState";
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
@@ -180,6 +180,26 @@ export default function AccountScreen() {
     ]);
   }
 
+  async function onResetPassword() {
+    if (!emailValue) {
+      Alert.alert(id.common.errorTitle, id.common.invalidEmailBody);
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(emailValue, {
+        redirectTo: AUTH_RESET,
+      });
+      if (error) {
+        Alert.alert(id.common.errorTitle, error.message);
+        return;
+      }
+      Alert.alert(id.account.resetPassword, id.account.resetPasswordBody);
+    } catch (e: any) {
+      Alert.alert(id.common.errorTitle, String(e?.message ?? e));
+    }
+  }
+
   async function onDeleteAccount() {
     Alert.alert(id.account.deleteTitle, id.account.deleteWarning, [
       { text: id.account.cancel, style: "cancel" },
@@ -339,6 +359,18 @@ export default function AccountScreen() {
         <Text style={styles.cardBody}>{id.account.helpVerify}</Text>
         <Text style={styles.cardBody}>{id.account.helpPlayback}</Text>
         <Text style={styles.cardBody}>{id.account.helpStoreUpdateNote}</Text>
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>{id.account.resetPassword}</Text>
+        <Text style={styles.cardBody}>{id.account.resetPasswordBody}</Text>
+
+        <Pressable
+          onPress={onResetPassword}
+          style={({ pressed }) => [styles.secondaryActionButton, pressed && styles.pressed]}
+        >
+          <Text style={styles.secondaryActionButtonText}>{id.account.resetPassword}</Text>
+        </Pressable>
       </View>
 
       <View style={styles.card}>
