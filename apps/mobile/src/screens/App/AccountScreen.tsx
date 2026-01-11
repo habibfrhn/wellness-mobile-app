@@ -13,7 +13,7 @@ import {
 import * as Updates from "expo-updates";
 import { colors, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
-import { supabase } from "../../services/supabase";
+import { supabase, AUTH_RESET } from "../../services/supabase";
 import { getPendingUpdate, setPendingUpdate } from "../../services/updatesState";
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
@@ -46,6 +46,10 @@ const TERMS_URL = "";
 
 // Updated support email (your requested address)
 const SUPPORT_EMAIL = "habibfrhn@gmail.com";
+
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim().toLowerCase());
+}
 
 async function callDeleteAccount(accessToken: string) {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
@@ -106,6 +110,7 @@ export default function AccountScreen() {
   const [emailValue, setEmailValue] = useState<string>("");
   const [confirmText, setConfirmText] = useState("");
   const [busyDelete, setBusyDelete] = useState(false);
+  const [busyReset, setBusyReset] = useState(false);
 
   const [busyUpdateCheck, setBusyUpdateCheck] = useState(false);
   const [busyUpdateDownload, setBusyUpdateDownload] = useState(false);
@@ -163,6 +168,11 @@ export default function AccountScreen() {
   const canDelete = useMemo(
     () => confirmText.trim().toUpperCase() === "HAPUS" && !busyDelete,
     [confirmText, busyDelete]
+  );
+
+  const canResetPassword = useMemo(
+    () => isValidEmail(emailValue) && !busyReset,
+    [emailValue, busyReset]
   );
 
   async function onLogout() {
@@ -223,6 +233,30 @@ export default function AccountScreen() {
         },
       },
     ]);
+  }
+
+  async function onResetPassword() {
+    const email = emailValue.trim().toLowerCase();
+    if (!isValidEmail(email)) {
+      Alert.alert(id.common.invalidEmail, id.common.invalidEmailBody);
+      return;
+    }
+
+    setBusyReset(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: AUTH_RESET,
+      });
+
+      if (error) {
+        Alert.alert(id.common.errorTitle, error.message);
+        return;
+      }
+
+      Alert.alert(id.account.resetSuccessTitle, id.account.resetSuccessBody);
+    } finally {
+      setBusyReset(false);
+    }
   }
 
   async function downloadAndReload() {
@@ -306,6 +340,25 @@ export default function AccountScreen() {
       <View>
         <Text style={styles.sectionTitle}>{id.account.emailLabel}</Text>
         <Text style={styles.email}>{emailValue || "-"}</Text>
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>{id.account.securityTitle}</Text>
+        <Text style={styles.cardBody}>{id.account.resetPasswordBody}</Text>
+
+        <Pressable
+          onPress={onResetPassword}
+          disabled={!canResetPassword}
+          style={({ pressed }) => [
+            styles.primaryButton,
+            !canResetPassword && styles.disabled,
+            pressed && canResetPassword && styles.pressed,
+          ]}
+        >
+          <Text style={styles.primaryButtonText}>
+            {busyReset ? id.account.resetPasswordSending : id.account.resetPasswordButton}
+          </Text>
+        </Pressable>
       </View>
 
       <View style={styles.card}>

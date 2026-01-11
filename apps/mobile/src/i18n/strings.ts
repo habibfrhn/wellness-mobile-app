@@ -125,6 +125,13 @@ export const id = {
     helpStoreUpdateNote:
       "Catatan: Pembaruan online hanya untuk perbaikan kecil. Jika ada perubahan besar atau pembaruan sistem, Anda perlu update lewat Play Store/App Store.",
 
+    securityTitle: "Keamanan",
+    resetPasswordBody: "Kirim tautan untuk mengatur ulang kata sandi lewat email Anda.",
+    resetPasswordButton: "Kirim email reset kata sandi",
+    resetPasswordSending: "Mengirim...",
+    resetSuccessTitle: "Email terkirim",
+    resetSuccessBody: "Silakan cek email Anda untuk tautan reset kata sandi.",
+
     updatesTitle: "Pembaruan",
     updatesButton: "Periksa pembaruan",
     updatesChecking: "Memeriksa...",
