@@ -11,10 +11,12 @@ import {
   Platform,
 } from "react-native";
 import * as Updates from "expo-updates";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { colors, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
 import { getPendingUpdate, setPendingUpdate } from "../../services/updatesState";
+import type { AppStackParamList } from "../../navigation/types";
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
@@ -46,6 +48,8 @@ const TERMS_URL = "";
 
 // Updated support email (your requested address)
 const SUPPORT_EMAIL = "habibfrhn@gmail.com";
+
+type Props = NativeStackScreenProps<AppStackParamList, "Account">;
 
 async function callDeleteAccount(accessToken: string) {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
@@ -102,7 +106,7 @@ async function safeOpenEmail(email: string) {
   await safeOpenUrl(mailto);
 }
 
-export default function AccountScreen() {
+export default function AccountScreen({ navigation }: Props) {
   const [emailValue, setEmailValue] = useState<string>("");
   const [confirmText, setConfirmText] = useState("");
   const [busyDelete, setBusyDelete] = useState(false);
@@ -306,6 +310,18 @@ export default function AccountScreen() {
       <View>
         <Text style={styles.sectionTitle}>{id.account.emailLabel}</Text>
         <Text style={styles.email}>{emailValue || "-"}</Text>
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>{id.account.securityTitle}</Text>
+        <Text style={styles.cardBody}>{id.account.resetPasswordBody}</Text>
+
+        <Pressable
+          onPress={() => navigation.navigate("ResetPassword", { origin: "account" })}
+          style={({ pressed }) => [styles.secondaryActionButton, pressed && styles.pressed]}
+        >
+          <Text style={styles.secondaryActionButtonText}>{id.account.resetPasswordTitle}</Text>
+        </Pressable>
       </View>
 
       <View style={styles.card}>

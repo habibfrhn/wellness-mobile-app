@@ -2,17 +2,24 @@ import React, { useMemo, useState } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-import type { AuthStackParamList } from "../../navigation/types";
+import type { AppStackParamList, AuthStackParamList } from "../../navigation/types";
 import { colors, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
 
-type Props = NativeStackScreenProps<AuthStackParamList, "ResetPassword">;
+type Props =
+  | NativeStackScreenProps<AuthStackParamList, "ResetPassword">
+  | NativeStackScreenProps<AppStackParamList, "ResetPassword">;
 
-export default function ResetPasswordScreen({ navigation }: Props) {
+export default function ResetPasswordScreen({ navigation, route }: Props) {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);
+
+  const origin = route?.params?.origin;
+  const routeNames = navigation.getState?.().routeNames ?? [];
+  const isAuthFlow = origin === "auth" || (!origin && routeNames.includes("Login"));
+  const isAccountFlow = origin === "account" || (!origin && !isAuthFlow);
 
   const canSubmit = useMemo(() => {
     return password.length >= 8 && confirm.length >= 8 && password === confirm && !busy;
@@ -43,9 +50,11 @@ export default function ResetPasswordScreen({ navigation }: Props) {
           onPress: async () => {
             // Security: sign out after password change, force re-login
             await supabase.auth.signOut();
-            navigation.replace("Login");
-          }
-        }
+            if (isAuthFlow) {
+              navigation.replace("Login");
+            }
+          },
+        },
       ]);
     } finally {
       setBusy(false);
@@ -99,10 +108,18 @@ export default function ResetPasswordScreen({ navigation }: Props) {
         </Pressable>
 
         <Pressable
-          onPress={() => navigation.replace("Login")}
+          onPress={() => {
+            if (isAccountFlow) {
+              navigation.goBack();
+              return;
+            }
+            navigation.replace("Login");
+          }}
           style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
         >
-          <Text style={styles.secondaryButtonText}>{id.reset.backToLogin}</Text>
+          <Text style={styles.secondaryButtonText}>
+            {isAccountFlow ? id.account.backToAccount : id.reset.backToLogin}
+          </Text>
         </Pressable>
       </View>
     </View>

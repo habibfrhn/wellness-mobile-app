@@ -110,6 +110,11 @@ export const id = {
     title: "Akun",
     emailLabel: "Email",
 
+    securityTitle: "Keamanan",
+    resetPasswordTitle: "Atur ulang kata sandi",
+    resetPasswordBody: "Ganti kata sandi akun Anda untuk menjaga keamanan.",
+    backToAccount: "Kembali ke akun",
+
     aboutTitle: "Tentang aplikasi",
     versionLabel: "Versi",
     buildLabel: "Build",

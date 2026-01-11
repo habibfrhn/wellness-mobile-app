@@ -6,6 +6,7 @@ import type { AppStackParamList } from "./types";
 import HomeScreen from "../screens/App/HomeScreen";
 import PlayerScreen from "../screens/App/PlayerScreen";
 import AccountScreen from "../screens/App/AccountScreen";
+import ResetPasswordScreen from "../screens/Auth/ResetPasswordScreen";
 import { colors, typography, spacing } from "../theme/tokens";
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
@@ -46,6 +47,11 @@ export default function AppStack() {
       />
 
       <Stack.Screen name="Account" component={AccountScreen} options={{ title: "Akun" }} />
+      <Stack.Screen
+        name="ResetPassword"
+        component={ResetPasswordScreen}
+        options={{ title: "Atur ulang kata sandi" }}
+      />
     </Stack.Navigator>
   );
 }
