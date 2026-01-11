@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-native";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AppStackParamList, AuthStackParamList } from "../../navigation/types";
 import { colors, spacing, radius, typography } from "../../theme/tokens";
@@ -17,7 +17,7 @@ export default function ResetPasswordScreen({ navigation, route }: Props) {
   const [busy, setBusy] = useState(false);
 
   const origin = route?.params?.origin;
-  const routeNames = navigation.getState?.().routeNames ?? [];
+  const routeNames = (navigation.getState?.().routeNames ?? []) as string[];
   const isAuthFlow = origin === "auth" || (!origin && routeNames.includes("Login"));
   const isAccountFlow = origin === "account" || (!origin && !isAuthFlow);
 
@@ -51,7 +51,8 @@ export default function ResetPasswordScreen({ navigation, route }: Props) {
             // Security: sign out after password change, force re-login
             await supabase.auth.signOut();
             if (isAuthFlow) {
-              navigation.replace("Login");
+              const authNavigation = navigation as NativeStackNavigationProp<AuthStackParamList>;
+              authNavigation.replace("Login");
             }
           },
         },
@@ -113,7 +114,8 @@ export default function ResetPasswordScreen({ navigation, route }: Props) {
               navigation.goBack();
               return;
             }
-            navigation.replace("Login");
+            const authNavigation = navigation as NativeStackNavigationProp<AuthStackParamList>;
+            authNavigation.replace("Login");
           }}
           style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
         >
