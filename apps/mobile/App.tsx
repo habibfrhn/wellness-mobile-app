@@ -8,7 +8,9 @@ import { supabase } from "./src/services/supabase";
 import { handleAuthLink } from "./src/services/authLinks";
 import AuthStack from "./src/navigation/AuthStack";
 import AppStack from "./src/navigation/AppStack";
+import type { AuthStackParamList } from "./src/navigation/types";
 import { id } from "./src/i18n/strings";
+import { consumeAuthNextRoute } from "./src/services/authRedirect";
 import { setPendingUpdate } from "./src/services/updatesState";
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
@@ -16,6 +18,7 @@ type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"][
 export default function App() {
   const [ready, setReady] = useState(false);
   const [session, setSession] = useState<SessionType>(null);
+  const [authInitialRoute, setAuthInitialRoute] = useState<keyof AuthStackParamList>("Welcome");
 
   // If user comes from reset link, force AuthStack to start at ResetPassword.
   const [forceReset, setForceReset] = useState(false);
@@ -65,6 +68,25 @@ export default function App() {
   useEffect(() => {
     if (!session) setForceReset(false);
   }, [session]);
+
+  useEffect(() => {
+    if (!ready) return;
+    if (forceReset) {
+      setAuthInitialRoute("ResetPassword");
+      return;
+    }
+    if (!session) {
+      consumeAuthNextRoute()
+        .then((route) => {
+          setAuthInitialRoute(route ?? "Welcome");
+        })
+        .catch(() => {
+          setAuthInitialRoute("Welcome");
+        });
+    } else {
+      setAuthInitialRoute("Welcome");
+    }
+  }, [forceReset, ready, session]);
 
   // Check OTA updates once per launch (only for standalone/dev-client builds where updates are enabled).
   useEffect(() => {
@@ -128,7 +150,7 @@ export default function App() {
   return (
     <NavigationContainer>
       {shouldShowAuth ? (
-        <AuthStack initialRouteName={forceReset ? "ResetPassword" : "Welcome"} />
+        <AuthStack initialRouteName={forceReset ? "ResetPassword" : authInitialRoute} />
       ) : (
         <AppStack />
       )}

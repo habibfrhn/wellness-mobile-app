@@ -7,6 +7,7 @@ import type { AppStackParamList, AuthStackParamList } from "../../navigation/typ
 import { colors, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
+import { setAuthNextRoute } from "../../services/authRedirect";
 
 type Props =
   | NativeStackScreenProps<AuthStackParamList, "ResetPassword">
@@ -47,17 +48,9 @@ export default function ResetPasswordScreen({ navigation, route }: Props) {
         return;
       }
 
-      Alert.alert(id.reset.successTitle, id.reset.successBody, [
-        {
-          text: id.common.ok,
-          onPress: async () => {
-            // Security: sign out after password change, force re-login
-            await supabase.auth.signOut();
-            const authNavigation = navigation as NativeStackNavigationProp<AuthStackParamList>;
-            authNavigation.replace("Login");
-          },
-        },
-      ]);
+      await setAuthNextRoute("Login");
+      await supabase.auth.signOut();
+      Alert.alert(id.reset.successTitle, id.reset.successBody);
     } finally {
       setBusy(false);
     }
