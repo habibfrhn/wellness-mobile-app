@@ -46,6 +46,8 @@ export const id = {
     busyCta: "Memproses...",
     forgot: "Lupa kata sandi",
     create: "Buat akun",
+    showPassword: "Lihat",
+    hidePassword: "Sembunyikan",
   },
 
   verify: {

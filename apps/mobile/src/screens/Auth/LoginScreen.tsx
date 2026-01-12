@@ -16,6 +16,7 @@ function isValidEmail(email: string) {
 export default function LoginScreen({ navigation, route }: Props) {
   const [email, setEmail] = useState(route.params?.initialEmail ?? "");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const canSubmit = useMemo(() => {
@@ -75,16 +76,26 @@ export default function LoginScreen({ navigation, route }: Props) {
 
         <View>
           <Text style={styles.label}>{id.login.passwordLabel}</Text>
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            autoCapitalize="none"
-            autoCorrect={false}
-            secureTextEntry
-            placeholder={id.login.passwordPlaceholder}
-            placeholderTextColor={colors.mutedText}
-            style={styles.input}
-          />
+          <View style={styles.passwordRow}>
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+              secureTextEntry={!showPassword}
+              placeholder={id.login.passwordPlaceholder}
+              placeholderTextColor={colors.mutedText}
+              style={[styles.input, styles.passwordInput]}
+            />
+            <Pressable
+              onPress={() => setShowPassword((prev) => !prev)}
+              style={({ pressed }) => [styles.toggleButton, pressed && styles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel={showPassword ? id.login.hidePassword : id.login.showPassword}
+            >
+              <Text style={styles.toggleButtonText}>{showPassword ? id.login.hidePassword : id.login.showPassword}</Text>
+            </Pressable>
+          </View>
         </View>
 
         <Pressable
@@ -132,6 +143,17 @@ const styles = StyleSheet.create({
     color: colors.text,
     backgroundColor: colors.secondary
   },
+  passwordRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  passwordInput: { flex: 1 },
+  toggleButton: {
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.sm,
+    backgroundColor: colors.secondary,
+    borderWidth: 1,
+    borderColor: colors.border
+  },
+  toggleButtonText: { color: colors.secondaryText, fontSize: typography.small, fontWeight: "700" },
   primaryButton: { marginTop: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.primary },
   primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
   secondaryButton: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.secondary, borderWidth: 1, borderColor: colors.border },
