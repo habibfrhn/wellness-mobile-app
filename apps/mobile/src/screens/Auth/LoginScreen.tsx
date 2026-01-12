@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-native";
+import { Feather } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AuthStackParamList } from "../../navigation/types";
@@ -93,7 +94,12 @@ export default function LoginScreen({ navigation, route }: Props) {
               accessibilityRole="button"
               accessibilityLabel={showPassword ? id.login.hidePassword : id.login.showPassword}
             >
-              <Text style={styles.toggleIcon}>{showPassword ? "🙈" : "👁️"}</Text>
+              <Feather
+                name={showPassword ? "eye-off" : "eye"}
+                size={18}
+                color={colors.mutedText}
+                style={styles.toggleIcon}
+              />
             </Pressable>
           </View>
         </View>
@@ -146,7 +152,7 @@ const styles = StyleSheet.create({
   inputWrapper: { position: "relative", justifyContent: "center" },
   inputWithToggle: { paddingRight: spacing.xl },
   toggleIconButton: { position: "absolute", right: spacing.sm, top: "50%", transform: [{ translateY: -10 }] },
-  toggleIcon: { fontSize: 18 },
+  toggleIcon: { opacity: 0.9 },
   primaryButton: { marginTop: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.primary },
   primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
   secondaryButton: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.secondary, borderWidth: 1, borderColor: colors.border },

@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-native";
+import { Feather } from "@expo/vector-icons";
 import { NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AppStackParamList, AuthStackParamList } from "../../navigation/types";
@@ -96,7 +97,12 @@ export default function ResetPasswordScreen({ navigation, route }: Props) {
               accessibilityRole="button"
               accessibilityLabel={showPassword ? id.reset.hidePassword : id.reset.showPassword}
             >
-              <Text style={styles.toggleIcon}>{showPassword ? "🙈" : "👁️"}</Text>
+              <Feather
+                name={showPassword ? "eye-off" : "eye"}
+                size={18}
+                color={colors.mutedText}
+                style={styles.toggleIcon}
+              />
             </Pressable>
           </View>
         </View>
@@ -120,7 +126,12 @@ export default function ResetPasswordScreen({ navigation, route }: Props) {
               accessibilityRole="button"
               accessibilityLabel={showConfirm ? id.reset.hidePassword : id.reset.showPassword}
             >
-              <Text style={styles.toggleIcon}>{showConfirm ? "🙈" : "👁️"}</Text>
+              <Feather
+                name={showConfirm ? "eye-off" : "eye"}
+                size={18}
+                color={colors.mutedText}
+                style={styles.toggleIcon}
+              />
             </Pressable>
           </View>
         </View>
@@ -180,7 +191,7 @@ const styles = StyleSheet.create({
   inputWrapper: { position: "relative", justifyContent: "center" },
   inputWithToggle: { paddingRight: spacing.xl },
   toggleIconButton: { position: "absolute", right: spacing.sm, top: "50%", transform: [{ translateY: -10 }] },
-  toggleIcon: { fontSize: 18 },
+  toggleIcon: { opacity: 0.9 },
   primaryButton: { marginTop: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.primary },
   primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
   secondaryButton: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.secondary, borderWidth: 1, borderColor: colors.border },
