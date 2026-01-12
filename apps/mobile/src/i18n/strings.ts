@@ -33,6 +33,8 @@ export const id = {
     busyCta: "Membuat akun...",
     secondaryCta: "Sudah punya akun? Masuk",
     finePrint: "Dengan melanjutkan, Anda menyetujui S&K dan Kebijakan Privasi.",
+    showPassword: "Lihat",
+    hidePassword: "Sembunyikan",
   },
 
   login: {

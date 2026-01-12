@@ -76,7 +76,7 @@ export default function LoginScreen({ navigation, route }: Props) {
 
         <View>
           <Text style={styles.label}>{id.login.passwordLabel}</Text>
-          <View style={styles.passwordRow}>
+          <View style={styles.inputWrapper}>
             <TextInput
               value={password}
               onChangeText={setPassword}
@@ -85,7 +85,7 @@ export default function LoginScreen({ navigation, route }: Props) {
               secureTextEntry={!showPassword}
               placeholder={id.login.passwordPlaceholder}
               placeholderTextColor={colors.mutedText}
-              style={[styles.input, styles.passwordInput]}
+              style={[styles.input, styles.inputWithToggle]}
             />
             <Pressable
               onPress={() => setShowPassword((prev) => !prev)}
@@ -143,9 +143,12 @@ const styles = StyleSheet.create({
     color: colors.text,
     backgroundColor: colors.secondary
   },
-  passwordRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-  passwordInput: { flex: 1 },
+  inputWrapper: { position: "relative", justifyContent: "center" },
+  inputWithToggle: { paddingRight: spacing.xl },
   toggleButton: {
+    position: "absolute",
+    right: spacing.sm,
+    top: spacing.xs,
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.sm,
     borderRadius: radius.sm,
