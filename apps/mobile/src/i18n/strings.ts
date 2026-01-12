@@ -86,6 +86,8 @@ export const id = {
     backToLogin: "Kembali ke masuk",
     successTitle: "Berhasil",
     successBody: "Kata sandi berhasil diperbarui. Silakan masuk kembali.",
+    showPassword: "Lihat",
+    hidePassword: "Sembunyikan",
   },
 
   home: {

@@ -14,6 +14,8 @@ type Props =
 export default function ResetPasswordScreen({ navigation, route }: Props) {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const origin = route?.params?.origin;
@@ -70,30 +72,54 @@ export default function ResetPasswordScreen({ navigation, route }: Props) {
       <View style={{ marginTop: spacing.lg, gap: spacing.sm }}>
         <View>
           <Text style={styles.label}>{id.reset.newPassword}</Text>
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            autoCapitalize="none"
-            autoCorrect={false}
-            secureTextEntry
-            placeholder={id.reset.placeholderNew}
-            placeholderTextColor={colors.mutedText}
-            style={styles.input}
-          />
+          <View style={styles.passwordRow}>
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+              secureTextEntry={!showPassword}
+              placeholder={id.reset.placeholderNew}
+              placeholderTextColor={colors.mutedText}
+              style={[styles.input, styles.passwordInput]}
+            />
+            <Pressable
+              onPress={() => setShowPassword((prev) => !prev)}
+              style={({ pressed }) => [styles.toggleButton, pressed && styles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel={showPassword ? id.reset.hidePassword : id.reset.showPassword}
+            >
+              <Text style={styles.toggleButtonText}>
+                {showPassword ? id.reset.hidePassword : id.reset.showPassword}
+              </Text>
+            </Pressable>
+          </View>
         </View>
 
         <View>
           <Text style={styles.label}>{id.reset.confirmPassword}</Text>
-          <TextInput
-            value={confirm}
-            onChangeText={setConfirm}
-            autoCapitalize="none"
-            autoCorrect={false}
-            secureTextEntry
-            placeholder={id.reset.placeholderConfirm}
-            placeholderTextColor={colors.mutedText}
-            style={styles.input}
-          />
+          <View style={styles.passwordRow}>
+            <TextInput
+              value={confirm}
+              onChangeText={setConfirm}
+              autoCapitalize="none"
+              autoCorrect={false}
+              secureTextEntry={!showConfirm}
+              placeholder={id.reset.placeholderConfirm}
+              placeholderTextColor={colors.mutedText}
+              style={[styles.input, styles.passwordInput]}
+            />
+            <Pressable
+              onPress={() => setShowConfirm((prev) => !prev)}
+              style={({ pressed }) => [styles.toggleButton, pressed && styles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel={showConfirm ? id.reset.hidePassword : id.reset.showPassword}
+            >
+              <Text style={styles.toggleButtonText}>
+                {showConfirm ? id.reset.hidePassword : id.reset.showPassword}
+              </Text>
+            </Pressable>
+          </View>
         </View>
 
         <Pressable
@@ -111,7 +137,12 @@ export default function ResetPasswordScreen({ navigation, route }: Props) {
         <Pressable
           onPress={() => {
             if (isAccountFlow) {
-              navigation.goBack();
+              if (navigation.canGoBack()) {
+                navigation.goBack();
+              } else {
+                const appNavigation = navigation as NativeStackNavigationProp<AppStackParamList>;
+                appNavigation.replace("Account");
+              }
               return;
             }
             const authNavigation = navigation as NativeStackNavigationProp<AuthStackParamList>;
@@ -143,6 +174,17 @@ const styles = StyleSheet.create({
     color: colors.text,
     backgroundColor: colors.secondary
   },
+  passwordRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  passwordInput: { flex: 1 },
+  toggleButton: {
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.sm,
+    backgroundColor: colors.secondary,
+    borderWidth: 1,
+    borderColor: colors.border
+  },
+  toggleButtonText: { color: colors.secondaryText, fontSize: typography.small, fontWeight: "700" },
   primaryButton: { marginTop: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.primary },
   primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
   secondaryButton: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.secondary, borderWidth: 1, borderColor: colors.border },
