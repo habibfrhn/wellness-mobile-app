@@ -75,18 +75,8 @@ export default function LoginScreen({ navigation, route }: Props) {
         </View>
 
         <View>
-          <Text style={styles.label}>{id.login.passwordLabel}</Text>
-          <View style={styles.inputWrapper}>
-            <TextInput
-              value={password}
-              onChangeText={setPassword}
-              autoCapitalize="none"
-              autoCorrect={false}
-              secureTextEntry={!showPassword}
-              placeholder={id.login.passwordPlaceholder}
-              placeholderTextColor={colors.mutedText}
-              style={[styles.input, styles.inputWithToggle]}
-            />
+          <View style={styles.rowBetween}>
+            <Text style={styles.label}>{id.login.passwordLabel}</Text>
             <Pressable
               onPress={() => setShowPassword((prev) => !prev)}
               style={({ pressed }) => [styles.toggleButton, pressed && styles.pressed]}
@@ -95,6 +85,18 @@ export default function LoginScreen({ navigation, route }: Props) {
             >
               <Text style={styles.toggleButtonText}>{showPassword ? id.login.hidePassword : id.login.showPassword}</Text>
             </Pressable>
+          </View>
+          <View>
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+              secureTextEntry={!showPassword}
+              placeholder={id.login.passwordPlaceholder}
+              placeholderTextColor={colors.mutedText}
+              style={styles.input}
+            />
           </View>
         </View>
 
@@ -143,20 +145,9 @@ const styles = StyleSheet.create({
     color: colors.text,
     backgroundColor: colors.secondary
   },
-  inputWrapper: { position: "relative", justifyContent: "center" },
-  inputWithToggle: { paddingRight: spacing.xl },
-  toggleButton: {
-    position: "absolute",
-    right: spacing.sm,
-    top: spacing.xs,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
-    borderRadius: radius.sm,
-    backgroundColor: colors.secondary,
-    borderWidth: 1,
-    borderColor: colors.border
-  },
-  toggleButtonText: { color: colors.secondaryText, fontSize: typography.small, fontWeight: "700" },
+  rowBetween: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  toggleButton: { paddingVertical: spacing.xs, paddingHorizontal: spacing.xs },
+  toggleButtonText: { color: colors.text, fontSize: typography.small, fontWeight: "700" },
   primaryButton: { marginTop: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.primary },
   primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
   secondaryButton: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.secondary, borderWidth: 1, borderColor: colors.border },

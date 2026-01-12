@@ -71,18 +71,8 @@ export default function ResetPasswordScreen({ navigation, route }: Props) {
 
       <View style={{ marginTop: spacing.lg, gap: spacing.sm }}>
         <View>
-          <Text style={styles.label}>{id.reset.newPassword}</Text>
-          <View style={styles.inputWrapper}>
-            <TextInput
-              value={password}
-              onChangeText={setPassword}
-              autoCapitalize="none"
-              autoCorrect={false}
-              secureTextEntry={!showPassword}
-              placeholder={id.reset.placeholderNew}
-              placeholderTextColor={colors.mutedText}
-              style={[styles.input, styles.inputWithToggle]}
-            />
+          <View style={styles.rowBetween}>
+            <Text style={styles.label}>{id.reset.newPassword}</Text>
             <Pressable
               onPress={() => setShowPassword((prev) => !prev)}
               style={({ pressed }) => [styles.toggleButton, pressed && styles.pressed]}
@@ -94,21 +84,23 @@ export default function ResetPasswordScreen({ navigation, route }: Props) {
               </Text>
             </Pressable>
           </View>
+          <View>
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+              secureTextEntry={!showPassword}
+              placeholder={id.reset.placeholderNew}
+              placeholderTextColor={colors.mutedText}
+              style={styles.input}
+            />
+          </View>
         </View>
 
         <View>
-          <Text style={styles.label}>{id.reset.confirmPassword}</Text>
-          <View style={styles.inputWrapper}>
-            <TextInput
-              value={confirm}
-              onChangeText={setConfirm}
-              autoCapitalize="none"
-              autoCorrect={false}
-              secureTextEntry={!showConfirm}
-              placeholder={id.reset.placeholderConfirm}
-              placeholderTextColor={colors.mutedText}
-              style={[styles.input, styles.inputWithToggle]}
-            />
+          <View style={styles.rowBetween}>
+            <Text style={styles.label}>{id.reset.confirmPassword}</Text>
             <Pressable
               onPress={() => setShowConfirm((prev) => !prev)}
               style={({ pressed }) => [styles.toggleButton, pressed && styles.pressed]}
@@ -119,6 +111,18 @@ export default function ResetPasswordScreen({ navigation, route }: Props) {
                 {showConfirm ? id.reset.hidePassword : id.reset.showPassword}
               </Text>
             </Pressable>
+          </View>
+          <View>
+            <TextInput
+              value={confirm}
+              onChangeText={setConfirm}
+              autoCapitalize="none"
+              autoCorrect={false}
+              secureTextEntry={!showConfirm}
+              placeholder={id.reset.placeholderConfirm}
+              placeholderTextColor={colors.mutedText}
+              style={styles.input}
+            />
           </View>
         </View>
 
@@ -174,20 +178,9 @@ const styles = StyleSheet.create({
     color: colors.text,
     backgroundColor: colors.secondary
   },
-  inputWrapper: { position: "relative", justifyContent: "center" },
-  inputWithToggle: { paddingRight: spacing.xl },
-  toggleButton: {
-    position: "absolute",
-    right: spacing.sm,
-    top: spacing.xs,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
-    borderRadius: radius.sm,
-    backgroundColor: colors.secondary,
-    borderWidth: 1,
-    borderColor: colors.border
-  },
-  toggleButtonText: { color: colors.secondaryText, fontSize: typography.small, fontWeight: "700" },
+  rowBetween: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  toggleButton: { paddingVertical: spacing.xs, paddingHorizontal: spacing.xs },
+  toggleButtonText: { color: colors.text, fontSize: typography.small, fontWeight: "700" },
   primaryButton: { marginTop: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.primary },
   primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
   secondaryButton: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.secondary, borderWidth: 1, borderColor: colors.border },
