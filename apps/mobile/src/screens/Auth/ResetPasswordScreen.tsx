@@ -50,12 +50,19 @@ export default function ResetPasswordScreen({ navigation, route }: Props) {
         {
           text: id.common.ok,
           onPress: async () => {
+            if (isAccountFlow) {
+              if (navigation.canGoBack()) {
+                navigation.goBack();
+              } else {
+                const appNavigation = navigation as NativeStackNavigationProp<AppStackParamList>;
+                appNavigation.replace("Account");
+              }
+              return;
+            }
             // Security: sign out after password change, force re-login
             await supabase.auth.signOut();
-            if (isAuthFlow) {
-              const authNavigation = navigation as NativeStackNavigationProp<AuthStackParamList>;
-              authNavigation.replace("Login");
-            }
+            const authNavigation = navigation as NativeStackNavigationProp<AuthStackParamList>;
+            authNavigation.replace("Login");
           },
         },
       ]);
