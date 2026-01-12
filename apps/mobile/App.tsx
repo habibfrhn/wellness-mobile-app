@@ -78,6 +78,9 @@ export default function App() {
     if (!session) {
       consumeAuthNextRoute()
         .then((route) => {
+          if (route) {
+            setForceReset(false);
+          }
           setAuthInitialRoute(route ?? "Welcome");
         })
         .catch(() => {
@@ -146,11 +149,15 @@ export default function App() {
   }
 
   const shouldShowAuth = forceReset || !session || !isVerified;
+  const authStackKey = forceReset ? "reset" : authInitialRoute;
 
   return (
     <NavigationContainer>
       {shouldShowAuth ? (
-        <AuthStack initialRouteName={forceReset ? "ResetPassword" : authInitialRoute} />
+        <AuthStack
+          key={authStackKey}
+          initialRouteName={forceReset ? "ResetPassword" : authInitialRoute}
+        />
       ) : (
         <AppStack />
       )}
