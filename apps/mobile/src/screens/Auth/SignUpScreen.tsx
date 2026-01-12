@@ -87,20 +87,8 @@ export default function SignUpScreen({ navigation, route }: Props) {
         </View>
 
         <View>
-          <View style={styles.rowBetween}>
-            <Text style={styles.label}>{id.signup.passwordLabel}</Text>
-            <Pressable
-              onPress={() => setShowPassword((v) => !v)}
-              style={({ pressed }) => [styles.toggleButton, pressed && styles.pressed]}
-              accessibilityRole="button"
-              accessibilityLabel={showPassword ? id.signup.hidePassword : id.signup.showPassword}
-            >
-              <Text style={styles.toggleButtonText}>
-                {showPassword ? id.signup.hidePassword : id.signup.showPassword}
-              </Text>
-            </Pressable>
-          </View>
-          <View>
+          <Text style={styles.label}>{id.signup.passwordLabel}</Text>
+          <View style={styles.inputWrapper}>
             <TextInput
               value={password}
               onChangeText={setPassword}
@@ -109,26 +97,22 @@ export default function SignUpScreen({ navigation, route }: Props) {
               secureTextEntry={!showPassword}
               placeholder={id.signup.passwordPlaceholder}
               placeholderTextColor={colors.mutedText}
-              style={styles.input}
+              style={[styles.input, styles.inputWithToggle]}
             />
+            <Pressable
+              onPress={() => setShowPassword((v) => !v)}
+              style={({ pressed }) => [styles.toggleIconButton, pressed && styles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel={showPassword ? id.signup.hidePassword : id.signup.showPassword}
+            >
+              <Text style={styles.toggleIcon}>{showPassword ? "🙈" : "👁️"}</Text>
+            </Pressable>
           </View>
         </View>
 
         <View>
-          <View style={styles.rowBetween}>
-            <Text style={styles.label}>{id.signup.confirmPasswordLabel}</Text>
-            <Pressable
-              onPress={() => setShowConfirm((v) => !v)}
-              style={({ pressed }) => [styles.toggleButton, pressed && styles.pressed]}
-              accessibilityRole="button"
-              accessibilityLabel={showConfirm ? id.signup.hidePassword : id.signup.showPassword}
-            >
-              <Text style={styles.toggleButtonText}>
-                {showConfirm ? id.signup.hidePassword : id.signup.showPassword}
-              </Text>
-            </Pressable>
-          </View>
-          <View>
+          <Text style={styles.label}>{id.signup.confirmPasswordLabel}</Text>
+          <View style={styles.inputWrapper}>
             <TextInput
               value={confirm}
               onChangeText={setConfirm}
@@ -137,8 +121,16 @@ export default function SignUpScreen({ navigation, route }: Props) {
               secureTextEntry={!showConfirm}
               placeholder={id.signup.confirmPasswordPlaceholder}
               placeholderTextColor={colors.mutedText}
-              style={styles.input}
+              style={[styles.input, styles.inputWithToggle]}
             />
+            <Pressable
+              onPress={() => setShowConfirm((v) => !v)}
+              style={({ pressed }) => [styles.toggleIconButton, pressed && styles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel={showConfirm ? id.signup.hidePassword : id.signup.showPassword}
+            >
+              <Text style={styles.toggleIcon}>{showConfirm ? "🙈" : "👁️"}</Text>
+            </Pressable>
           </View>
         </View>
 
@@ -186,9 +178,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondary
   },
 
-  rowBetween: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  toggleButton: { paddingVertical: spacing.xs, paddingHorizontal: spacing.xs },
-  toggleButtonText: { color: colors.text, fontSize: typography.small, fontWeight: "700" },
+  inputWrapper: { position: "relative", justifyContent: "center" },
+  inputWithToggle: { paddingRight: spacing.xl },
+  toggleIconButton: { position: "absolute", right: spacing.sm, top: "50%", transform: [{ translateY: -10 }] },
+  toggleIcon: { fontSize: 18 },
 
   primaryButton: {
     marginTop: spacing.sm,

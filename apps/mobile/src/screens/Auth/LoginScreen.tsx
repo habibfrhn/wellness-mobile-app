@@ -75,18 +75,8 @@ export default function LoginScreen({ navigation, route }: Props) {
         </View>
 
         <View>
-          <View style={styles.rowBetween}>
-            <Text style={styles.label}>{id.login.passwordLabel}</Text>
-            <Pressable
-              onPress={() => setShowPassword((prev) => !prev)}
-              style={({ pressed }) => [styles.toggleButton, pressed && styles.pressed]}
-              accessibilityRole="button"
-              accessibilityLabel={showPassword ? id.login.hidePassword : id.login.showPassword}
-            >
-              <Text style={styles.toggleButtonText}>{showPassword ? id.login.hidePassword : id.login.showPassword}</Text>
-            </Pressable>
-          </View>
-          <View>
+          <Text style={styles.label}>{id.login.passwordLabel}</Text>
+          <View style={styles.inputWrapper}>
             <TextInput
               value={password}
               onChangeText={setPassword}
@@ -95,8 +85,16 @@ export default function LoginScreen({ navigation, route }: Props) {
               secureTextEntry={!showPassword}
               placeholder={id.login.passwordPlaceholder}
               placeholderTextColor={colors.mutedText}
-              style={styles.input}
+              style={[styles.input, styles.inputWithToggle]}
             />
+            <Pressable
+              onPress={() => setShowPassword((prev) => !prev)}
+              style={({ pressed }) => [styles.toggleIconButton, pressed && styles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel={showPassword ? id.login.hidePassword : id.login.showPassword}
+            >
+              <Text style={styles.toggleIcon}>{showPassword ? "🙈" : "👁️"}</Text>
+            </Pressable>
           </View>
         </View>
 
@@ -145,9 +143,10 @@ const styles = StyleSheet.create({
     color: colors.text,
     backgroundColor: colors.secondary
   },
-  rowBetween: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  toggleButton: { paddingVertical: spacing.xs, paddingHorizontal: spacing.xs },
-  toggleButtonText: { color: colors.text, fontSize: typography.small, fontWeight: "700" },
+  inputWrapper: { position: "relative", justifyContent: "center" },
+  inputWithToggle: { paddingRight: spacing.xl },
+  toggleIconButton: { position: "absolute", right: spacing.sm, top: "50%", transform: [{ translateY: -10 }] },
+  toggleIcon: { fontSize: 18 },
   primaryButton: { marginTop: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.primary },
   primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
   secondaryButton: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.secondary, borderWidth: 1, borderColor: colors.border },
