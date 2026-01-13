@@ -198,8 +198,9 @@ const styles = StyleSheet.create({
   toggle: {
     position: "absolute",
     right: spacing.sm,
-    top: "50%",
-    transform: [{ translateY: -10 }],
+    top: 0,
+    bottom: 0,
+    justifyContent: "center",
   },
   primaryButton: {
     marginTop: spacing.sm,
