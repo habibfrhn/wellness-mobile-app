@@ -79,6 +79,7 @@ export default function App() {
         if (nextRoute) {
           setAuthStartRoute(nextRoute);
           await clearNextAuthRoute();
+          if (nextRoute === "Login") setForceReset(false);
         } else {
           setAuthStartRoute("Welcome");
         }
@@ -154,7 +155,7 @@ export default function App() {
   return (
     <NavigationContainer>
       {shouldShowAuth ? (
-        <AuthStack initialRouteName={initialAuthRoute} />
+        <AuthStack key={`auth-${initialAuthRoute}`} initialRouteName={initialAuthRoute} />
       ) : (
         <AppStack />
       )}
