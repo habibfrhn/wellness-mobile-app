@@ -88,45 +88,47 @@ export default function SignUpScreen({ navigation, route }: Props) {
         </View>
 
         <View>
-          <View style={styles.rowBetween}>
-            <Text style={styles.label}>{id.signup.passwordLabel}</Text>
+          <Text style={styles.label}>{id.signup.passwordLabel}</Text>
+          <View style={styles.inputWrap}>
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+              secureTextEntry={!showPassword}
+              placeholder={id.signup.passwordPlaceholder}
+              placeholderTextColor={colors.mutedText}
+              style={styles.input}
+            />
             <PasswordToggle
               visible={showPassword}
               onPress={() => setShowPassword((v) => !v)}
               accessibilityLabel={showPassword ? id.common.hidePassword : id.common.showPassword}
+              style={styles.toggle}
             />
           </View>
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            autoCapitalize="none"
-            autoCorrect={false}
-            secureTextEntry={!showPassword}
-            placeholder={id.signup.passwordPlaceholder}
-            placeholderTextColor={colors.mutedText}
-            style={styles.input}
-          />
         </View>
 
         <View>
-          <View style={styles.rowBetween}>
-            <Text style={styles.label}>{id.signup.confirmPasswordLabel}</Text>
+          <Text style={styles.label}>{id.signup.confirmPasswordLabel}</Text>
+          <View style={styles.inputWrap}>
+            <TextInput
+              value={confirm}
+              onChangeText={setConfirm}
+              autoCapitalize="none"
+              autoCorrect={false}
+              secureTextEntry={!showConfirm}
+              placeholder={id.signup.confirmPasswordPlaceholder}
+              placeholderTextColor={colors.mutedText}
+              style={styles.input}
+            />
             <PasswordToggle
               visible={showConfirm}
               onPress={() => setShowConfirm((v) => !v)}
               accessibilityLabel={showConfirm ? id.common.hidePassword : id.common.showPassword}
+              style={styles.toggle}
             />
           </View>
-          <TextInput
-            value={confirm}
-            onChangeText={setConfirm}
-            autoCapitalize="none"
-            autoCorrect={false}
-            secureTextEntry={!showConfirm}
-            placeholder={id.signup.confirmPasswordPlaceholder}
-            placeholderTextColor={colors.mutedText}
-            style={styles.input}
-          />
         </View>
 
         <Pressable
@@ -162,18 +164,25 @@ const styles = StyleSheet.create({
   subtitle: { marginTop: spacing.xs, fontSize: typography.body, color: colors.mutedText, lineHeight: 22 },
 
   label: { fontSize: typography.small, color: colors.text, fontWeight: "700", marginBottom: spacing.xs },
+  inputWrap: { position: "relative" },
   input: {
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.sm,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
+    paddingRight: spacing.xl,
     fontSize: typography.body,
     color: colors.text,
     backgroundColor: colors.secondary
   },
 
-  rowBetween: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  toggle: {
+    position: "absolute",
+    right: spacing.sm,
+    top: "50%",
+    transform: [{ translateY: -12 }]
+  },
 
   primaryButton: {
     marginTop: spacing.sm,

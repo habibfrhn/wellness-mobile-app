@@ -55,45 +55,47 @@ export default function ResetPasswordScreen({ navigation }: Props) {
 
       <View style={{ marginTop: spacing.lg, gap: spacing.sm }}>
         <View>
-          <View style={styles.rowBetween}>
-            <Text style={styles.label}>{id.reset.newPassword}</Text>
+          <Text style={styles.label}>{id.reset.newPassword}</Text>
+          <View style={styles.inputWrap}>
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+              secureTextEntry={!showPassword}
+              placeholder={id.reset.placeholderNew}
+              placeholderTextColor={colors.mutedText}
+              style={styles.input}
+            />
             <PasswordToggle
               visible={showPassword}
               onPress={() => setShowPassword((v) => !v)}
               accessibilityLabel={showPassword ? id.common.hidePassword : id.common.showPassword}
+              style={styles.toggle}
             />
           </View>
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            autoCapitalize="none"
-            autoCorrect={false}
-            secureTextEntry={!showPassword}
-            placeholder={id.reset.placeholderNew}
-            placeholderTextColor={colors.mutedText}
-            style={styles.input}
-          />
         </View>
 
         <View>
-          <View style={styles.rowBetween}>
-            <Text style={styles.label}>{id.reset.confirmPassword}</Text>
+          <Text style={styles.label}>{id.reset.confirmPassword}</Text>
+          <View style={styles.inputWrap}>
+            <TextInput
+              value={confirm}
+              onChangeText={setConfirm}
+              autoCapitalize="none"
+              autoCorrect={false}
+              secureTextEntry={!showConfirm}
+              placeholder={id.reset.placeholderConfirm}
+              placeholderTextColor={colors.mutedText}
+              style={styles.input}
+            />
             <PasswordToggle
               visible={showConfirm}
               onPress={() => setShowConfirm((v) => !v)}
               accessibilityLabel={showConfirm ? id.common.hidePassword : id.common.showPassword}
+              style={styles.toggle}
             />
           </View>
-          <TextInput
-            value={confirm}
-            onChangeText={setConfirm}
-            autoCapitalize="none"
-            autoCorrect={false}
-            secureTextEntry={!showConfirm}
-            placeholder={id.reset.placeholderConfirm}
-            placeholderTextColor={colors.mutedText}
-            style={styles.input}
-          />
         </View>
 
         <Pressable
@@ -124,16 +126,23 @@ const styles = StyleSheet.create({
   title: { fontSize: typography.h2, color: colors.text, fontWeight: "700" },
   subtitle: { marginTop: spacing.xs, fontSize: typography.body, color: colors.mutedText, lineHeight: 22 },
   label: { fontSize: typography.small, color: colors.text, fontWeight: "700", marginBottom: spacing.xs },
-  rowBetween: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  inputWrap: { position: "relative" },
   input: {
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.sm,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
+    paddingRight: spacing.xl,
     fontSize: typography.body,
     color: colors.text,
     backgroundColor: colors.secondary
+  },
+  toggle: {
+    position: "absolute",
+    right: spacing.sm,
+    top: "50%",
+    transform: [{ translateY: -12 }]
   },
   primaryButton: { marginTop: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.primary },
   primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
