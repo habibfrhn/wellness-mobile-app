@@ -18,6 +18,7 @@ type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"][
 export default function App() {
   const [ready, setReady] = useState(false);
   const [session, setSession] = useState<SessionType>(null);
+  const [authStartResolved, setAuthStartResolved] = useState(true);
 
   // If user comes from reset link, force AuthStack to start at ResetPassword.
   const [forceReset, setForceReset] = useState(false);
@@ -73,6 +74,7 @@ export default function App() {
     let mounted = true;
 
     if (!session) {
+      setAuthStartResolved(false);
       (async () => {
         const nextRoute = await getNextAuthRoute();
         if (!mounted) return;
@@ -83,7 +85,10 @@ export default function App() {
         } else {
           setAuthStartRoute("Welcome");
         }
+        setAuthStartResolved(true);
       })();
+    } else {
+      setAuthStartResolved(true);
     }
 
     return () => {
@@ -140,7 +145,7 @@ export default function App() {
     })();
   }, [ready]);
 
-  if (!ready) {
+  if (!ready || (!session && !authStartResolved)) {
     return (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
         <ActivityIndicator />
