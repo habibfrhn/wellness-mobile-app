@@ -18,9 +18,7 @@ export default function PasswordToggle({ visible, onPress, accessibilityLabel }:
       accessibilityLabel={accessibilityLabel}
       style={({ pressed }) => [styles.touch, pressed && styles.pressed]}
     >
-      <View style={styles.eye}>
-        <View style={styles.pupil} />
-      </View>
+      <View style={styles.eye} />
       {!visible ? <View style={styles.slash} /> : null}
     </Pressable>
   );
@@ -30,27 +28,19 @@ const styles = StyleSheet.create({
   touch: { paddingVertical: spacing.xs, paddingHorizontal: spacing.xs },
   pressed: { opacity: 0.7 },
   eye: {
-    width: 24,
-    height: 14,
+    width: 22,
+    height: 12,
     borderWidth: 2,
     borderColor: colors.mutedText,
     borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  pupil: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.mutedText,
   },
   slash: {
     position: "absolute",
     width: 2,
-    height: 22,
+    height: 20,
     backgroundColor: colors.mutedText,
     transform: [{ rotate: "45deg" }],
-    top: -2,
+    top: -1,
     right: 10,
   },
 });
