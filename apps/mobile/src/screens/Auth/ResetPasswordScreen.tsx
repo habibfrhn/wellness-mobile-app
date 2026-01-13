@@ -39,16 +39,9 @@ export default function ResetPasswordScreen({ navigation }: Props) {
         return;
       }
 
-      Alert.alert(id.reset.successTitle, id.reset.successBody, [
-        {
-          text: id.common.ok,
-          onPress: async () => {
-            // Security: sign out after password change, force re-login
-            await supabase.auth.signOut();
-            navigation.replace("Login");
-          }
-        }
-      ]);
+      // Security: sign out after password change, force re-login
+      await supabase.auth.signOut();
+      navigation.replace("Login");
     } finally {
       setBusy(false);
     }
