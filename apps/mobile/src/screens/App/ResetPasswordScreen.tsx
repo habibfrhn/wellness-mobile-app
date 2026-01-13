@@ -14,6 +14,9 @@ export default function ResetPasswordScreen({ navigation }: Props) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const canSubmit = useMemo(() => {
@@ -70,15 +73,8 @@ export default function ResetPasswordScreen({ navigation }: Props) {
         return;
       }
 
-      Alert.alert(id.account.resetSuccessTitle, id.account.resetSuccessBody, [
-        {
-          text: id.common.ok,
-          onPress: async () => {
-            await setNextAuthRoute("Login");
-            await supabase.auth.signOut();
-          },
-        },
-      ]);
+      await setNextAuthRoute("Login");
+      await supabase.auth.signOut();
     } finally {
       setBusy(false);
     }
@@ -91,13 +87,24 @@ export default function ResetPasswordScreen({ navigation }: Props) {
 
       <View style={{ marginTop: spacing.lg, gap: spacing.sm }}>
         <View>
-          <Text style={styles.label}>{id.account.currentPasswordLabel}</Text>
+          <View style={styles.rowBetween}>
+            <Text style={styles.label}>{id.account.currentPasswordLabel}</Text>
+            <Pressable
+              onPress={() => setShowCurrent((v) => !v)}
+              hitSlop={10}
+              style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]}
+            >
+              <Text style={styles.linkText}>
+                {showCurrent ? id.common.hidePassword : id.common.showPassword}
+              </Text>
+            </Pressable>
+          </View>
           <TextInput
             value={currentPassword}
             onChangeText={setCurrentPassword}
             autoCapitalize="none"
             autoCorrect={false}
-            secureTextEntry
+            secureTextEntry={!showCurrent}
             placeholder={id.account.currentPasswordPlaceholder}
             placeholderTextColor={colors.mutedText}
             style={styles.input}
@@ -105,13 +112,24 @@ export default function ResetPasswordScreen({ navigation }: Props) {
         </View>
 
         <View>
-          <Text style={styles.label}>{id.account.newPasswordLabel}</Text>
+          <View style={styles.rowBetween}>
+            <Text style={styles.label}>{id.account.newPasswordLabel}</Text>
+            <Pressable
+              onPress={() => setShowPassword((v) => !v)}
+              hitSlop={10}
+              style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]}
+            >
+              <Text style={styles.linkText}>
+                {showPassword ? id.common.hidePassword : id.common.showPassword}
+              </Text>
+            </Pressable>
+          </View>
           <TextInput
             value={password}
             onChangeText={setPassword}
             autoCapitalize="none"
             autoCorrect={false}
-            secureTextEntry
+            secureTextEntry={!showPassword}
             placeholder={id.account.newPasswordPlaceholder}
             placeholderTextColor={colors.mutedText}
             style={styles.input}
@@ -119,13 +137,24 @@ export default function ResetPasswordScreen({ navigation }: Props) {
         </View>
 
         <View>
-          <Text style={styles.label}>{id.account.confirmPasswordLabel}</Text>
+          <View style={styles.rowBetween}>
+            <Text style={styles.label}>{id.account.confirmPasswordLabel}</Text>
+            <Pressable
+              onPress={() => setShowConfirm((v) => !v)}
+              hitSlop={10}
+              style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]}
+            >
+              <Text style={styles.linkText}>
+                {showConfirm ? id.common.hidePassword : id.common.showPassword}
+              </Text>
+            </Pressable>
+          </View>
           <TextInput
             value={confirm}
             onChangeText={setConfirm}
             autoCapitalize="none"
             autoCorrect={false}
-            secureTextEntry
+            secureTextEntry={!showConfirm}
             placeholder={id.account.confirmPasswordPlaceholder}
             placeholderTextColor={colors.mutedText}
             style={styles.input}
@@ -162,6 +191,9 @@ const styles = StyleSheet.create({
   title: { fontSize: typography.h2, color: colors.text, fontWeight: "700" },
   subtitle: { marginTop: spacing.xs, fontSize: typography.body, color: colors.mutedText, lineHeight: 22 },
   label: { fontSize: typography.small, color: colors.text, fontWeight: "700", marginBottom: spacing.xs },
+  rowBetween: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  linkButton: { paddingVertical: spacing.xs, paddingHorizontal: spacing.xs },
+  linkText: { color: colors.text, fontSize: typography.small, fontWeight: "700" },
   input: {
     borderWidth: 1,
     borderColor: colors.border,

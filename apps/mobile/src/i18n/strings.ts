@@ -11,6 +11,8 @@ export const id = {
     passwordsNotMatchBody: "Pastikan kedua kata sandi sama.",
     errorTitle: "Terjadi kesalahan",
     tryAgain: "Silakan coba lagi.",
+    showPassword: "Lihat",
+    hidePassword: "Sembunyikan",
   },
 
   welcome: {

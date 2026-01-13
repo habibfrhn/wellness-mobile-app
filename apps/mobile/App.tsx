@@ -148,11 +148,13 @@ export default function App() {
   }
 
   const shouldShowAuth = forceReset || !session || !isVerified;
+  const initialAuthRoute =
+    authStartRoute === "Login" ? "Login" : forceReset ? "ResetPassword" : authStartRoute;
 
   return (
     <NavigationContainer>
       {shouldShowAuth ? (
-        <AuthStack initialRouteName={forceReset ? "ResetPassword" : authStartRoute} />
+        <AuthStack initialRouteName={initialAuthRoute} />
       ) : (
         <AppStack />
       )}

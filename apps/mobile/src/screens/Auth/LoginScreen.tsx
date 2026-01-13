@@ -16,6 +16,7 @@ function isValidEmail(email: string) {
 export default function LoginScreen({ navigation, route }: Props) {
   const [email, setEmail] = useState(route.params?.initialEmail ?? "");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const canSubmit = useMemo(() => {
@@ -74,13 +75,24 @@ export default function LoginScreen({ navigation, route }: Props) {
         </View>
 
         <View>
-          <Text style={styles.label}>{id.login.passwordLabel}</Text>
+          <View style={styles.rowBetween}>
+            <Text style={styles.label}>{id.login.passwordLabel}</Text>
+            <Pressable
+              onPress={() => setShowPassword((v) => !v)}
+              hitSlop={10}
+              style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]}
+            >
+              <Text style={styles.linkText}>
+                {showPassword ? id.common.hidePassword : id.common.showPassword}
+              </Text>
+            </Pressable>
+          </View>
           <TextInput
             value={password}
             onChangeText={setPassword}
             autoCapitalize="none"
             autoCorrect={false}
-            secureTextEntry
+            secureTextEntry={!showPassword}
             placeholder={id.login.passwordPlaceholder}
             placeholderTextColor={colors.mutedText}
             style={styles.input}
@@ -132,6 +144,9 @@ const styles = StyleSheet.create({
     color: colors.text,
     backgroundColor: colors.secondary
   },
+  rowBetween: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  linkButton: { paddingVertical: spacing.xs, paddingHorizontal: spacing.xs },
+  linkText: { color: colors.text, fontSize: typography.small, fontWeight: "700" },
   primaryButton: { marginTop: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.primary },
   primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
   secondaryButton: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.secondary, borderWidth: 1, borderColor: colors.border },

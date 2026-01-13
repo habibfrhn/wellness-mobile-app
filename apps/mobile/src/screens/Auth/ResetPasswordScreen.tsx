@@ -12,6 +12,8 @@ type Props = NativeStackScreenProps<AuthStackParamList, "ResetPassword">;
 export default function ResetPasswordScreen({ navigation }: Props) {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const canSubmit = useMemo(() => {
@@ -59,13 +61,24 @@ export default function ResetPasswordScreen({ navigation }: Props) {
 
       <View style={{ marginTop: spacing.lg, gap: spacing.sm }}>
         <View>
-          <Text style={styles.label}>{id.reset.newPassword}</Text>
+          <View style={styles.rowBetween}>
+            <Text style={styles.label}>{id.reset.newPassword}</Text>
+            <Pressable
+              onPress={() => setShowPassword((v) => !v)}
+              hitSlop={10}
+              style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]}
+            >
+              <Text style={styles.linkText}>
+                {showPassword ? id.common.hidePassword : id.common.showPassword}
+              </Text>
+            </Pressable>
+          </View>
           <TextInput
             value={password}
             onChangeText={setPassword}
             autoCapitalize="none"
             autoCorrect={false}
-            secureTextEntry
+            secureTextEntry={!showPassword}
             placeholder={id.reset.placeholderNew}
             placeholderTextColor={colors.mutedText}
             style={styles.input}
@@ -73,13 +86,24 @@ export default function ResetPasswordScreen({ navigation }: Props) {
         </View>
 
         <View>
-          <Text style={styles.label}>{id.reset.confirmPassword}</Text>
+          <View style={styles.rowBetween}>
+            <Text style={styles.label}>{id.reset.confirmPassword}</Text>
+            <Pressable
+              onPress={() => setShowConfirm((v) => !v)}
+              hitSlop={10}
+              style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]}
+            >
+              <Text style={styles.linkText}>
+                {showConfirm ? id.common.hidePassword : id.common.showPassword}
+              </Text>
+            </Pressable>
+          </View>
           <TextInput
             value={confirm}
             onChangeText={setConfirm}
             autoCapitalize="none"
             autoCorrect={false}
-            secureTextEntry
+            secureTextEntry={!showConfirm}
             placeholder={id.reset.placeholderConfirm}
             placeholderTextColor={colors.mutedText}
             style={styles.input}
@@ -114,6 +138,9 @@ const styles = StyleSheet.create({
   title: { fontSize: typography.h2, color: colors.text, fontWeight: "700" },
   subtitle: { marginTop: spacing.xs, fontSize: typography.body, color: colors.mutedText, lineHeight: 22 },
   label: { fontSize: typography.small, color: colors.text, fontWeight: "700", marginBottom: spacing.xs },
+  rowBetween: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  linkButton: { paddingVertical: spacing.xs, paddingHorizontal: spacing.xs },
+  linkText: { color: colors.text, fontSize: typography.small, fontWeight: "700" },
   input: {
     borderWidth: 1,
     borderColor: colors.border,

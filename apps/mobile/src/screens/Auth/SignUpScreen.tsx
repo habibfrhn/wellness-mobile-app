@@ -94,7 +94,9 @@ export default function SignUpScreen({ navigation, route }: Props) {
               hitSlop={10}
               style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]}
             >
-              <Text style={styles.linkText}>{showPassword ? "Sembunyikan" : "Lihat"}</Text>
+              <Text style={styles.linkText}>
+                {showPassword ? id.common.hidePassword : id.common.showPassword}
+              </Text>
             </Pressable>
           </View>
           <TextInput
@@ -117,7 +119,9 @@ export default function SignUpScreen({ navigation, route }: Props) {
               hitSlop={10}
               style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]}
             >
-              <Text style={styles.linkText}>{showConfirm ? "Sembunyikan" : "Lihat"}</Text>
+              <Text style={styles.linkText}>
+                {showConfirm ? id.common.hidePassword : id.common.showPassword}
+              </Text>
             </Pressable>
           </View>
           <TextInput
