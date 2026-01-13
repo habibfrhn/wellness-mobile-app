@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
+import { Image, Pressable, StyleProp, StyleSheet, ViewStyle } from "react-native";
 
 import { colors, spacing } from "../theme/tokens";
 
@@ -10,6 +10,24 @@ type Props = {
   style?: StyleProp<ViewStyle>;
 };
 
+const eyeOpenUri =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="14" viewBox="0 0 24 14" fill="none" stroke="#8A8A8A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M1 7c2.5-3.5 6-5.5 11-5.5S20.5 3.5 23 7c-2.5 3.5-6 5.5-11 5.5S3.5 10.5 1 7Z"/>
+      <circle cx="12" cy="7" r="2.5" fill="#8A8A8A" stroke="none"/>
+    </svg>`
+  );
+
+const eyeClosedUri =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="14" viewBox="0 0 24 14" fill="none" stroke="#8A8A8A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M1 7c2.5-3.5 6-5.5 11-5.5S20.5 3.5 23 7c-2.5 3.5-6 5.5-11 5.5S3.5 10.5 1 7Z"/>
+      <line x1="3" y1="1" x2="21" y2="13"/>
+    </svg>`
+  );
+
 export default function PasswordToggle({ visible, onPress, accessibilityLabel, style }: Props) {
   return (
     <Pressable
@@ -19,9 +37,7 @@ export default function PasswordToggle({ visible, onPress, accessibilityLabel, s
       accessibilityLabel={accessibilityLabel}
       style={({ pressed }) => [styles.touch, style, pressed && styles.pressed]}
     >
-      <View style={styles.eye}>{visible ? <View style={styles.pupil} /> : null}</View>
-      {!visible ? <View style={styles.slash} /> : null}
-      {!visible ? <View style={styles.lid} /> : null}
+      <Image source={{ uri: visible ? eyeOpenUri : eyeClosedUri }} style={styles.icon} />
     </Pressable>
   );
 }
@@ -29,37 +45,5 @@ export default function PasswordToggle({ visible, onPress, accessibilityLabel, s
 const styles = StyleSheet.create({
   touch: { paddingVertical: spacing.xs, paddingHorizontal: spacing.xs },
   pressed: { opacity: 0.7 },
-  eye: {
-    width: 24,
-    height: 14,
-    borderWidth: 2,
-    borderColor: colors.mutedText,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  pupil: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.mutedText,
-  },
-  slash: {
-    position: "absolute",
-    width: 2,
-    height: 22,
-    backgroundColor: colors.mutedText,
-    transform: [{ rotate: "45deg" }],
-    top: -2,
-    right: 10,
-  },
-  lid: {
-    position: "absolute",
-    width: 22,
-    height: 2,
-    backgroundColor: colors.mutedText,
-    borderRadius: 1,
-    top: 10,
-    right: 8,
-  },
+  icon: { width: 24, height: 14, tintColor: colors.mutedText },
 });
