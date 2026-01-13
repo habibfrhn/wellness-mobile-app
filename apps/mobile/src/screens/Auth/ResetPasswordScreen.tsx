@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: spacing.sm,
     top: "50%",
-    transform: [{ translateY: -12 }]
+    transform: [{ translateY: -10 }]
   },
   primaryButton: { marginTop: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.primary },
   primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },

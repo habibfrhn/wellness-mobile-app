@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: spacing.sm,
     top: "50%",
-    transform: [{ translateY: -12 }]
+    transform: [{ translateY: -10 }]
   },
 
   primaryButton: {
