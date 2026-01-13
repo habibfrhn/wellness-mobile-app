@@ -6,6 +6,7 @@ import type { AuthStackParamList } from "../../navigation/types";
 import { colors, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
+import PasswordToggle from "../../components/PasswordToggle";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "ResetPassword">;
 
@@ -56,15 +57,11 @@ export default function ResetPasswordScreen({ navigation }: Props) {
         <View>
           <View style={styles.rowBetween}>
             <Text style={styles.label}>{id.reset.newPassword}</Text>
-            <Pressable
+            <PasswordToggle
+              visible={showPassword}
               onPress={() => setShowPassword((v) => !v)}
-              hitSlop={10}
-              style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]}
-            >
-              <Text style={styles.linkText}>
-                {showPassword ? id.common.hidePassword : id.common.showPassword}
-              </Text>
-            </Pressable>
+              accessibilityLabel={showPassword ? id.common.hidePassword : id.common.showPassword}
+            />
           </View>
           <TextInput
             value={password}
@@ -81,15 +78,11 @@ export default function ResetPasswordScreen({ navigation }: Props) {
         <View>
           <View style={styles.rowBetween}>
             <Text style={styles.label}>{id.reset.confirmPassword}</Text>
-            <Pressable
+            <PasswordToggle
+              visible={showConfirm}
               onPress={() => setShowConfirm((v) => !v)}
-              hitSlop={10}
-              style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]}
-            >
-              <Text style={styles.linkText}>
-                {showConfirm ? id.common.hidePassword : id.common.showPassword}
-              </Text>
-            </Pressable>
+              accessibilityLabel={showConfirm ? id.common.hidePassword : id.common.showPassword}
+            />
           </View>
           <TextInput
             value={confirm}
@@ -132,8 +125,6 @@ const styles = StyleSheet.create({
   subtitle: { marginTop: spacing.xs, fontSize: typography.body, color: colors.mutedText, lineHeight: 22 },
   label: { fontSize: typography.small, color: colors.text, fontWeight: "700", marginBottom: spacing.xs },
   rowBetween: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  linkButton: { paddingVertical: spacing.xs, paddingHorizontal: spacing.xs },
-  linkText: { color: colors.text, fontSize: typography.small, fontWeight: "700" },
   input: {
     borderWidth: 1,
     borderColor: colors.border,

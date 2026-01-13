@@ -6,6 +6,7 @@ import type { AuthStackParamList } from "../../navigation/types";
 import { colors, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase, AUTH_CALLBACK } from "../../services/supabase";
+import PasswordToggle from "../../components/PasswordToggle";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "SignUp">;
 
@@ -89,15 +90,11 @@ export default function SignUpScreen({ navigation, route }: Props) {
         <View>
           <View style={styles.rowBetween}>
             <Text style={styles.label}>{id.signup.passwordLabel}</Text>
-            <Pressable
+            <PasswordToggle
+              visible={showPassword}
               onPress={() => setShowPassword((v) => !v)}
-              hitSlop={10}
-              style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]}
-            >
-              <Text style={styles.linkText}>
-                {showPassword ? id.common.hidePassword : id.common.showPassword}
-              </Text>
-            </Pressable>
+              accessibilityLabel={showPassword ? id.common.hidePassword : id.common.showPassword}
+            />
           </View>
           <TextInput
             value={password}
@@ -114,15 +111,11 @@ export default function SignUpScreen({ navigation, route }: Props) {
         <View>
           <View style={styles.rowBetween}>
             <Text style={styles.label}>{id.signup.confirmPasswordLabel}</Text>
-            <Pressable
+            <PasswordToggle
+              visible={showConfirm}
               onPress={() => setShowConfirm((v) => !v)}
-              hitSlop={10}
-              style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]}
-            >
-              <Text style={styles.linkText}>
-                {showConfirm ? id.common.hidePassword : id.common.showPassword}
-              </Text>
-            </Pressable>
+              accessibilityLabel={showConfirm ? id.common.hidePassword : id.common.showPassword}
+            />
           </View>
           <TextInput
             value={confirm}
@@ -181,8 +174,6 @@ const styles = StyleSheet.create({
   },
 
   rowBetween: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  linkButton: { paddingVertical: spacing.xs, paddingHorizontal: spacing.xs },
-  linkText: { color: colors.text, fontSize: typography.small, fontWeight: "700" },
 
   primaryButton: {
     marginTop: spacing.sm,

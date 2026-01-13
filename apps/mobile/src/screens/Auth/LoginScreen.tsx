@@ -6,6 +6,7 @@ import type { AuthStackParamList } from "../../navigation/types";
 import { colors, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
+import PasswordToggle from "../../components/PasswordToggle";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
@@ -77,15 +78,11 @@ export default function LoginScreen({ navigation, route }: Props) {
         <View>
           <View style={styles.rowBetween}>
             <Text style={styles.label}>{id.login.passwordLabel}</Text>
-            <Pressable
+            <PasswordToggle
+              visible={showPassword}
               onPress={() => setShowPassword((v) => !v)}
-              hitSlop={10}
-              style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]}
-            >
-              <Text style={styles.linkText}>
-                {showPassword ? id.common.hidePassword : id.common.showPassword}
-              </Text>
-            </Pressable>
+              accessibilityLabel={showPassword ? id.common.hidePassword : id.common.showPassword}
+            />
           </View>
           <TextInput
             value={password}
@@ -145,8 +142,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondary
   },
   rowBetween: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  linkButton: { paddingVertical: spacing.xs, paddingHorizontal: spacing.xs },
-  linkText: { color: colors.text, fontSize: typography.small, fontWeight: "700" },
   primaryButton: { marginTop: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.primary },
   primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
   secondaryButton: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.secondary, borderWidth: 1, borderColor: colors.border },
