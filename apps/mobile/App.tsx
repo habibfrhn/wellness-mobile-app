@@ -8,8 +8,10 @@ import { supabase } from "./src/services/supabase";
 import { handleAuthLink } from "./src/services/authLinks";
 import AuthStack from "./src/navigation/AuthStack";
 import AppStack from "./src/navigation/AppStack";
+import type { AuthStackParamList } from "./src/navigation/types";
 import { id } from "./src/i18n/strings";
 import { setPendingUpdate } from "./src/services/updatesState";
+import { clearNextAuthRoute, getNextAuthRoute } from "./src/services/authStart";
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
 
@@ -19,6 +21,7 @@ export default function App() {
 
   // If user comes from reset link, force AuthStack to start at ResetPassword.
   const [forceReset, setForceReset] = useState(false);
+  const [authStartRoute, setAuthStartRoute] = useState<keyof AuthStackParamList>("Welcome");
 
   const didCheckUpdatesRef = useRef(false);
 
@@ -64,6 +67,27 @@ export default function App() {
   // Clear reset override once user signs out (we sign out after reset success)
   useEffect(() => {
     if (!session) setForceReset(false);
+  }, [session]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    if (!session) {
+      (async () => {
+        const nextRoute = await getNextAuthRoute();
+        if (!mounted) return;
+        if (nextRoute) {
+          setAuthStartRoute(nextRoute);
+          await clearNextAuthRoute();
+        } else {
+          setAuthStartRoute("Welcome");
+        }
+      })();
+    }
+
+    return () => {
+      mounted = false;
+    };
   }, [session]);
 
   // Check OTA updates once per launch (only for standalone/dev-client builds where updates are enabled).
@@ -128,7 +152,7 @@ export default function App() {
   return (
     <NavigationContainer>
       {shouldShowAuth ? (
-        <AuthStack initialRouteName={forceReset ? "ResetPassword" : "Welcome"} />
+        <AuthStack initialRouteName={forceReset ? "ResetPassword" : authStartRoute} />
       ) : (
         <AppStack />
       )}
