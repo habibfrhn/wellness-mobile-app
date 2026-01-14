@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
 
   continueCard: {
     marginTop: spacing.lg,
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.sm,
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.sm,

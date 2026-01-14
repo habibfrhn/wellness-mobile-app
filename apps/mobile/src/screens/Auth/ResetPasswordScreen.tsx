@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     paddingRight: spacing.xl,
     fontSize: typography.body,
     color: colors.text,
-    backgroundColor: colors.secondary
+    backgroundColor: colors.card
   },
   toggle: {
     position: "absolute",

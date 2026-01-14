@@ -475,7 +475,7 @@ const styles = StyleSheet.create({
   card: {
     padding: spacing.md,
     borderRadius: radius.sm,
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
     gap: spacing.sm,
@@ -538,7 +538,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     fontSize: typography.body,
     color: colors.text,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.card,
   },
 
   dangerButton: {

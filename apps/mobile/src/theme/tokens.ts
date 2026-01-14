@@ -8,7 +8,7 @@ export const colors = {
   // Brand
   primary: "#74BA74",
   primaryText: "#FFFFFF",
-  secondary: "#FFFFFF",
+  secondary: "#D8EFD3",
   secondaryText: "#212121",
   accent: "#FACC15",
 
