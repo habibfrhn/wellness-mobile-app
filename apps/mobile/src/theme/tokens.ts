@@ -1,14 +1,14 @@
 export const colors = {
-  bg: "#FFFFFF",
-  text: "#111111",
-  mutedText: "rgba(17,17,17,0.7)",
-  border: "rgba(17,17,17,0.15)",
+  bg: "#F7F5F1",
+  text: "#2B2A26",
+  mutedText: "#6F6B63",
+  border: "#E2DDD4",
 
-  // Brand (MVP)
-  primary: "#111111",
-  primaryText: "#FFFFFF",
+  // Brand (calm neutral)
+  primary: "#4E5D57",
+  primaryText: "#F7F5F1",
   secondary: "#FFFFFF",
-  secondaryText: "#111111",
+  secondaryText: "#2B2A26",
 
   danger: "#B00020",
 };
@@ -22,14 +22,14 @@ export const spacing = {
 };
 
 export const radius = {
-  sm: 10,
-  md: 14,
-  lg: 18,
+  sm: 12,
+  md: 16,
+  lg: 22,
 };
 
 export const typography = {
-  h1: 28,
-  h2: 20,
+  h1: 30,
+  h2: 22,
   body: 16,
   small: 14,
 };
