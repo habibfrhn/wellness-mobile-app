@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.sm,
-    padding: spacing.md,
+    padding: spacing.sm,
   },
   continueLabel: {
     fontSize: typography.small,
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.sm,
-    padding: spacing.md,
+    padding: spacing.sm,
   },
   cardTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   cardTitle: { fontSize: typography.body, fontWeight: "700", color: colors.text },
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     overflow: "hidden",
   },
-  cardSubtitle: { marginTop: 6, fontSize: typography.small, color: colors.mutedText, lineHeight: 18 },
+  cardSubtitle: { marginTop: 4, fontSize: typography.small, color: colors.mutedText, lineHeight: 18 },
 
   note: { fontSize: typography.small, color: colors.mutedText, lineHeight: 18 },
 

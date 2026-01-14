@@ -89,8 +89,8 @@ export const id = {
   },
 
   home: {
-    title: "Beranda",
-    subtitle: "Pilih sesi singkat untuk menutup hari dengan lebih tenang.",
+    title: "Ritual Malam",
+    subtitle: "Pilihan sesi singkat untuk menutup hari dengan lebih tenang.",
     durationBadge: "5 menit",
     continueLabel: "Lanjutkan",
     continueFrom: "Mulai dari",
