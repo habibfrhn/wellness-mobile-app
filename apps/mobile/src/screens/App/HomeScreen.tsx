@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   badge: {
     fontSize: typography.small,
     color: colors.secondaryText,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.secondary,
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
     borderRadius: 999,
