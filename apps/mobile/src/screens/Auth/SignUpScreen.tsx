@@ -6,6 +6,7 @@ import type { AuthStackParamList } from "../../navigation/types";
 import { colors, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase, AUTH_CALLBACK } from "../../services/supabase";
+import PasswordToggle from "../../components/PasswordToggle";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "SignUp">;
 
@@ -87,49 +88,47 @@ export default function SignUpScreen({ navigation, route }: Props) {
         </View>
 
         <View>
-          <View style={styles.rowBetween}>
-            <Text style={styles.label}>{id.signup.passwordLabel}</Text>
-            <Pressable
+          <Text style={styles.label}>{id.signup.passwordLabel}</Text>
+          <View style={styles.inputWrap}>
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+              secureTextEntry={!showPassword}
+              placeholder={id.signup.passwordPlaceholder}
+              placeholderTextColor={colors.mutedText}
+              style={styles.input}
+            />
+            <PasswordToggle
+              visible={showPassword}
               onPress={() => setShowPassword((v) => !v)}
-              hitSlop={10}
-              style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]}
-            >
-              <Text style={styles.linkText}>{showPassword ? "Sembunyikan" : "Lihat"}</Text>
-            </Pressable>
+              accessibilityLabel={showPassword ? id.common.hidePassword : id.common.showPassword}
+              style={styles.toggle}
+            />
           </View>
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            autoCapitalize="none"
-            autoCorrect={false}
-            secureTextEntry={!showPassword}
-            placeholder={id.signup.passwordPlaceholder}
-            placeholderTextColor={colors.mutedText}
-            style={styles.input}
-          />
         </View>
 
         <View>
-          <View style={styles.rowBetween}>
-            <Text style={styles.label}>{id.signup.confirmPasswordLabel}</Text>
-            <Pressable
+          <Text style={styles.label}>{id.signup.confirmPasswordLabel}</Text>
+          <View style={styles.inputWrap}>
+            <TextInput
+              value={confirm}
+              onChangeText={setConfirm}
+              autoCapitalize="none"
+              autoCorrect={false}
+              secureTextEntry={!showConfirm}
+              placeholder={id.signup.confirmPasswordPlaceholder}
+              placeholderTextColor={colors.mutedText}
+              style={styles.input}
+            />
+            <PasswordToggle
+              visible={showConfirm}
               onPress={() => setShowConfirm((v) => !v)}
-              hitSlop={10}
-              style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]}
-            >
-              <Text style={styles.linkText}>{showConfirm ? "Sembunyikan" : "Lihat"}</Text>
-            </Pressable>
+              accessibilityLabel={showConfirm ? id.common.hidePassword : id.common.showPassword}
+              style={styles.toggle}
+            />
           </View>
-          <TextInput
-            value={confirm}
-            onChangeText={setConfirm}
-            autoCapitalize="none"
-            autoCorrect={false}
-            secureTextEntry={!showConfirm}
-            placeholder={id.signup.confirmPasswordPlaceholder}
-            placeholderTextColor={colors.mutedText}
-            style={styles.input}
-          />
         </View>
 
         <Pressable
@@ -165,20 +164,26 @@ const styles = StyleSheet.create({
   subtitle: { marginTop: spacing.xs, fontSize: typography.body, color: colors.mutedText, lineHeight: 22 },
 
   label: { fontSize: typography.small, color: colors.text, fontWeight: "700", marginBottom: spacing.xs },
+  inputWrap: { position: "relative" },
   input: {
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.sm,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
+    paddingRight: spacing.xl,
     fontSize: typography.body,
     color: colors.text,
-    backgroundColor: colors.secondary
+    backgroundColor: colors.card
   },
 
-  rowBetween: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  linkButton: { paddingVertical: spacing.xs, paddingHorizontal: spacing.xs },
-  linkText: { color: colors.text, fontSize: typography.small, fontWeight: "700" },
+  toggle: {
+    position: "absolute",
+    right: spacing.sm,
+    top: 0,
+    bottom: 0,
+    justifyContent: "center"
+  },
 
   primaryButton: {
     marginTop: spacing.sm,

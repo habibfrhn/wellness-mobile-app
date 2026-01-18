@@ -6,6 +6,7 @@ import type { AuthStackParamList } from "../../navigation/types";
 import { colors, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
+import PasswordToggle from "../../components/PasswordToggle";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
@@ -16,6 +17,7 @@ function isValidEmail(email: string) {
 export default function LoginScreen({ navigation, route }: Props) {
   const [email, setEmail] = useState(route.params?.initialEmail ?? "");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const canSubmit = useMemo(() => {
@@ -75,16 +77,24 @@ export default function LoginScreen({ navigation, route }: Props) {
 
         <View>
           <Text style={styles.label}>{id.login.passwordLabel}</Text>
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            autoCapitalize="none"
-            autoCorrect={false}
-            secureTextEntry
-            placeholder={id.login.passwordPlaceholder}
-            placeholderTextColor={colors.mutedText}
-            style={styles.input}
-          />
+          <View style={styles.inputWrap}>
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+              secureTextEntry={!showPassword}
+              placeholder={id.login.passwordPlaceholder}
+              placeholderTextColor={colors.mutedText}
+              style={styles.input}
+            />
+            <PasswordToggle
+              visible={showPassword}
+              onPress={() => setShowPassword((v) => !v)}
+              accessibilityLabel={showPassword ? id.common.hidePassword : id.common.showPassword}
+              style={styles.toggle}
+            />
+          </View>
         </View>
 
         <Pressable
@@ -122,15 +132,24 @@ const styles = StyleSheet.create({
   title: { fontSize: typography.h2, color: colors.text, fontWeight: "700" },
   subtitle: { marginTop: spacing.xs, fontSize: typography.body, color: colors.mutedText, lineHeight: 22 },
   label: { fontSize: typography.small, color: colors.text, fontWeight: "700", marginBottom: spacing.xs },
+  inputWrap: { position: "relative" },
   input: {
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.sm,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
+    paddingRight: spacing.xl,
     fontSize: typography.body,
     color: colors.text,
-    backgroundColor: colors.secondary
+    backgroundColor: colors.card
+  },
+  toggle: {
+    position: "absolute",
+    right: spacing.sm,
+    top: 0,
+    bottom: 0,
+    justifyContent: "center"
   },
   primaryButton: { marginTop: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.primary },
   primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import Slider from "@react-native-community/slider";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
@@ -133,20 +133,21 @@ export default function PlayerScreen({ route, navigation }: Props) {
     setTimerMode((m) => (m === "end" ? "off" : "end"));
   };
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.headerRow}>
-        <Pressable onPress={() => navigation.goBack()} hitSlop={10}>
-          <Text style={styles.headerLink}>{id.player.back}</Text>
-        </Pressable>
-
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: track.title,
+      headerRight: () => (
         <Pressable onPress={onToggleTimer} hitSlop={10}>
-          <Text style={styles.headerLink}>
+          <Text style={styles.headerAction}>
             {id.player.timerLabel}: {timerMode === "end" ? id.player.timerEnd : id.player.timerOff}
           </Text>
         </Pressable>
-      </View>
+      ),
+    });
+  }, [navigation, onToggleTimer, timerMode, track.title]);
 
+  return (
+    <View style={styles.container}>
       <Text style={styles.title}>{track.title}</Text>
       <Text style={styles.subtitle}>{track.subtitle}</Text>
 
@@ -189,14 +190,7 @@ export default function PlayerScreen({ route, navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: spacing.lg, backgroundColor: colors.bg },
-  headerRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: spacing.xs,
-    marginBottom: spacing.md,
-  },
-  headerLink: { color: colors.text, opacity: 0.8, fontSize: typography.small, fontWeight: "700" },
+  headerAction: { color: colors.text, fontSize: typography.small, fontWeight: "700" },
   title: { fontSize: typography.h2, color: colors.text, fontWeight: "700", marginTop: spacing.sm },
   subtitle: { marginTop: spacing.xs, fontSize: typography.body, color: colors.mutedText, lineHeight: 22 },
   artWrap: {
@@ -211,7 +205,7 @@ const styles = StyleSheet.create({
     width: 92,
     height: 92,
     borderRadius: 46,
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
   },

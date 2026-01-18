@@ -11,6 +11,8 @@ export const id = {
     passwordsNotMatchBody: "Pastikan kedua kata sandi sama.",
     errorTitle: "Terjadi kesalahan",
     tryAgain: "Silakan coba lagi.",
+    showPassword: "Lihat",
+    hidePassword: "Sembunyikan",
   },
 
   welcome: {
@@ -87,8 +89,8 @@ export const id = {
   },
 
   home: {
-    title: "Beranda",
-    subtitle: "Pilih sesi singkat untuk menutup hari dengan lebih tenang.",
+    title: "Ritual Malam",
+    subtitle: "Pilihan sesi singkat untuk menutup hari dengan lebih tenang.",
     durationBadge: "5 menit",
     continueLabel: "Lanjutkan",
     continueFrom: "Mulai dari",
@@ -155,6 +157,10 @@ export const id = {
     comingSoonTitle: "Belum tersedia",
     comingSoonBody: "Tautan ini akan kami tambahkan pada versi berikutnya.",
 
+    securityTitle: "Keamanan",
+    securityBody: "Perbarui kata sandi Anda secara berkala untuk menjaga keamanan akun.",
+    resetPasswordButton: "Ubah kata sandi",
+
     logout: "Keluar",
     confirmLogoutTitle: "Keluar?",
     confirmLogoutBody: "Anda yakin ingin keluar?",
@@ -173,5 +179,20 @@ export const id = {
     deleteConfirmTitle: "Konfirmasi belum valid",
     deleteConfirmBody: 'Ketik "HAPUS" untuk melanjutkan.',
     sessionMissing: "Sesi tidak ditemukan. Silakan masuk kembali.",
+
+    resetTitle: "Ubah kata sandi",
+    resetSubtitle: "Masukkan kata sandi lama dan kata sandi baru Anda.",
+    currentPasswordLabel: "Kata sandi lama",
+    currentPasswordPlaceholder: "Kata sandi lama Anda",
+    newPasswordLabel: "Kata sandi baru",
+    newPasswordPlaceholder: "Minimal 8 karakter",
+    confirmPasswordLabel: "Ulangi kata sandi baru",
+    confirmPasswordPlaceholder: "Ulangi kata sandi baru",
+    resetSave: "Simpan kata sandi",
+    resetSaving: "Menyimpan...",
+    resetBack: "Kembali ke akun",
+    resetCurrentMissing: "Masukkan kata sandi lama Anda.",
+    resetSuccessTitle: "Kata sandi diperbarui",
+    resetSuccessBody: "Kata sandi berhasil diperbarui. Silakan masuk kembali.",
   },
 };

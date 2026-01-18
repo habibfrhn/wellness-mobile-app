@@ -140,11 +140,11 @@ const styles = StyleSheet.create({
 
   continueCard: {
     marginTop: spacing.lg,
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.sm,
-    padding: spacing.md,
+    padding: spacing.sm,
   },
   continueLabel: {
     fontSize: typography.small,
@@ -165,24 +165,24 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.sm,
-    padding: spacing.md,
+    padding: spacing.sm,
   },
   cardTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   cardTitle: { fontSize: typography.body, fontWeight: "700", color: colors.text },
   badge: {
     fontSize: typography.small,
     color: colors.secondaryText,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.secondary,
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
     borderRadius: 999,
     overflow: "hidden",
   },
-  cardSubtitle: { marginTop: 6, fontSize: typography.small, color: colors.mutedText, lineHeight: 18 },
+  cardSubtitle: { marginTop: 4, fontSize: typography.small, color: colors.mutedText, lineHeight: 18 },
 
   note: { fontSize: typography.small, color: colors.mutedText, lineHeight: 18 },
 

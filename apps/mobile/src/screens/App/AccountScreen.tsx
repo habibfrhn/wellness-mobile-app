@@ -11,10 +11,12 @@ import {
   Platform,
 } from "react-native";
 import * as Updates from "expo-updates";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { colors, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
 import { getPendingUpdate, setPendingUpdate } from "../../services/updatesState";
+import type { AppStackParamList } from "../../navigation/types";
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
@@ -102,7 +104,9 @@ async function safeOpenEmail(email: string) {
   await safeOpenUrl(mailto);
 }
 
-export default function AccountScreen() {
+type Props = NativeStackScreenProps<AppStackParamList, "Account">;
+
+export default function AccountScreen({ navigation }: Props) {
   const [emailValue, setEmailValue] = useState<string>("");
   const [confirmText, setConfirmText] = useState("");
   const [busyDelete, setBusyDelete] = useState(false);
@@ -411,6 +415,17 @@ export default function AccountScreen() {
       </View>
 
       <View style={styles.card}>
+        <Text style={styles.cardTitle}>{id.account.securityTitle}</Text>
+        <Text style={styles.cardBody}>{id.account.securityBody}</Text>
+        <Pressable
+          onPress={() => navigation.navigate("ResetPassword")}
+          style={({ pressed }) => [styles.secondaryActionButton, pressed && styles.pressed]}
+        >
+          <Text style={styles.secondaryActionButtonText}>{id.account.resetPasswordButton}</Text>
+        </Pressable>
+      </View>
+
+      <View style={styles.card}>
         <Text style={styles.cardTitle}>{id.account.deleteTitle}</Text>
         <Text style={styles.cardBody}>{id.account.deleteWarning}</Text>
 
@@ -460,7 +475,7 @@ const styles = StyleSheet.create({
   card: {
     padding: spacing.md,
     borderRadius: radius.sm,
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
     gap: spacing.sm,
@@ -523,7 +538,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     fontSize: typography.body,
     color: colors.text,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.card,
   },
 
   dangerButton: {

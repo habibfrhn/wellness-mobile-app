@@ -1,14 +1,16 @@
 export const colors = {
-  bg: "#FFFFFF",
-  text: "#111111",
-  mutedText: "rgba(17,17,17,0.7)",
-  border: "rgba(17,17,17,0.15)",
+  bg: "#F7F7F7",
+  text: "#212121",
+  mutedText: "#667085",
+  border: "#E6E6E6",
+  card: "#FFFFFF",
 
-  // Brand (MVP)
-  primary: "#111111",
+  // Brand
+  primary: "#74BA74",
   primaryText: "#FFFFFF",
-  secondary: "#FFFFFF",
-  secondaryText: "#111111",
+  secondary: "#D8EFD3",
+  secondaryText: "#212121",
+  accent: "#FACC15",
 
   danger: "#B00020",
 };
@@ -22,14 +24,14 @@ export const spacing = {
 };
 
 export const radius = {
-  sm: 10,
-  md: 14,
-  lg: 18,
+  sm: 12,
+  md: 16,
+  lg: 22,
 };
 
 export const typography = {
-  h1: 28,
-  h2: 20,
+  h1: 30,
+  h2: 22,
   body: 16,
   small: 14,
 };

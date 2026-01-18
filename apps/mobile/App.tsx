@@ -8,17 +8,21 @@ import { supabase } from "./src/services/supabase";
 import { handleAuthLink } from "./src/services/authLinks";
 import AuthStack from "./src/navigation/AuthStack";
 import AppStack from "./src/navigation/AppStack";
+import type { AuthStackParamList } from "./src/navigation/types";
 import { id } from "./src/i18n/strings";
 import { setPendingUpdate } from "./src/services/updatesState";
+import { clearNextAuthRoute, getNextAuthRoute } from "./src/services/authStart";
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
 
 export default function App() {
   const [ready, setReady] = useState(false);
   const [session, setSession] = useState<SessionType>(null);
+  const [authStartResolved, setAuthStartResolved] = useState(true);
 
   // If user comes from reset link, force AuthStack to start at ResetPassword.
   const [forceReset, setForceReset] = useState(false);
+  const [authStartRoute, setAuthStartRoute] = useState<keyof AuthStackParamList>("Welcome");
 
   const didCheckUpdatesRef = useRef(false);
 
@@ -64,6 +68,32 @@ export default function App() {
   // Clear reset override once user signs out (we sign out after reset success)
   useEffect(() => {
     if (!session) setForceReset(false);
+  }, [session]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    if (!session) {
+      setAuthStartResolved(false);
+      (async () => {
+        const nextRoute = await getNextAuthRoute();
+        if (!mounted) return;
+        if (nextRoute) {
+          setAuthStartRoute(nextRoute);
+          await clearNextAuthRoute();
+          if (nextRoute === "Login") setForceReset(false);
+        } else {
+          setAuthStartRoute("Welcome");
+        }
+        setAuthStartResolved(true);
+      })();
+    } else {
+      setAuthStartResolved(true);
+    }
+
+    return () => {
+      mounted = false;
+    };
   }, [session]);
 
   // Check OTA updates once per launch (only for standalone/dev-client builds where updates are enabled).
@@ -115,7 +145,7 @@ export default function App() {
     })();
   }, [ready]);
 
-  if (!ready) {
+  if (!ready || (!session && !authStartResolved)) {
     return (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
         <ActivityIndicator />
@@ -124,11 +154,13 @@ export default function App() {
   }
 
   const shouldShowAuth = forceReset || !session || !isVerified;
+  const initialAuthRoute =
+    authStartRoute === "Login" ? "Login" : forceReset ? "ResetPassword" : authStartRoute;
 
   return (
     <NavigationContainer>
       {shouldShowAuth ? (
-        <AuthStack initialRouteName={forceReset ? "ResetPassword" : "Welcome"} />
+        <AuthStack key={`auth-${initialAuthRoute}`} initialRouteName={initialAuthRoute} />
       ) : (
         <AppStack />
       )}
