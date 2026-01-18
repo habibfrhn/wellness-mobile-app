@@ -22,12 +22,14 @@ export default function AudioTrackCard({ track, onPress }: AudioTrackCardProps) 
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
       hitSlop={6}
     >
+      <Image source={track.thumbnail} style={styles.thumbnail} />
       <View style={styles.cardBody}>
         <Text style={styles.cardTitle}>{track.title}</Text>
-        <Text style={styles.cardMeta}>{track.creator}</Text>
-        <Text style={styles.cardDuration}>{formatTime(track.durationSec)}</Text>
+        <View style={styles.cardMetaRow}>
+          <Text style={styles.cardMeta}>{track.creator}</Text>
+          <Text style={styles.cardDuration}>{formatTime(track.durationSec)}</Text>
+        </View>
       </View>
-      <Image source={track.thumbnail} style={styles.thumbnail} />
     </Pressable>
   );
 }
@@ -36,7 +38,7 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    gap: spacing.sm,
     backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
@@ -44,26 +46,29 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
   },
   thumbnail: {
-    width: 56,
-    height: 56,
+    width: 48,
+    height: 48,
     borderRadius: radius.xs,
   },
   cardBody: {
     flex: 1,
-    marginRight: spacing.sm,
   },
   cardTitle: {
     fontSize: typography.body,
     fontWeight: "700",
     color: colors.text,
   },
+  cardMetaRow: {
+    marginTop: 4,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
   cardMeta: {
-    marginTop: 2,
     fontSize: typography.small,
     color: colors.mutedText,
   },
   cardDuration: {
-    marginTop: 6,
     fontSize: typography.small,
     color: colors.secondaryText,
     fontWeight: "600",
