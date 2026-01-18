@@ -92,8 +92,6 @@ export const id = {
     title: "Ritual Malam",
     subtitle: "Pilihan sesi singkat untuk menutup hari dengan lebih tenang.",
     durationBadge: "5 menit",
-    continueLabel: "Lanjutkan",
-    continueFrom: "Mulai dari",
     noteNoAutoplay: "Audio tidak diputar otomatis. Anda yang memulai saat sudah siap.",
   },
 

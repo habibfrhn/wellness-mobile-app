@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import Slider from "@react-native-community/slider";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
@@ -9,7 +9,6 @@ import { id } from "../../i18n/strings";
 
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AppStackParamList } from "../../navigation/types";
-import { loadProgress, saveProgress, clearProgress } from "../../services/playerProgress";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Player">;
 
@@ -21,7 +20,7 @@ function formatTime(sec: number) {
 }
 
 export default function PlayerScreen({ route, navigation }: Props) {
-  const { audioId, resume } = route.params;
+  const { audioId } = route.params;
   const track = useMemo(() => getTrackById(audioId), [audioId]);
 
   // No autoplay: do not call play() on mount.
@@ -30,9 +29,6 @@ export default function PlayerScreen({ route, navigation }: Props) {
 
   // MVP timer: only Off / End-of-audio (default end)
   const [timerMode, setTimerMode] = useState<"off" | "end">("end");
-
-  const didRestoreRef = useRef(false);
-  const lastSavedAtRef = useRef(0);
 
   useEffect(() => {
     const unsub = navigation.addListener("beforeRemove", () => {
@@ -53,55 +49,6 @@ export default function PlayerScreen({ route, navigation }: Props) {
   const current = Math.min(status.currentTime || 0, duration);
   const atEnd = duration > 0 && current >= duration - 0.25;
 
-  // Restore last position ONLY when resume is explicitly requested.
-  useEffect(() => {
-    let alive = true;
-
-    (async () => {
-      if (didRestoreRef.current) return;
-
-      // If user didn't choose "resume", we do nothing (start at beginning).
-      if (!resume) {
-        didRestoreRef.current = true;
-        return;
-      }
-
-      const p = await loadProgress();
-      if (!alive) return;
-
-      if (p && p.audioId === audioId && p.positionSec > 2 && p.positionSec < duration - 1) {
-        try {
-          player.seekTo(p.positionSec);
-        } catch {}
-      }
-      didRestoreRef.current = true;
-    })();
-
-    return () => {
-      alive = false;
-    };
-  }, [audioId, duration, player, resume]);
-
-  // Save progress while playing (throttled ~1.2s)
-  useEffect(() => {
-    if (!status.playing) return;
-
-    const now = Date.now();
-    if (now - lastSavedAtRef.current < 1200) return;
-    lastSavedAtRef.current = now;
-
-    // Save only meaningful positions
-    if (current > 1 && duration > 0 && current < duration - 0.5) {
-      void saveProgress({ audioId, positionSec: current, updatedAt: now });
-    }
-  }, [status.playing, current, duration, audioId]);
-
-  // Clear progress when the audio ends (keeps "Lanjutkan" sensible)
-  useEffect(() => {
-    if (!atEnd) return;
-    void clearProgress();
-  }, [atEnd]);
-
   const onTogglePlay = () => {
     try {
       if (status.playing) {
@@ -117,15 +64,12 @@ export default function PlayerScreen({ route, navigation }: Props) {
     try {
       player.seekTo(0);
       player.play();
-      void saveProgress({ audioId, positionSec: 0, updatedAt: Date.now() });
     } catch {}
   };
 
   const onSeek = (value: number) => {
     try {
       player.seekTo(value);
-      // persist immediately after seek (nice UX)
-      void saveProgress({ audioId, positionSec: value, updatedAt: Date.now() });
     } catch {}
   };
 

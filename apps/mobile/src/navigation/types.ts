@@ -11,7 +11,7 @@ export type AuthStackParamList = {
 
 export type AppStackParamList = {
   Home: undefined;
-  Player: { audioId: AudioId; resume?: boolean };
+  Player: { audioId: AudioId };
   Account: undefined;
   ResetPassword: undefined;
 };
