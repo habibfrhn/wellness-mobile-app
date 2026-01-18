@@ -34,7 +34,7 @@ export default function SleepAidCarousel({ title, tracks, onPress }: SleepAidCar
             hitSlop={6}
           >
             <Image source={item.thumbnail} style={styles.thumbnail} resizeMode="contain" />
-            <Text style={styles.cardTitle} numberOfLines={1}>
+            <Text style={styles.cardTitle} numberOfLines={2}>
               {item.title}
             </Text>
             <View style={styles.metaRow}>
@@ -68,12 +68,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.sm,
-    padding: spacing.xs,
+    paddingHorizontal: spacing.xs,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.sm,
     justifyContent: "flex-start",
   },
   thumbnail: {
     width: "100%",
-    height: 120,
+    height: 112,
     borderRadius: radius.xs,
     backgroundColor: colors.bg,
     marginBottom: spacing.xs,
@@ -82,9 +84,10 @@ const styles = StyleSheet.create({
     fontSize: typography.small,
     fontWeight: "700",
     color: colors.text,
-    marginBottom: 2,
+    lineHeight: 18,
   },
   metaRow: {
+    marginTop: 4,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
