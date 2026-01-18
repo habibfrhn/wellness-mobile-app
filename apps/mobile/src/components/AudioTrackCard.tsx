@@ -22,12 +22,12 @@ export default function AudioTrackCard({ track, onPress }: AudioTrackCardProps) 
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
       hitSlop={6}
     >
-      <Image source={track.thumbnail} style={styles.thumbnail} />
       <View style={styles.cardBody}>
         <Text style={styles.cardTitle}>{track.title}</Text>
         <Text style={styles.cardMeta}>{track.creator}</Text>
         <Text style={styles.cardDuration}>{formatTime(track.durationSec)}</Text>
       </View>
+      <Image source={track.thumbnail} style={styles.thumbnail} />
     </Pressable>
   );
 }
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.sm,
+    justifyContent: "space-between",
     backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
@@ -50,6 +50,7 @@ const styles = StyleSheet.create({
   },
   cardBody: {
     flex: 1,
+    marginRight: spacing.sm,
   },
   cardTitle: {
     fontSize: typography.body,
