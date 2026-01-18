@@ -32,7 +32,7 @@ export default function AppStack() {
               onPress={() => navigation.navigate("Account")}
               style={({ pressed }) => ({
                 opacity: pressed ? 0.75 : 1,
-                paddingHorizontal: spacing.sm,
+                paddingHorizontal: spacing.xs,
               })}
               hitSlop={10}
             >
@@ -59,6 +59,6 @@ const styles = {
     color: colors.text,
     fontSize: typography.body,
     fontWeight: "700",
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: spacing.xs,
   },
 };

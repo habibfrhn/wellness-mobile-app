@@ -52,7 +52,7 @@ export default function SleepAidCarousel({ title, tracks, onPress }: SleepAidCar
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: typography.body,
+    fontSize: typography.h3,
     fontWeight: "700",
     color: colors.text,
     marginBottom: spacing.sm,
@@ -61,24 +61,26 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
   },
   card: {
-    width: 140,
-    height: 140,
+    width: 150,
+    height: 100,
     backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.sm,
-    padding: spacing.sm,
-    justifyContent: "space-between",
+    padding: spacing.xs,
+    justifyContent: "flex-start",
   },
   thumbnail: {
-    width: 44,
-    height: 44,
+    width: "100%",
+    height: 52,
     borderRadius: radius.xs,
+    marginBottom: spacing.xs,
   },
   cardTitle: {
     fontSize: typography.small,
     fontWeight: "700",
     color: colors.text,
+    marginBottom: 2,
   },
   metaRow: {
     flexDirection: "row",
@@ -94,8 +96,7 @@ const styles = StyleSheet.create({
   },
   cardDuration: {
     fontSize: typography.small,
-    color: colors.secondaryText,
-    fontWeight: "600",
+    color: colors.mutedText,
   },
   pressed: { opacity: 0.85 },
 });
