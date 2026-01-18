@@ -1,5 +1,6 @@
 import React from "react";
 import { Pressable, Text } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import type { AppStackParamList } from "./types";
 
@@ -13,12 +14,19 @@ const Stack = createNativeStackNavigator<AppStackParamList>();
 
 export default function AppStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerTitleAlign: "center" }}>
+    <Stack.Navigator
+      screenOptions={{
+        headerTitleAlign: "center",
+        headerStyle: { backgroundColor: colors.bg, height: 52 },
+        headerShadowVisible: false,
+      }}
+    >
       <Stack.Screen
         name="Home"
         component={HomeScreen}
         options={({ navigation }) => ({
-          title: "Beranda",
+          headerTitle: "",
+          headerLeft: () => <Text style={styles.headerLeftText}>Lumepo</Text>,
           headerRight: () => (
             <Pressable
               onPress={() => navigation.navigate("Account")}
@@ -28,9 +36,7 @@ export default function AppStack() {
               })}
               hitSlop={10}
             >
-              <Text style={{ color: colors.text, fontSize: typography.small, fontWeight: "700" }}>
-                Akun
-              </Text>
+              <MaterialCommunityIcons name="account-circle-outline" size={22} color={colors.text} />
             </Pressable>
           ),
         })}
@@ -47,3 +53,12 @@ export default function AppStack() {
     </Stack.Navigator>
   );
 }
+
+const styles = {
+  headerLeftText: {
+    color: colors.text,
+    fontSize: typography.body,
+    fontWeight: "700",
+    paddingHorizontal: spacing.sm,
+  },
+};
