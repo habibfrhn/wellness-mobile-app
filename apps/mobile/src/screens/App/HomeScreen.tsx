@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, spacing, radius, typography } from "../../theme/tokens";
 import { AUDIO_TRACKS, getTrackById, type AudioTrack } from "../../content/audioCatalog";
 import { id } from "../../i18n/strings";
+import AudioTrackCard from "../../components/AudioTrackCard";
 
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AppStackParamList } from "../../navigation/types";
@@ -88,18 +89,10 @@ export default function HomeScreen({ navigation }: Props) {
   );
 
   const renderItem = ({ item }: { item: AudioTrack }) => (
-    <Pressable
+    <AudioTrackCard
+      track={item}
       onPress={() => navigation.navigate("Player", { audioId: item.id })}
-      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
-      hitSlop={6}
-    >
-      <View style={styles.cardTop}>
-        <Text style={styles.cardTitle}>{item.title}</Text>
-        <Text style={styles.badge}>{id.home.durationBadge}</Text>
-      </View>
-
-      <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
-    </Pressable>
+    />
   );
 
   return (
@@ -163,26 +156,6 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
     lineHeight: 18,
   },
-
-  card: {
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.sm,
-    padding: spacing.sm,
-  },
-  cardTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  cardTitle: { fontSize: typography.body, fontWeight: "700", color: colors.text },
-  badge: {
-    fontSize: typography.small,
-    color: colors.secondaryText,
-    backgroundColor: colors.secondary,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    borderRadius: 999,
-    overflow: "hidden",
-  },
-  cardSubtitle: { marginTop: 4, fontSize: typography.small, color: colors.mutedText, lineHeight: 18 },
 
   note: { fontSize: typography.small, color: colors.mutedText, lineHeight: 18 },
 
