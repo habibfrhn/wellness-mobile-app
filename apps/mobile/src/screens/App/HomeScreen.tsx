@@ -57,7 +57,9 @@ export default function HomeScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   listContent: {
-    padding: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.lg,
     backgroundColor: colors.bg,
   },
 
