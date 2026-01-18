@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radius.sm,
     padding: spacing.sm,
-    justifyContent: "center",
+    justifyContent: "flex-start",
   },
   cardContent: {
     gap: spacing.xs / 2,
