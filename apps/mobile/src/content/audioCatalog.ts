@@ -3,7 +3,10 @@ export type AudioId =
   | "body-scan"
   | "pikiran-tenang"
   | "cerita-menenangkan"
-  | "cerita-untuk-tidur";
+  | "cerita-untuk-tidur"
+  | "lapisan-sunyi"
+  | "nada-menenangkan"
+  | "larut-perlahan";
 
 export type AudioTrack = {
   id: AudioId;
@@ -12,6 +15,11 @@ export type AudioTrack = {
   subtitle: string;
   durationSec: number;
   asset: number; // require(...)
+  creator: string;
+  category: string;
+  tags: string[];
+  cover: number;
+  thumbnail: number;
   isPremium: boolean;
 };
 
@@ -21,8 +29,13 @@ export const AUDIO_TRACKS = [
     order: 1,
     title: "Napas Pelan",
     subtitle: "Tenang dalam 5 menit",
-    durationSec: 5 * 60,
-    asset: require("../../assets/audio/01-napas-pelan-5m.m4a"),
+    durationSec: 300.095,
+    asset: require("../../assets/audio/sleep-guide/01-napas-pelan-5m.m4a"),
+    creator: "lumepo",
+    category: "audio",
+    tags: ["sleep-guide"],
+    cover: require("../../assets/image/master/01-master-sleep-guide.jpg"),
+    thumbnail: require("../../assets/image/thumbnail/01-thumbnail-sleep-guide.jpg"),
     isPremium: false,
   },
   {
@@ -30,8 +43,13 @@ export const AUDIO_TRACKS = [
     order: 2,
     title: "Body Scan",
     subtitle: "Lepaskan tegang perlahan",
-    durationSec: 5 * 60,
-    asset: require("../../assets/audio/02-body-scan-5m.m4a"),
+    durationSec: 300.095,
+    asset: require("../../assets/audio/sleep-guide/02-body-scan-5m.m4a"),
+    creator: "lumepo",
+    category: "audio",
+    tags: ["sleep-guide"],
+    cover: require("../../assets/image/master/01-master-sleep-guide.jpg"),
+    thumbnail: require("../../assets/image/thumbnail/01-thumbnail-sleep-guide.jpg"),
     isPremium: false,
   },
   {
@@ -39,8 +57,13 @@ export const AUDIO_TRACKS = [
     order: 3,
     title: "Pikiran Tenang",
     subtitle: "Redakan ramai di kepala",
-    durationSec: 5 * 60,
-    asset: require("../../assets/audio/03-pikiran-tenang-5m.m4a"),
+    durationSec: 300.095,
+    asset: require("../../assets/audio/sleep-guide/03-pikiran-tenang-5m.m4a"),
+    creator: "lumepo",
+    category: "audio",
+    tags: ["sleep-guide"],
+    cover: require("../../assets/image/master/01-master-sleep-guide.jpg"),
+    thumbnail: require("../../assets/image/thumbnail/01-thumbnail-sleep-guide.jpg"),
     isPremium: false,
   },
   {
@@ -48,8 +71,13 @@ export const AUDIO_TRACKS = [
     order: 4,
     title: "Cerita Menenangkan",
     subtitle: "Tidur ditemani cerita",
-    durationSec: 5 * 60,
-    asset: require("../../assets/audio/04-cerita-menenangkan-5m.m4a"),
+    durationSec: 300.095,
+    asset: require("../../assets/audio/sleep-guide/04-cerita-menenangkan-5m.m4a"),
+    creator: "lumepo",
+    category: "audio",
+    tags: ["sleep-guide"],
+    cover: require("../../assets/image/master/01-master-sleep-guide.jpg"),
+    thumbnail: require("../../assets/image/thumbnail/01-thumbnail-sleep-guide.jpg"),
     isPremium: false,
   },
   {
@@ -57,8 +85,55 @@ export const AUDIO_TRACKS = [
     order: 5,
     title: "Cerita Untuk Tidur",
     subtitle: "Pikiran pulih jelang tidur",
-    durationSec: 5 * 60,
-    asset: require("../../assets/audio/05-cerita-untuk-tidur-5m.m4a"),
+    durationSec: 300.095,
+    asset: require("../../assets/audio/sleep-guide/05-cerita-untuk-tidur-5m.m4a"),
+    creator: "lumepo",
+    category: "audio",
+    tags: ["sleep-guide"],
+    cover: require("../../assets/image/master/01-master-sleep-guide.jpg"),
+    thumbnail: require("../../assets/image/thumbnail/01-thumbnail-sleep-guide.jpg"),
+    isPremium: false,
+  },
+  {
+    id: "lapisan-sunyi",
+    order: 6,
+    title: "Lapisan Sunyi",
+    subtitle: "Nada tenang untuk hening",
+    durationSec: 580.085,
+    asset: require("../../assets/audio/soundscape/01-lapisan-sunyi-10m.m4a"),
+    creator: "lumepo",
+    category: "audio",
+    tags: ["soundscape"],
+    cover: require("../../assets/image/master/02-master-soundscape.jpg"),
+    thumbnail: require("../../assets/image/thumbnail/02-thumbnail-soundscape.jpg"),
+    isPremium: false,
+  },
+  {
+    id: "nada-menenangkan",
+    order: 7,
+    title: "Nada Menenangkan",
+    subtitle: "Ritme lembut untuk rileks",
+    durationSec: 600.033,
+    asset: require("../../assets/audio/soundscape/02-nada-menenangkan-10m.m4a"),
+    creator: "lumepo",
+    category: "audio",
+    tags: ["soundscape"],
+    cover: require("../../assets/image/master/02-master-soundscape.jpg"),
+    thumbnail: require("../../assets/image/thumbnail/02-thumbnail-soundscape.jpg"),
+    isPremium: false,
+  },
+  {
+    id: "larut-perlahan",
+    order: 8,
+    title: "Larut Perlahan",
+    subtitle: "Hening bertahap untuk tidur",
+    durationSec: 600.033,
+    asset: require("../../assets/audio/soundscape/03-larut-perlahan-10m.m4a"),
+    creator: "lumepo",
+    category: "audio",
+    tags: ["soundscape"],
+    cover: require("../../assets/image/master/02-master-soundscape.jpg"),
+    thumbnail: require("../../assets/image/thumbnail/02-thumbnail-soundscape.jpg"),
     isPremium: false,
   },
 ] satisfies AudioTrack[];
