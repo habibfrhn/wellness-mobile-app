@@ -26,7 +26,7 @@ export default function HomeScreen({ navigation }: Props) {
   );
 
   const Footer = (
-    <View style={{ paddingTop: spacing.lg, paddingBottom: spacing.lg }}>
+    <View style={{ paddingTop: spacing.md, paddingBottom: spacing.md }}>
       <Text style={styles.note}>{id.home.noteNoAutoplay}</Text>
     </View>
   );
@@ -49,7 +49,7 @@ export default function HomeScreen({ navigation }: Props) {
         styles.listContent,
         { paddingBottom: spacing.lg + insets.bottom } // critical for Android nav bar overlap
       ]}
-      ItemSeparatorComponent={() => <View style={{ height: spacing.sm }} />}
+      ItemSeparatorComponent={() => <View style={{ height: spacing.xs }} />}
       showsVerticalScrollIndicator={false}
     />
   );
@@ -57,8 +57,8 @@ export default function HomeScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   listContent: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
     paddingBottom: spacing.lg,
     backgroundColor: colors.bg,
   },

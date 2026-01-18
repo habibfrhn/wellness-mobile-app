@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, FlatList, Pressable, Image } from "react-native";
+import { View, Text, StyleSheet, FlatList, Pressable, Image, useWindowDimensions } from "react-native";
 import { colors, spacing, radius, typography } from "../theme/tokens";
 import type { AudioTrack } from "../content/audioCatalog";
 
@@ -17,6 +17,10 @@ type SleepAidCarouselProps = {
 };
 
 export default function SleepAidCarousel({ title, tracks, onPress }: SleepAidCarouselProps) {
+  const { width } = useWindowDimensions();
+  const horizontalPadding = spacing.md;
+  const cardWidth = Math.max(130, Math.round((width - horizontalPadding * 2 - spacing.sm * 2) / 2.25));
+
   return (
     <View>
       <Text style={styles.title}>{title}</Text>
@@ -30,7 +34,7 @@ export default function SleepAidCarousel({ title, tracks, onPress }: SleepAidCar
         renderItem={({ item }) => (
           <Pressable
             onPress={() => onPress(item)}
-            style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+            style={({ pressed }) => [styles.card, { width: cardWidth }, pressed && styles.pressed]}
             hitSlop={6}
           >
             <Image source={item.thumbnail} style={styles.thumbnail} resizeMode="cover" />
@@ -55,14 +59,13 @@ const styles = StyleSheet.create({
     fontSize: typography.h2,
     fontWeight: "700",
     color: colors.text,
-    marginBottom: spacing.xs,
+    marginBottom: spacing.xs / 2,
   },
   listContent: {
-    paddingBottom: spacing.sm,
-    paddingRight: spacing.lg,
+    paddingBottom: spacing.xs,
+    paddingRight: spacing.md,
   },
   card: {
-    width: 150,
     minHeight: 210,
     backgroundColor: colors.card,
     borderWidth: 1,
@@ -74,30 +77,30 @@ const styles = StyleSheet.create({
   thumbnail: {
     width: "100%",
     height: 120,
-    borderRadius: radius.xs,
-    marginBottom: spacing.xs,
+    borderRadius: radius.sm,
+    marginBottom: spacing.xs / 2,
   },
   cardTitle: {
-    fontSize: typography.small,
+    fontSize: 12,
     fontWeight: "700",
     color: colors.text,
-    lineHeight: 18,
+    lineHeight: 16,
   },
   metaRow: {
     marginTop: "auto",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: spacing.xs,
+    gap: spacing.xs / 2,
   },
   cardMeta: {
     flex: 1,
-    fontSize: typography.small,
+    fontSize: 11,
     color: colors.mutedText,
-    marginRight: spacing.xs,
+    marginRight: spacing.xs / 2,
   },
   cardDuration: {
-    fontSize: typography.small,
+    fontSize: 11,
     color: colors.mutedText,
   },
   pressed: { opacity: 0.85 },
