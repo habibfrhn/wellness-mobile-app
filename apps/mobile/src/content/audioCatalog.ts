@@ -69,7 +69,7 @@ export const AUDIO_TRACKS = [
   {
     id: "cerita-menenangkan",
     order: 4,
-    title: "Cerita Menenangkan",
+    title: "Cerita Tenang",
     subtitle: "Tidur ditemani cerita",
     durationSec: 300.095,
     asset: require("../../assets/audio/sleep-guide/04-cerita-menenangkan-5m.m4a"),
@@ -83,7 +83,7 @@ export const AUDIO_TRACKS = [
   {
     id: "cerita-untuk-tidur",
     order: 5,
-    title: "Cerita Untuk Tidur",
+    title: "Cerita Tidur",
     subtitle: "Pikiran pulih jelang tidur",
     durationSec: 300.095,
     asset: require("../../assets/audio/sleep-guide/05-cerita-untuk-tidur-5m.m4a"),
@@ -97,7 +97,7 @@ export const AUDIO_TRACKS = [
   {
     id: "lapisan-sunyi",
     order: 6,
-    title: "Lapisan Sunyi",
+    title: "Sunyi Lembut",
     subtitle: "Nada tenang untuk hening",
     durationSec: 580.085,
     asset: require("../../assets/audio/soundscape/01-lapisan-sunyi-10m.m4a"),
@@ -111,7 +111,7 @@ export const AUDIO_TRACKS = [
   {
     id: "nada-menenangkan",
     order: 7,
-    title: "Nada Menenangkan",
+    title: "Nada Rileks",
     subtitle: "Ritme lembut untuk rileks",
     durationSec: 600.033,
     asset: require("../../assets/audio/soundscape/02-nada-menenangkan-10m.m4a"),
@@ -125,7 +125,7 @@ export const AUDIO_TRACKS = [
   {
     id: "larut-perlahan",
     order: 8,
-    title: "Larut Perlahan",
+    title: "Larut Malam",
     subtitle: "Hening bertahap untuk tidur",
     durationSec: 600.033,
     asset: require("../../assets/audio/soundscape/03-larut-perlahan-10m.m4a"),

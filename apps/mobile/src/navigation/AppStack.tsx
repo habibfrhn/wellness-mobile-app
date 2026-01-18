@@ -8,7 +8,7 @@ import HomeScreen from "../screens/App/HomeScreen";
 import PlayerScreen from "../screens/App/PlayerScreen";
 import AccountScreen from "../screens/App/AccountScreen";
 import ResetPasswordScreen from "../screens/App/ResetPasswordScreen";
-import { colors, typography, spacing } from "../theme/tokens";
+import { colors, typography } from "../theme/tokens";
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -17,7 +17,7 @@ export default function AppStack() {
     <Stack.Navigator
       screenOptions={{
         headerTitleAlign: "center",
-        headerStyle: { backgroundColor: colors.bg, height: 44 },
+        headerStyle: { backgroundColor: colors.bg, height: 40 },
         headerShadowVisible: false,
       }}
     >
@@ -32,7 +32,7 @@ export default function AppStack() {
               onPress={() => navigation.navigate("Account")}
               style={({ pressed }) => ({
                 opacity: pressed ? 0.75 : 1,
-                paddingHorizontal: spacing.xs,
+                paddingHorizontal: 4,
               })}
               hitSlop={10}
             >
@@ -59,6 +59,6 @@ const styles = {
     color: colors.text,
     fontSize: typography.body,
     fontWeight: "700",
-    paddingHorizontal: spacing.xs,
+    paddingHorizontal: 4,
   },
 };

@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   metaRow: {
-    marginTop: "auto",
+    marginTop: 0,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
