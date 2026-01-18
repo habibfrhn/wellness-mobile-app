@@ -33,7 +33,7 @@ export default function SleepAidCarousel({ title, tracks, onPress }: SleepAidCar
             style={({ pressed }) => [styles.card, pressed && styles.pressed]}
             hitSlop={6}
           >
-            <Image source={item.thumbnail} style={styles.thumbnail} resizeMode="contain" />
+            <Image source={item.thumbnail} style={styles.thumbnail} resizeMode="cover" />
             <Text style={styles.cardTitle} numberOfLines={2}>
               {item.title}
             </Text>
@@ -63,21 +63,18 @@ const styles = StyleSheet.create({
   },
   card: {
     width: 150,
-    height: 225,
+    minHeight: 210,
     backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.sm,
-    paddingHorizontal: spacing.xs,
-    paddingTop: spacing.xs,
-    paddingBottom: spacing.sm,
+    padding: spacing.sm,
     justifyContent: "flex-start",
   },
   thumbnail: {
     width: "100%",
-    height: 112,
+    height: 120,
     borderRadius: radius.xs,
-    backgroundColor: colors.bg,
     marginBottom: spacing.xs,
   },
   cardTitle: {
@@ -87,7 +84,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   metaRow: {
-    marginTop: 4,
+    marginTop: 2,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
