@@ -11,19 +11,26 @@ function formatTime(sec: number) {
 }
 
 type SleepAidCarouselProps = {
-  title: string;
   tracks: AudioTrack[];
   onPress: (track: AudioTrack) => void;
 };
 
-export default function SleepAidCarousel({ title, tracks, onPress }: SleepAidCarouselProps) {
+function shortenTitle(title: string, maxLength = 15) {
+  if (title.length <= maxLength) {
+    return title;
+  }
+
+  return `${title.slice(0, maxLength - 1)}…`;
+}
+
+export default function SleepAidCarousel({ tracks, onPress }: SleepAidCarouselProps) {
   const { width } = useWindowDimensions();
   const horizontalPadding = spacing.md;
   const cardWidth = Math.max(130, Math.round((width - horizontalPadding * 2 - spacing.sm * 2) / 2.25));
 
   return (
     <View>
-      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.title}>Bantu tidur</Text>
       <FlatList
         data={tracks}
         keyExtractor={(item) => item.id}
@@ -39,7 +46,7 @@ export default function SleepAidCarousel({ title, tracks, onPress }: SleepAidCar
           >
             <Image source={item.thumbnail} style={styles.thumbnail} resizeMode="cover" />
             <Text style={styles.cardTitle} numberOfLines={2}>
-              {item.title}
+              {shortenTitle(item.title)}
             </Text>
             <View style={styles.metaRow}>
               <Text style={styles.cardMeta} numberOfLines={1}>

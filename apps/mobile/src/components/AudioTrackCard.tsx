@@ -15,6 +15,14 @@ type AudioTrackCardProps = {
   onPress: () => void;
 };
 
+function shortenTitle(title: string, maxLength = 15) {
+  if (title.length <= maxLength) {
+    return title;
+  }
+
+  return `${title.slice(0, maxLength - 1)}…`;
+}
+
 export default function AudioTrackCard({ track, onPress }: AudioTrackCardProps) {
   return (
     <Pressable
@@ -24,7 +32,7 @@ export default function AudioTrackCard({ track, onPress }: AudioTrackCardProps) 
     >
       <Image source={track.thumbnail} style={styles.thumbnail} />
       <View style={styles.cardBody}>
-        <Text style={styles.cardTitle}>{track.title}</Text>
+        <Text style={styles.cardTitle}>{shortenTitle(track.title)}</Text>
         <View style={styles.cardMetaRow}>
           <Text style={styles.cardMeta} numberOfLines={1}>
             {track.creator}
@@ -56,9 +64,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cardTitle: {
-    fontSize: typography.body,
+    fontSize: 12,
     fontWeight: "700",
     color: colors.text,
+    lineHeight: 16,
   },
   cardMetaRow: {
     marginTop: 4,
@@ -69,13 +78,12 @@ const styles = StyleSheet.create({
   cardMeta: {
     flex: 1,
     marginRight: spacing.sm,
-    fontSize: typography.small,
+    fontSize: 11,
     color: colors.mutedText,
   },
   cardDuration: {
-    fontSize: typography.small,
-    color: colors.secondaryText,
-    fontWeight: "600",
+    fontSize: 11,
+    color: colors.mutedText,
   },
   pressed: { opacity: 0.85 },
 });

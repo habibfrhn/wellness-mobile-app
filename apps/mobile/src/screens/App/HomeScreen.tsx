@@ -18,7 +18,6 @@ export default function HomeScreen({ navigation }: Props) {
   const Header = (
     <View>
       <SleepAidCarousel
-        title="Bantu tidur"
         tracks={AUDIO_TRACKS.slice(0, 6)}
         onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
       />
