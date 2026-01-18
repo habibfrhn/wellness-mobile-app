@@ -26,7 +26,9 @@ export default function AudioTrackCard({ track, onPress }: AudioTrackCardProps) 
       <View style={styles.cardBody}>
         <Text style={styles.cardTitle}>{track.title}</Text>
         <View style={styles.cardMetaRow}>
-          <Text style={styles.cardMeta}>{track.creator}</Text>
+          <Text style={styles.cardMeta} numberOfLines={1}>
+            {track.creator}
+          </Text>
           <Text style={styles.cardDuration}>{formatTime(track.durationSec)}</Text>
         </View>
       </View>
@@ -61,10 +63,12 @@ const styles = StyleSheet.create({
   cardMetaRow: {
     marginTop: 4,
     flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
+    alignItems: "flex-end",
+    justifyContent: "space-between",
   },
   cardMeta: {
+    flex: 1,
+    marginRight: spacing.sm,
     fontSize: typography.small,
     color: colors.mutedText,
   },
