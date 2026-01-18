@@ -27,6 +27,7 @@ export default function SleepAidCarousel({ tracks, onPress }: SleepAidCarouselPr
   const { width } = useWindowDimensions();
   const horizontalPadding = spacing.md;
   const cardWidth = Math.max(130, Math.round((width - horizontalPadding * 2 - spacing.sm * 2) / 2.25));
+  const thumbnailHeight = Math.round(cardWidth * 0.72);
 
   return (
     <View>
@@ -44,15 +45,21 @@ export default function SleepAidCarousel({ tracks, onPress }: SleepAidCarouselPr
             style={({ pressed }) => [styles.card, { width: cardWidth }, pressed && styles.pressed]}
             hitSlop={6}
           >
-            <Image source={item.thumbnail} style={styles.thumbnail} resizeMode="cover" />
-            <Text style={styles.cardTitle} numberOfLines={2}>
-              {shortenTitle(item.title)}
-            </Text>
-            <View style={styles.metaRow}>
-              <Text style={styles.cardMeta} numberOfLines={1}>
-                {item.creator}
+            <View style={styles.cardContent}>
+              <Image
+                source={item.thumbnail}
+                style={[styles.thumbnail, { height: thumbnailHeight }]}
+                resizeMode="cover"
+              />
+              <Text style={styles.cardTitle} numberOfLines={2}>
+                {shortenTitle(item.title)}
               </Text>
-              <Text style={styles.cardDuration}>{formatTime(item.durationSec)}</Text>
+              <View style={styles.metaRow}>
+                <Text style={styles.cardMeta} numberOfLines={1}>
+                  {item.creator}
+                </Text>
+                <Text style={styles.cardDuration}>{formatTime(item.durationSec)}</Text>
+              </View>
             </View>
           </Pressable>
         )}
@@ -73,19 +80,19 @@ const styles = StyleSheet.create({
     paddingRight: spacing.md,
   },
   card: {
-    minHeight: 210,
     backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.sm,
     padding: spacing.sm,
-    justifyContent: "flex-start",
+    justifyContent: "center",
+  },
+  cardContent: {
+    gap: spacing.xs / 2,
   },
   thumbnail: {
     width: "100%",
-    height: 120,
     borderRadius: radius.sm,
-    marginBottom: spacing.xs / 2,
   },
   cardTitle: {
     fontSize: 12,
