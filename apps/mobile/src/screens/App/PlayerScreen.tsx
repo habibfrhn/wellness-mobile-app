@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { View, Text, StyleSheet, Image, Pressable } from "react-native";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
-import { getTrackById } from "../../content/audioCatalog";
+import { getTrackById, isFavorite, toggleFavorite } from "../../content/audioCatalog";
 import { colors, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 
@@ -38,6 +38,11 @@ export default function PlayerScreen({ route, navigation }: Props) {
   const player = useAudioPlayer(track.asset, { updateInterval: 250 });
   const status = useAudioPlayerStatus(player);
   const [progressWidth, setProgressWidth] = useState(0);
+  const [favorite, setFavorite] = useState(() => isFavorite(track.id));
+
+  useEffect(() => {
+    setFavorite(isFavorite(track.id));
+  }, [track.id]);
 
   const duration = status.duration || track.durationSec;
   const current = Math.min(status.currentTime || 0, duration);
@@ -107,8 +112,14 @@ export default function PlayerScreen({ route, navigation }: Props) {
         <View style={styles.metaPill}>
           <Text style={styles.metaText}>{formatTag(track.tags[0])}</Text>
         </View>
-        <Pressable style={styles.favoriteButton} hitSlop={6}>
-          <Text style={styles.favoriteText}>♡</Text>
+        <Pressable
+          style={styles.favoriteButton}
+          hitSlop={6}
+          onPress={() => setFavorite(toggleFavorite(track.id))}
+        >
+          <Text style={[styles.favoriteText, favorite && styles.favoriteActive]}>
+            {favorite ? "♥" : "♡"}
+          </Text>
         </Pressable>
       </View>
 
@@ -176,9 +187,11 @@ const styles = StyleSheet.create({
   },
   favoriteButton: {
     marginLeft: "auto",
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs / 2,
+    minHeight: 28,
+    minWidth: 40,
+    borderRadius: 999,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.card,
@@ -186,8 +199,12 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   favoriteText: {
-    fontSize: 16,
-    color: colors.text,
+    fontSize: 20,
+    color: colors.mutedText,
+    lineHeight: 20,
+  },
+  favoriteActive: {
+    color: colors.primary,
   },
   progressWrap: { marginTop: spacing.xl },
   progressTrack: {

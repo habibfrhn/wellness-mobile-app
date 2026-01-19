@@ -138,6 +138,21 @@ export const AUDIO_TRACKS = [
   },
 ] satisfies AudioTrack[];
 
+const favoriteIds = new Set<AudioId>();
+
+export function isFavorite(id: AudioId) {
+  return favoriteIds.has(id);
+}
+
+export function toggleFavorite(id: AudioId) {
+  if (favoriteIds.has(id)) {
+    favoriteIds.delete(id);
+    return false;
+  }
+  favoriteIds.add(id);
+  return true;
+}
+
 export function getTrackById(id: AudioId): AudioTrack {
   const t = AUDIO_TRACKS.find((x) => x.id === id);
   if (!t) throw new Error(`Unknown AudioId: ${id}`);
