@@ -288,9 +288,11 @@ export default function BreathingPlayerScreen() {
           style={({ pressed }) => [
             styles.audioToggle,
             audioEnabled && styles.audioToggleActive,
+            isLocked && styles.optionLocked,
             pressed && styles.pressed,
           ]}
           onPress={() => setAudioEnabled((prev) => !prev)}
+          disabled={isLocked}
         >
           <Text style={[styles.audioToggleText, audioEnabled && styles.audioToggleTextActive]}>
             {audioEnabled ? "On" : "Off"}
