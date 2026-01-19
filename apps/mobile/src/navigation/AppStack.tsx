@@ -17,7 +17,7 @@ export default function AppStack() {
     <Stack.Navigator
       screenOptions={{
         headerTitleAlign: "center",
-        headerStyle: { backgroundColor: colors.bg, height: 40 },
+        headerStyle: { backgroundColor: colors.bg, height: 36 },
         headerShadowVisible: false,
       }}
     >
@@ -32,7 +32,7 @@ export default function AppStack() {
               onPress={() => navigation.navigate("Account")}
               style={({ pressed }) => ({
                 opacity: pressed ? 0.75 : 1,
-                paddingHorizontal: 4,
+                paddingHorizontal: 2,
               })}
               hitSlop={10}
             >
@@ -59,6 +59,6 @@ const styles = {
     color: colors.text,
     fontSize: typography.body,
     fontWeight: "700",
-    paddingHorizontal: 4,
+    paddingHorizontal: 2,
   },
 };
