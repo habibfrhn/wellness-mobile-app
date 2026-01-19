@@ -31,7 +31,7 @@ export default function Carousel({ title, tracks, onPress }: CarouselProps) {
   const thumbnailHeight = Math.round(cardWidth * 0.72);
 
   return (
-    <View>
+    <View style={styles.container}>
       <Text style={styles.title}>{title}</Text>
       <FlatList
         data={tracks}
@@ -70,15 +70,19 @@ export default function Carousel({ title, tracks, onPress }: CarouselProps) {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    paddingBottom: spacing.md,
+  },
   title: {
     fontSize: typography.body,
     fontWeight: "700",
     color: colors.text,
-    marginBottom: 2,
+    marginBottom: 0,
     paddingHorizontal: spacing.sm,
   },
   listContent: {
-    paddingVertical: spacing.xs,
+    paddingTop: 0,
+    paddingBottom: spacing.xs,
     paddingHorizontal: spacing.sm,
   },
   card: {
