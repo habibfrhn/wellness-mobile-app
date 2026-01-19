@@ -1,14 +1,11 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useNavigation, useNavigationState } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { AppStackParamList } from "./types";
 import { colors, spacing, typography } from "../theme/tokens";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-type NavProp = NativeStackNavigationProp<AppStackParamList>;
 
 const tabs = [
   { key: "Home", label: "Home", icon: "home-variant-outline" },
@@ -24,10 +21,13 @@ const routeToTab = (routeName: string): TabKey => {
   return "Home";
 };
 
-export default function BottomNav() {
-  const navigation = useNavigation<NavProp>();
+type Props = {
+  navigation: NativeStackNavigationProp<AppStackParamList>;
+  routeName: string;
+};
+
+export default function BottomNav({ navigation, routeName }: Props) {
   const insets = useSafeAreaInsets();
-  const routeName = useNavigationState((state) => state.routes[state.index]?.name ?? "Home");
   const activeTab = routeToTab(routeName);
 
   return (

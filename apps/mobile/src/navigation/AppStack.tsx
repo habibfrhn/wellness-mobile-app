@@ -15,38 +15,65 @@ const Stack = createNativeStackNavigator<AppStackParamList>();
 
 export default function AppStack() {
   return (
-    <View style={styles.container}>
-      <View style={styles.stackWrap}>
-        <Stack.Navigator
-          screenOptions={{
-            headerTitleAlign: "center",
-            headerStyle: { backgroundColor: colors.bg, height: 32 },
-            headerShadowVisible: false,
-          }}
-        >
-          <Stack.Screen
-            name="Home"
-            component={HomeScreen}
-            options={{
-              headerTitle: "",
-              headerLeft: () => <Text style={styles.headerLeftText}>Lumepo</Text>,
-            }}
-          />
+    <Stack.Navigator
+      screenOptions={{
+        headerTitleAlign: "center",
+        headerStyle: { backgroundColor: colors.bg, height: 32 },
+        headerShadowVisible: false,
+      }}
+    >
+      <Stack.Screen
+        name="Home"
+        options={{
+          headerTitle: "",
+          headerLeft: () => <Text style={styles.headerLeftText}>Lumepo</Text>,
+        }}
+      >
+        {(props) => (
+          <ScreenWithBottomNav routeName={props.route.name} navigation={props.navigation}>
+            <HomeScreen {...props} />
+          </ScreenWithBottomNav>
+        )}
+      </Stack.Screen>
 
-          <Stack.Screen name="Breathing" component={BreathingPlayerScreen} options={{ title: "Latihan napas" }} />
-          <Stack.Screen name="Player" component={PlayerScreen} options={{ title: "Sesi" }} />
-          <Stack.Screen name="Account" component={AccountScreen} options={{ title: "Akun" }} />
-          <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} options={{ title: "Ubah kata sandi" }} />
-        </Stack.Navigator>
-      </View>
-      <BottomNav />
-    </View>
+      <Stack.Screen name="Breathing" options={{ title: "Latihan napas" }}>
+        {(props) => (
+          <ScreenWithBottomNav routeName={props.route.name} navigation={props.navigation}>
+            <BreathingPlayerScreen />
+          </ScreenWithBottomNav>
+        )}
+      </Stack.Screen>
+
+      <Stack.Screen name="Player" options={{ title: "Sesi" }}>
+        {(props) => (
+          <ScreenWithBottomNav routeName={props.route.name} navigation={props.navigation}>
+            <PlayerScreen {...props} />
+          </ScreenWithBottomNav>
+        )}
+      </Stack.Screen>
+
+      <Stack.Screen name="Account" options={{ title: "Akun" }}>
+        {(props) => (
+          <ScreenWithBottomNav routeName={props.route.name} navigation={props.navigation}>
+            <AccountScreen {...props} />
+          </ScreenWithBottomNav>
+        )}
+      </Stack.Screen>
+
+      <Stack.Screen name="ResetPassword" options={{ title: "Ubah kata sandi" }}>
+        {(props) => (
+          <ScreenWithBottomNav routeName={props.route.name} navigation={props.navigation}>
+            <ResetPasswordScreen {...props} />
+          </ScreenWithBottomNav>
+        )}
+      </Stack.Screen>
+    </Stack.Navigator>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
-  stackWrap: { flex: 1 },
+  content: { flex: 1 },
   headerLeftText: {
     color: colors.text,
     fontSize: typography.body,
@@ -54,3 +81,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
 });
+
+type BottomNavWrapperProps = {
+  children: React.ReactNode;
+  navigation: React.ComponentProps<typeof BottomNav>["navigation"];
+  routeName: string;
+};
+
+function ScreenWithBottomNav({ children, navigation, routeName }: BottomNavWrapperProps) {
+  return (
+    <View style={styles.container}>
+      <View style={styles.content}>{children}</View>
+      <BottomNav navigation={navigation} routeName={routeName} />
+    </View>
+  );
+}
