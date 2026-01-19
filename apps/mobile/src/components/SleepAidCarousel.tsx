@@ -70,7 +70,7 @@ export default function SleepAidCarousel({ tracks, onPress }: SleepAidCarouselPr
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: typography.h2,
+    fontSize: typography.body,
     fontWeight: "700",
     color: colors.text,
     marginBottom: spacing.xs / 2,

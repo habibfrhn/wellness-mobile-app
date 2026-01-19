@@ -44,10 +44,10 @@ export default function HomeScreen({ navigation }: Props) {
       renderItem={renderItem}
       ListHeaderComponent={Header}
       ListFooterComponent={Footer}
-      contentContainerStyle={[
-        styles.listContent,
-        { paddingBottom: spacing.lg + insets.bottom } // critical for Android nav bar overlap
-      ]}
+  contentContainerStyle={[
+    styles.listContent,
+    { paddingBottom: spacing.sm + insets.bottom } // critical for Android nav bar overlap
+  ]}
       ItemSeparatorComponent={() => <View style={{ height: spacing.xs }} />}
       showsVerticalScrollIndicator={false}
     />
@@ -56,9 +56,7 @@ export default function HomeScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   listContent: {
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.lg,
+    padding: spacing.sm,
     backgroundColor: colors.bg,
   },
 
