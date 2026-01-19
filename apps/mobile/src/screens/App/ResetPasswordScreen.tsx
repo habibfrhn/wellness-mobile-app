@@ -2,14 +2,14 @@ import React, { useMemo, useState } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-import type { AccountStackParamList } from "../../navigation/types";
+import type { AppStackParamList } from "../../navigation/types";
 import { colors, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
 import { setNextAuthRoute } from "../../services/authStart";
 import PasswordToggle from "../../components/PasswordToggle";
 
-type Props = NativeStackScreenProps<AccountStackParamList, "ResetPassword">;
+type Props = NativeStackScreenProps<AppStackParamList, "ResetPassword">;
 
 export default function ResetPasswordScreen({ navigation }: Props) {
   const [currentPassword, setCurrentPassword] = useState("");

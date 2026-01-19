@@ -6,9 +6,9 @@ import { colors, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import type { HomeStackParamList } from "../../navigation/types";
+import type { AppStackParamList } from "../../navigation/types";
 
-type Props = NativeStackScreenProps<HomeStackParamList, "Player">;
+type Props = NativeStackScreenProps<AppStackParamList, "Player">;
 
 function formatTime(sec: number) {
   const s = Math.max(0, Math.floor(sec));

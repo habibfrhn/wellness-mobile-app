@@ -9,22 +9,10 @@ export type AuthStackParamList = {
   ResetPassword: undefined;
 };
 
-export type HomeStackParamList = {
+export type AppStackParamList = {
   Home: undefined;
-  Player: { audioId: AudioId };
-};
-
-export type BreathingStackParamList = {
   Breathing: undefined;
-};
-
-export type AccountStackParamList = {
+  Player: { audioId: AudioId };
   Account: undefined;
   ResetPassword: undefined;
-};
-
-export type MainTabParamList = {
-  HomeTab: undefined;
-  BreathingTab: undefined;
-  AccountTab: undefined;
 };
