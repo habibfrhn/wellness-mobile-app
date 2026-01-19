@@ -11,6 +11,13 @@ import type { AppStackParamList } from "../../navigation/types";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Player">;
 
+function formatTime(sec: number) {
+  const s = Math.max(0, Math.floor(sec));
+  const mm = String(Math.floor(s / 60)).padStart(2, "0");
+  const ss = String(s % 60).padStart(2, "0");
+  return `${mm}:${ss}`;
+}
+
 export default function PlayerScreen({ route, navigation }: Props) {
   const { audioId } = route.params;
   const track = useMemo(() => getTrackById(audioId), [audioId]);
@@ -101,6 +108,10 @@ export default function PlayerScreen({ route, navigation }: Props) {
           />
         </View>
       </Pressable>
+      <View style={styles.timeRow}>
+        <Text style={styles.timeText}>{formatTime(current)}</Text>
+        <Text style={styles.timeText}>{formatTime(duration)}</Text>
+      </View>
 
       <View style={styles.controlsRow}>
         <Pressable onPress={onRestart} style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}>
@@ -152,6 +163,8 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: colors.primary,
   },
+  timeRow: { flexDirection: "row", justifyContent: "space-between", marginTop: spacing.xs },
+  timeText: { fontSize: typography.small, color: colors.mutedText },
   controlsRow: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.md },
   primaryBtn: {
     flex: 1,
