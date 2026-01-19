@@ -1,10 +1,9 @@
 import React from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, spacing, typography } from "../../theme/tokens";
-import { AUDIO_TRACKS, type AudioTrack } from "../../content/audioCatalog";
+import { AUDIO_TRACKS } from "../../content/audioCatalog";
 import { id } from "../../i18n/strings";
-import AudioTrackCard from "../../components/AudioTrackCard";
 import Carousel from "../../components/Carousel";
 
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -41,27 +40,17 @@ export default function HomeScreen({ navigation }: Props) {
     </View>
   );
 
-  const renderItem = ({ item }: { item: AudioTrack }) => (
-    <AudioTrackCard
-      track={item}
-      onPress={() => navigation.navigate("Player", { audioId: item.id })}
-    />
-  );
-
   return (
-    <FlatList
-      data={AUDIO_TRACKS}
-      keyExtractor={(t) => t.id}
-      renderItem={renderItem}
-      ListHeaderComponent={Header}
-      ListFooterComponent={Footer}
+    <ScrollView
       contentContainerStyle={[
         styles.listContent,
         { paddingBottom: spacing.sm + insets.bottom } // critical for Android nav bar overlap
       ]}
-      ItemSeparatorComponent={() => <View style={{ height: spacing.xs }} />}
       showsVerticalScrollIndicator={false}
-    />
+    >
+      {Header}
+      {Footer}
+    </ScrollView>
   );
 }
 
