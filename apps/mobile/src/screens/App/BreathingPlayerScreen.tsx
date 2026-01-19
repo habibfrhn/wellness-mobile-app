@@ -124,7 +124,7 @@ export default function BreathingPlayerScreen() {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [activePhaseDuration, elapsedSeconds, isRunning, totalSeconds]);
+  }, [activePhaseDuration, elapsedSeconds, isPaused, isRunning, totalSeconds]);
 
   useEffect(() => {
     if (!isRunning || isCountingDown || isPaused || !audioEnabled) return;
@@ -154,11 +154,17 @@ export default function BreathingPlayerScreen() {
       try {
         player.pause();
       } catch {}
+      return;
     }
-  }, [isPaused, isRunning, player]);
+    if (audioEnabled) {
+      try {
+        player.play();
+      } catch {}
+    }
+  }, [audioEnabled, isPaused, isRunning, player]);
 
   useEffect(() => {
-    if (!isRunning && !isCountingDown) return;
+    if (!isRunning && !isCountingDown && !isPaused) return;
     setIsRunning(false);
     setIsCountingDown(false);
     setIsPaused(false);
@@ -198,10 +204,13 @@ export default function BreathingPlayerScreen() {
 
   const displayPhaseLabel = isCountingDown
     ? "Mulai"
-    : isRunning
-      ? phaseLabels[phase]
-      : "Pilih dan mulai";
+    : isPaused
+      ? "Jeda"
+      : isRunning
+        ? phaseLabels[phase]
+        : "Pilih dan mulai";
   const displayCount = isCountingDown ? countdownSeconds : isRunning ? phaseCount + 1 : null;
+  const isLocked = isRunning || isCountingDown || isPaused;
 
   return (
     <View style={styles.container}>
@@ -231,9 +240,11 @@ export default function BreathingPlayerScreen() {
               style={({ pressed }) => [
                 styles.modeCard,
                 active && styles.modeCardActive,
+                isLocked && styles.optionLocked,
                 pressed && styles.pressed,
               ]}
               onPress={() => setSelectedMode(mode.key)}
+              disabled={isLocked}
             >
               <Text style={[styles.modeTitle, active && styles.modeTitleActive]}>{mode.label}</Text>
               <Text style={[styles.modeSubtitle, active && styles.modeSubtitleActive]}>
@@ -254,9 +265,11 @@ export default function BreathingPlayerScreen() {
               style={({ pressed }) => [
                 styles.durationPill,
                 active && styles.durationPillActive,
+                isLocked && styles.optionLocked,
                 pressed && styles.pressed,
               ]}
               onPress={() => setSelectedDuration(duration)}
+              disabled={isLocked}
             >
               <Text style={[styles.durationText, active && styles.durationTextActive]}>{duration} min</Text>
             </Pressable>
@@ -286,7 +299,7 @@ export default function BreathingPlayerScreen() {
       </View>
 
       <View style={styles.controlsRow}>
-        {isRunning || isCountingDown ? (
+        {isRunning || isCountingDown || isPaused ? (
           <>
             <Pressable
               style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}
@@ -294,7 +307,7 @@ export default function BreathingPlayerScreen() {
             >
               <Text style={styles.secondaryText}>Stop</Text>
             </Pressable>
-            {isRunning ? (
+            {isRunning && !isCountingDown ? (
               <Pressable
                 style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
                 onPress={handlePauseResume}
@@ -426,6 +439,9 @@ const styles = StyleSheet.create({
   },
   durationTextActive: {
     color: colors.primaryText,
+  },
+  optionLocked: {
+    opacity: 0.5,
   },
   audioRow: {
     flexDirection: "row",
