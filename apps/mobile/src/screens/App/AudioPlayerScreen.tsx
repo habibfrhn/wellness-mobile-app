@@ -30,7 +30,7 @@ function formatTag(tag?: string) {
     .join(" ");
 }
 
-export default function PlayerScreen({ route, navigation }: Props) {
+export default function AudioPlayerScreen({ route, navigation }: Props) {
   const { audioId } = route.params;
   const track = useMemo(() => getTrackById(audioId), [audioId]);
 

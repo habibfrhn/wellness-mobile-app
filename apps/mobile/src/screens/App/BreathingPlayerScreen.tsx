@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAudioPlayer } from "expo-audio";
 
 import { colors, radius, spacing, typography } from "../../theme/tokens";
+import { BOTTOM_NAV_HEIGHT } from "../../navigation/BottomNav";
 
 const breathingModes = [
   { key: "calm", label: "Tenangkan diri", inhale: 4, hold: 7, exhale: 8 },
@@ -205,7 +206,10 @@ export default function BreathingPlayerScreen() {
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={[styles.content, { paddingBottom: spacing.lg + insets.bottom }]}
+      contentContainerStyle={[
+        styles.content,
+        { paddingBottom: spacing.lg + insets.bottom + BOTTOM_NAV_HEIGHT }
+      ]}
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.pulseWrap}>

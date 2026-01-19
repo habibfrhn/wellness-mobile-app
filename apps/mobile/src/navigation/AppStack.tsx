@@ -3,7 +3,7 @@ import { Text, View, StyleSheet } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import HomeScreen from "../screens/App/HomeScreen";
-import PlayerScreen from "../screens/App/PlayerScreen";
+import AudioPlayerScreen from "../screens/App/AudioPlayerScreen";
 import BreathingPlayerScreen from "../screens/App/BreathingPlayerScreen";
 import AccountScreen from "../screens/App/AccountScreen";
 import ResetPasswordScreen from "../screens/App/ResetPasswordScreen";
@@ -47,7 +47,7 @@ export default function AppStack() {
       <Stack.Screen name="Player" options={{ title: "Sesi" }}>
         {(props) => (
           <ScreenWithBottomNav routeName={props.route.name} navigation={props.navigation}>
-            <PlayerScreen {...props} />
+            <AudioPlayerScreen {...props} />
           </ScreenWithBottomNav>
         )}
       </Stack.Screen>

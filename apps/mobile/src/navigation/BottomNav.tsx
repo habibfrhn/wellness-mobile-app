@@ -7,6 +7,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { AppStackParamList } from "./types";
 import { colors, spacing, typography } from "../theme/tokens";
 
+export const BOTTOM_NAV_HEIGHT = 64;
+
 const tabs = [
   { key: "Home", label: "Home", icon: "home-variant-outline" },
   { key: "Breathing", label: "Breathing", icon: "meditation" },
@@ -31,7 +33,12 @@ export default function BottomNav({ navigation, routeName }: Props) {
   const activeTab = routeToTab(routeName);
 
   return (
-    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, spacing.xs) }]}>
+    <View
+      style={[
+        styles.container,
+        { minHeight: BOTTOM_NAV_HEIGHT + Math.max(insets.bottom, spacing.xs), paddingBottom: Math.max(insets.bottom, spacing.xs) },
+      ]}
+    >
       {tabs.map((tab) => {
         const isActive = activeTab === tab.key;
         return (
