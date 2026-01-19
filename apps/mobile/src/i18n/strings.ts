@@ -99,6 +99,7 @@ export const id = {
     back: "Kembali",
     start: "Mulai",
     pause: "Pause",
+    stop: "Stop",
     restart: "Ulang dari awal",
     timerLabel: "Timer",
     timerOff: "Off",

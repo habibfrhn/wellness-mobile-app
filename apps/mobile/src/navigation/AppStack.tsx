@@ -36,7 +36,7 @@ export default function AppStack() {
         )}
       </Stack.Screen>
 
-      <Stack.Screen name="Breathing" options={{ title: "" }}>
+      <Stack.Screen name="Breathing" options={{ title: "", headerBackVisible: false }}>
         {(props) => (
           <ScreenWithBottomNav routeName={props.route.name} navigation={props.navigation}>
             <BreathingPlayerScreen />
@@ -44,7 +44,7 @@ export default function AppStack() {
         )}
       </Stack.Screen>
 
-      <Stack.Screen name="Player" options={{ title: "Sesi" }}>
+      <Stack.Screen name="Player" options={{ title: "Sesi", headerBackVisible: false }}>
         {(props) => (
           <ScreenWithBottomNav routeName={props.route.name} navigation={props.navigation}>
             <AudioPlayerScreen {...props} />

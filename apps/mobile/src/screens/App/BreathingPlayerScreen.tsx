@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAudioPlayer } from "expo-audio";
 
@@ -32,6 +33,7 @@ const phaseOrder: Phase[] = ["inhale", "hold", "exhale"];
 
 export default function BreathingPlayerScreen() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
   const [selectedMode, setSelectedMode] = useState<(typeof breathingModes)[number]["key"]>("calm");
   const [selectedDuration, setSelectedDuration] = useState(3);
   const [audioEnabled, setAudioEnabled] = useState(true);
@@ -178,23 +180,47 @@ export default function BreathingPlayerScreen() {
     return () => {
       try {
         player.pause();
+        player.seekTo(0);
       } catch {}
     };
   }, [player]);
 
+  const stopSession = useCallback(() => {
+    if (!isRunning && !isCountingDown && !isPaused) return;
+    setIsRunning(false);
+    setIsCountingDown(false);
+    setIsPaused(false);
+    setCountdownSeconds(3);
+    setElapsedSeconds(0);
+    setPhase("inhale");
+    setPhaseCount(0);
+    try {
+      player.pause();
+      player.seekTo(0);
+    } catch {}
+  }, [isCountingDown, isPaused, isRunning, player]);
+
+  useEffect(() => {
+    const unsubBeforeRemove = navigation.addListener("beforeRemove", () => {
+      stopSession();
+    });
+    const unsubBlur = navigation.addListener("blur", () => {
+      stopSession();
+    });
+    return () => {
+      unsubBeforeRemove();
+      unsubBlur();
+      stopSession();
+    };
+  }, [navigation, stopSession]);
+
   const handleStartStop = () => {
     if (isRunning || isCountingDown || isPaused) {
-      setIsRunning(false);
-      setIsCountingDown(false);
-      setIsPaused(false);
-      setCountdownSeconds(3);
-      setElapsedSeconds(0);
-      setPhase("inhale");
-      setPhaseCount(0);
-    } else {
-      setIsCountingDown(true);
-      setCountdownSeconds(3);
+      stopSession();
+      return;
     }
+    setIsCountingDown(true);
+    setCountdownSeconds(3);
   };
 
   const handlePauseResume = () => {
