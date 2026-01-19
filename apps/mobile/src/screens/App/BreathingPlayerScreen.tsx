@@ -35,6 +35,8 @@ export default function BreathingPlayerScreen() {
   const [selectedDuration, setSelectedDuration] = useState(3);
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [isRunning, setIsRunning] = useState(false);
+  const [isCountingDown, setIsCountingDown] = useState(false);
+  const [countdownSeconds, setCountdownSeconds] = useState(3);
   const [phase, setPhase] = useState<Phase>("inhale");
   const [phaseCount, setPhaseCount] = useState(0);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -73,7 +75,27 @@ export default function BreathingPlayerScreen() {
   }, [activePhaseDuration, isRunning, phase, pulseScale]);
 
   useEffect(() => {
-    if (!isRunning) return;
+    if (!isCountingDown) return;
+
+    const timer = setTimeout(() => {
+      setCountdownSeconds((prev) => {
+        if (prev <= 1) {
+          setIsCountingDown(false);
+          setIsRunning(true);
+          setPhase("inhale");
+          setPhaseCount(0);
+          setElapsedSeconds(0);
+          return 3;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [isCountingDown]);
+
+  useEffect(() => {
+    if (!isRunning || isCountingDown) return;
     if (elapsedSeconds >= totalSeconds) {
       setIsRunning(false);
       return;
@@ -94,12 +116,12 @@ export default function BreathingPlayerScreen() {
   }, [activePhaseDuration, elapsedSeconds, isRunning, totalSeconds]);
 
   useEffect(() => {
-    if (!isRunning || !audioEnabled) return;
+    if (!isRunning || isCountingDown || !audioEnabled) return;
     try {
       player.seekTo(0);
       player.play();
     } catch {}
-  }, [audioEnabled, isRunning, player, selectedDuration]);
+  }, [audioEnabled, isCountingDown, isRunning, player, selectedDuration]);
 
   useEffect(() => {
     if (audioEnabled) return;
@@ -119,12 +141,14 @@ export default function BreathingPlayerScreen() {
   }, [isRunning, player]);
 
   useEffect(() => {
-    if (!isRunning) return;
+    if (!isRunning && !isCountingDown) return;
     setIsRunning(false);
+    setIsCountingDown(false);
+    setCountdownSeconds(3);
     setPhase("inhale");
     setPhaseCount(0);
     setElapsedSeconds(0);
-  }, [selectedMode, selectedDuration]);
+  }, [isCountingDown, isRunning, selectedDuration, selectedMode]);
 
   useEffect(() => {
     return () => {
@@ -137,19 +161,23 @@ export default function BreathingPlayerScreen() {
   const handleStartStop = () => {
     if (isRunning) {
       setIsRunning(false);
+      setIsCountingDown(false);
+      setCountdownSeconds(3);
       setElapsedSeconds(0);
       setPhase("inhale");
       setPhaseCount(0);
     } else {
-      setIsRunning(true);
-      setElapsedSeconds(0);
-      setPhase("inhale");
-      setPhaseCount(0);
+      setIsCountingDown(true);
+      setCountdownSeconds(3);
     }
   };
 
-  const displayPhaseLabel = isRunning ? phaseLabels[phase] : "Pilih dan mulai";
-  const displayCount = isRunning ? phaseCount + 1 : "-";
+  const displayPhaseLabel = isCountingDown
+    ? "Mulai"
+    : isRunning
+      ? phaseLabels[phase]
+      : "Pilih dan mulai";
+  const displayCount = isCountingDown ? countdownSeconds : isRunning ? phaseCount + 1 : "-";
 
   return (
     <ScrollView
@@ -252,23 +280,24 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   pulseOuter: {
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    backgroundColor: colors.secondary,
+    width: 190,
+    height: 190,
+    borderRadius: 95,
+    borderWidth: 2,
+    borderColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
   },
   pulseInner: {
-    width: 180,
-    height: 180,
-    borderRadius: 90,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
     backgroundColor: colors.card,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
     borderColor: colors.border,
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.sm,
   },
   phaseLabel: {
     fontSize: typography.body,
@@ -356,7 +385,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
   },
   audioTitle: {
-    fontSize: typography.body,
+    fontSize: 12,
     color: colors.text,
     fontWeight: "600",
   },
