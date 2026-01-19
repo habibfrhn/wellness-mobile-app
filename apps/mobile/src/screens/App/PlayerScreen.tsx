@@ -1,6 +1,5 @@
-import React, { useEffect, useLayoutEffect, useMemo } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { View, Text, StyleSheet, Image, Pressable } from "react-native";
-import Slider from "@react-native-community/slider";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { getTrackById } from "../../content/audioCatalog";
 import CalmPulse from "../../components/CalmPulse";
@@ -19,6 +18,7 @@ export default function PlayerScreen({ route, navigation }: Props) {
   // No autoplay: do not call play() on mount.
   const player = useAudioPlayer(track.asset, { updateInterval: 250 });
   const status = useAudioPlayerStatus(player);
+  const [progressWidth, setProgressWidth] = useState(0);
 
   const duration = status.duration || track.durationSec;
   const current = Math.min(status.currentTime || 0, duration);
@@ -46,6 +46,12 @@ export default function PlayerScreen({ route, navigation }: Props) {
     try {
       player.seekTo(value);
     } catch {}
+  };
+
+  const onSeekBarPress = (locationX: number) => {
+    if (!duration || !progressWidth) return;
+    const ratio = Math.min(Math.max(locationX / progressWidth, 0), 1);
+    onSeek(ratio * duration);
   };
 
   useEffect(() => {
@@ -81,17 +87,20 @@ export default function PlayerScreen({ route, navigation }: Props) {
       <Text style={styles.title}>{track.title}</Text>
       <Text style={styles.creator}>{track.creator}</Text>
 
-      <View style={styles.progressWrap}>
-        <Slider
-          minimumValue={0}
-          maximumValue={duration}
-          value={current}
-          onSlidingComplete={onSeek}
-          minimumTrackTintColor={colors.primary}
-          maximumTrackTintColor={colors.border}
-          thumbTintColor={colors.primary}
-        />
-      </View>
+      <Pressable
+        style={styles.progressWrap}
+        onLayout={(event) => setProgressWidth(event.nativeEvent.layout.width)}
+        onPress={(event) => onSeekBarPress(event.nativeEvent.locationX)}
+      >
+        <View style={styles.progressTrack}>
+          <View
+            style={[
+              styles.progressFill,
+              { width: duration > 0 && progressWidth ? `${(current / duration) * 100}%` : "0%" }
+            ]}
+          />
+        </View>
+      </Pressable>
 
       <View style={styles.controlsRow}>
         <Pressable onPress={onRestart} style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}>
@@ -132,6 +141,17 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
   },
   progressWrap: { marginTop: spacing.md },
+  progressTrack: {
+    height: 6,
+    borderRadius: 999,
+    backgroundColor: colors.border,
+    overflow: "hidden",
+  },
+  progressFill: {
+    height: "100%",
+    borderRadius: 999,
+    backgroundColor: colors.primary,
+  },
   controlsRow: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.md },
   primaryBtn: {
     flex: 1,
