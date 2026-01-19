@@ -147,7 +147,9 @@ export default function PlayerScreen({ route, navigation }: Props) {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: spacing.md, backgroundColor: colors.bg },
   cover: {
-    width: "88%",
+    width: "70%",
+    maxWidth: 320,
+    maxHeight: 320,
     aspectRatio: 1,
     borderRadius: radius.md,
     marginTop: spacing.sm,
