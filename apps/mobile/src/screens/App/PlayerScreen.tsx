@@ -97,10 +97,7 @@ export default function PlayerScreen({ route, navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.coverWrap}>
-        <View style={styles.coverBackdrop} />
-        <Image source={track.cover} style={styles.cover} resizeMode="contain" />
-      </View>
+      <Image source={track.cover} style={styles.cover} resizeMode="contain" />
       <Text style={styles.title}>{track.title}</Text>
       <Text style={styles.creator}>{track.creator}</Text>
       <View style={styles.metaRow}>
@@ -149,23 +146,11 @@ export default function PlayerScreen({ route, navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: spacing.md, backgroundColor: colors.bg },
-  coverWrap: {
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: spacing.sm,
-  },
-  coverBackdrop: {
-    position: "absolute",
-    width: "92%",
-    aspectRatio: 1,
-    borderRadius: radius.lg,
-    backgroundColor: colors.secondary,
-    opacity: 0.45,
-  },
   cover: {
     width: "88%",
     aspectRatio: 1,
     borderRadius: radius.md,
+    marginTop: spacing.sm,
     alignSelf: "center",
   },
   title: { fontSize: 18, color: colors.text, fontWeight: "700", marginTop: spacing.xl },
