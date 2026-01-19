@@ -187,11 +187,9 @@ const styles = StyleSheet.create({
   },
   favoriteButton: {
     marginLeft: "auto",
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs / 2,
-    minHeight: 28,
-    minWidth: 40,
-    borderRadius: 999,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.card,
@@ -201,7 +199,7 @@ const styles = StyleSheet.create({
   favoriteText: {
     fontSize: 20,
     color: colors.mutedText,
-    lineHeight: 20,
+    lineHeight: 22,
   },
   favoriteActive: {
     color: colors.primary,
