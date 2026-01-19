@@ -111,14 +111,10 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
       ]}
     >
       <Image source={track.cover} style={styles.cover} resizeMode="contain" />
-      <Text style={styles.title}>{track.title}</Text>
-      <Text style={styles.creator}>{track.creator}</Text>
-      <View style={styles.metaRow}>
-        <View style={styles.metaPill}>
-          <Text style={styles.metaText}>{formatMinutes(duration)}</Text>
-        </View>
-        <View style={styles.metaPill}>
-          <Text style={styles.metaText}>{formatTag(track.tags[0])}</Text>
+      <View style={styles.titleRow}>
+        <View style={styles.titleTextWrap}>
+          <Text style={styles.title}>{track.title}</Text>
+          <Text style={styles.creator}>{track.creator}</Text>
         </View>
         <Pressable
           style={styles.favoriteButton}
@@ -174,25 +170,17 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     alignSelf: "center",
   },
-  title: { fontSize: 18, color: colors.text, fontWeight: "700", marginTop: spacing.xl },
-  creator: { marginTop: 2, fontSize: 12, color: colors.mutedText },
-  metaRow: {
+  titleRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.xs,
-    marginTop: spacing.sm,
+    gap: spacing.sm,
+    marginTop: spacing.xl,
   },
-  metaPill: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs / 2,
-    borderRadius: 999,
-    backgroundColor: colors.secondary,
+  titleTextWrap: {
+    flex: 1,
   },
-  metaText: {
-    fontSize: 12,
-    color: colors.secondaryText,
-    fontWeight: "600",
-  },
+  title: { fontSize: 18, color: colors.text, fontWeight: "700" },
+  creator: { marginTop: 2, fontSize: 12, color: colors.mutedText },
   favoriteButton: {
     marginLeft: "auto",
     width: 36,
