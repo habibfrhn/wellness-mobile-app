@@ -74,7 +74,8 @@ const styles = StyleSheet.create({
     fontSize: typography.body,
     fontWeight: "700",
     color: colors.text,
-    marginBottom: spacing.xs / 2,
+    marginBottom: 2,
+    paddingHorizontal: spacing.sm,
   },
   listContent: {
     paddingVertical: spacing.xs,

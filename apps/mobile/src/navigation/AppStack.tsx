@@ -17,7 +17,7 @@ export default function AppStack() {
     <Stack.Navigator
       screenOptions={{
         headerTitleAlign: "center",
-        headerStyle: { backgroundColor: colors.bg, height: 36 },
+        headerStyle: { backgroundColor: colors.bg, height: 32 },
         headerShadowVisible: false,
       }}
     >
