@@ -36,7 +36,7 @@ export default function AppStack() {
         )}
       </Stack.Screen>
 
-      <Stack.Screen name="Breathing" options={{ title: "Latihan napas" }}>
+      <Stack.Screen name="Breathing" options={{ title: "" }}>
         {(props) => (
           <ScreenWithBottomNav routeName={props.route.name} navigation={props.navigation}>
             <BreathingPlayerScreen />

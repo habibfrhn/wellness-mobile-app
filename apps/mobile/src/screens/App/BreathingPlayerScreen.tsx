@@ -7,7 +7,6 @@ import { colors, radius, spacing, typography } from "../../theme/tokens";
 
 const breathingModes = [
   { key: "calm", label: "Tenangkan diri", inhale: 4, hold: 7, exhale: 8 },
-  { key: "release", label: "Lepaskan rasa tegang", inhale: 3, hold: 3, exhale: 3 },
   { key: "sleep", label: "Persiapan tidur", inhale: 4, hold: 4, exhale: 4 },
 ] as const;
 
@@ -52,23 +51,26 @@ export default function BreathingPlayerScreen() {
   const player = useAudioPlayer(audioAsset);
 
   useEffect(() => {
-    const animation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseScale, {
-          toValue: 1.12,
-          duration: 1600,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseScale, {
-          toValue: 1,
-          duration: 1600,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    animation.start();
-    return () => animation.stop();
-  }, [pulseScale]);
+    if (!isRunning) {
+      pulseScale.stopAnimation();
+      pulseScale.setValue(1);
+      return;
+    }
+
+    const inhaleScale = 1.15;
+    pulseScale.stopAnimation();
+
+    if (phase === "hold") {
+      pulseScale.setValue(inhaleScale);
+      return;
+    }
+
+    Animated.timing(pulseScale, {
+      toValue: phase === "inhale" ? inhaleScale : 1,
+      duration: activePhaseDuration * 1000,
+      useNativeDriver: true,
+    }).start();
+  }, [activePhaseDuration, isRunning, phase, pulseScale]);
 
   useEffect(() => {
     if (!isRunning) return;
@@ -146,7 +148,7 @@ export default function BreathingPlayerScreen() {
     }
   };
 
-  const displayPhaseLabel = isRunning ? phaseLabels[phase] : "Siap bernapas";
+  const displayPhaseLabel = isRunning ? phaseLabels[phase] : "Pilih dan mulai";
   const displayCount = isRunning ? phaseCount + 1 : "-";
 
   return (
@@ -242,12 +244,12 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: spacing.md,
-    gap: spacing.lg,
+    gap: spacing.md,
   },
   pulseWrap: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: spacing.lg,
+    paddingVertical: spacing.md,
   },
   pulseOuter: {
     width: 220,
@@ -286,10 +288,12 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   cardRow: {
+    flexDirection: "row",
     gap: spacing.sm,
   },
   modeCard: {
-    padding: spacing.md,
+    flex: 1,
+    padding: spacing.sm,
     borderRadius: radius.md,
     backgroundColor: colors.card,
     borderWidth: 1,
@@ -300,7 +304,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondary,
   },
   modeTitle: {
-    fontSize: typography.body,
+    fontSize: 12,
     color: colors.text,
     fontWeight: "600",
   },
@@ -318,11 +322,11 @@ const styles = StyleSheet.create({
   durationRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: spacing.sm,
+    gap: spacing.xs,
   },
   durationPill: {
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs / 2,
+    paddingHorizontal: spacing.sm,
     borderRadius: 999,
     borderWidth: 1,
     borderColor: colors.border,
@@ -345,7 +349,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     gap: spacing.md,
-    padding: spacing.md,
+    padding: spacing.sm,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
@@ -362,8 +366,8 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
   },
   audioToggle: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs / 2,
     borderRadius: 999,
     borderWidth: 1,
     borderColor: colors.border,
