@@ -52,6 +52,13 @@ export default function BreathingPlayerScreen() {
   const audioAsset = audioByDuration[selectedDuration];
   const player = useAudioPlayer(audioAsset);
 
+  const startSession = () => {
+    setIsRunning(true);
+    setPhase("inhale");
+    setPhaseCount(0);
+    setElapsedSeconds(0);
+  };
+
   useEffect(() => {
     if (!isRunning) {
       pulseScale.stopAnimation();
@@ -81,10 +88,7 @@ export default function BreathingPlayerScreen() {
       setCountdownSeconds((prev) => {
         if (prev <= 1) {
           setIsCountingDown(false);
-          setIsRunning(true);
-          setPhase("inhale");
-          setPhaseCount(0);
-          setElapsedSeconds(0);
+          startSession();
           return 3;
         }
         return prev - 1;
@@ -92,7 +96,7 @@ export default function BreathingPlayerScreen() {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [isCountingDown]);
+  }, [isCountingDown, countdownSeconds]);
 
   useEffect(() => {
     if (!isRunning || isCountingDown) return;
@@ -159,7 +163,7 @@ export default function BreathingPlayerScreen() {
   }, [player]);
 
   const handleStartStop = () => {
-    if (isRunning) {
+    if (isRunning || isCountingDown) {
       setIsRunning(false);
       setIsCountingDown(false);
       setCountdownSeconds(3);
@@ -293,6 +297,7 @@ const styles = StyleSheet.create({
     borderRadius: 90,
     borderWidth: 2,
     borderColor: colors.primary,
+    backgroundColor: colors.secondary,
   },
   pulseInner: {
     width: 140,
