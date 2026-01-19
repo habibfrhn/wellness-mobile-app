@@ -107,7 +107,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     <View
       style={[
         styles.container,
-        { paddingBottom: spacing.lg + insets.bottom + BOTTOM_NAV_HEIGHT }
+        { paddingBottom: spacing.xl + insets.bottom + BOTTOM_NAV_HEIGHT }
       ]}
     >
       <Image source={track.cover} style={styles.cover} resizeMode="contain" />
