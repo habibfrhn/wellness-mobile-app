@@ -10,7 +10,7 @@ function formatTime(sec: number) {
   return `${mm}:${ss}`;
 }
 
-type SleepAidCarouselProps = {
+type CarouselProps = {
   tracks: AudioTrack[];
   onPress: (track: AudioTrack) => void;
 };
@@ -23,7 +23,7 @@ function shortenTitle(title: string, maxLength = 15) {
   return `${title.slice(0, maxLength - 1)}…`;
 }
 
-export default function SleepAidCarousel({ tracks, onPress }: SleepAidCarouselProps) {
+export default function Carousel({ tracks, onPress }: CarouselProps) {
   const { width } = useWindowDimensions();
   const horizontalPadding = spacing.md;
   const cardWidth = Math.max(130, Math.round((width - horizontalPadding * 2 - spacing.sm * 2) / 2.25));

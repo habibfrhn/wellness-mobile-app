@@ -5,7 +5,8 @@ import { colors, spacing, typography } from "../../theme/tokens";
 import { AUDIO_TRACKS, type AudioTrack } from "../../content/audioCatalog";
 import { id } from "../../i18n/strings";
 import AudioTrackCard from "../../components/AudioTrackCard";
-import SleepAidCarousel from "../../components/SleepAidCarousel";
+import Carousel from "../../components/Carousel";
+import GuidedSleepCarousel from "../../components/GuidedSleepCarousel";
 
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AppStackParamList } from "../../navigation/types";
@@ -17,8 +18,13 @@ export default function HomeScreen({ navigation }: Props) {
 
   const Header = (
     <View>
-      <SleepAidCarousel
+      <Carousel
         tracks={AUDIO_TRACKS.slice(0, 6)}
+        onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
+      />
+      <GuidedSleepCarousel
+        title="Tidur dengan panduan"
+        tracks={AUDIO_TRACKS.filter((track) => track.tags.includes("sleep-guide"))}
         onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
       />
     </View>
@@ -44,10 +50,10 @@ export default function HomeScreen({ navigation }: Props) {
       renderItem={renderItem}
       ListHeaderComponent={Header}
       ListFooterComponent={Footer}
-  contentContainerStyle={[
-    styles.listContent,
-    { paddingBottom: spacing.sm + insets.bottom } // critical for Android nav bar overlap
-  ]}
+      contentContainerStyle={[
+        styles.listContent,
+        { paddingBottom: spacing.sm + insets.bottom } // critical for Android nav bar overlap
+      ]}
       ItemSeparatorComponent={() => <View style={{ height: spacing.xs }} />}
       showsVerticalScrollIndicator={false}
     />
