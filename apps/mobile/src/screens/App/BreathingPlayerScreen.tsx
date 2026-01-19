@@ -148,7 +148,7 @@ export default function BreathingPlayerScreen() {
     setPhase("inhale");
     setPhaseCount(0);
     setElapsedSeconds(0);
-  }, [isCountingDown, isRunning, selectedDuration, selectedMode]);
+  }, [selectedDuration, selectedMode]);
 
   useEffect(() => {
     return () => {
@@ -177,7 +177,7 @@ export default function BreathingPlayerScreen() {
     : isRunning
       ? phaseLabels[phase]
       : "Pilih dan mulai";
-  const displayCount = isCountingDown ? countdownSeconds : isRunning ? phaseCount + 1 : "-";
+  const displayCount = isCountingDown ? countdownSeconds : isRunning ? phaseCount + 1 : null;
 
   return (
     <ScrollView
@@ -186,12 +186,13 @@ export default function BreathingPlayerScreen() {
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.pulseWrap}>
-        <Animated.View style={[styles.pulseOuter, { transform: [{ scale: pulseScale }] }]}>
+        <View style={styles.pulseStack}>
+          <Animated.View style={[styles.pulseOuter, { transform: [{ scale: pulseScale }] }]} />
           <View style={styles.pulseInner}>
             <Text style={styles.phaseLabel}>{displayPhaseLabel}</Text>
-            <Text style={styles.phaseCount}>{displayCount}</Text>
+            {displayCount !== null ? <Text style={styles.phaseCount}>{displayCount}</Text> : null}
           </View>
-        </Animated.View>
+        </View>
       </View>
 
       <Text style={styles.sectionTitle}>Pilih pola napas</Text>
@@ -279,19 +280,24 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: spacing.md,
   },
-  pulseOuter: {
-    width: 190,
-    height: 190,
-    borderRadius: 95,
-    borderWidth: 2,
-    borderColor: colors.primary,
+  pulseStack: {
+    width: 180,
+    height: 180,
     alignItems: "center",
     justifyContent: "center",
   },
+  pulseOuter: {
+    position: "absolute",
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    borderWidth: 2,
+    borderColor: colors.primary,
+  },
   pulseInner: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
     backgroundColor: colors.card,
     alignItems: "center",
     justifyContent: "center",
