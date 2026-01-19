@@ -3,6 +3,7 @@ import { ActivityIndicator, Alert, View } from "react-native";
 import * as Linking from "expo-linking";
 import * as Updates from "expo-updates";
 import { NavigationContainer } from "@react-navigation/native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { supabase } from "./src/services/supabase";
 import { handleAuthLink } from "./src/services/authLinks";
@@ -158,12 +159,14 @@ export default function App() {
     authStartRoute === "Login" ? "Login" : forceReset ? "ResetPassword" : authStartRoute;
 
   return (
-    <NavigationContainer>
-      {shouldShowAuth ? (
-        <AuthStack key={`auth-${initialAuthRoute}`} initialRouteName={initialAuthRoute} />
-      ) : (
-        <AppStack />
-      )}
-    </NavigationContainer>
+    <SafeAreaProvider>
+      <NavigationContainer>
+        {shouldShowAuth ? (
+          <AuthStack key={`auth-${initialAuthRoute}`} initialRouteName={initialAuthRoute} />
+        ) : (
+          <AppStack />
+        )}
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
