@@ -1,5 +1,7 @@
 import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { View, Text, StyleSheet, Image, Pressable } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { BOTTOM_NAV_HEIGHT } from "../../navigation/BottomNav";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { getTrackById, isFavorite, toggleFavorite } from "../../content/audioCatalog";
 import { colors, spacing, radius, typography } from "../../theme/tokens";
@@ -31,6 +33,7 @@ function formatTag(tag?: string) {
 }
 
 export default function AudioPlayerScreen({ route, navigation }: Props) {
+  const insets = useSafeAreaInsets();
   const { audioId } = route.params;
   const track = useMemo(() => getTrackById(audioId), [audioId]);
 
@@ -101,7 +104,12 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   }, [navigation]);
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { paddingBottom: spacing.lg + insets.bottom + BOTTOM_NAV_HEIGHT }
+      ]}
+    >
       <Image source={track.cover} style={styles.cover} resizeMode="contain" />
       <Text style={styles.title}>{track.title}</Text>
       <Text style={styles.creator}>{track.creator}</Text>

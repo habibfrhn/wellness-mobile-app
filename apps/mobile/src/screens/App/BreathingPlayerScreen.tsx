@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAudioPlayer } from "expo-audio";
 
@@ -204,14 +204,13 @@ export default function BreathingPlayerScreen() {
   const displayCount = isCountingDown ? countdownSeconds : isRunning ? phaseCount + 1 : null;
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={[
-        styles.content,
-        { paddingBottom: spacing.lg + insets.bottom + BOTTOM_NAV_HEIGHT }
-      ]}
-      showsVerticalScrollIndicator={false}
-    >
+    <View style={styles.container}>
+      <View
+        style={[
+          styles.content,
+          { paddingBottom: spacing.lg + insets.bottom + BOTTOM_NAV_HEIGHT }
+        ]}
+      >
       <View style={styles.pulseWrap}>
         <View style={styles.pulseStack}>
           <Animated.View style={[styles.pulseOuter, { transform: [{ scale: pulseScale }] }]} />
@@ -310,7 +309,8 @@ export default function BreathingPlayerScreen() {
           </Pressable>
         )}
       </View>
-    </ScrollView>
+      </View>
+    </View>
   );
 }
 
