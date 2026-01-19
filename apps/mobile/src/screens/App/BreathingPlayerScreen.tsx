@@ -36,6 +36,7 @@ export default function BreathingPlayerScreen() {
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [isRunning, setIsRunning] = useState(false);
   const [isCountingDown, setIsCountingDown] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [countdownSeconds, setCountdownSeconds] = useState(3);
   const [phase, setPhase] = useState<Phase>("inhale");
   const [phaseCount, setPhaseCount] = useState(0);
@@ -54,6 +55,7 @@ export default function BreathingPlayerScreen() {
 
   const startSession = () => {
     setIsRunning(true);
+    setIsPaused(false);
     setPhase("inhale");
     setPhaseCount(0);
     setElapsedSeconds(0);
@@ -63,6 +65,10 @@ export default function BreathingPlayerScreen() {
     if (!isRunning) {
       pulseScale.stopAnimation();
       pulseScale.setValue(1);
+      return;
+    }
+    if (isPaused) {
+      pulseScale.stopAnimation();
       return;
     }
 
@@ -79,7 +85,7 @@ export default function BreathingPlayerScreen() {
       duration: activePhaseDuration * 1000,
       useNativeDriver: true,
     }).start();
-  }, [activePhaseDuration, isRunning, phase, pulseScale]);
+  }, [activePhaseDuration, isPaused, isRunning, phase, pulseScale]);
 
   useEffect(() => {
     if (!isCountingDown) return;
@@ -99,7 +105,7 @@ export default function BreathingPlayerScreen() {
   }, [isCountingDown, countdownSeconds]);
 
   useEffect(() => {
-    if (!isRunning || isCountingDown) return;
+    if (!isRunning || isCountingDown || isPaused) return;
     if (elapsedSeconds >= totalSeconds) {
       setIsRunning(false);
       return;
@@ -120,12 +126,12 @@ export default function BreathingPlayerScreen() {
   }, [activePhaseDuration, elapsedSeconds, isRunning, totalSeconds]);
 
   useEffect(() => {
-    if (!isRunning || isCountingDown || !audioEnabled) return;
+    if (!isRunning || isCountingDown || isPaused || !audioEnabled) return;
     try {
       player.seekTo(0);
       player.play();
     } catch {}
-  }, [audioEnabled, isCountingDown, isRunning, player, selectedDuration]);
+  }, [audioEnabled, isCountingDown, isPaused, isRunning, player, selectedDuration]);
 
   useEffect(() => {
     if (audioEnabled) return;
@@ -141,13 +147,20 @@ export default function BreathingPlayerScreen() {
         player.pause();
         player.seekTo(0);
       } catch {}
+      return;
     }
-  }, [isRunning, player]);
+    if (isPaused) {
+      try {
+        player.pause();
+      } catch {}
+    }
+  }, [isPaused, isRunning, player]);
 
   useEffect(() => {
     if (!isRunning && !isCountingDown) return;
     setIsRunning(false);
     setIsCountingDown(false);
+    setIsPaused(false);
     setCountdownSeconds(3);
     setPhase("inhale");
     setPhaseCount(0);
@@ -163,9 +176,10 @@ export default function BreathingPlayerScreen() {
   }, [player]);
 
   const handleStartStop = () => {
-    if (isRunning || isCountingDown) {
+    if (isRunning || isCountingDown || isPaused) {
       setIsRunning(false);
       setIsCountingDown(false);
+      setIsPaused(false);
       setCountdownSeconds(3);
       setElapsedSeconds(0);
       setPhase("inhale");
@@ -174,6 +188,11 @@ export default function BreathingPlayerScreen() {
       setIsCountingDown(true);
       setCountdownSeconds(3);
     }
+  };
+
+  const handlePauseResume = () => {
+    if (!isRunning || isCountingDown) return;
+    setIsPaused((prev) => !prev);
   };
 
   const displayPhaseLabel = isCountingDown
@@ -263,9 +282,30 @@ export default function BreathingPlayerScreen() {
         </Pressable>
       </View>
 
-      <Pressable style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]} onPress={handleStartStop}>
-        <Text style={styles.primaryText}>{isRunning ? "Stop" : "Mulai"}</Text>
-      </Pressable>
+      <View style={styles.controlsRow}>
+        {isRunning || isCountingDown ? (
+          <>
+            <Pressable
+              style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}
+              onPress={handleStartStop}
+            >
+              <Text style={styles.secondaryText}>Stop</Text>
+            </Pressable>
+            {isRunning ? (
+              <Pressable
+                style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
+                onPress={handlePauseResume}
+              >
+                <Text style={styles.primaryText}>{isPaused ? "Lanjut" : "Jeda"}</Text>
+              </Pressable>
+            ) : null}
+          </>
+        ) : (
+          <Pressable style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]} onPress={handleStartStop}>
+            <Text style={styles.primaryText}>Mulai</Text>
+          </Pressable>
+        )}
+      </View>
     </ScrollView>
   );
 }
@@ -341,7 +381,6 @@ const styles = StyleSheet.create({
   },
   modeCardActive: {
     borderColor: colors.primary,
-    backgroundColor: colors.secondary,
   },
   modeTitle: {
     fontSize: 12,
@@ -425,8 +464,13 @@ const styles = StyleSheet.create({
   audioToggleTextActive: {
     color: colors.primaryText,
   },
-  primaryBtn: {
+  controlsRow: {
+    flexDirection: "row",
+    gap: spacing.sm,
     marginTop: spacing.sm,
+  },
+  primaryBtn: {
+    flex: 1,
     backgroundColor: colors.primary,
     paddingVertical: spacing.sm,
     borderRadius: radius.sm,
@@ -438,6 +482,17 @@ const styles = StyleSheet.create({
     fontSize: typography.body,
     fontWeight: "700",
   },
+  secondaryBtn: {
+    flex: 1,
+    backgroundColor: colors.secondary,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.sm,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  secondaryText: { color: colors.secondaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
   pressed: {
     opacity: 0.85,
   },
