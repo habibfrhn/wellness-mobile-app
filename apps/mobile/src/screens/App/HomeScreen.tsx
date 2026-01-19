@@ -7,9 +7,9 @@ import type { AudioTrack } from "../../content/audioCatalog";
 import Carousel from "../../components/Carousel";
 
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import type { AppStackParamList } from "../../navigation/types";
+import type { HomeStackParamList } from "../../navigation/types";
 
-type Props = NativeStackScreenProps<AppStackParamList, "Home">;
+type Props = NativeStackScreenProps<HomeStackParamList, "Home">;
 
 const shuffleTracks = (tracks: AudioTrack[]) => {
   const next = [...tracks];

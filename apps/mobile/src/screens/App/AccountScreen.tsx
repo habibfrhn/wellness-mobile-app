@@ -16,7 +16,7 @@ import { colors, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
 import { getPendingUpdate, setPendingUpdate } from "../../services/updatesState";
-import type { AppStackParamList } from "../../navigation/types";
+import type { AccountStackParamList } from "../../navigation/types";
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
@@ -104,7 +104,7 @@ async function safeOpenEmail(email: string) {
   await safeOpenUrl(mailto);
 }
 
-type Props = NativeStackScreenProps<AppStackParamList, "Account">;
+type Props = NativeStackScreenProps<AccountStackParamList, "Account">;
 
 export default function AccountScreen({ navigation }: Props) {
   const [emailValue, setEmailValue] = useState<string>("");
