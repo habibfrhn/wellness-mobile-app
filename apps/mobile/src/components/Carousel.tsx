@@ -77,12 +77,12 @@ const styles = StyleSheet.create({
     fontSize: typography.body,
     fontWeight: "700",
     color: colors.text,
-    marginBottom: 0,
+    marginBottom: spacing.xs,
     paddingHorizontal: spacing.sm,
   },
   listContent: {
-    paddingTop: 0,
-    paddingBottom: spacing.xs,
+    paddingTop: spacing.xs / 2,
+    paddingBottom: spacing.sm,
     paddingHorizontal: spacing.sm,
   },
   card: {

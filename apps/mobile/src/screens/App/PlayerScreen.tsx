@@ -2,7 +2,6 @@ import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { View, Text, StyleSheet, Image, Pressable } from "react-native";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { getTrackById } from "../../content/audioCatalog";
-import CalmPulse from "../../components/CalmPulse";
 import { colors, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 
@@ -85,12 +84,7 @@ export default function PlayerScreen({ route, navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.artWrap}>
-        <CalmPulse isActive={!!status.playing} />
-        <View style={styles.centerDot} />
-      </View>
-
-      <Image source={track.thumbnail} style={styles.thumbnail} />
+      <Image source={track.thumbnail} style={styles.cover} />
       <Text style={styles.title}>{track.title}</Text>
       <Text style={styles.creator}>{track.creator}</Text>
 
@@ -128,29 +122,14 @@ export default function PlayerScreen({ route, navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: spacing.md, backgroundColor: colors.bg },
-  title: { fontSize: 18, color: colors.text, fontWeight: "700", marginTop: spacing.xs },
-  creator: { marginTop: 2, fontSize: 12, color: colors.mutedText },
-  artWrap: {
-    height: 180,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: spacing.md,
-  },
-  centerDot: {
-    position: "absolute",
-    width: 76,
-    height: 76,
-    borderRadius: 38,
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  thumbnail: {
-    width: 80,
-    height: 80,
-    borderRadius: radius.sm,
+  cover: {
+    width: "100%",
+    height: 260,
+    borderRadius: radius.md,
     marginTop: spacing.sm,
   },
+  title: { fontSize: 18, color: colors.text, fontWeight: "700", marginTop: spacing.sm },
+  creator: { marginTop: 2, fontSize: 12, color: colors.mutedText },
   progressWrap: { marginTop: spacing.sm },
   progressTrack: {
     height: 5,

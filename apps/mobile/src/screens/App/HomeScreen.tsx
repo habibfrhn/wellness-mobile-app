@@ -34,12 +34,6 @@ export default function HomeScreen({ navigation }: Props) {
     </View>
   );
 
-  const Footer = (
-    <View style={{ paddingTop: spacing.md, paddingBottom: spacing.md }}>
-      <Text style={styles.note}>{id.home.noteNoAutoplay}</Text>
-    </View>
-  );
-
   return (
     <ScrollView
       contentContainerStyle={[
@@ -49,7 +43,6 @@ export default function HomeScreen({ navigation }: Props) {
       showsVerticalScrollIndicator={false}
     >
       {Header}
-      {Footer}
     </ScrollView>
   );
 }
@@ -59,7 +52,5 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
     backgroundColor: colors.bg,
   },
-
-  note: { fontSize: typography.small, color: colors.mutedText, lineHeight: 18 },
 
 });
