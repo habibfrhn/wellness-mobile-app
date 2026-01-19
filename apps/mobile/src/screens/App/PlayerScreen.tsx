@@ -123,14 +123,15 @@ export default function PlayerScreen({ route, navigation }: Props) {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: spacing.md, backgroundColor: colors.bg },
   cover: {
-    width: "100%",
+    width: "88%",
     aspectRatio: 1,
     borderRadius: radius.md,
     marginTop: spacing.sm,
+    alignSelf: "center",
   },
-  title: { fontSize: 18, color: colors.text, fontWeight: "700", marginTop: spacing.sm },
+  title: { fontSize: 18, color: colors.text, fontWeight: "700", marginTop: spacing.md },
   creator: { marginTop: 2, fontSize: 12, color: colors.mutedText },
-  progressWrap: { marginTop: spacing.sm },
+  progressWrap: { marginTop: spacing.md },
   progressTrack: {
     height: 5,
     borderRadius: 999,
@@ -142,9 +143,14 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: colors.primary,
   },
-  timeRow: { flexDirection: "row", justifyContent: "space-between", marginTop: spacing.xs / 2 },
+  timeRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: spacing.xs / 2,
+    marginBottom: spacing.md,
+  },
   timeText: { fontSize: 12, color: colors.mutedText },
-  controlsRow: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.sm },
+  controlsRow: { flexDirection: "row", gap: spacing.sm, marginTop: 0 },
   primaryBtn: {
     flex: 1,
     backgroundColor: colors.primary,
