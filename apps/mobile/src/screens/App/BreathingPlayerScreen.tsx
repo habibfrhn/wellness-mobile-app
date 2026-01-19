@@ -202,6 +202,11 @@ export default function BreathingPlayerScreen() {
     setIsPaused((prev) => !prev);
   };
 
+  const handleAudioToggle = () => {
+    if (isLocked) return;
+    setAudioEnabled((prev) => !prev);
+  };
+
   const displayPhaseLabel = isCountingDown
     ? "Mulai"
     : isPaused
@@ -277,7 +282,7 @@ export default function BreathingPlayerScreen() {
         })}
       </View>
 
-      <View style={styles.audioRow}>
+      <View style={[styles.audioRow, isLocked && styles.optionLocked]} pointerEvents={isLocked ? "none" : "auto"}>
         <View>
           <Text style={styles.audioTitle}>Audio panduan</Text>
           <Text style={styles.audioSubtitle}>
@@ -288,11 +293,9 @@ export default function BreathingPlayerScreen() {
           style={({ pressed }) => [
             styles.audioToggle,
             audioEnabled && styles.audioToggleActive,
-            isLocked && styles.optionLocked,
             pressed && styles.pressed,
           ]}
-          onPress={() => setAudioEnabled((prev) => !prev)}
-          disabled={isLocked}
+          onPress={handleAudioToggle}
         >
           <Text style={[styles.audioToggleText, audioEnabled && styles.audioToggleTextActive]}>
             {audioEnabled ? "On" : "Off"}
