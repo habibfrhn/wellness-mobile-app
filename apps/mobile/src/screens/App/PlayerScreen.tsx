@@ -84,7 +84,7 @@ export default function PlayerScreen({ route, navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <Image source={track.thumbnail} style={styles.cover} />
+      <Image source={track.thumbnail} style={styles.cover} resizeMode="contain" />
       <Text style={styles.title}>{track.title}</Text>
       <Text style={styles.creator}>{track.creator}</Text>
 
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: spacing.md, backgroundColor: colors.bg },
   cover: {
     width: "100%",
-    height: 260,
+    aspectRatio: 1,
     borderRadius: radius.md,
     marginTop: spacing.sm,
   },
