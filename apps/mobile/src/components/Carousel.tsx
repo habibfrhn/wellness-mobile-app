@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, FlatList, Pressable, Image, useWindowDimensions } from "react-native";
-import { colors, spacing, radius } from "../theme/tokens";
+import { colors, spacing, radius, typography } from "../theme/tokens";
 import type { AudioTrack } from "../content/audioCatalog";
 
 function formatTime(sec: number) {
@@ -11,6 +11,7 @@ function formatTime(sec: number) {
 }
 
 type CarouselProps = {
+  title: string;
   tracks: AudioTrack[];
   onPress: (track: AudioTrack) => void;
 };
@@ -23,49 +24,58 @@ function shortenTitle(title: string, maxLength = 15) {
   return `${title.slice(0, maxLength - 1)}…`;
 }
 
-export default function Carousel({ tracks, onPress }: CarouselProps) {
+export default function Carousel({ title, tracks, onPress }: CarouselProps) {
   const { width } = useWindowDimensions();
   const horizontalPadding = spacing.md;
   const cardWidth = Math.max(130, Math.round((width - horizontalPadding * 2 - spacing.sm * 2) / 2.25));
   const thumbnailHeight = Math.round(cardWidth * 0.72);
 
   return (
-    <FlatList
-      data={tracks}
-      keyExtractor={(item) => item.id}
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.listContent}
-      ItemSeparatorComponent={() => <View style={{ width: spacing.sm }} />}
-      renderItem={({ item }) => (
-        <Pressable
-          onPress={() => onPress(item)}
-          style={({ pressed }) => [styles.card, { width: cardWidth }, pressed && styles.pressed]}
-          hitSlop={6}
-        >
-          <View style={styles.cardContent}>
-            <Image
-              source={item.thumbnail}
-              style={[styles.thumbnail, { height: thumbnailHeight }]}
-              resizeMode="cover"
-            />
-            <Text style={styles.cardTitle} numberOfLines={2}>
-              {shortenTitle(item.title)}
-            </Text>
-            <View style={styles.metaRow}>
-              <Text style={styles.cardMeta} numberOfLines={1}>
-                {item.creator}
+    <View>
+      <Text style={styles.title}>{title}</Text>
+      <FlatList
+        data={tracks}
+        keyExtractor={(item) => item.id}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.listContent}
+        ItemSeparatorComponent={() => <View style={{ width: spacing.sm }} />}
+        renderItem={({ item }) => (
+          <Pressable
+            onPress={() => onPress(item)}
+            style={({ pressed }) => [styles.card, { width: cardWidth }, pressed && styles.pressed]}
+            hitSlop={6}
+          >
+            <View style={styles.cardContent}>
+              <Image
+                source={item.thumbnail}
+                style={[styles.thumbnail, { height: thumbnailHeight }]}
+                resizeMode="cover"
+              />
+              <Text style={styles.cardTitle} numberOfLines={2}>
+                {shortenTitle(item.title)}
               </Text>
-              <Text style={styles.cardDuration}>{formatTime(item.durationSec)}</Text>
+              <View style={styles.metaRow}>
+                <Text style={styles.cardMeta} numberOfLines={1}>
+                  {item.creator}
+                </Text>
+                <Text style={styles.cardDuration}>{formatTime(item.durationSec)}</Text>
+              </View>
             </View>
-          </View>
-        </Pressable>
-      )}
-    />
+          </Pressable>
+        )}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  title: {
+    fontSize: typography.body,
+    fontWeight: "700",
+    color: colors.text,
+    marginBottom: spacing.xs / 2,
+  },
   listContent: {
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.sm,
