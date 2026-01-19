@@ -186,7 +186,6 @@ export default function BreathingPlayerScreen() {
   }, [player]);
 
   const stopSession = useCallback(() => {
-    if (!isRunning && !isCountingDown && !isPaused) return;
     setIsRunning(false);
     setIsCountingDown(false);
     setIsPaused(false);
@@ -198,7 +197,7 @@ export default function BreathingPlayerScreen() {
       player.pause();
       player.seekTo(0);
     } catch {}
-  }, [isCountingDown, isPaused, isRunning, player]);
+  }, [player]);
 
   useEffect(() => {
     const unsubBeforeRemove = navigation.addListener("beforeRemove", () => {

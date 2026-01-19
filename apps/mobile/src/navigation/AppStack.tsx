@@ -44,7 +44,7 @@ export default function AppStack() {
         )}
       </Stack.Screen>
 
-      <Stack.Screen name="Player" options={{ title: "Sesi", headerBackVisible: false }}>
+      <Stack.Screen name="Player" options={{ title: "Sesi" }}>
         {(props) => (
           <ScreenWithBottomNav routeName={props.route.name} navigation={props.navigation}>
             <AudioPlayerScreen {...props} />

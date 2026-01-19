@@ -69,13 +69,6 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     } catch {}
   };
 
-  const onStop = () => {
-    try {
-      player.pause();
-      player.seekTo(0);
-    } catch {}
-  };
-
   const onSeek = (value: number) => {
     try {
       player.seekTo(value);
@@ -157,9 +150,6 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
       </View>
 
       <View style={styles.controlsRow}>
-        <Pressable onPress={onStop} style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}>
-          <Text style={styles.secondaryText}>{id.player.stop}</Text>
-        </Pressable>
         <Pressable onPress={onRestart} style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}>
           <Text style={styles.secondaryText}>{id.player.restart}</Text>
         </Pressable>
