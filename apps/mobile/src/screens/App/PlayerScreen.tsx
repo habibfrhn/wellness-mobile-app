@@ -17,6 +17,19 @@ function formatTime(sec: number) {
   return `${mm}:${ss}`;
 }
 
+function formatMinutes(sec: number) {
+  const minutes = Math.max(1, Math.round(sec / 60));
+  return `${minutes} min`;
+}
+
+function formatTag(tag?: string) {
+  if (!tag) return "Wellness";
+  return tag
+    .split("-")
+    .map((part) => part[0]?.toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 export default function PlayerScreen({ route, navigation }: Props) {
   const { audioId } = route.params;
   const track = useMemo(() => getTrackById(audioId), [audioId]);
@@ -84,9 +97,23 @@ export default function PlayerScreen({ route, navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <Image source={track.thumbnail} style={styles.cover} resizeMode="contain" />
+      <View style={styles.coverWrap}>
+        <View style={styles.coverBackdrop} />
+        <Image source={track.cover} style={styles.cover} resizeMode="contain" />
+      </View>
       <Text style={styles.title}>{track.title}</Text>
       <Text style={styles.creator}>{track.creator}</Text>
+      <View style={styles.metaRow}>
+        <View style={styles.metaPill}>
+          <Text style={styles.metaText}>{formatMinutes(duration)}</Text>
+        </View>
+        <View style={styles.metaPill}>
+          <Text style={styles.metaText}>{formatTag(track.tags[0])}</Text>
+        </View>
+        <Pressable style={styles.favoriteButton} hitSlop={6}>
+          <Text style={styles.favoriteText}>♡</Text>
+        </Pressable>
+      </View>
 
       <Pressable
         style={styles.progressWrap}
@@ -122,15 +149,59 @@ export default function PlayerScreen({ route, navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: spacing.md, backgroundColor: colors.bg },
+  coverWrap: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: spacing.sm,
+  },
+  coverBackdrop: {
+    position: "absolute",
+    width: "92%",
+    aspectRatio: 1,
+    borderRadius: radius.lg,
+    backgroundColor: colors.secondary,
+    opacity: 0.45,
+  },
   cover: {
     width: "88%",
     aspectRatio: 1,
     borderRadius: radius.md,
-    marginTop: spacing.sm,
     alignSelf: "center",
   },
   title: { fontSize: 18, color: colors.text, fontWeight: "700", marginTop: spacing.xl },
   creator: { marginTop: 2, fontSize: 12, color: colors.mutedText },
+  metaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    marginTop: spacing.sm,
+  },
+  metaPill: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs / 2,
+    borderRadius: 999,
+    backgroundColor: colors.secondary,
+  },
+  metaText: {
+    fontSize: 12,
+    color: colors.secondaryText,
+    fontWeight: "600",
+  },
+  favoriteButton: {
+    marginLeft: "auto",
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  favoriteText: {
+    fontSize: 16,
+    color: colors.text,
+  },
   progressWrap: { marginTop: spacing.xl },
   progressTrack: {
     height: 5,
@@ -159,7 +230,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  primaryText: { color: colors.bg, fontSize: typography.body, fontWeight: "700" },
+  primaryText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700" },
   secondaryBtn: {
     flex: 1,
     backgroundColor: colors.secondary,

@@ -6,10 +6,10 @@ export const colors = {
   card: "#FFFFFF",
 
   // Brand
-  primary: "#74BA74",
+  primary: "#1F4E79",
   primaryText: "#FFFFFF",
-  secondary: "#D8EFD3",
-  secondaryText: "#212121",
+  secondary: "#B6D8F6",
+  secondaryText: "#1F2A37",
   accent: "#FACC15",
 
   danger: "#B00020",
