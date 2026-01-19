@@ -9,7 +9,7 @@ import { BOTTOM_NAV_HEIGHT } from "../../navigation/BottomNav";
 
 const breathingModes = [
   { key: "calm", label: "Tenangkan diri", inhale: 4, hold: 7, exhale: 8 },
-  { key: "sleep", label: "Persiapan tidur", inhale: 4, hold: 4, exhale: 4 },
+  { key: "sleep", label: "Persiapan tidur", inhale: 4, hold: 4, exhale: 4, postHold: 4 },
 ] as const;
 
 const durations = [1, 3, 5, 10];
@@ -21,15 +21,23 @@ const audioByDuration: Record<number, number> = {
   10: require("../../../assets/audio/breathing/04-breathing-10min.m4a"),
 };
 
-type Phase = "inhale" | "hold" | "exhale";
+type Phase = "inhale" | "hold" | "exhale" | "postHold";
 
 const phaseLabels: Record<Phase, string> = {
   inhale: "Tarik napas",
   hold: "Tahan napas",
   exhale: "Buang napas",
+  postHold: "Tahan napas",
 };
 
-const phaseOrder: Phase[] = ["inhale", "hold", "exhale"];
+const basePhaseOrder: Phase[] = ["inhale", "hold", "exhale"];
+
+const formatTimer = (seconds: number) => {
+  const total = Math.max(0, Math.floor(seconds));
+  const mm = String(Math.floor(total / 60)).padStart(2, "0");
+  const ss = String(total % 60).padStart(2, "0");
+  return `${mm}:${ss}`;
+};
 
 export default function BreathingPlayerScreen() {
   const insets = useSafeAreaInsets();
@@ -47,14 +55,18 @@ export default function BreathingPlayerScreen() {
 
   const pulseScale = useRef(new Animated.Value(1)).current;
 
-  const totalSeconds = selectedDuration * 60;
   const currentMode = useMemo(
     () => breathingModes.find((mode) => mode.key === selectedMode) ?? breathingModes[0],
     [selectedMode]
   );
-  const activePhaseDuration = currentMode[phase];
+  const phaseOrder = useMemo(() => {
+    return currentMode.postHold ? [...basePhaseOrder, "postHold"] : basePhaseOrder;
+  }, [currentMode.postHold]);
+
+  const activePhaseDuration = phase === "postHold" ? currentMode.postHold ?? 0 : currentMode[phase];
   const audioAsset = audioByDuration[selectedDuration];
   const player = useAudioPlayer(audioAsset);
+  const sessionTotalSeconds = selectedDuration * 60;
 
   const startSession = () => {
     setIsRunning(true);
@@ -62,6 +74,12 @@ export default function BreathingPlayerScreen() {
     setPhase("inhale");
     setPhaseCount(0);
     setElapsedSeconds(0);
+    if (audioEnabled) {
+      try {
+        player.seekTo(0);
+        player.play();
+      } catch {}
+    }
   };
 
   useEffect(() => {
@@ -78,8 +96,8 @@ export default function BreathingPlayerScreen() {
     const inhaleScale = 1.15;
     pulseScale.stopAnimation();
 
-    if (phase === "hold") {
-      pulseScale.setValue(inhaleScale);
+    if (phase === "hold" || phase === "postHold") {
+      pulseScale.setValue(phase === "hold" ? inhaleScale : 1);
       return;
     }
 
@@ -109,7 +127,7 @@ export default function BreathingPlayerScreen() {
 
   useEffect(() => {
     if (!isRunning || isCountingDown || isPaused) return;
-    if (elapsedSeconds >= totalSeconds) {
+    if (elapsedSeconds >= sessionTotalSeconds) {
       setIsRunning(false);
       return;
     }
@@ -126,12 +144,11 @@ export default function BreathingPlayerScreen() {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [activePhaseDuration, elapsedSeconds, isPaused, isRunning, totalSeconds]);
+  }, [activePhaseDuration, elapsedSeconds, isPaused, isRunning, phaseOrder, sessionTotalSeconds]);
 
   useEffect(() => {
     if (!isRunning || isCountingDown || isPaused || !audioEnabled) return;
     try {
-      player.seekTo(0);
       player.play();
     } catch {}
   }, [audioEnabled, isCountingDown, isPaused, isRunning, player, selectedDuration]);
@@ -241,6 +258,7 @@ export default function BreathingPlayerScreen() {
         : "Pilih dan mulai";
   const displayCount = isCountingDown ? countdownSeconds : isRunning ? phaseCount + 1 : null;
   const isLocked = isRunning || isCountingDown || isPaused;
+  const durationLabel = formatTimer(sessionTotalSeconds);
 
   return (
     <View style={styles.container}>
@@ -259,6 +277,7 @@ export default function BreathingPlayerScreen() {
           </View>
         </View>
       </View>
+      <Text style={styles.timerText}>{durationLabel}</Text>
 
       <Text style={styles.sectionTitle}>Pilih pola napas</Text>
       <View style={styles.cardRow}>
@@ -369,7 +388,13 @@ const styles = StyleSheet.create({
   pulseWrap: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  timerText: {
+    textAlign: "center",
+    fontSize: typography.body,
+    fontWeight: "700",
+    color: colors.text,
   },
   pulseStack: {
     width: 180,
