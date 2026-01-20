@@ -496,8 +496,8 @@ const styles = StyleSheet.create({
     color: colors.primaryText,
   },
   durationCountdownWrap: {
-    alignItems: "flex-start",
-    paddingVertical: spacing.xs,
+    alignItems: "center",
+    paddingVertical: spacing.xs / 2,
   },
   durationCountdownText: {
     fontSize: 12,
