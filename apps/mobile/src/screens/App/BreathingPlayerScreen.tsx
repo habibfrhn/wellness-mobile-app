@@ -68,6 +68,7 @@ export default function BreathingPlayerScreen() {
   const player = useAudioPlayer(audioAsset);
   const sessionTotalSeconds = selectedDuration * 60;
   const remainingSeconds = Math.max(sessionTotalSeconds - elapsedSeconds, 0);
+  const durationCountdownLabel = formatTimer(remainingSeconds);
 
   const startSession = () => {
     setIsRunning(true);
@@ -304,27 +305,32 @@ export default function BreathingPlayerScreen() {
       </View>
 
       <Text style={styles.sectionTitle}>Durasi</Text>
-      <View style={styles.durationRow}>
-        {durations.map((duration) => {
-          const active = selectedDuration === duration;
-          const durationLabel = isLocked ? formatTimer(remainingSeconds) : `${duration} min`;
-          return (
-            <Pressable
-              key={duration}
-              style={({ pressed }) => [
-                styles.durationPill,
-                active && styles.durationPillActive,
-                isLocked && styles.optionLocked,
-                pressed && styles.pressed,
-              ]}
-              onPress={() => setSelectedDuration(duration)}
-              disabled={isLocked}
-            >
-              <Text style={[styles.durationText, active && styles.durationTextActive]}>{durationLabel}</Text>
-            </Pressable>
-          );
-        })}
-      </View>
+      {isLocked ? (
+        <View style={styles.durationCountdownWrap}>
+          <Text style={styles.durationCountdownText}>{durationCountdownLabel}</Text>
+        </View>
+      ) : (
+        <View style={styles.durationRow}>
+          {durations.map((duration) => {
+            const active = selectedDuration === duration;
+            return (
+              <Pressable
+                key={duration}
+                style={({ pressed }) => [
+                  styles.durationPill,
+                  active && styles.durationPillActive,
+                  isLocked && styles.optionLocked,
+                  pressed && styles.pressed,
+                ]}
+                onPress={() => setSelectedDuration(duration)}
+                disabled={isLocked}
+              >
+                <Text style={[styles.durationText, active && styles.durationTextActive]}>{duration} min</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      )}
 
       <View style={[styles.audioRow, isLocked && styles.optionLocked]} pointerEvents={isLocked ? "none" : "auto"}>
         <View>
@@ -488,6 +494,16 @@ const styles = StyleSheet.create({
   },
   durationTextActive: {
     color: colors.primaryText,
+  },
+  durationCountdownWrap: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: spacing.xs,
+  },
+  durationCountdownText: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: colors.primary,
   },
   optionLocked: {
     opacity: 0.5,
