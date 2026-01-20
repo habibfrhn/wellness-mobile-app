@@ -496,14 +496,13 @@ const styles = StyleSheet.create({
     color: colors.primaryText,
   },
   durationCountdownWrap: {
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: "flex-start",
     paddingVertical: spacing.xs,
   },
   durationCountdownText: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: colors.primary,
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#000",
   },
   optionLocked: {
     opacity: 0.5,
