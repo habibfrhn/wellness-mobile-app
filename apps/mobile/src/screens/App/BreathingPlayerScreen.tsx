@@ -67,6 +67,7 @@ export default function BreathingPlayerScreen() {
   const audioAsset = audioByDuration[selectedDuration];
   const player = useAudioPlayer(audioAsset);
   const sessionTotalSeconds = selectedDuration * 60;
+  const remainingSeconds = Math.max(sessionTotalSeconds - elapsedSeconds, 0);
 
   const startSession = () => {
     setIsRunning(true);
@@ -81,6 +82,20 @@ export default function BreathingPlayerScreen() {
       } catch {}
     }
   };
+
+  const stopSession = useCallback(() => {
+    setIsRunning(false);
+    setIsCountingDown(false);
+    setIsPaused(false);
+    setCountdownSeconds(3);
+    setElapsedSeconds(0);
+    setPhase("inhale");
+    setPhaseCount(0);
+    try {
+      player.pause();
+      player.seekTo(0);
+    } catch {}
+  }, [player]);
 
   useEffect(() => {
     if (!isRunning) {
@@ -128,7 +143,7 @@ export default function BreathingPlayerScreen() {
   useEffect(() => {
     if (!isRunning || isCountingDown || isPaused) return;
     if (elapsedSeconds >= sessionTotalSeconds) {
-      setIsRunning(false);
+      stopSession();
       return;
     }
 
@@ -144,7 +159,7 @@ export default function BreathingPlayerScreen() {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [activePhaseDuration, elapsedSeconds, isPaused, isRunning, phaseOrder, sessionTotalSeconds]);
+  }, [activePhaseDuration, elapsedSeconds, isPaused, isRunning, phaseOrder, sessionTotalSeconds, stopSession]);
 
   useEffect(() => {
     if (!isRunning || isCountingDown || isPaused || !audioEnabled) return;
@@ -202,20 +217,6 @@ export default function BreathingPlayerScreen() {
     };
   }, [player]);
 
-  const stopSession = useCallback(() => {
-    setIsRunning(false);
-    setIsCountingDown(false);
-    setIsPaused(false);
-    setCountdownSeconds(3);
-    setElapsedSeconds(0);
-    setPhase("inhale");
-    setPhaseCount(0);
-    try {
-      player.pause();
-      player.seekTo(0);
-    } catch {}
-  }, [player]);
-
   useEffect(() => {
     const unsubBeforeRemove = navigation.addListener("beforeRemove", () => {
       stopSession();
@@ -237,6 +238,7 @@ export default function BreathingPlayerScreen() {
     }
     setIsCountingDown(true);
     setCountdownSeconds(3);
+    setElapsedSeconds(0);
   };
 
   const handlePauseResume = () => {
@@ -258,7 +260,6 @@ export default function BreathingPlayerScreen() {
         : "Pilih dan mulai";
   const displayCount = isCountingDown ? countdownSeconds : isRunning ? phaseCount + 1 : null;
   const isLocked = isRunning || isCountingDown || isPaused;
-  const durationLabel = formatTimer(sessionTotalSeconds);
 
   return (
     <View style={styles.container}>
@@ -277,8 +278,6 @@ export default function BreathingPlayerScreen() {
           </View>
         </View>
       </View>
-      <Text style={styles.timerText}>{durationLabel}</Text>
-
       <Text style={styles.sectionTitle}>Pilih pola napas</Text>
       <View style={styles.cardRow}>
         {breathingModes.map((mode) => {
@@ -308,6 +307,7 @@ export default function BreathingPlayerScreen() {
       <View style={styles.durationRow}>
         {durations.map((duration) => {
           const active = selectedDuration === duration;
+          const durationLabel = isLocked ? formatTimer(remainingSeconds) : `${duration} min`;
           return (
             <Pressable
               key={duration}
@@ -320,7 +320,7 @@ export default function BreathingPlayerScreen() {
               onPress={() => setSelectedDuration(duration)}
               disabled={isLocked}
             >
-              <Text style={[styles.durationText, active && styles.durationTextActive]}>{duration} min</Text>
+              <Text style={[styles.durationText, active && styles.durationTextActive]}>{durationLabel}</Text>
             </Pressable>
           );
         })}
@@ -389,12 +389,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: spacing.sm,
-  },
-  timerText: {
-    textAlign: "center",
-    fontSize: typography.body,
-    fontWeight: "700",
-    color: colors.text,
   },
   pulseStack: {
     width: 180,
