@@ -49,11 +49,14 @@ export default function BreathingPlayerScreen() {
   const [isCountingDown, setIsCountingDown] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [countdownSeconds, setCountdownSeconds] = useState(3);
+  const [finishSeconds, setFinishSeconds] = useState(3);
+  const [isFinishing, setIsFinishing] = useState(false);
   const [phase, setPhase] = useState<Phase>("inhale");
   const [phaseCount, setPhaseCount] = useState(0);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
   const pulseScale = useRef(new Animated.Value(1)).current;
+  const finishDurationSeconds = 3;
 
   const currentMode = useMemo(
     () => breathingModes.find((mode) => mode.key === selectedMode) ?? breathingModes[0],
@@ -73,6 +76,8 @@ export default function BreathingPlayerScreen() {
   const startSession = () => {
     setIsRunning(true);
     setIsPaused(false);
+    setIsFinishing(false);
+    setFinishSeconds(finishDurationSeconds);
     setPhase("inhale");
     setPhaseCount(0);
     setElapsedSeconds(0);
@@ -88,7 +93,9 @@ export default function BreathingPlayerScreen() {
     setIsRunning(false);
     setIsCountingDown(false);
     setIsPaused(false);
+    setIsFinishing(false);
     setCountdownSeconds(3);
+    setFinishSeconds(finishDurationSeconds);
     setElapsedSeconds(0);
     setPhase("inhale");
     setPhaseCount(0);
@@ -96,7 +103,18 @@ export default function BreathingPlayerScreen() {
       player.pause();
       player.seekTo(0);
     } catch {}
-  }, [player]);
+  }, [finishDurationSeconds, player]);
+
+  const completeSession = useCallback(() => {
+    setIsRunning(false);
+    setIsCountingDown(false);
+    setIsPaused(false);
+    setIsFinishing(true);
+    setFinishSeconds(finishDurationSeconds);
+    try {
+      player.pause();
+    } catch {}
+  }, [finishDurationSeconds, player]);
 
   useEffect(() => {
     if (!isRunning) {
@@ -142,9 +160,25 @@ export default function BreathingPlayerScreen() {
   }, [isCountingDown, countdownSeconds]);
 
   useEffect(() => {
+    if (!isFinishing) return;
+
+    const timer = setTimeout(() => {
+      setFinishSeconds((prev) => {
+        if (prev <= 1) {
+          stopSession();
+          return finishDurationSeconds;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [finishDurationSeconds, isFinishing, stopSession]);
+
+  useEffect(() => {
     if (!isRunning || isCountingDown || isPaused) return;
     if (elapsedSeconds >= sessionTotalSeconds) {
-      stopSession();
+      completeSession();
       return;
     }
 
@@ -160,7 +194,15 @@ export default function BreathingPlayerScreen() {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [activePhaseDuration, elapsedSeconds, isPaused, isRunning, phaseOrder, sessionTotalSeconds, stopSession]);
+  }, [
+    activePhaseDuration,
+    completeSession,
+    elapsedSeconds,
+    isPaused,
+    isRunning,
+    phaseOrder,
+    sessionTotalSeconds,
+  ]);
 
   useEffect(() => {
     if (!isRunning || isCountingDown || isPaused || !audioEnabled) return;
@@ -179,6 +221,7 @@ export default function BreathingPlayerScreen() {
 
   useEffect(() => {
     if (!isRunning) {
+      if (isFinishing) return;
       try {
         player.pause();
         player.seekTo(0);
@@ -196,7 +239,7 @@ export default function BreathingPlayerScreen() {
         player.play();
       } catch {}
     }
-  }, [audioEnabled, isPaused, isRunning, player]);
+  }, [audioEnabled, isFinishing, isPaused, isRunning, player]);
 
   useEffect(() => {
     if (!isRunning && !isCountingDown && !isPaused) return;
@@ -233,7 +276,7 @@ export default function BreathingPlayerScreen() {
   }, [navigation, stopSession]);
 
   const handleStartStop = () => {
-    if (isRunning || isCountingDown || isPaused) {
+    if (isRunning || isCountingDown || isPaused || isFinishing) {
       stopSession();
       return;
     }
@@ -254,13 +297,21 @@ export default function BreathingPlayerScreen() {
 
   const displayPhaseLabel = isCountingDown
     ? "Mulai"
-    : isPaused
-      ? "Jeda"
+    : isFinishing
+      ? "Sesi selesai"
+      : isPaused
+        ? "Jeda"
+        : isRunning
+          ? phaseLabels[phase]
+          : "Pilih dan mulai";
+  const displayCount = isCountingDown
+    ? countdownSeconds
+    : isFinishing
+      ? finishSeconds
       : isRunning
-        ? phaseLabels[phase]
-        : "Pilih dan mulai";
-  const displayCount = isCountingDown ? countdownSeconds : isRunning ? phaseCount + 1 : null;
-  const isLocked = isRunning || isCountingDown || isPaused;
+        ? phaseCount + 1
+        : null;
+  const isLocked = isRunning || isCountingDown || isPaused || isFinishing;
 
   return (
     <View style={styles.container}>
@@ -355,13 +406,13 @@ export default function BreathingPlayerScreen() {
       </View>
 
       <View style={styles.controlsRow}>
-        {isRunning || isCountingDown || isPaused ? (
+        {isRunning || isCountingDown || isPaused || isFinishing ? (
           <>
             <Pressable
               style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}
               onPress={handleStartStop}
             >
-              <Text style={styles.secondaryText}>Stop</Text>
+              <Text style={styles.secondaryText}>{isFinishing ? "Selesai" : "Stop"}</Text>
             </Pressable>
             {isRunning && !isCountingDown ? (
               <Pressable
