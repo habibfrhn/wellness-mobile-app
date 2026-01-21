@@ -19,7 +19,8 @@ Deno.serve(async (req: Request) => {
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
   if (!supabaseUrl || !anonKey || !serviceRoleKey) {
-    return json(500, { error: "Missing Supabase environment variables" });
+    console.error("delete-account: missing environment variables");
+    return json(500, { error: "Server misconfiguration" });
   }
 
   // Validate user by calling Auth using their JWT
@@ -29,6 +30,7 @@ Deno.serve(async (req: Request) => {
 
   const { data: userData, error: userErr } = await userClient.auth.getUser();
   if (userErr || !userData?.user) {
+    console.error("delete-account: invalid user session");
     return json(401, { error: "Invalid user session" });
   }
 
@@ -36,7 +38,10 @@ Deno.serve(async (req: Request) => {
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
   const { error: delErr } = await adminClient.auth.admin.deleteUser(userData.user.id);
 
-  if (delErr) return json(500, { error: delErr.message });
+  if (delErr) {
+    console.error("delete-account: failed to delete user");
+    return json(500, { error: "Failed to delete account" });
+  }
 
   return json(200, { ok: true });
 });
