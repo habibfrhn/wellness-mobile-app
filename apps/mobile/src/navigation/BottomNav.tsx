@@ -48,7 +48,8 @@ export default function BottomNav({ navigation, routeName }: Props) {
           <Pressable
             key={tab.key}
             onPress={() => navigation.navigate(tab.key)}
-            style={({ pressed }) => [styles.tabItem, pressed && styles.pressed]}
+            android_ripple={{ color: "transparent" }}
+            style={styles.tabItem}
           >
             <MaterialCommunityIcons
               name={tab.icon}
@@ -82,8 +83,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 0,
-  },
-  pressed: {
-    opacity: 0.8,
   },
 });
