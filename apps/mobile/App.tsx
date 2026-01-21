@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Alert, View } from "react-native";
 import * as Linking from "expo-linking";
-import * as SplashScreen from "expo-splash-screen";
 import * as Updates from "expo-updates";
 import { NavigationContainer } from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -12,12 +11,13 @@ import AuthStack from "./src/navigation/AuthStack";
 import AppStack from "./src/navigation/AppStack";
 import type { AuthStackParamList } from "./src/navigation/types";
 import { id } from "./src/i18n/strings";
+import { hideSplashScreen, preventAutoHideSplashScreen } from "./src/services/splashScreen";
 import { setPendingUpdate } from "./src/services/updatesState";
 import { clearNextAuthRoute, getNextAuthRoute } from "./src/services/authStart";
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
 
-SplashScreen.preventAutoHideAsync().catch(() => {
+preventAutoHideSplashScreen().catch(() => {
   // no-op if it's already hidden
 });
 
@@ -79,7 +79,7 @@ export default function App() {
   const onLayoutRootView = async () => {
     if (!ready) return;
     try {
-      await SplashScreen.hideAsync();
+      await hideSplashScreen();
     } catch {
       // no-op if it's already hidden
     }
