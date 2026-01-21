@@ -1,13 +1,13 @@
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { AppStackParamList } from "./types";
-import { colors, spacing, typography } from "../theme/tokens";
+import { colors, spacing } from "../theme/tokens";
 
-export const BOTTOM_NAV_HEIGHT = 64;
+export const BOTTOM_NAV_HEIGHT = 56;
 
 const tabs = [
   { key: "Home", label: "Home", icon: "home-variant-outline" },
@@ -36,7 +36,10 @@ export default function BottomNav({ navigation, routeName }: Props) {
     <View
       style={[
         styles.container,
-        { minHeight: BOTTOM_NAV_HEIGHT + Math.max(insets.bottom, spacing.xs), paddingBottom: Math.max(insets.bottom, spacing.xs) },
+        {
+          minHeight: BOTTOM_NAV_HEIGHT + Math.max(insets.bottom, spacing.xs),
+          paddingBottom: Math.max(insets.bottom, spacing.xs),
+        },
       ]}
     >
       {tabs.map((tab) => {
@@ -49,10 +52,9 @@ export default function BottomNav({ navigation, routeName }: Props) {
           >
             <MaterialCommunityIcons
               name={tab.icon}
-              size={22}
+              size={24}
               color={isActive ? colors.primary : colors.mutedText}
             />
-            <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>{tab.label}</Text>
           </Pressable>
         );
       })}
@@ -63,27 +65,19 @@ export default function BottomNav({ navigation, routeName }: Props) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-evenly",
     alignItems: "center",
     borderTopWidth: 1,
     borderTopColor: colors.border,
     backgroundColor: colors.bg,
     paddingTop: spacing.xs,
-  },
-  tabItem: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: spacing.xs,
     paddingHorizontal: spacing.sm,
   },
-  tabLabel: {
-    marginTop: 2,
-    fontSize: typography.small,
-    color: colors.mutedText,
-    fontWeight: "600",
-  },
-  tabLabelActive: {
-    color: colors.primary,
+  tabItem: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: spacing.sm,
   },
   pressed: {
     opacity: 0.8,

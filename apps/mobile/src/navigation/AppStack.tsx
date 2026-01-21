@@ -52,7 +52,14 @@ export default function AppStack() {
         )}
       </Stack.Screen>
 
-      <Stack.Screen name="Account" options={{ title: "Akun" }}>
+      <Stack.Screen
+        name="Account"
+        options={{
+          title: "Akun",
+          headerBackVisible: false,
+          headerLeft: () => null,
+        }}
+      >
         {(props) => (
           <ScreenWithBottomNav routeName={props.route.name} navigation={props.navigation}>
             <AccountScreen {...props} />

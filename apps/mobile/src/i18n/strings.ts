@@ -112,19 +112,18 @@ export const id = {
     emailLabel: "Email",
 
     aboutTitle: "Tentang aplikasi",
+    aboutBody: "Info versi membantu Anda saat menghubungi tim dukungan.",
     versionLabel: "Versi",
     buildLabel: "Build",
-    runtimeLabel: "Runtime",
-    channelLabel: "Channel",
 
     helpTitle: "Bantuan",
-    helpNoAutoplay: "Audio tidak diputar otomatis. Anda bisa menekan tombol “Mulai” saat sudah siap.",
+    helpNoAutoplay: "Audio tidak diputar otomatis. Tekan tombol “Mulai” saat Anda siap.",
     helpVerify:
       "Jika verifikasi email belum masuk, cek folder Spam/Promosi dan tunggu 1–2 menit. Anda juga bisa kirim ulang dari layar verifikasi.",
     helpPlayback:
-      "Jika terjadi error saat pemutaran, coba tutup aplikasi lalu buka lagi. Untuk build “preview/production”, perbaikan kecil bisa dikirim lewat pembaruan online.",
+      "Jika terjadi kendala pemutaran, coba tutup aplikasi lalu buka lagi. Jika masih terjadi, hubungi dukungan.",
     helpStoreUpdateNote:
-      "Catatan: Pembaruan online hanya untuk perbaikan kecil. Jika ada perubahan besar atau pembaruan sistem, Anda perlu update lewat Play Store/App Store.",
+      "Pembaruan aplikasi besar akan tersedia melalui Play Store/App Store.",
 
     updatesTitle: "Pembaruan",
     updatesButton: "Periksa pembaruan",
@@ -132,10 +131,10 @@ export const id = {
     updatesDownloadButton: "Unduh pembaruan",
     updatesDownloading: "Mengunduh...",
     updatesLater: "Nanti",
+    updatesNote: "Jika pembaruan tersedia, aplikasi akan dimuat ulang setelah selesai.",
 
     updatesDisabledTitle: "Pembaruan tidak aktif",
-    updatesDisabledBody:
-      "Pembaruan online tidak tersedia pada mode ini (misalnya Expo Go) atau updates belum diaktifkan.",
+    updatesDisabledBody: "Pembaruan online tidak tersedia pada mode ini atau belum diaktifkan.",
 
     updatesUpToDateTitle: "Tidak ada pembaruan",
     updatesUpToDateBody: "Aplikasi Anda sudah versi terbaru.",
@@ -148,7 +147,7 @@ export const id = {
 
     updatesFailed: "Gagal memeriksa pembaruan. Silakan coba lagi.",
 
-    legalTitle: "Legal & bantuan",
+    legalTitle: "Legal & dukungan",
     privacy: "Kebijakan Privasi",
     terms: "Syarat & Ketentuan",
     support: "Kontak dukungan",

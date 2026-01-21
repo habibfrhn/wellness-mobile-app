@@ -115,32 +115,12 @@ export default function AccountScreen({ navigation }: Props) {
   const [busyUpdateDownload, setBusyUpdateDownload] = useState(false);
   const [hasPendingUpdate, setHasPendingUpdate] = useState(false);
 
-  const updateChannel = useMemo(() => {
-    // expo-updates: channel exists when using EAS Update channels.
-    // Keep safe fallbacks for Expo Go / older runtime cases.
-    const anyUpdates = Updates as any;
-    return (anyUpdates?.channel ?? anyUpdates?.releaseChannel ?? "-") as string;
-  }, []);
-
-  const runtimeVersion = useMemo(() => {
-    try {
-      const rv = (Updates as any)?.runtimeVersion;
-      if (typeof rv === "string" && rv.trim().length > 0) return rv.trim();
-      if (typeof rv === "number") return String(rv);
-      return "-";
-    } catch {
-      return "-";
-    }
-  }, []);
-
   const appMeta = useMemo(
     () => ({
       version: APP_VERSION,
       build: APP_BUILD,
-      runtimeVersion,
-      channel: updateChannel,
     }),
-    [updateChannel, runtimeVersion]
+    []
   );
 
   useEffect(() => {
@@ -325,15 +305,7 @@ export default function AccountScreen({ navigation }: Props) {
           <Text style={styles.metaValue}>{appMeta.build}</Text>
         </View>
 
-        <View style={styles.metaRow}>
-          <Text style={styles.metaLabel}>{id.account.runtimeLabel}</Text>
-          <Text style={styles.metaValue}>{appMeta.runtimeVersion}</Text>
-        </View>
-
-        <View style={styles.metaRow}>
-          <Text style={styles.metaLabel}>{id.account.channelLabel}</Text>
-          <Text style={styles.metaValue}>{appMeta.channel}</Text>
-        </View>
+        <Text style={styles.cardBody}>{id.account.aboutBody}</Text>
       </View>
 
       <View style={styles.card}>
@@ -375,14 +347,7 @@ export default function AccountScreen({ navigation }: Props) {
           </Text>
         </Pressable>
 
-        <Text style={styles.cardBody}>
-          {id.account.channelLabel}:{" "}
-          <Text style={{ fontWeight: "800", color: colors.text }}>{appMeta.channel}</Text>
-        </Text>
-        <Text style={styles.cardBody}>
-          {id.account.runtimeLabel}:{" "}
-          <Text style={{ fontWeight: "800", color: colors.text }}>{appMeta.runtimeVersion}</Text>
-        </Text>
+        <Text style={styles.cardBody}>{id.account.updatesNote}</Text>
       </View>
 
       <View style={styles.card}>

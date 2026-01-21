@@ -55,7 +55,7 @@ export default function HomeScreen({ navigation }: Props) {
         onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
       />
       <Carousel
-        title="Suara pengantar tidur"
+        title="Soundscape untuk tidur"
         tracks={AUDIO_TRACKS.filter((track) => track.tags.includes("soundscape"))}
         onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
       />
