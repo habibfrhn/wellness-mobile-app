@@ -39,8 +39,10 @@ function readAppVersionFromAppJson(): string {
 const APP_VERSION = readAppVersionFromAppJson();
 
 // Replace with real hosted URLs when ready (recommended for store compliance).
-const PRIVACY_URL = "";
-const TERMS_URL = "";
+const PRIVACY_URL =
+  "https://sedate-fascinator-c12.notion.site/Kebijakan-Privasi-Privacy-Policy-2ef636185de080219298d7a6a9bcba55?source=copy_link";
+const TERMS_URL =
+  "https://sedate-fascinator-c12.notion.site/Ketentuan-Syarat-Terms-Conditions-2ef636185de080edb67ce5f6be718a7e?source=copy_link";
 
 // Updated support email (your requested address)
 const SUPPORT_EMAIL = "habibfrhn@gmail.com";
