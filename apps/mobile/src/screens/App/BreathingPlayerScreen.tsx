@@ -89,13 +89,16 @@ export default function BreathingPlayerScreen() {
     }
   };
 
-  const stopSession = useCallback(() => {
+  const stopSession = useCallback((options?: { resetFinishSeconds?: boolean }) => {
+    const { resetFinishSeconds = true } = options ?? {};
     setIsRunning(false);
     setIsCountingDown(false);
     setIsPaused(false);
     setIsFinishing(false);
     setCountdownSeconds(3);
-    setFinishSeconds(finishDurationSeconds);
+    if (resetFinishSeconds) {
+      setFinishSeconds(finishDurationSeconds);
+    }
     setElapsedSeconds(0);
     setPhase("inhale");
     setPhaseCount(0);
@@ -162,18 +165,18 @@ export default function BreathingPlayerScreen() {
   useEffect(() => {
     if (!isFinishing) return;
 
-    const timer = setTimeout(() => {
+    const timer = setInterval(() => {
       setFinishSeconds((prev) => {
         if (prev <= 1) {
-          stopSession();
-          return finishDurationSeconds;
+          stopSession({ resetFinishSeconds: false });
+          return 0;
         }
         return prev - 1;
       });
     }, 1000);
 
-    return () => clearTimeout(timer);
-  }, [finishDurationSeconds, isFinishing, stopSession]);
+    return () => clearInterval(timer);
+  }, [isFinishing, stopSession]);
 
   useEffect(() => {
     if (!isRunning || isCountingDown || isPaused) return;
@@ -412,7 +415,7 @@ export default function BreathingPlayerScreen() {
               style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}
               onPress={handleStartStop}
             >
-              <Text style={styles.secondaryText}>{isFinishing ? "Selesai" : "Stop"}</Text>
+              <Text style={styles.secondaryText}>Selesai</Text>
             </Pressable>
             {isRunning && !isCountingDown ? (
               <Pressable
