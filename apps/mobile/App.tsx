@@ -17,6 +17,10 @@ import { clearNextAuthRoute, getNextAuthRoute } from "./src/services/authStart";
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
 
+SplashScreen.preventAutoHideAsync().catch(() => {
+  // no-op if it's already hidden
+});
+
 export default function App() {
   const [ready, setReady] = useState(false);
   const [session, setSession] = useState<SessionType>(null);
@@ -33,12 +37,6 @@ export default function App() {
     // Supabase uses email_confirmed_at for email verification status
     return Boolean(user?.email_confirmed_at);
   }, [session]);
-
-  useEffect(() => {
-    SplashScreen.preventAutoHideAsync().catch(() => {
-      // no-op if it's already hidden
-    });
-  }, []);
 
   useEffect(() => {
     let subscription: { remove: () => void } | undefined;
@@ -73,12 +71,14 @@ export default function App() {
     return () => subscription?.remove?.();
   }, []);
 
-  useEffect(() => {
+  const onLayoutRootView = async () => {
     if (!ready) return;
-    SplashScreen.hideAsync().catch(() => {
+    try {
+      await SplashScreen.hideAsync();
+    } catch {
       // no-op if it's already hidden
-    });
-  }, [ready]);
+    }
+  };
 
   // Clear reset override once user signs out (we sign out after reset success)
   useEffect(() => {
@@ -173,14 +173,16 @@ export default function App() {
     authStartRoute === "Login" ? "Login" : forceReset ? "ResetPassword" : authStartRoute;
 
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        {shouldShowAuth ? (
-          <AuthStack key={`auth-${initialAuthRoute}`} initialRouteName={initialAuthRoute} />
-        ) : (
-          <AppStack />
-        )}
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          {shouldShowAuth ? (
+            <AuthStack key={`auth-${initialAuthRoute}`} initialRouteName={initialAuthRoute} />
+          ) : (
+            <AppStack />
+          )}
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </View>
   );
 }
