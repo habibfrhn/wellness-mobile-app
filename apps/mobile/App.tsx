@@ -39,7 +39,8 @@ export default function App() {
   }, [session]);
 
   useEffect(() => {
-    let subscription: { remove: () => void } | undefined;
+    let linkSubscription: { remove: () => void } | undefined;
+    let authSubscription: { unsubscribe: () => void } | undefined;
 
     async function processUrl(url: string) {
       const res = await handleAuthLink(url);
@@ -52,23 +53,27 @@ export default function App() {
       const initialUrl = await Linking.getInitialURL();
       if (initialUrl) await processUrl(initialUrl);
 
-      subscription = Linking.addEventListener("url", async ({ url }) => {
+      linkSubscription = Linking.addEventListener("url", async ({ url }) => {
         await processUrl(url);
       });
 
       const { data } = await supabase.auth.getSession();
       setSession(data.session);
 
-      supabase.auth.onAuthStateChange((_event, sess) => {
+      const { data: authListener } = supabase.auth.onAuthStateChange((_event, sess) => {
         setSession(sess);
       });
+      authSubscription = authListener?.subscription;
 
       setReady(true);
     }
 
     init();
 
-    return () => subscription?.remove?.();
+    return () => {
+      linkSubscription?.remove?.();
+      authSubscription?.unsubscribe?.();
+    };
   }, []);
 
   const onLayoutRootView = async () => {
