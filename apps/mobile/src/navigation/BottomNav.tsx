@@ -37,7 +37,7 @@ export default function BottomNav({ navigation, routeName }: Props) {
       style={[
         styles.container,
         {
-          minHeight: BOTTOM_NAV_HEIGHT + Math.max(insets.bottom, spacing.xs),
+          height: BOTTOM_NAV_HEIGHT + Math.max(insets.bottom, spacing.xs),
           paddingBottom: Math.max(insets.bottom, spacing.xs),
         },
       ]}
@@ -64,6 +64,10 @@ export default function BottomNav({ navigation, routeName }: Props) {
 
 const styles = StyleSheet.create({
   container: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
     flexDirection: "row",
     justifyContent: "space-evenly",
     alignItems: "center",

@@ -1,6 +1,7 @@
 import React from "react";
 import { Text, View, StyleSheet } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import HomeScreen from "../screens/App/HomeScreen";
 import AudioPlayerScreen from "../screens/App/AudioPlayerScreen";
@@ -8,7 +9,7 @@ import BreathingPlayerScreen from "../screens/App/BreathingPlayerScreen";
 import AccountScreen from "../screens/App/AccountScreen";
 import ResetPasswordScreen from "../screens/App/ResetPasswordScreen";
 import type { AppStackParamList } from "./types";
-import { colors, typography } from "../theme/tokens";
+import { colors, spacing, typography } from "../theme/tokens";
 import BottomNav from "./BottomNav";
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
@@ -96,9 +97,17 @@ type BottomNavWrapperProps = {
 };
 
 function ScreenWithBottomNav({ children, navigation, routeName }: BottomNavWrapperProps) {
+  const insets = useSafeAreaInsets();
   return (
     <View style={styles.container}>
-      <View style={styles.content}>{children}</View>
+      <View
+        style={[
+          styles.content,
+          { paddingBottom: BOTTOM_NAV_HEIGHT + Math.max(insets.bottom, spacing.xs) },
+        ]}
+      >
+        {children}
+      </View>
       <BottomNav navigation={navigation} routeName={routeName} />
     </View>
   );
