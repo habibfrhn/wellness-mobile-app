@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Alert, View } from "react-native";
 import * as Linking from "expo-linking";
+import * as SplashScreen from "expo-splash-screen";
 import * as Updates from "expo-updates";
 import { NavigationContainer } from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -34,6 +35,12 @@ export default function App() {
   }, [session]);
 
   useEffect(() => {
+    SplashScreen.preventAutoHideAsync().catch(() => {
+      // no-op if it's already hidden
+    });
+  }, []);
+
+  useEffect(() => {
     let subscription: { remove: () => void } | undefined;
 
     async function processUrl(url: string) {
@@ -65,6 +72,13 @@ export default function App() {
 
     return () => subscription?.remove?.();
   }, []);
+
+  useEffect(() => {
+    if (!ready) return;
+    SplashScreen.hideAsync().catch(() => {
+      // no-op if it's already hidden
+    });
+  }, [ready]);
 
   // Clear reset override once user signs out (we sign out after reset success)
   useEffect(() => {
