@@ -8,8 +8,8 @@ import { colors, radius, spacing, typography } from "../../theme/tokens";
 import { BOTTOM_NAV_HEIGHT } from "../../navigation/BottomNav";
 
 const breathingModes = [
-  { key: "calm", label: "Tenangkan diri", inhale: 4, hold: 7, exhale: 8 },
-  { key: "sleep", label: "Persiapan tidur", inhale: 4, hold: 4, exhale: 4, postHold: 4 },
+  { key: "calm", label: "Persiapan tidur", inhale: 4, hold: 7, exhale: 8 },
+  { key: "sleep", label: "Tenangkan diri", inhale: 4, hold: 4, exhale: 4, postHold: 4 },
 ] as const;
 
 const durations = [1, 3, 5, 10];
@@ -298,6 +298,7 @@ export default function BreathingPlayerScreen() {
               <Text style={[styles.modeTitle, active && styles.modeTitleActive]}>{mode.label}</Text>
               <Text style={[styles.modeSubtitle, active && styles.modeSubtitleActive]}>
                 {mode.inhale}-{mode.hold}-{mode.exhale}
+                {mode.postHold ? `-${mode.postHold}` : ""}
               </Text>
             </Pressable>
           );
