@@ -10,7 +10,7 @@ import AccountScreen from "../screens/App/AccountScreen";
 import ResetPasswordScreen from "../screens/App/ResetPasswordScreen";
 import type { AppStackParamList } from "./types";
 import { colors, spacing, typography } from "../theme/tokens";
-import BottomNav from "./BottomNav";
+import BottomNav, { BOTTOM_NAV_HEIGHT } from "./BottomNav";
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
