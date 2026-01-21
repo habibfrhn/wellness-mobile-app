@@ -70,14 +70,14 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
     backgroundColor: colors.bg,
-    paddingTop: spacing.xs,
     paddingHorizontal: spacing.sm,
   },
   tabItem: {
     flex: 1,
+    height: BOTTOM_NAV_HEIGHT,
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: spacing.sm,
+    paddingVertical: 0,
   },
   pressed: {
     opacity: 0.8,
