@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import React, { useEffect, useMemo } from "react";
+import { View, StyleSheet, ScrollView, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, spacing } from "../../theme/tokens";
 import { AUDIO_TRACKS } from "../../content/audioCatalog";
@@ -40,6 +40,20 @@ export default function HomeScreen({ navigation }: Props) {
       ...pickRandomTracks(sleepGuideTracks, 2),
       ...pickRandomTracks(soundscapeTracks, 2),
     ]);
+  }, []);
+
+  useEffect(() => {
+    const coverUris = Array.from(
+      new Set(
+        AUDIO_TRACKS.map((track) => Image.resolveAssetSource(track.cover)?.uri).filter(
+          (uri): uri is string => Boolean(uri)
+        )
+      )
+    );
+
+    coverUris.forEach((uri) => {
+      Image.prefetch(uri);
+    });
   }, []);
 
   const Header = (
