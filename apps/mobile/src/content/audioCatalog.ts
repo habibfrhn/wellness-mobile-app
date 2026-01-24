@@ -1,12 +1,4 @@
-export type AudioId =
-  | "napas-pelan"
-  | "body-scan"
-  | "pikiran-tenang"
-  | "cerita-menenangkan"
-  | "cerita-untuk-tidur"
-  | "lapisan-sunyi"
-  | "nada-menenangkan"
-  | "larut-perlahan";
+export type AudioId = "bersiap-tidur" | "lapisan-sunyi" | "nada-menenangkan" | "larut-perlahan";
 
 export type AudioTrack = {
   id: AudioId;
@@ -25,73 +17,17 @@ export type AudioTrack = {
 
 export const AUDIO_TRACKS = [
   {
-    id: "napas-pelan",
+    id: "bersiap-tidur",
     order: 1,
-    title: "Napas Pelan",
-    subtitle: "Tenang dalam 5 menit",
-    durationSec: 300.095,
-    asset: require("../../assets/audio/sleep-guide/01-napas-pelan-5m.m4a"),
-    creator: "lumepo",
+    title: "Bersiap Tidur",
+    subtitle: "Ritual santai sebelum lelap",
+    durationSec: 600.033,
+    asset: require("../../assets/audio/sleep-guide/01-bersiap-tidur-10m.m4a"),
+    creator: "Lumepo",
     category: "audio",
     tags: ["sleep-guide"],
     cover: require("../../assets/image/cover/01-master-cover.jpg"),
     thumbnail: require("../../assets/image/thumbnail/01-master-thumbnail.jpg"),
-    isPremium: false,
-  },
-  {
-    id: "body-scan",
-    order: 2,
-    title: "Body Scan",
-    subtitle: "Lepaskan tegang perlahan",
-    durationSec: 300.095,
-    asset: require("../../assets/audio/sleep-guide/02-body-scan-5m.m4a"),
-    creator: "lumepo",
-    category: "audio",
-    tags: ["sleep-guide"],
-    cover: require("../../assets/image/cover/02-master-cover.jpg"),
-    thumbnail: require("../../assets/image/thumbnail/02-master-thumbnail.jpg"),
-    isPremium: false,
-  },
-  {
-    id: "pikiran-tenang",
-    order: 3,
-    title: "Pikiran Tenang",
-    subtitle: "Redakan ramai di kepala",
-    durationSec: 300.095,
-    asset: require("../../assets/audio/sleep-guide/03-pikiran-tenang-5m.m4a"),
-    creator: "lumepo",
-    category: "audio",
-    tags: ["sleep-guide"],
-    cover: require("../../assets/image/cover/03-master-cover.jpg"),
-    thumbnail: require("../../assets/image/thumbnail/03-master-thumbnail.jpg"),
-    isPremium: false,
-  },
-  {
-    id: "cerita-menenangkan",
-    order: 4,
-    title: "Cerita Tenang",
-    subtitle: "Tidur ditemani cerita",
-    durationSec: 300.095,
-    asset: require("../../assets/audio/sleep-guide/04-cerita-menenangkan-5m.m4a"),
-    creator: "lumepo",
-    category: "audio",
-    tags: ["sleep-guide"],
-    cover: require("../../assets/image/cover/04-master-cover.jpg"),
-    thumbnail: require("../../assets/image/thumbnail/04-master-thumbnail.jpg"),
-    isPremium: false,
-  },
-  {
-    id: "cerita-untuk-tidur",
-    order: 5,
-    title: "Cerita Tidur",
-    subtitle: "Pikiran pulih jelang tidur",
-    durationSec: 300.095,
-    asset: require("../../assets/audio/sleep-guide/05-cerita-untuk-tidur-5m.m4a"),
-    creator: "lumepo",
-    category: "audio",
-    tags: ["sleep-guide"],
-    cover: require("../../assets/image/cover/05-master-cover.jpg"),
-    thumbnail: require("../../assets/image/thumbnail/05-master-thumbnail.jpg"),
     isPremium: false,
   },
   {
