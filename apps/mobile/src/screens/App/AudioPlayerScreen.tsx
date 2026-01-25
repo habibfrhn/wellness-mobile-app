@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { View, Text, StyleSheet, Image, Pressable } from "react-native";
+import { View, Text, StyleSheet, Image, Pressable, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BOTTOM_NAV_HEIGHT } from "../../navigation/BottomNav";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
@@ -336,17 +336,24 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
 
       {isSoundscape ? (
         <View style={styles.soundscapeOptions}>
-          <View style={styles.optionHeader}>
-            <View style={styles.optionTitleRow}>
+          <View style={styles.optionBlock}>
+            <View style={styles.optionHeader}>
               <Text style={styles.optionTitle}>Loop</Text>
-              <Pressable
-                onPressIn={() => setShowLoopInfo(true)}
-                onPressOut={() => setShowLoopInfo(false)}
-                style={styles.infoIcon}
-                hitSlop={6}
-              >
-                <Text style={styles.infoIconText}>?</Text>
-              </Pressable>
+              <View style={styles.infoWrap}>
+                <Pressable
+                  onPressIn={() => setShowLoopInfo(true)}
+                  onPressOut={() => setShowLoopInfo(false)}
+                  style={styles.infoIcon}
+                  hitSlop={6}
+                >
+                  <Text style={styles.infoIconText}>?</Text>
+                </Pressable>
+                {showLoopInfo ? (
+                  <View style={styles.infoBubbleOverlay}>
+                    <Text style={styles.infoText}>Audio akan diulang.</Text>
+                  </View>
+                ) : null}
+              </View>
             </View>
             <Pressable
               style={({ pressed }) => [
@@ -363,29 +370,36 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
               </Text>
             </Pressable>
           </View>
-          {showLoopInfo ? (
-            <View style={styles.infoBubble}>
-              <Text style={styles.infoText}>Audio akan diulang.</Text>
-            </View>
-          ) : null}
-          <View style={styles.optionHeader}>
-            <View style={styles.optionTitleRow}>
+
+          <View style={styles.optionBlock}>
+            <View style={styles.optionHeader}>
               <Text style={styles.optionTitle}>Timer</Text>
-              <Pressable
-                onPressIn={() => setShowTimerInfo(true)}
-                onPressOut={() => setShowTimerInfo(false)}
-                style={styles.infoIcon}
-                hitSlop={6}
-              >
-                <Text style={styles.infoIconText}>?</Text>
-              </Pressable>
+              <View style={styles.infoWrap}>
+                <Pressable
+                  onPressIn={() => setShowTimerInfo(true)}
+                  onPressOut={() => setShowTimerInfo(false)}
+                  style={styles.infoIcon}
+                  hitSlop={6}
+                >
+                  <Text style={styles.infoIconText}>?</Text>
+                </Pressable>
+                {showTimerInfo ? (
+                  <View style={styles.infoBubbleOverlay}>
+                    <Text style={styles.infoText}>Audio akan dihentikan sesuai durasi timer.</Text>
+                  </View>
+                ) : null}
+              </View>
             </View>
             {isSessionActive ? (
               <Text style={styles.timerStatusText}>
                 {timerSeconds ? formatTime(timerRemaining ?? timerSeconds) : "Audio akan selalu diulang"}
               </Text>
             ) : (
-              <View style={styles.timerRow}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.timerRow}
+              >
                 <Pressable
                   style={({ pressed }) => [
                     styles.timerPill,
@@ -411,14 +425,9 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
                     </Text>
                   </Pressable>
                 ))}
-              </View>
+              </ScrollView>
             )}
           </View>
-          {showTimerInfo ? (
-            <View style={styles.infoBubble}>
-              <Text style={styles.infoText}>Audio akan dihentikan sesuai durasi timer.</Text>
-            </View>
-          ) : null}
         </View>
       ) : null}
 
@@ -524,18 +533,17 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   timeText: { fontSize: 12, color: colors.mutedText },
-  controlsRow: { flexDirection: "row", gap: spacing.sm, marginTop: 0 },
+  controlsRow: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.md },
   soundscapeOptions: {
     marginTop: spacing.sm,
-    gap: spacing.sm,
+    gap: spacing.md,
+  },
+  optionBlock: {
+    gap: spacing.xs,
   },
   optionHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  optionTitleRow: {
-    flexDirection: "row",
+    justifyContent: "flex-start",
     alignItems: "center",
     gap: spacing.xs,
   },
@@ -543,6 +551,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.text,
     fontWeight: "600",
+  },
+  infoWrap: {
+    position: "relative",
   },
   infoIcon: {
     width: 18,
@@ -557,14 +568,18 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#fff",
   },
-  infoBubble: {
-    alignSelf: "flex-start",
+  infoBubbleOverlay: {
+    position: "absolute",
+    bottom: 24,
+    left: -8,
     backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.sm,
     paddingVertical: spacing.xs / 2,
     paddingHorizontal: spacing.sm,
+    zIndex: 10,
+    minWidth: 180,
   },
   infoText: {
     fontSize: 11,
@@ -595,14 +610,11 @@ const styles = StyleSheet.create({
   },
   timerRow: {
     flexDirection: "row",
-    flexWrap: "nowrap",
-    justifyContent: "space-between",
-    gap: spacing.xs / 2,
+    alignItems: "center",
+    gap: spacing.xs,
   },
   timerPill: {
-    flexBasis: 0,
-    flexGrow: 1,
-    paddingHorizontal: spacing.xs,
+    paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs / 2,
     borderRadius: 999,
     borderWidth: 1,
