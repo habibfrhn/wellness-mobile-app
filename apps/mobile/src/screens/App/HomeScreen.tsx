@@ -141,19 +141,23 @@ const styles = StyleSheet.create({
   featureMeta: {
     flex: 1,
     gap: spacing.xs / 2,
+    alignItems: "center",
   },
   featureTitleRow: {
     flexDirection: "row",
     alignItems: "center",
     flexWrap: "wrap",
+    justifyContent: "center",
   },
   featureTrackTitle: {
     fontSize: 12,
     fontWeight: "700",
     color: colors.text,
+    textAlign: "center",
   },
   featureMetaText: {
     fontSize: 11,
     color: colors.mutedText,
+    textAlign: "center",
   },
 });
