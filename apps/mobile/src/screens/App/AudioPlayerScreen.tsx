@@ -258,7 +258,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
               onPress={() => setFavorite(toggleFavorite(track.id))}
             >
               <Text style={[styles.favoriteText, favorite && styles.favoriteActive]}>
-                {favorite ? "❤️" : "🤍"}
+                {favorite ? "♥" : "♡"}
               </Text>
             </Pressable>
           </View>
