@@ -2,7 +2,6 @@ import React from "react";
 import { Pressable, Text, View, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import HomeScreen from "../screens/App/HomeScreen";
 import AudioPlayerScreen from "../screens/App/AudioPlayerScreen";
@@ -10,7 +9,6 @@ import AccountScreen from "../screens/App/AccountScreen";
 import ResetPasswordScreen from "../screens/App/ResetPasswordScreen";
 import type { AppStackParamList } from "./types";
 import { colors, spacing, typography } from "../theme/tokens";
-import BottomNav, { BOTTOM_NAV_HEIGHT } from "./BottomNav";
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -47,11 +45,7 @@ export default function AppStack() {
       </Stack.Screen>
 
       <Stack.Screen name="Player" options={{ title: "Sesi" }}>
-        {(props) => (
-          <ScreenWithBottomNav routeName={props.route.name} navigation={props.navigation}>
-            <AudioPlayerScreen {...props} />
-          </ScreenWithBottomNav>
-        )}
+        {(props) => <AudioPlayerScreen {...props} />}
       </Stack.Screen>
 
       <Stack.Screen
@@ -73,27 +67,17 @@ export default function AppStack() {
           ),
         })}
       >
-        {(props) => (
-          <ScreenWithBottomNav routeName={props.route.name} navigation={props.navigation}>
-            <AccountScreen {...props} />
-          </ScreenWithBottomNav>
-        )}
+        {(props) => <AccountScreen {...props} />}
       </Stack.Screen>
 
       <Stack.Screen name="ResetPassword" options={{ title: "Ubah kata sandi" }}>
-        {(props) => (
-          <ScreenWithBottomNav routeName={props.route.name} navigation={props.navigation}>
-            <ResetPasswordScreen {...props} />
-          </ScreenWithBottomNav>
-        )}
+        {(props) => <ResetPasswordScreen {...props} />}
       </Stack.Screen>
     </Stack.Navigator>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg },
-  content: { flex: 1 },
   headerLeftText: {
     color: colors.text,
     fontSize: typography.body,
@@ -108,26 +92,3 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xs,
   },
 });
-
-type BottomNavWrapperProps = {
-  children: React.ReactNode;
-  navigation: React.ComponentProps<typeof BottomNav>["navigation"];
-  routeName: string;
-};
-
-function ScreenWithBottomNav({ children, navigation, routeName }: BottomNavWrapperProps) {
-  const insets = useSafeAreaInsets();
-  return (
-    <View style={styles.container}>
-      <View
-        style={[
-          styles.content,
-          { paddingBottom: BOTTOM_NAV_HEIGHT + Math.max(insets.bottom, spacing.xs) },
-        ]}
-      >
-        {children}
-      </View>
-      <BottomNav navigation={navigation} routeName={routeName} />
-    </View>
-  );
-}
