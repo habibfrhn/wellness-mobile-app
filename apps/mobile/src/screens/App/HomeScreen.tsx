@@ -73,14 +73,14 @@ export default function HomeScreen({ navigation }: Props) {
                   <Text style={styles.featureMetaDivider}>·</Text>
                   <Text style={styles.featureMetaText}>{formatTime(featuredSleepGuide.durationSec)}</Text>
                 </View>
+                <Pressable
+                  onPress={() => navigation.navigate("Player", { audioId: featuredSleepGuide.id })}
+                  style={({ pressed }) => [styles.featureButton, pressed && styles.featureButtonPressed]}
+                >
+                  <Text style={styles.featureButtonText}>Tidur sekarang</Text>
+                </Pressable>
               </View>
             </View>
-            <Pressable
-              onPress={() => navigation.navigate("Player", { audioId: featuredSleepGuide.id })}
-              style={({ pressed }) => [styles.featureButton, pressed && styles.featureButtonPressed]}
-            >
-              <Text style={styles.featureButtonText}>Mulai</Text>
-            </Pressable>
           </View>
         </View>
       ) : null}
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
   },
   featureButton: {
-    alignSelf: "center",
+    alignSelf: "flex-start",
     backgroundColor: colors.primary,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
