@@ -22,7 +22,6 @@ function formatTime(sec: number) {
 const CROSSFADE_SECONDS = 10;
 const FADE_OUT_SECONDS = 5;
 const TIMER_OPTIONS = [
-  { label: "5 min", seconds: 5 * 60 },
   { label: "10 min", seconds: 10 * 60 },
   { label: "15 min", seconds: 15 * 60 },
   { label: "30 min", seconds: 30 * 60 },
@@ -317,58 +316,62 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
         { paddingBottom: spacing.xl + insets.bottom + BOTTOM_NAV_HEIGHT }
       ]}
     >
-      <Image source={track.cover} style={styles.cover} resizeMode="contain" />
-      <View style={styles.titleRow}>
-        <View style={styles.titleTextWrap}>
-          <Text style={styles.title}>{track.title}</Text>
-          <Text style={styles.creator}>{track.creator}</Text>
-        </View>
+      <View style={styles.coverWrap}>
+        <Image source={track.cover} style={styles.cover} resizeMode="contain" />
         <Pressable
           style={styles.favoriteButton}
           hitSlop={6}
           onPress={() => setFavorite(toggleFavorite(track.id))}
         >
           <Text style={[styles.favoriteText, favorite && styles.favoriteActive]}>
-            {favorite ? "♥" : "♡"}
+            {favorite ? "❤️" : "🤍"}
           </Text>
         </Pressable>
+      </View>
+      <View style={styles.titleRow}>
+        <View style={styles.titleTextWrap}>
+          <Text style={styles.title}>{track.title}</Text>
+          <Text style={styles.creator}>{track.creator}</Text>
+        </View>
       </View>
 
       {isSoundscape ? (
         <View style={styles.soundscapeOptions}>
           <View style={styles.optionBlock}>
-            <View style={styles.optionHeader}>
-              <Text style={styles.optionTitle}>Loop</Text>
-              <View style={styles.infoWrap}>
-                <Pressable
-                  onPressIn={() => setShowLoopInfo(true)}
-                  onPressOut={() => setShowLoopInfo(false)}
-                  style={styles.infoIcon}
-                  hitSlop={6}
-                >
-                  <Text style={styles.infoIconText}>?</Text>
-                </Pressable>
-                {showLoopInfo ? (
-                  <View style={styles.infoBubbleOverlay}>
-                    <Text style={styles.infoText}>Audio akan diulang.</Text>
-                  </View>
-                ) : null}
+            <View style={styles.optionHeaderSpread}>
+              <View style={styles.optionHeader}>
+                <Text style={styles.optionTitle}>Loop</Text>
+                <View style={styles.infoWrap}>
+                  <Pressable
+                    onPressIn={() => setShowLoopInfo(true)}
+                    onPressOut={() => setShowLoopInfo(false)}
+                    style={styles.infoIcon}
+                    hitSlop={6}
+                  >
+                    <Text style={styles.infoIconText}>?</Text>
+                  </Pressable>
+                  {showLoopInfo ? (
+                    <View style={styles.infoBubbleOverlay}>
+                      <Text style={styles.infoText}>Audio akan diulang.</Text>
+                    </View>
+                  ) : null}
+                </View>
               </View>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.togglePill,
+                  loopEnabled && styles.togglePillActive,
+                  isSessionActive && styles.controlDisabled,
+                  pressed && styles.pressed,
+                ]}
+                onPress={handleLoopToggle}
+                disabled={isSessionActive}
+              >
+                <Text style={[styles.toggleText, loopEnabled && styles.toggleTextActive]}>
+                  {loopEnabled ? "On" : "Off"}
+                </Text>
+              </Pressable>
             </View>
-            <Pressable
-              style={({ pressed }) => [
-                styles.togglePill,
-                loopEnabled && styles.togglePillActive,
-                isSessionActive && styles.controlDisabled,
-                pressed && styles.pressed,
-              ]}
-              onPress={handleLoopToggle}
-              disabled={isSessionActive}
-            >
-              <Text style={[styles.toggleText, loopEnabled && styles.toggleTextActive]}>
-                {loopEnabled ? "On" : "Off"}
-              </Text>
-            </Pressable>
           </View>
 
           <View style={styles.optionBlock}>
@@ -475,14 +478,16 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: spacing.md, backgroundColor: colors.bg },
-  cover: {
+  coverWrap: {
     width: "70%",
     maxWidth: 320,
-    maxHeight: 320,
+    alignSelf: "center",
+    marginTop: spacing.sm,
+  },
+  cover: {
+    width: "100%",
     aspectRatio: 1,
     borderRadius: radius.md,
-    marginTop: spacing.sm,
-    alignSelf: "center",
   },
   titleRow: {
     flexDirection: "row",
@@ -496,7 +501,9 @@ const styles = StyleSheet.create({
   title: { fontSize: 18, color: colors.text, fontWeight: "700" },
   creator: { marginTop: 2, fontSize: 12, color: colors.mutedText },
   favoriteButton: {
-    marginLeft: "auto",
+    position: "absolute",
+    right: spacing.xs,
+    bottom: spacing.xs,
     width: 36,
     height: 36,
     borderRadius: 18,
@@ -546,6 +553,11 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     gap: spacing.xs,
+  },
+  optionHeaderSpread: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   optionTitle: {
     fontSize: 12,
