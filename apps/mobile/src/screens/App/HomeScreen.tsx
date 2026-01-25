@@ -53,25 +53,34 @@ export default function HomeScreen({ navigation }: Props) {
   const Header = (
     <View>
       {featuredSleepGuide ? (
-        <View style={styles.featureCard}>
+        <View style={styles.featureSection}>
           <Text style={styles.featureTitle}>Bersiap untuk tidur</Text>
-          <View style={styles.featureRow}>
-            <Image
-              source={featuredSleepGuide.thumbnail}
-              style={styles.featureImage}
-              resizeMode="cover"
-            />
-            <View style={styles.featureMeta}>
-              <Text style={styles.featureNowPlaying} numberOfLines={2}>
-                Memutar: {featuredSleepGuide.title} · {formatTime(featuredSleepGuide.durationSec)}
-              </Text>
-              <Pressable
-                onPress={() => navigation.navigate("Player", { audioId: featuredSleepGuide.id })}
-                style={({ pressed }) => [styles.featureButton, pressed && styles.featureButtonPressed]}
-              >
-                <Text style={styles.featureButtonText}>Mulai</Text>
-              </Pressable>
+          <View style={styles.featureCard}>
+            <View style={styles.featureRow}>
+              <Image
+                source={featuredSleepGuide.thumbnail}
+                style={styles.featureImage}
+                resizeMode="cover"
+              />
+              <View style={styles.featureMeta}>
+                <Text style={styles.featureTrackTitle} numberOfLines={2}>
+                  {featuredSleepGuide.title}
+                </Text>
+                <View style={styles.featureMetaRow}>
+                  <Text style={styles.featureMetaText} numberOfLines={1}>
+                    {featuredSleepGuide.creator}
+                  </Text>
+                  <Text style={styles.featureMetaDivider}>·</Text>
+                  <Text style={styles.featureMetaText}>{formatTime(featuredSleepGuide.durationSec)}</Text>
+                </View>
+              </View>
             </View>
+            <Pressable
+              onPress={() => navigation.navigate("Player", { audioId: featuredSleepGuide.id })}
+              style={({ pressed }) => [styles.featureButton, pressed && styles.featureButtonPressed]}
+            >
+              <Text style={styles.featureButtonText}>Mulai</Text>
+            </Pressable>
           </View>
         </View>
       ) : null}
@@ -106,20 +115,24 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     backgroundColor: colors.bg,
   },
-  featureCard: {
-    marginHorizontal: spacing.sm,
+  featureSection: {
     marginBottom: spacing.md,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.card,
-    padding: spacing.md,
-    gap: spacing.sm,
+    gap: spacing.xs,
   },
   featureTitle: {
     fontSize: 16,
     fontWeight: "700",
     color: colors.text,
+    paddingHorizontal: spacing.sm,
+  },
+  featureCard: {
+    marginHorizontal: spacing.sm,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.card,
+    padding: spacing.md,
+    gap: spacing.md,
   },
   featureRow: {
     flexDirection: "row",
@@ -133,14 +146,28 @@ const styles = StyleSheet.create({
   },
   featureMeta: {
     flex: 1,
-    gap: spacing.sm,
+    gap: spacing.xs,
   },
-  featureNowPlaying: {
+  featureTrackTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  featureMetaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+  },
+  featureMetaText: {
+    fontSize: 12,
+    color: colors.mutedText,
+  },
+  featureMetaDivider: {
     fontSize: 12,
     color: colors.mutedText,
   },
   featureButton: {
-    alignSelf: "flex-start",
+    alignSelf: "center",
     backgroundColor: colors.primary,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
