@@ -26,7 +26,7 @@ function shortenTitle(title: string, maxLength = 15) {
 
 export default function Carousel({ title, tracks, onPress }: CarouselProps) {
   const { width } = useWindowDimensions();
-  const horizontalPadding = 0;
+  const horizontalPadding = spacing.sm;
   const cardWidth = Math.max(130, Math.round((width - horizontalPadding * 2 - spacing.sm * 2) / 2.25));
   const thumbnailHeight = Math.round(cardWidth * 0.72);
 
@@ -80,10 +80,12 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: colors.text,
     marginBottom: spacing.xs,
+    paddingLeft: spacing.sm,
   },
   listContent: {
     paddingTop: spacing.xs / 2,
     paddingBottom: spacing.sm,
+    paddingLeft: spacing.sm,
   },
   card: {
     backgroundColor: colors.card,
