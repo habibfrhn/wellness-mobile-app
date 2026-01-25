@@ -22,7 +22,6 @@ function formatTime(sec: number) {
 const CROSSFADE_SECONDS = 10;
 const FADE_OUT_SECONDS = 5;
 const TIMER_OPTIONS = [
-  { label: "3 min", seconds: 3 * 60 },
   { label: "5 min", seconds: 5 * 60 },
   { label: "10 min", seconds: 10 * 60 },
   { label: "15 min", seconds: 15 * 60 },
@@ -47,6 +46,8 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   const [loopEnabled, setLoopEnabled] = useState(isSoundscape);
   const [timerSeconds, setTimerSeconds] = useState<number | null>(null);
   const [timerRemaining, setTimerRemaining] = useState<number | null>(null);
+  const [showLoopInfo, setShowLoopInfo] = useState(false);
+  const [showTimerInfo, setShowTimerInfo] = useState(false);
   const crossfadeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const fadeOutIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -60,6 +61,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   const duration = activeStatus.duration || track.durationSec;
   const current = Math.min(activeStatus.currentTime || 0, duration);
   const atEnd = duration > 0 && current >= duration - 0.25;
+  const isSessionActive = isSoundscape && (activeStatus.playing || current > 0);
 
   const setPlayerVolume = useCallback((player: any, volume: number) => {
     try {
@@ -288,6 +290,11 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     setTimerRemaining(seconds);
   };
 
+  const handleStop = () => {
+    resetPlayers();
+    setTimerRemaining(timerSeconds);
+  };
+
   const handleLoopToggle = () => {
     setLoopEnabled((prev) => {
       const next = !prev;
@@ -327,6 +334,94 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
         </Pressable>
       </View>
 
+      {isSoundscape ? (
+        <View style={styles.soundscapeOptions}>
+          <View style={styles.optionHeader}>
+            <View style={styles.optionTitleRow}>
+              <Text style={styles.optionTitle}>Loop</Text>
+              <Pressable
+                onPressIn={() => setShowLoopInfo(true)}
+                onPressOut={() => setShowLoopInfo(false)}
+                style={styles.infoIcon}
+                hitSlop={6}
+              >
+                <Text style={styles.infoIconText}>?</Text>
+              </Pressable>
+            </View>
+            <Pressable
+              style={({ pressed }) => [
+                styles.togglePill,
+                loopEnabled && styles.togglePillActive,
+                isSessionActive && styles.controlDisabled,
+                pressed && styles.pressed,
+              ]}
+              onPress={handleLoopToggle}
+              disabled={isSessionActive}
+            >
+              <Text style={[styles.toggleText, loopEnabled && styles.toggleTextActive]}>
+                {loopEnabled ? "On" : "Off"}
+              </Text>
+            </Pressable>
+          </View>
+          {showLoopInfo ? (
+            <View style={styles.infoBubble}>
+              <Text style={styles.infoText}>Audio akan diulang.</Text>
+            </View>
+          ) : null}
+          <View style={styles.optionHeader}>
+            <View style={styles.optionTitleRow}>
+              <Text style={styles.optionTitle}>Timer</Text>
+              <Pressable
+                onPressIn={() => setShowTimerInfo(true)}
+                onPressOut={() => setShowTimerInfo(false)}
+                style={styles.infoIcon}
+                hitSlop={6}
+              >
+                <Text style={styles.infoIconText}>?</Text>
+              </Pressable>
+            </View>
+            {isSessionActive ? (
+              <Text style={styles.timerStatusText}>
+                {timerSeconds ? formatTime(timerRemaining ?? timerSeconds) : "Audio akan selalu diulang"}
+              </Text>
+            ) : (
+              <View style={styles.timerRow}>
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.timerPill,
+                    timerSeconds === null && styles.timerPillActive,
+                    pressed && styles.pressed,
+                  ]}
+                  onPress={() => handleTimerSelect(null)}
+                >
+                  <Text style={[styles.timerText, timerSeconds === null && styles.timerTextActive]}>Off</Text>
+                </Pressable>
+                {TIMER_OPTIONS.map((option) => (
+                  <Pressable
+                    key={option.seconds}
+                    style={({ pressed }) => [
+                      styles.timerPill,
+                      timerSeconds === option.seconds && styles.timerPillActive,
+                      pressed && styles.pressed,
+                    ]}
+                    onPress={() => handleTimerSelect(option.seconds)}
+                  >
+                    <Text style={[styles.timerText, timerSeconds === option.seconds && styles.timerTextActive]}>
+                      {option.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            )}
+          </View>
+          {showTimerInfo ? (
+            <View style={styles.infoBubble}>
+              <Text style={styles.infoText}>Audio akan dihentikan sesuai durasi timer.</Text>
+            </View>
+          ) : null}
+        </View>
+      ) : null}
+
       {isSoundscape ? null : (
         <>
           <Pressable
@@ -351,64 +446,20 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
       )}
 
       <View style={styles.controlsRow}>
-        <Pressable onPress={onRestart} style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}>
-          <Text style={styles.secondaryText}>{id.player.restart}</Text>
-        </Pressable>
+        {isSoundscape ? (
+          <Pressable onPress={handleStop} style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}>
+            <Text style={styles.secondaryText}>Stop</Text>
+          </Pressable>
+        ) : (
+          <Pressable onPress={onRestart} style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}>
+            <Text style={styles.secondaryText}>{id.player.restart}</Text>
+          </Pressable>
+        )}
 
         <Pressable onPress={onTogglePlay} style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}>
           <Text style={styles.primaryText}>{activeStatus.playing ? id.player.pause : id.player.start}</Text>
         </Pressable>
       </View>
-
-      {isSoundscape ? (
-        <View style={styles.soundscapeControls}>
-          <View style={styles.optionHeader}>
-            <Text style={styles.optionTitle}>Loop</Text>
-            <Pressable
-              style={({ pressed }) => [
-                styles.togglePill,
-                loopEnabled && styles.togglePillActive,
-                pressed && styles.pressed,
-              ]}
-              onPress={handleLoopToggle}
-            >
-              <Text style={[styles.toggleText, loopEnabled && styles.toggleTextActive]}>
-                {loopEnabled ? "On" : "Off"}
-              </Text>
-            </Pressable>
-          </View>
-          <Text style={styles.optionTitle}>
-            Timer {timerRemaining ? `• ${formatTime(timerRemaining)}` : ""}
-          </Text>
-          <View style={styles.timerRow}>
-            <Pressable
-              style={({ pressed }) => [
-                styles.timerPill,
-                timerSeconds === null && styles.timerPillActive,
-                pressed && styles.pressed,
-              ]}
-              onPress={() => handleTimerSelect(null)}
-            >
-              <Text style={[styles.timerText, timerSeconds === null && styles.timerTextActive]}>Off</Text>
-            </Pressable>
-            {TIMER_OPTIONS.map((option) => (
-              <Pressable
-                key={option.seconds}
-                style={({ pressed }) => [
-                  styles.timerPill,
-                  timerSeconds === option.seconds && styles.timerPillActive,
-                  pressed && styles.pressed,
-                ]}
-                onPress={() => handleTimerSelect(option.seconds)}
-              >
-                <Text style={[styles.timerText, timerSeconds === option.seconds && styles.timerTextActive]}>
-                  {option.label}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        </View>
-      ) : null}
     </View>
   );
 }
@@ -474,8 +525,8 @@ const styles = StyleSheet.create({
   },
   timeText: { fontSize: 12, color: colors.mutedText },
   controlsRow: { flexDirection: "row", gap: spacing.sm, marginTop: 0 },
-  soundscapeControls: {
-    marginTop: spacing.lg,
+  soundscapeOptions: {
+    marginTop: spacing.sm,
     gap: spacing.sm,
   },
   optionHeader: {
@@ -483,10 +534,41 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
+  optionTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+  },
   optionTitle: {
     fontSize: 12,
     color: colors.text,
     fontWeight: "600",
+  },
+  infoIcon: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: colors.border,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  infoIconText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#fff",
+  },
+  infoBubble: {
+    alignSelf: "flex-start",
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingVertical: spacing.xs / 2,
+    paddingHorizontal: spacing.sm,
+  },
+  infoText: {
+    fontSize: 11,
+    color: colors.mutedText,
   },
   togglePill: {
     paddingHorizontal: spacing.sm,
@@ -508,13 +590,19 @@ const styles = StyleSheet.create({
   toggleTextActive: {
     color: colors.primaryText,
   },
+  controlDisabled: {
+    opacity: 0.6,
+  },
   timerRow: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing.xs,
+    flexWrap: "nowrap",
+    justifyContent: "space-between",
+    gap: spacing.xs / 2,
   },
   timerPill: {
-    paddingHorizontal: spacing.sm,
+    flexBasis: 0,
+    flexGrow: 1,
+    paddingHorizontal: spacing.xs,
     paddingVertical: spacing.xs / 2,
     borderRadius: 999,
     borderWidth: 1,
@@ -526,12 +614,18 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
   },
   timerText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "600",
     color: colors.text,
+    textAlign: "center",
   },
   timerTextActive: {
     color: colors.primaryText,
+  },
+  timerStatusText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: colors.mutedText,
   },
   primaryBtn: {
     flex: 1,
