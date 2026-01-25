@@ -22,13 +22,6 @@ const pickRandomTracks = (tracks: AudioTrack[], count: number) => {
   return picks;
 };
 
-const formatTime = (sec: number) => {
-  const s = Math.max(0, Math.floor(sec));
-  const mm = String(Math.floor(s / 60)).padStart(2, "0");
-  const ss = String(s % 60).padStart(2, "0");
-  return `${mm}:${ss}`;
-};
-
 export default function HomeScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const featuredSleepGuide = useMemo(() => {
@@ -63,16 +56,18 @@ export default function HomeScreen({ navigation }: Props) {
                 resizeMode="cover"
               />
               <View style={styles.featureMeta}>
-                <Text style={styles.featureTrackTitle} numberOfLines={2}>
-                  {featuredSleepGuide.title}
-                </Text>
-                <View style={styles.featureMetaRow}>
-                  <Text style={styles.featureMetaText} numberOfLines={1}>
-                    {featuredSleepGuide.creator}
+                <View style={styles.featureTitleRow}>
+                  <Text style={styles.featureTrackTitle} numberOfLines={1}>
+                    {featuredSleepGuide.title}
                   </Text>
-                  <Text style={styles.featureMetaDivider}>·</Text>
-                  <Text style={styles.featureMetaText}>{formatTime(featuredSleepGuide.durationSec)}</Text>
+                  <Text style={styles.featureMetaText}>
+                    {" "}
+                    ({Math.max(1, Math.round(featuredSleepGuide.durationSec / 60))} menit)
+                  </Text>
                 </View>
+                <Text style={styles.featureMetaText} numberOfLines={1}>
+                  {featuredSleepGuide.creator}
+                </Text>
                 <Pressable
                   onPress={() => navigation.navigate("Player", { audioId: featuredSleepGuide.id })}
                   style={({ pressed }) => [styles.featureButton, pressed && styles.featureButtonPressed]}
@@ -126,12 +121,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.card,
-    padding: spacing.md,
-    gap: spacing.md,
+    padding: spacing.xs,
+    gap: spacing.xs,
   },
   featureRow: {
     flexDirection: "row",
-    gap: spacing.md,
+    gap: spacing.xs,
     alignItems: "center",
   },
   featureImage: {
@@ -141,24 +136,20 @@ const styles = StyleSheet.create({
   },
   featureMeta: {
     flex: 1,
-    gap: spacing.xs,
+    gap: spacing.xs / 2,
+  },
+  featureTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
   },
   featureTrackTitle: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "700",
     color: colors.text,
   },
-  featureMetaRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xs,
-  },
   featureMetaText: {
-    fontSize: 12,
-    color: colors.mutedText,
-  },
-  featureMetaDivider: {
-    fontSize: 12,
+    fontSize: 11,
     color: colors.mutedText,
   },
   featureButton: {
