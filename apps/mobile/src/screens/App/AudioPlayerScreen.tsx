@@ -19,9 +19,9 @@ function formatTime(sec: number) {
   return `${mm}:${ss}`;
 }
 
-const CROSSFADE_SECONDS = 10;
 const FADE_OUT_SECONDS = 5;
 const TIMER_OPTIONS = [
+  { label: "5 min", seconds: 5 * 60 },
   { label: "10 min", seconds: 10 * 60 },
   { label: "15 min", seconds: 15 * 60 },
   { label: "30 min", seconds: 30 * 60 },
@@ -42,12 +42,9 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   const [progressWidth, setProgressWidth] = useState(0);
   const [favorite, setFavorite] = useState(() => isFavorite(track.id));
   const [activePlayerKey, setActivePlayerKey] = useState<"primary" | "secondary">("primary");
-  const [loopEnabled, setLoopEnabled] = useState(isSoundscape);
   const [timerSeconds, setTimerSeconds] = useState<number | null>(null);
   const [timerRemaining, setTimerRemaining] = useState<number | null>(null);
-  const [showLoopInfo, setShowLoopInfo] = useState(false);
   const [showTimerInfo, setShowTimerInfo] = useState(false);
-  const crossfadeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const fadeOutIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -72,13 +69,6 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     } catch {}
   }, []);
 
-  const clearCrossfadeInterval = useCallback(() => {
-    if (crossfadeIntervalRef.current) {
-      clearInterval(crossfadeIntervalRef.current);
-      crossfadeIntervalRef.current = null;
-    }
-  }, []);
-
   const clearFadeOutInterval = useCallback(() => {
     if (fadeOutIntervalRef.current) {
       clearInterval(fadeOutIntervalRef.current);
@@ -87,7 +77,6 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   }, []);
 
   const resetPlayers = useCallback(() => {
-    clearCrossfadeInterval();
     clearFadeOutInterval();
     try {
       primaryPlayer.pause();
@@ -100,7 +89,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     setPlayerVolume(primaryPlayer, 1);
     setPlayerVolume(secondaryPlayer, 0);
     setActivePlayerKey("primary");
-  }, [clearCrossfadeInterval, clearFadeOutInterval, primaryPlayer, secondaryPlayer, setPlayerVolume]);
+  }, [clearFadeOutInterval, primaryPlayer, secondaryPlayer, setPlayerVolume]);
 
   const pauseAll = useCallback(() => {
     try {
@@ -164,62 +153,23 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   }, [navigation]);
 
   useEffect(() => {
-    setLoopEnabled(isSoundscape);
-    setTimerSeconds(null);
-    setTimerRemaining(null);
+    if (isSoundscape) {
+      setTimerSeconds(TIMER_OPTIONS[0].seconds);
+      setTimerRemaining(TIMER_OPTIONS[0].seconds);
+    } else {
+      setTimerSeconds(null);
+      setTimerRemaining(null);
+    }
     resetPlayers();
   }, [isSoundscape, resetPlayers, track.id]);
 
   useEffect(() => {
     if (!isSoundscape) {
-      setLoopEnabled(false);
       setTimerSeconds(null);
       setTimerRemaining(null);
       resetPlayers();
     }
   }, [isSoundscape, resetPlayers]);
-
-  useEffect(() => {
-    if (!loopEnabled || !isSoundscape || !activeStatus.playing) return;
-    if (duration <= 0) return;
-    if (crossfadeIntervalRef.current) return;
-
-    const remaining = duration - current;
-    if (remaining > CROSSFADE_SECONDS) return;
-
-    try {
-      setPlayerVolume(inactivePlayer, 0);
-      inactivePlayer.seekTo(0);
-      inactivePlayer.play();
-    } catch {}
-
-    const start = Date.now();
-    const fadeDurationMs = CROSSFADE_SECONDS * 1000;
-    crossfadeIntervalRef.current = setInterval(() => {
-      const progress = Math.min((Date.now() - start) / fadeDurationMs, 1);
-      setPlayerVolume(activePlayer, 1 - progress);
-      setPlayerVolume(inactivePlayer, progress);
-      if (progress >= 1) {
-        clearCrossfadeInterval();
-        try {
-          activePlayer.pause();
-          activePlayer.seekTo(0);
-        } catch {}
-        setPlayerVolume(activePlayer, 1);
-        setActivePlayerKey((prev) => (prev === "primary" ? "secondary" : "primary"));
-      }
-    }, 250);
-  }, [
-    activePlayer,
-    activeStatus.playing,
-    clearCrossfadeInterval,
-    current,
-    duration,
-    inactivePlayer,
-    isSoundscape,
-    loopEnabled,
-    setPlayerVolume,
-  ]);
 
   useEffect(() => {
     if (!isSoundscape || !timerSeconds || timerSeconds <= 0) return;
@@ -240,12 +190,10 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
 
   useEffect(() => {
     if (activeStatus.playing) return;
-    clearCrossfadeInterval();
     clearFadeOutInterval();
-  }, [activeStatus.playing, clearCrossfadeInterval, clearFadeOutInterval]);
+  }, [activeStatus.playing, clearFadeOutInterval]);
 
   const fadeOutAndStop = useCallback(() => {
-    clearCrossfadeInterval();
     clearFadeOutInterval();
 
     const start = Date.now();
@@ -268,7 +216,6 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     }, 250);
   }, [
     activePlayer,
-    clearCrossfadeInterval,
     clearFadeOutInterval,
     inactivePlayer,
     pauseAll,
@@ -280,11 +227,10 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     if (timerRemaining === null) return;
     if (timerRemaining > 0) return;
     fadeOutAndStop();
-    setTimerSeconds(null);
-    setTimerRemaining(null);
-  }, [fadeOutAndStop, isSoundscape, timerRemaining]);
+    setTimerRemaining(timerSeconds);
+  }, [fadeOutAndStop, isSoundscape, timerRemaining, timerSeconds]);
 
-  const handleTimerSelect = (seconds: number | null) => {
+  const handleTimerSelect = (seconds: number) => {
     setTimerSeconds(seconds);
     setTimerRemaining(seconds);
   };
@@ -292,21 +238,6 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   const handleStop = () => {
     resetPlayers();
     setTimerRemaining(timerSeconds);
-  };
-
-  const handleLoopToggle = () => {
-    setLoopEnabled((prev) => {
-      const next = !prev;
-      if (!next) {
-        clearCrossfadeInterval();
-        try {
-          inactivePlayer.pause();
-          inactivePlayer.seekTo(0);
-        } catch {}
-        setPlayerVolume(inactivePlayer, 0);
-      }
-      return next;
-    });
   };
 
   return (
@@ -342,43 +273,6 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
         {isSoundscape ? (
           <View style={styles.soundscapeOptions}>
             <View style={styles.optionBlock}>
-              <View style={styles.optionHeaderSpread}>
-                <View style={styles.optionHeader}>
-                  <Text style={styles.optionTitle}>Loop</Text>
-                  <View style={styles.infoWrap}>
-                    <Pressable
-                      onPressIn={() => setShowLoopInfo(true)}
-                      onPressOut={() => setShowLoopInfo(false)}
-                      style={styles.infoIcon}
-                      hitSlop={6}
-                    >
-                      <Text style={styles.infoIconText}>?</Text>
-                    </Pressable>
-                    {showLoopInfo ? (
-                      <View style={styles.infoBubbleOverlay}>
-                        <Text style={styles.infoText}>Audio akan diulang.</Text>
-                      </View>
-                    ) : null}
-                  </View>
-                </View>
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.togglePill,
-                    loopEnabled && styles.togglePillActive,
-                    isSessionActive && styles.controlDisabled,
-                    pressed && styles.pressed,
-                  ]}
-                  onPress={handleLoopToggle}
-                  disabled={isSessionActive}
-                >
-                  <Text style={[styles.toggleText, loopEnabled && styles.toggleTextActive]}>
-                    {loopEnabled ? "On" : "Off"}
-                  </Text>
-                </Pressable>
-              </View>
-            </View>
-
-            <View style={styles.optionBlock}>
               <View style={styles.optionHeader}>
                 <Text style={styles.optionTitle}>Timer</Text>
                 <View style={styles.infoWrap}>
@@ -399,11 +293,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
               </View>
               {isSessionActive ? (
                 <Text style={styles.timerStatusText}>
-                  {timerSeconds
-                    ? formatTime(timerRemaining ?? timerSeconds)
-                    : loopEnabled
-                      ? "Audio akan selalu diulang"
-                      : "Audio akan diputar sekali"}
+                  {formatTime(timerRemaining ?? timerSeconds ?? 0)}
                 </Text>
               ) : (
                 <ScrollView
@@ -411,16 +301,6 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={styles.timerRow}
                 >
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.timerPill,
-                      timerSeconds === null && styles.timerPillActive,
-                      pressed && styles.pressed,
-                    ]}
-                    onPress={() => handleTimerSelect(null)}
-                  >
-                    <Text style={[styles.timerText, timerSeconds === null && styles.timerTextActive]}>Off</Text>
-                  </Pressable>
                   {TIMER_OPTIONS.map((option) => (
                     <Pressable
                       key={option.seconds}
@@ -572,11 +452,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.xs,
   },
-  optionHeaderSpread: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
   optionTitle: {
     fontSize: 12,
     color: colors.text,
@@ -614,29 +489,6 @@ const styles = StyleSheet.create({
   infoText: {
     fontSize: 11,
     color: colors.mutedText,
-  },
-  togglePill: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs / 2,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.card,
-  },
-  togglePillActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  toggleText: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: colors.text,
-  },
-  toggleTextActive: {
-    color: colors.primaryText,
-  },
-  controlDisabled: {
-    opacity: 0.6,
   },
   timerRow: {
     flexDirection: "row",
