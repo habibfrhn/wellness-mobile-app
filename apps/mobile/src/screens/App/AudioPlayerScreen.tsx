@@ -310,177 +310,184 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   };
 
   return (
-    <View
-      style={[
-        styles.container,
-        { paddingBottom: spacing.xl + insets.bottom + BOTTOM_NAV_HEIGHT }
-      ]}
-    >
-      <View style={styles.coverWrap}>
-        <Image source={track.cover} style={styles.cover} resizeMode="contain" />
-        <Pressable
-          style={styles.favoriteButton}
-          hitSlop={6}
-          onPress={() => setFavorite(toggleFavorite(track.id))}
-        >
-          <Text style={[styles.favoriteText, favorite && styles.favoriteActive]}>
-            {favorite ? "❤️" : "🤍"}
-          </Text>
-        </Pressable>
-      </View>
-      <View style={styles.titleRow}>
-        <View style={styles.titleTextWrap}>
-          <Text style={styles.title}>{track.title}</Text>
-          <Text style={styles.creator}>{track.creator}</Text>
+    <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: spacing.xl + insets.bottom + BOTTOM_NAV_HEIGHT }
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.coverWrap}>
+          <Image source={track.cover} style={styles.cover} resizeMode="contain" />
+          <Pressable
+            style={styles.favoriteButton}
+            hitSlop={6}
+            onPress={() => setFavorite(toggleFavorite(track.id))}
+          >
+            <Text style={[styles.favoriteText, favorite && styles.favoriteActive]}>
+              {favorite ? "❤️" : "🤍"}
+            </Text>
+          </Pressable>
         </View>
-      </View>
+        <View style={styles.titleRow}>
+          <View style={styles.titleTextWrap}>
+            <Text style={styles.title}>{track.title}</Text>
+            <Text style={styles.creator}>{track.creator}</Text>
+          </View>
+        </View>
 
-      {isSoundscape ? (
-        <View style={styles.soundscapeOptions}>
-          <View style={styles.optionBlock}>
-            <View style={styles.optionHeaderSpread}>
+        {isSoundscape ? (
+          <View style={styles.soundscapeOptions}>
+            <View style={styles.optionBlock}>
+              <View style={styles.optionHeaderSpread}>
+                <View style={styles.optionHeader}>
+                  <Text style={styles.optionTitle}>Loop</Text>
+                  <View style={styles.infoWrap}>
+                    <Pressable
+                      onPressIn={() => setShowLoopInfo(true)}
+                      onPressOut={() => setShowLoopInfo(false)}
+                      style={styles.infoIcon}
+                      hitSlop={6}
+                    >
+                      <Text style={styles.infoIconText}>?</Text>
+                    </Pressable>
+                    {showLoopInfo ? (
+                      <View style={styles.infoBubbleOverlay}>
+                        <Text style={styles.infoText}>Audio akan diulang.</Text>
+                      </View>
+                    ) : null}
+                  </View>
+                </View>
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.togglePill,
+                    loopEnabled && styles.togglePillActive,
+                    isSessionActive && styles.controlDisabled,
+                    pressed && styles.pressed,
+                  ]}
+                  onPress={handleLoopToggle}
+                  disabled={isSessionActive}
+                >
+                  <Text style={[styles.toggleText, loopEnabled && styles.toggleTextActive]}>
+                    {loopEnabled ? "On" : "Off"}
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+
+            <View style={styles.optionBlock}>
               <View style={styles.optionHeader}>
-                <Text style={styles.optionTitle}>Loop</Text>
+                <Text style={styles.optionTitle}>Timer</Text>
                 <View style={styles.infoWrap}>
                   <Pressable
-                    onPressIn={() => setShowLoopInfo(true)}
-                    onPressOut={() => setShowLoopInfo(false)}
+                    onPressIn={() => setShowTimerInfo(true)}
+                    onPressOut={() => setShowTimerInfo(false)}
                     style={styles.infoIcon}
                     hitSlop={6}
                   >
                     <Text style={styles.infoIconText}>?</Text>
                   </Pressable>
-                  {showLoopInfo ? (
+                  {showTimerInfo ? (
                     <View style={styles.infoBubbleOverlay}>
-                      <Text style={styles.infoText}>Audio akan diulang.</Text>
+                      <Text style={styles.infoText}>Audio akan dihentikan sesuai durasi timer.</Text>
                     </View>
                   ) : null}
                 </View>
               </View>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.togglePill,
-                  loopEnabled && styles.togglePillActive,
-                  isSessionActive && styles.controlDisabled,
-                  pressed && styles.pressed,
-                ]}
-                onPress={handleLoopToggle}
-                disabled={isSessionActive}
-              >
-                <Text style={[styles.toggleText, loopEnabled && styles.toggleTextActive]}>
-                  {loopEnabled ? "On" : "Off"}
+              {isSessionActive ? (
+                <Text style={styles.timerStatusText}>
+                  {timerSeconds ? formatTime(timerRemaining ?? timerSeconds) : "Audio akan selalu diulang"}
                 </Text>
-              </Pressable>
-            </View>
-          </View>
-
-          <View style={styles.optionBlock}>
-            <View style={styles.optionHeader}>
-              <Text style={styles.optionTitle}>Timer</Text>
-              <View style={styles.infoWrap}>
-                <Pressable
-                  onPressIn={() => setShowTimerInfo(true)}
-                  onPressOut={() => setShowTimerInfo(false)}
-                  style={styles.infoIcon}
-                  hitSlop={6}
+              ) : (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.timerRow}
                 >
-                  <Text style={styles.infoIconText}>?</Text>
-                </Pressable>
-                {showTimerInfo ? (
-                  <View style={styles.infoBubbleOverlay}>
-                    <Text style={styles.infoText}>Audio akan dihentikan sesuai durasi timer.</Text>
-                  </View>
-                ) : null}
-              </View>
-            </View>
-            {isSessionActive ? (
-              <Text style={styles.timerStatusText}>
-                {timerSeconds ? formatTime(timerRemaining ?? timerSeconds) : "Audio akan selalu diulang"}
-              </Text>
-            ) : (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.timerRow}
-              >
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.timerPill,
-                    timerSeconds === null && styles.timerPillActive,
-                    pressed && styles.pressed,
-                  ]}
-                  onPress={() => handleTimerSelect(null)}
-                >
-                  <Text style={[styles.timerText, timerSeconds === null && styles.timerTextActive]}>Off</Text>
-                </Pressable>
-                {TIMER_OPTIONS.map((option) => (
                   <Pressable
-                    key={option.seconds}
                     style={({ pressed }) => [
                       styles.timerPill,
-                      timerSeconds === option.seconds && styles.timerPillActive,
+                      timerSeconds === null && styles.timerPillActive,
                       pressed && styles.pressed,
                     ]}
-                    onPress={() => handleTimerSelect(option.seconds)}
+                    onPress={() => handleTimerSelect(null)}
                   >
-                    <Text style={[styles.timerText, timerSeconds === option.seconds && styles.timerTextActive]}>
-                      {option.label}
-                    </Text>
+                    <Text style={[styles.timerText, timerSeconds === null && styles.timerTextActive]}>Off</Text>
                   </Pressable>
-                ))}
-              </ScrollView>
-            )}
-          </View>
-        </View>
-      ) : null}
-
-      {isSoundscape ? null : (
-        <>
-          <Pressable
-            style={styles.progressWrap}
-            onLayout={(event) => setProgressWidth(event.nativeEvent.layout.width)}
-            onPress={(event) => onSeekBarPress(event.nativeEvent.locationX)}
-          >
-            <View style={styles.progressTrack}>
-              <View
-                style={[
-                  styles.progressFill,
-                  { width: duration > 0 && progressWidth ? `${(current / duration) * 100}%` : "0%" }
-                ]}
-              />
+                  {TIMER_OPTIONS.map((option) => (
+                    <Pressable
+                      key={option.seconds}
+                      style={({ pressed }) => [
+                        styles.timerPill,
+                        timerSeconds === option.seconds && styles.timerPillActive,
+                        pressed && styles.pressed,
+                      ]}
+                      onPress={() => handleTimerSelect(option.seconds)}
+                    >
+                      <Text style={[styles.timerText, timerSeconds === option.seconds && styles.timerTextActive]}>
+                        {option.label}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              )}
             </View>
-          </Pressable>
-          <View style={styles.timeRow}>
-            <Text style={styles.timeText}>{formatTime(current)}</Text>
-            <Text style={styles.timeText}>{formatTime(duration)}</Text>
           </View>
-        </>
-      )}
+        ) : null}
 
-      <View style={styles.controlsRow}>
-        {isSoundscape ? (
-          <Pressable onPress={handleStop} style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}>
-            <Text style={styles.secondaryText}>Stop</Text>
-          </Pressable>
-        ) : (
-          <Pressable onPress={onRestart} style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}>
-            <Text style={styles.secondaryText}>{id.player.restart}</Text>
-          </Pressable>
+        {isSoundscape ? null : (
+          <>
+            <Pressable
+              style={styles.progressWrap}
+              onLayout={(event) => setProgressWidth(event.nativeEvent.layout.width)}
+              onPress={(event) => onSeekBarPress(event.nativeEvent.locationX)}
+            >
+              <View style={styles.progressTrack}>
+                <View
+                  style={[
+                    styles.progressFill,
+                    { width: duration > 0 && progressWidth ? `${(current / duration) * 100}%` : "0%" }
+                  ]}
+                />
+              </View>
+            </Pressable>
+            <View style={styles.timeRow}>
+              <Text style={styles.timeText}>{formatTime(current)}</Text>
+              <Text style={styles.timeText}>{formatTime(duration)}</Text>
+            </View>
+          </>
         )}
 
-        <Pressable onPress={onTogglePlay} style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}>
-          <Text style={styles.primaryText}>{activeStatus.playing ? id.player.pause : id.player.start}</Text>
-        </Pressable>
-      </View>
+        <View style={styles.controlsRow}>
+          {isSoundscape ? (
+            <Pressable onPress={handleStop} style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}>
+              <Text style={styles.secondaryText}>Stop</Text>
+            </Pressable>
+          ) : (
+            <Pressable onPress={onRestart} style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}>
+              <Text style={styles.secondaryText}>{id.player.restart}</Text>
+            </Pressable>
+          )}
+
+          <Pressable onPress={onTogglePlay} style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}>
+            <Text style={styles.primaryText}>{activeStatus.playing ? id.player.pause : id.player.start}</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: spacing.md, backgroundColor: colors.bg },
+  container: { flex: 1, backgroundColor: colors.bg },
+  content: {
+    padding: spacing.md,
+  },
   coverWrap: {
     width: "70%",
     maxWidth: 320,
+    maxHeight: 320,
     alignSelf: "center",
     marginTop: spacing.sm,
   },
@@ -493,7 +500,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.sm,
-    marginTop: spacing.xl,
+    marginTop: spacing.lg,
   },
   titleTextWrap: {
     flex: 1,
