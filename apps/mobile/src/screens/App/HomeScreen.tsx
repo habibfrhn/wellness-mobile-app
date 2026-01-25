@@ -85,11 +85,6 @@ export default function HomeScreen({ navigation }: Props) {
         </View>
       ) : null}
       <Carousel
-        title="Tidur dengan panduan"
-        tracks={AUDIO_TRACKS.filter((track) => track.contentType === "guided-sleep")}
-        onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
-      />
-      <Carousel
         title="Soundscape untuk tidur"
         tracks={AUDIO_TRACKS.filter((track) => track.contentType === "soundscape")}
         onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
@@ -117,7 +112,7 @@ const styles = StyleSheet.create({
   },
   featureSection: {
     marginBottom: spacing.md,
-    gap: spacing.xs,
+    gap: spacing.xs + spacing.xs / 2,
   },
   featureTitle: {
     fontSize: 16,
