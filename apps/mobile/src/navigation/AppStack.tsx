@@ -50,22 +50,10 @@ export default function AppStack() {
 
       <Stack.Screen
         name="Account"
-        options={({ navigation }) => ({
+        options={{
           title: "",
-          headerLeft: ({ tintColor }) => (
-            <Pressable
-              onPress={() => navigation.navigate("Home")}
-              hitSlop={8}
-              style={styles.headerLeft}
-            >
-              <MaterialCommunityIcons
-                name="chevron-left"
-                size={24}
-                color={tintColor ?? colors.text}
-              />
-            </Pressable>
-          ),
-        })}
+          headerBackTitleVisible: false,
+        }}
       >
         {(props) => <AccountScreen {...props} />}
       </Stack.Screen>
@@ -83,10 +71,6 @@ const styles = StyleSheet.create({
     fontSize: typography.body,
     fontWeight: "700",
     paddingHorizontal: 2,
-  },
-  headerLeft: {
-    paddingHorizontal: 0,
-    marginLeft: -spacing.xs,
   },
   headerRight: {
     paddingHorizontal: spacing.xs,
