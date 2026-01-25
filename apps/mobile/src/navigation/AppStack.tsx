@@ -57,7 +57,7 @@ export default function AppStack() {
       <Stack.Screen
         name="Account"
         options={({ navigation }) => ({
-          title: "Akun",
+          title: "",
           headerLeft: ({ tintColor }) => (
             <Pressable
               onPress={() => navigation.navigate("Home")}
@@ -101,7 +101,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
   headerLeft: {
-    paddingHorizontal: spacing.xs,
+    paddingHorizontal: 0,
+    marginLeft: -spacing.xs,
   },
   headerRight: {
     paddingHorizontal: spacing.xs,
