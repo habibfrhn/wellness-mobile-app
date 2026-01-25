@@ -86,6 +86,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xs / 2,
     paddingBottom: spacing.sm,
     paddingLeft: spacing.sm,
+    paddingRight: spacing.sm,
   },
   card: {
     backgroundColor: colors.card,
