@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { View, StyleSheet, ScrollView, Image } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Image, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, spacing } from "../../theme/tokens";
 import { AUDIO_TRACKS } from "../../content/audioCatalog";
@@ -10,15 +10,6 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AppStackParamList } from "../../navigation/types";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Home">;
-
-const shuffleTracks = (tracks: AudioTrack[]) => {
-  const next = [...tracks];
-  for (let i = next.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [next[i], next[j]] = [next[j], next[i]];
-  }
-  return next;
-};
 
 const pickRandomTracks = (tracks: AudioTrack[], count: number) => {
   const pool = [...tracks];
@@ -31,15 +22,18 @@ const pickRandomTracks = (tracks: AudioTrack[], count: number) => {
   return picks;
 };
 
+const formatTime = (sec: number) => {
+  const s = Math.max(0, Math.floor(sec));
+  const mm = String(Math.floor(s / 60)).padStart(2, "0");
+  const ss = String(s % 60).padStart(2, "0");
+  return `${mm}:${ss}`;
+};
+
 export default function HomeScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
-  const recommendedTracks = useMemo(() => {
+  const featuredSleepGuide = useMemo(() => {
     const sleepGuideTracks = AUDIO_TRACKS.filter((track) => track.contentType === "guided-sleep");
-    const soundscapeTracks = AUDIO_TRACKS.filter((track) => track.contentType === "soundscape");
-    return shuffleTracks([
-      ...pickRandomTracks(sleepGuideTracks, 2),
-      ...pickRandomTracks(soundscapeTracks, 2),
-    ]);
+    return pickRandomTracks(sleepGuideTracks, 1)[0] ?? sleepGuideTracks[0];
   }, []);
 
   useEffect(() => {
@@ -58,11 +52,29 @@ export default function HomeScreen({ navigation }: Props) {
 
   const Header = (
     <View>
-      <Carousel
-        title="Rekomendasi"
-        tracks={recommendedTracks}
-        onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
-      />
+      {featuredSleepGuide ? (
+        <View style={styles.featureCard}>
+          <Text style={styles.featureTitle}>Bersiap untuk tidur</Text>
+          <View style={styles.featureRow}>
+            <Image
+              source={featuredSleepGuide.thumbnail}
+              style={styles.featureImage}
+              resizeMode="cover"
+            />
+            <View style={styles.featureMeta}>
+              <Text style={styles.featureNowPlaying} numberOfLines={2}>
+                Memutar: {featuredSleepGuide.title} · {formatTime(featuredSleepGuide.durationSec)}
+              </Text>
+              <Pressable
+                onPress={() => navigation.navigate("Player", { audioId: featuredSleepGuide.id })}
+                style={({ pressed }) => [styles.featureButton, pressed && styles.featureButtonPressed]}
+              >
+                <Text style={styles.featureButtonText}>Mulai</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      ) : null}
       <Carousel
         title="Tidur dengan panduan"
         tracks={AUDIO_TRACKS.filter((track) => track.contentType === "guided-sleep")}
@@ -94,5 +106,52 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     backgroundColor: colors.bg,
   },
-
+  featureCard: {
+    marginHorizontal: spacing.sm,
+    marginBottom: spacing.md,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.card,
+    padding: spacing.md,
+    gap: spacing.sm,
+  },
+  featureTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  featureRow: {
+    flexDirection: "row",
+    gap: spacing.md,
+    alignItems: "center",
+  },
+  featureImage: {
+    width: 120,
+    height: 90,
+    borderRadius: 12,
+  },
+  featureMeta: {
+    flex: 1,
+    gap: spacing.sm,
+  },
+  featureNowPlaying: {
+    fontSize: 12,
+    color: colors.mutedText,
+  },
+  featureButton: {
+    alignSelf: "flex-start",
+    backgroundColor: colors.primary,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: 999,
+  },
+  featureButtonPressed: {
+    opacity: 0.85,
+  },
+  featureButtonText: {
+    color: colors.primaryText,
+    fontSize: 12,
+    fontWeight: "700",
+  },
 });
