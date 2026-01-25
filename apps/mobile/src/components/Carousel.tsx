@@ -26,7 +26,7 @@ function shortenTitle(title: string, maxLength = 15) {
 
 export default function Carousel({ title, tracks, onPress }: CarouselProps) {
   const { width } = useWindowDimensions();
-  const horizontalPadding = spacing.md;
+  const horizontalPadding = 0;
   const cardWidth = Math.max(130, Math.round((width - horizontalPadding * 2 - spacing.sm * 2) / 2.25));
   const thumbnailHeight = Math.round(cardWidth * 0.72);
 
@@ -59,7 +59,9 @@ export default function Carousel({ title, tracks, onPress }: CarouselProps) {
                 <Text style={styles.cardMeta} numberOfLines={1}>
                   {item.creator}
                 </Text>
-                <Text style={styles.cardDuration}>{formatTime(item.durationSec)}</Text>
+                {item.contentType === "soundscape" ? null : (
+                  <Text style={styles.cardDuration}>{formatTime(item.durationSec)}</Text>
+                )}
               </View>
             </View>
           </Pressable>
@@ -78,12 +80,10 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: colors.text,
     marginBottom: spacing.xs,
-    paddingHorizontal: spacing.sm,
   },
   listContent: {
     paddingTop: spacing.xs / 2,
     paddingBottom: spacing.sm,
-    paddingHorizontal: spacing.sm,
   },
   card: {
     backgroundColor: colors.card,

@@ -1,5 +1,6 @@
 import React from "react";
-import { Text, View, StyleSheet } from "react-native";
+import { Pressable, Text, View, StyleSheet } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -24,16 +25,25 @@ export default function AppStack() {
     >
       <Stack.Screen
         name="Home"
-        options={{
+        options={({ navigation }) => ({
           headerTitle: "",
           headerLeft: () => <Text style={styles.headerLeftText}>Lumepo</Text>,
-        }}
+          headerRight: ({ tintColor }) => (
+            <Pressable
+              onPress={() => navigation.navigate("Account")}
+              hitSlop={8}
+              style={styles.headerRight}
+            >
+              <MaterialCommunityIcons
+                name="account-circle-outline"
+                size={22}
+                color={tintColor ?? colors.text}
+              />
+            </Pressable>
+          ),
+        })}
       >
-        {(props) => (
-          <ScreenWithBottomNav routeName={props.route.name} navigation={props.navigation}>
-            <HomeScreen {...props} />
-          </ScreenWithBottomNav>
-        )}
+        {(props) => <HomeScreen {...props} />}
       </Stack.Screen>
 
       <Stack.Screen name="Player" options={{ title: "Sesi" }}>
@@ -78,6 +88,9 @@ const styles = StyleSheet.create({
     fontSize: typography.body,
     fontWeight: "700",
     paddingHorizontal: 2,
+  },
+  headerRight: {
+    paddingHorizontal: spacing.xs,
   },
 });
 
