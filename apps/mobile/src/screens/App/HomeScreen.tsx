@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo } from "react";
-import { View, Text, StyleSheet, ScrollView, Image, Pressable } from "react-native";
+import React, { useEffect } from "react";
+import { View, StyleSheet, ScrollView, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, spacing } from "../../theme/tokens";
 import { AUDIO_TRACKS } from "../../content/audioCatalog";
-import type { AudioTrack } from "../../content/audioCatalog";
 import Carousel from "../../components/Carousel";
 
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -11,23 +10,8 @@ import type { AppStackParamList } from "../../navigation/types";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Home">;
 
-const pickRandomTracks = (tracks: AudioTrack[], count: number) => {
-  const pool = [...tracks];
-  const picks: AudioTrack[] = [];
-  while (pool.length > 0 && picks.length < count) {
-    const index = Math.floor(Math.random() * pool.length);
-    const [track] = pool.splice(index, 1);
-    if (track) picks.push(track);
-  }
-  return picks;
-};
-
 export default function HomeScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
-  const featuredSleepGuide = useMemo(() => {
-    const sleepGuideTracks = AUDIO_TRACKS.filter((track) => track.contentType === "guided-sleep");
-    return pickRandomTracks(sleepGuideTracks, 1)[0] ?? sleepGuideTracks[0];
-  }, []);
 
   useEffect(() => {
     const coverUris = Array.from(
@@ -45,37 +29,11 @@ export default function HomeScreen({ navigation }: Props) {
 
   const Header = (
     <View>
-      {featuredSleepGuide ? (
-        <View style={styles.featureSection}>
-          <Text style={styles.featureTitle}>Rekomendasi</Text>
-          <Pressable
-            onPress={() => navigation.navigate("Player", { audioId: featuredSleepGuide.id })}
-            style={({ pressed }) => [styles.featureCard, pressed && styles.featureCardPressed]}
-          >
-            <View style={styles.featureRow}>
-              <Image
-                source={featuredSleepGuide.thumbnail}
-                style={styles.featureImage}
-                resizeMode="cover"
-              />
-              <View style={styles.featureMeta}>
-                <View style={styles.featureTitleRow}>
-                  <Text style={styles.featureTrackTitle} numberOfLines={1}>
-                    {featuredSleepGuide.title}
-                  </Text>
-                  <Text style={styles.featureMetaText}>
-                    {" "}
-                    ({Math.max(1, Math.round(featuredSleepGuide.durationSec / 60))} menit)
-                  </Text>
-                </View>
-                <Text style={styles.featureMetaText} numberOfLines={1}>
-                  {featuredSleepGuide.creator}
-                </Text>
-              </View>
-            </View>
-          </Pressable>
-        </View>
-      ) : null}
+      <Carousel
+        title="Tidur dengan panduan"
+        tracks={AUDIO_TRACKS.filter((track) => track.contentType === "guided-sleep")}
+        onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
+      />
       <Carousel
         title="Soundscape untuk tidur"
         tracks={AUDIO_TRACKS.filter((track) => track.contentType === "soundscape")}
@@ -105,59 +63,5 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingVertical: spacing.sm,
-  },
-  featureSection: {
-    marginBottom: spacing.md,
-    gap: spacing.xs + spacing.xs / 2,
-  },
-  featureTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: colors.text,
-    paddingHorizontal: spacing.sm,
-  },
-  featureCard: {
-    marginHorizontal: spacing.sm,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.card,
-    padding: spacing.xs,
-    gap: spacing.xs,
-  },
-  featureCardPressed: {
-    opacity: 0.9,
-  },
-  featureRow: {
-    flexDirection: "row",
-    gap: spacing.xs,
-    alignItems: "center",
-  },
-  featureImage: {
-    width: 120,
-    height: 90,
-    borderRadius: 12,
-  },
-  featureMeta: {
-    flex: 1,
-    gap: spacing.xs / 2,
-    alignItems: "center",
-  },
-  featureTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    flexWrap: "wrap",
-    justifyContent: "center",
-  },
-  featureTrackTitle: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: colors.text,
-    textAlign: "center",
-  },
-  featureMetaText: {
-    fontSize: 11,
-    color: colors.mutedText,
-    textAlign: "center",
   },
 });
