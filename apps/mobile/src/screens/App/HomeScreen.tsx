@@ -153,10 +153,10 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
   },
   featureButton: {
-    alignSelf: "flex-start",
+    alignSelf: "flex-end",
     backgroundColor: colors.primary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
     borderRadius: 999,
   },
   featureButtonPressed: {
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   },
   featureButtonText: {
     color: colors.primaryText,
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "700",
   },
 });
