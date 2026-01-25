@@ -60,7 +60,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   const duration = activeStatus.duration || track.durationSec;
   const current = Math.min(activeStatus.currentTime || 0, duration);
   const atEnd = duration > 0 && current >= duration - 0.25;
-  const isSessionActive = isSoundscape && (activeStatus.playing || current > 0);
+  const isSessionActive = isSoundscape && (activeStatus.playing || (current > 0 && !atEnd));
 
   const setPlayerVolume = useCallback((player: any, volume: number) => {
     try {
@@ -319,16 +319,18 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.coverWrap}>
-          <Image source={track.cover} style={styles.cover} resizeMode="contain" />
-          <Pressable
-            style={styles.favoriteButton}
-            hitSlop={6}
-            onPress={() => setFavorite(toggleFavorite(track.id))}
-          >
-            <Text style={[styles.favoriteText, favorite && styles.favoriteActive]}>
-              {favorite ? "❤️" : "🤍"}
-            </Text>
-          </Pressable>
+          <View style={styles.coverFrame}>
+            <Image source={track.cover} style={styles.cover} resizeMode="cover" />
+            <Pressable
+              style={styles.favoriteButton}
+              hitSlop={6}
+              onPress={() => setFavorite(toggleFavorite(track.id))}
+            >
+              <Text style={[styles.favoriteText, favorite && styles.favoriteActive]}>
+                {favorite ? "❤️" : "🤍"}
+              </Text>
+            </Pressable>
+          </View>
         </View>
         <View style={styles.titleRow}>
           <View style={styles.titleTextWrap}>
@@ -397,7 +399,11 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
               </View>
               {isSessionActive ? (
                 <Text style={styles.timerStatusText}>
-                  {timerSeconds ? formatTime(timerRemaining ?? timerSeconds) : "Audio akan selalu diulang"}
+                  {timerSeconds
+                    ? formatTime(timerRemaining ?? timerSeconds)
+                    : loopEnabled
+                      ? "Audio akan selalu diulang"
+                      : "Audio akan diputar sekali"}
                 </Text>
               ) : (
                 <ScrollView
@@ -485,16 +491,21 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   coverWrap: {
-    width: "70%",
-    maxWidth: 320,
-    maxHeight: 320,
-    alignSelf: "center",
+    width: "100%",
+    alignItems: "center",
     marginTop: spacing.sm,
+  },
+  coverFrame: {
+    width: "100%",
+    maxWidth: 320,
+    aspectRatio: 1,
+    borderRadius: radius.md,
+    overflow: "hidden",
+    backgroundColor: colors.card,
   },
   cover: {
     width: "100%",
-    aspectRatio: 1,
-    borderRadius: radius.md,
+    height: "100%",
   },
   titleRow: {
     flexDirection: "row",
