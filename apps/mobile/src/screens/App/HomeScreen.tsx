@@ -47,8 +47,11 @@ export default function HomeScreen({ navigation }: Props) {
     <View>
       {featuredSleepGuide ? (
         <View style={styles.featureSection}>
-          <Text style={styles.featureTitle}>Bersiap untuk tidur</Text>
-          <View style={styles.featureCard}>
+          <Text style={styles.featureTitle}>Rekomendasi</Text>
+          <Pressable
+            onPress={() => navigation.navigate("Player", { audioId: featuredSleepGuide.id })}
+            style={({ pressed }) => [styles.featureCard, pressed && styles.featureCardPressed]}
+          >
             <View style={styles.featureRow}>
               <Image
                 source={featuredSleepGuide.thumbnail}
@@ -68,15 +71,9 @@ export default function HomeScreen({ navigation }: Props) {
                 <Text style={styles.featureMetaText} numberOfLines={1}>
                   {featuredSleepGuide.creator}
                 </Text>
-                <Pressable
-                  onPress={() => navigation.navigate("Player", { audioId: featuredSleepGuide.id })}
-                  style={({ pressed }) => [styles.featureButton, pressed && styles.featureButtonPressed]}
-                >
-                  <Text style={styles.featureButtonText}>Tidur sekarang</Text>
-                </Pressable>
               </View>
             </View>
-          </View>
+          </Pressable>
         </View>
       ) : null}
       <Carousel
@@ -89,6 +86,7 @@ export default function HomeScreen({ navigation }: Props) {
 
   return (
     <ScrollView
+      style={styles.container}
       contentContainerStyle={[
         styles.listContent,
         { paddingBottom: spacing.sm + insets.bottom } // critical for Android nav bar overlap
@@ -101,9 +99,12 @@ export default function HomeScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.bg,
+  },
   listContent: {
     paddingVertical: spacing.sm,
-    backgroundColor: colors.bg,
   },
   featureSection: {
     marginBottom: spacing.md,
@@ -123,6 +124,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     padding: spacing.xs,
     gap: spacing.xs,
+  },
+  featureCardPressed: {
+    opacity: 0.9,
   },
   featureRow: {
     flexDirection: "row",
@@ -151,20 +155,5 @@ const styles = StyleSheet.create({
   featureMetaText: {
     fontSize: 11,
     color: colors.mutedText,
-  },
-  featureButton: {
-    alignSelf: "flex-end",
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: 999,
-  },
-  featureButtonPressed: {
-    opacity: 0.85,
-  },
-  featureButtonText: {
-    color: colors.primaryText,
-    fontSize: 11,
-    fontWeight: "700",
   },
 });
