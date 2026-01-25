@@ -34,8 +34,8 @@ const pickRandomTracks = (tracks: AudioTrack[], count: number) => {
 export default function HomeScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const recommendedTracks = useMemo(() => {
-    const sleepGuideTracks = AUDIO_TRACKS.filter((track) => track.tags.includes("sleep-guide"));
-    const soundscapeTracks = AUDIO_TRACKS.filter((track) => track.tags.includes("soundscape"));
+    const sleepGuideTracks = AUDIO_TRACKS.filter((track) => track.contentType === "guided-sleep");
+    const soundscapeTracks = AUDIO_TRACKS.filter((track) => track.contentType === "soundscape");
     return shuffleTracks([
       ...pickRandomTracks(sleepGuideTracks, 2),
       ...pickRandomTracks(soundscapeTracks, 2),
@@ -65,12 +65,12 @@ export default function HomeScreen({ navigation }: Props) {
       />
       <Carousel
         title="Tidur dengan panduan"
-        tracks={AUDIO_TRACKS.filter((track) => track.tags.includes("sleep-guide"))}
+        tracks={AUDIO_TRACKS.filter((track) => track.contentType === "guided-sleep")}
         onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
       />
       <Carousel
         title="Soundscape untuk tidur"
-        tracks={AUDIO_TRACKS.filter((track) => track.tags.includes("soundscape"))}
+        tracks={AUDIO_TRACKS.filter((track) => track.contentType === "soundscape")}
         onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
       />
     </View>

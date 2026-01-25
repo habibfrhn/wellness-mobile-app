@@ -11,14 +11,12 @@ export const BOTTOM_NAV_HEIGHT = 56;
 
 const tabs = [
   { key: "Home", label: "Home", icon: "home-variant-outline" },
-  { key: "Breathing", label: "Breathing", icon: "meditation" },
   { key: "Account", label: "Akun", icon: "account-circle-outline" },
 ] as const;
 
 type TabKey = (typeof tabs)[number]["key"];
 
 const routeToTab = (routeName: string): TabKey => {
-  if (routeName === "Breathing") return "Breathing";
   if (routeName === "Account" || routeName === "ResetPassword") return "Account";
   return "Home";
 };

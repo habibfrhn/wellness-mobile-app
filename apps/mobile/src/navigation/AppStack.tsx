@@ -5,7 +5,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import HomeScreen from "../screens/App/HomeScreen";
 import AudioPlayerScreen from "../screens/App/AudioPlayerScreen";
-import BreathingPlayerScreen from "../screens/App/BreathingPlayerScreen";
 import AccountScreen from "../screens/App/AccountScreen";
 import ResetPasswordScreen from "../screens/App/ResetPasswordScreen";
 import type { AppStackParamList } from "./types";
@@ -33,14 +32,6 @@ export default function AppStack() {
         {(props) => (
           <ScreenWithBottomNav routeName={props.route.name} navigation={props.navigation}>
             <HomeScreen {...props} />
-          </ScreenWithBottomNav>
-        )}
-      </Stack.Screen>
-
-      <Stack.Screen name="Breathing" options={{ title: "", headerBackVisible: false }}>
-        {(props) => (
-          <ScreenWithBottomNav routeName={props.route.name} navigation={props.navigation}>
-            <BreathingPlayerScreen />
           </ScreenWithBottomNav>
         )}
       </Stack.Screen>
