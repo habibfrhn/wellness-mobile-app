@@ -20,6 +20,7 @@ function formatTime(sec: number) {
 }
 
 const FADE_OUT_SECONDS = 5;
+const SOUNDSCAPE_LOOP_SECONDS = 20;
 const TIMER_OPTIONS = [
   { label: "5 min", seconds: 5 * 60 },
   { label: "10 min", seconds: 10 * 60 },
@@ -54,6 +55,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   const activePlayer = activePlayerKey === "primary" ? primaryPlayer : secondaryPlayer;
   const inactivePlayer = activePlayerKey === "primary" ? secondaryPlayer : primaryPlayer;
   const activeStatus = activePlayerKey === "primary" ? primaryStatus : secondaryStatus;
+  const inactiveStatus = activePlayerKey === "primary" ? secondaryStatus : primaryStatus;
   const duration = activeStatus.duration || track.durationSec;
   const current = Math.min(activeStatus.currentTime || 0, duration);
   const atEnd = duration > 0 && current >= duration - 0.25;
@@ -170,6 +172,50 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
       resetPlayers();
     }
   }, [isSoundscape, resetPlayers]);
+
+  useEffect(() => {
+    if (!isSoundscape) return;
+    if (!activeStatus.playing) return;
+    if (!duration) return;
+
+    const loopStart = Math.max(0, duration - SOUNDSCAPE_LOOP_SECONDS);
+    if (current < loopStart) {
+      setPlayerVolume(activePlayer, 1);
+      setPlayerVolume(inactivePlayer, 0);
+      return;
+    }
+
+    if (!inactiveStatus.playing) {
+      try {
+        inactivePlayer.seekTo(0);
+        inactivePlayer.play();
+      } catch {}
+    }
+
+    const fadeProgress = duration > loopStart ? (current - loopStart) / (duration - loopStart) : 1;
+    setPlayerVolume(activePlayer, Math.max(0, 1 - fadeProgress));
+    setPlayerVolume(inactivePlayer, Math.min(1, fadeProgress));
+
+    if (atEnd) {
+      try {
+        activePlayer.pause();
+        activePlayer.seekTo(0);
+      } catch {}
+      setPlayerVolume(activePlayer, 0);
+      setPlayerVolume(inactivePlayer, 1);
+      setActivePlayerKey((prev) => (prev === "primary" ? "secondary" : "primary"));
+    }
+  }, [
+    activePlayer,
+    activeStatus.playing,
+    atEnd,
+    current,
+    duration,
+    inactivePlayer,
+    inactiveStatus.playing,
+    isSoundscape,
+    setPlayerVolume,
+  ]);
 
   useEffect(() => {
     if (!isSoundscape || !timerSeconds || timerSeconds <= 0) return;
