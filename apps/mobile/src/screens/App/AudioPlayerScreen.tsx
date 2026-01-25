@@ -440,8 +440,8 @@ const styles = StyleSheet.create({
   timeText: { fontSize: 12, color: colors.mutedText },
   controlsRow: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.md },
   soundscapeOptions: {
-    marginTop: spacing.xl,
-    marginBottom: spacing.xl,
+    marginTop: spacing.md,
+    marginBottom: spacing.md,
     gap: spacing.md,
   },
   optionBlock: {
