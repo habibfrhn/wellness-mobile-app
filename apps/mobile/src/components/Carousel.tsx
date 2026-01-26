@@ -30,11 +30,13 @@ export default function Carousel({ title, tracks, onPress, variant = "standard" 
   const { width } = useWindowDimensions();
   const horizontalPadding = spacing.sm;
   const isFeatured = variant === "featured";
+  const standardPadding = spacing.sm;
   const cardWidth = isFeatured
     ? Math.round(width - horizontalPadding * 2)
     : Math.max(130, Math.round((width - horizontalPadding * 2 - spacing.sm * 2) / 2.25));
-  const thumbnailHeight = Math.round(cardWidth * 0.72);
-  const featuredThumbnailSize = Math.round(cardWidth * 0.34);
+  const standardThumbnailSize = cardWidth - standardPadding * 2;
+  const thumbnailHeight = Math.round(standardThumbnailSize * 0.72);
+  const featuredThumbnailSize = Math.round(cardWidth * 0.28);
 
   return (
     <View style={styles.container}>
@@ -54,7 +56,6 @@ export default function Carousel({ title, tracks, onPress, variant = "standard" 
               onPress={() => onPress(item)}
               style={({ pressed }) => [
                 isFeatured ? styles.featuredCard : styles.card,
-                !isFeatured && isSoundscape && styles.soundscapeCard,
                 { width: cardWidth },
                 pressed && styles.pressed,
               ]}
@@ -90,7 +91,7 @@ export default function Carousel({ title, tracks, onPress, variant = "standard" 
                     source={item.thumbnail}
                     style={
                       isSoundscape
-                        ? [styles.thumbnail, styles.soundscapeThumbnail]
+                        ? [styles.thumbnail, styles.soundscapeThumbnail, { height: standardThumbnailSize }]
                         : [styles.thumbnail, { height: thumbnailHeight }]
                     }
                     resizeMode="cover"
@@ -136,16 +137,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.sm,
-    padding: spacing.xs,
+    padding: spacing.sm,
     justifyContent: "flex-start",
     overflow: "hidden",
   },
-  soundscapeCard: {
-    padding: spacing.sm,
-  },
   cardContent: {
     gap: spacing.xs / 2,
-    alignItems: "stretch",
+    alignItems: "flex-start",
   },
   featuredCard: {
     backgroundColor: colors.card,
@@ -200,7 +198,6 @@ const styles = StyleSheet.create({
   },
   soundscapeThumbnail: {
     width: "100%",
-    aspectRatio: 1,
     borderRadius: radius.md,
   },
   cardTitle: {
