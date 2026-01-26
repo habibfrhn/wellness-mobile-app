@@ -83,7 +83,7 @@ export default function Carousel({ title, tracks, onPress, variant = "standard" 
                 <Image
                   source={item.thumbnail}
                   style={[styles.thumbnail, { height: thumbnailHeight }]}
-                  resizeMode="cover"
+                  resizeMode={item.contentType === "soundscape" ? "contain" : "cover"}
                 />
                 <Text style={styles.cardTitle} numberOfLines={2}>
                   {shortenTitle(item.title)}
@@ -154,17 +154,17 @@ const styles = StyleSheet.create({
     gap: spacing.xs / 2,
   },
   featuredTitle: {
-    fontSize: typography.body,
+    fontSize: 12,
     fontWeight: "700",
     color: colors.text,
-    lineHeight: 20,
+    lineHeight: 16,
   },
   featuredMeta: {
-    fontSize: typography.small,
+    fontSize: 11,
     color: colors.mutedText,
   },
   featuredDuration: {
-    fontSize: 12,
+    fontSize: 11,
     color: colors.mutedText,
   },
   playButton: {
