@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, spacing } from "../../theme/tokens";
 import { AUDIO_TRACKS } from "../../content/audioCatalog";
-import Carousel from "../../components/Carousel";
+import HomeCarouselSection from "../../components/HomeCarouselSection";
 
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AppStackParamList } from "../../navigation/types";
@@ -29,13 +29,13 @@ export default function HomeScreen({ navigation }: Props) {
 
   const Header = (
     <View>
-      <Carousel
+      <HomeCarouselSection
         title="Tidur dalam 10 menit"
         tracks={AUDIO_TRACKS.filter((track) => track.contentType === "guided-sleep")}
         onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
         variant="featured"
       />
-      <Carousel
+      <HomeCarouselSection
         title="Soundscape untuk tidur"
         tracks={AUDIO_TRACKS.filter((track) => track.contentType === "soundscape")}
         onPress={(track) => navigation.navigate("Player", { audioId: track.id })}

@@ -30,13 +30,11 @@ export default function Carousel({ title, tracks, onPress, variant = "standard" 
   const { width } = useWindowDimensions();
   const horizontalPadding = spacing.sm;
   const isFeatured = variant === "featured";
-  const standardPadding = spacing.sm;
-  const cardWidth = isFeatured
-    ? Math.round(width - horizontalPadding * 2)
-    : Math.max(130, Math.round((width - horizontalPadding * 2 - spacing.sm * 2) / 2.25));
-  const standardThumbnailSize = cardWidth - standardPadding * 2;
-  const thumbnailHeight = Math.round(standardThumbnailSize * 0.72);
-  const featuredThumbnailSize = Math.round(cardWidth * 0.28);
+  const cardPadding = spacing.sm;
+  const standardCardWidth = Math.max(130, Math.round((width - horizontalPadding * 2 - spacing.sm * 2) / 2.25));
+  const cardWidth = isFeatured ? Math.round(width - horizontalPadding * 2) : standardCardWidth;
+  const thumbnailSize = standardCardWidth - cardPadding * 2;
+  const thumbnailHeight = Math.round(thumbnailSize * 0.72);
 
   return (
     <View style={styles.container}>
@@ -66,7 +64,7 @@ export default function Carousel({ title, tracks, onPress, variant = "standard" 
                   <View style={styles.featuredContent}>
                     <Image
                       source={item.thumbnail}
-                      style={[styles.featuredThumbnail, { width: featuredThumbnailSize, height: featuredThumbnailSize }]}
+                      style={[styles.featuredThumbnail, { width: thumbnailSize, height: thumbnailSize }]}
                       resizeMode="cover"
                     />
                     <View style={styles.featuredDetails}>
@@ -91,7 +89,7 @@ export default function Carousel({ title, tracks, onPress, variant = "standard" 
                     source={item.thumbnail}
                     style={
                       isSoundscape
-                        ? [styles.thumbnail, styles.soundscapeThumbnail, { height: standardThumbnailSize }]
+                        ? [styles.thumbnail, styles.soundscapeThumbnail, { height: thumbnailSize }]
                         : [styles.thumbnail, { height: thumbnailHeight }]
                     }
                     resizeMode="cover"
@@ -136,7 +134,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.sm,
+    borderRadius: radius.md,
     padding: spacing.sm,
     justifyContent: "flex-start",
     overflow: "hidden",
@@ -151,13 +149,12 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radius.md,
     padding: spacing.sm,
-    paddingRight: spacing.xl + spacing.sm + spacing.xs,
     position: "relative",
   },
   featuredContent: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.sm,
+    gap: spacing.xs,
   },
   featuredThumbnail: {
     borderRadius: radius.md,
@@ -188,13 +185,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    right: spacing.sm,
+    left: "50%",
     top: "50%",
-    transform: [{ translateY: -16 }],
+    transform: [{ translateX: -16 }, { translateY: -16 }],
   },
   thumbnail: {
     width: "100%",
-    borderRadius: radius.sm,
+    borderRadius: radius.md,
   },
   soundscapeThumbnail: {
     width: "100%",
