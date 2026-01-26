@@ -51,38 +51,45 @@ export default function Carousel({ title, tracks, onPress, variant = "standard" 
             onPress={() => onPress(item)}
             style={({ pressed }) => [
               isFeatured ? styles.featuredCard : styles.card,
+              !isFeatured && item.contentType === "soundscape" && styles.soundscapeCard,
               { width: cardWidth },
               pressed && styles.pressed,
             ]}
             hitSlop={6}
           >
             {isFeatured ? (
-              <View style={styles.featuredContent}>
-                <Image
-                  source={item.thumbnail}
-                  style={[styles.featuredThumbnail, { width: featuredThumbnailSize, height: featuredThumbnailSize }]}
-                  resizeMode="cover"
-                />
-                <View style={styles.featuredDetails}>
-                  <Text style={styles.featuredTitle} numberOfLines={2}>
-                    {item.title}
-                  </Text>
-                  <Text style={styles.featuredMeta} numberOfLines={1}>
-                    {item.creator}
-                  </Text>
-                  {item.contentType === "soundscape" ? null : (
-                    <Text style={styles.featuredDuration}>{formatTime(item.durationSec)}</Text>
-                  )}
+              <>
+                <View style={styles.featuredContent}>
+                  <Image
+                    source={item.thumbnail}
+                    style={[styles.featuredThumbnail, { width: featuredThumbnailSize, height: featuredThumbnailSize }]}
+                    resizeMode="cover"
+                  />
+                  <View style={styles.featuredDetails}>
+                    <Text style={styles.featuredTitle} numberOfLines={2}>
+                      {item.title}
+                    </Text>
+                    <Text style={styles.featuredMeta} numberOfLines={1}>
+                      {item.creator}
+                    </Text>
+                    {item.contentType === "soundscape" ? null : (
+                      <Text style={styles.featuredDuration}>{formatTime(item.durationSec)}</Text>
+                    )}
+                  </View>
                 </View>
                 <View style={styles.playButton}>
                   <MaterialCommunityIcons name="play" size={20} color={colors.primaryText} />
                 </View>
-              </View>
+              </>
             ) : (
               <View style={styles.cardContent}>
                 <Image
                   source={item.thumbnail}
-                  style={[styles.thumbnail, { height: thumbnailHeight }]}
+                  style={[
+                    styles.thumbnail,
+                    { height: thumbnailHeight },
+                    item.contentType === "soundscape" && styles.soundscapeThumbnail,
+                  ]}
                   resizeMode={item.contentType === "soundscape" ? "contain" : "cover"}
                 />
                 <Text style={styles.cardTitle} numberOfLines={2}>
@@ -130,6 +137,9 @@ const styles = StyleSheet.create({
     padding: spacing.xs,
     justifyContent: "flex-start",
   },
+  soundscapeCard: {
+    padding: spacing.sm,
+  },
   cardContent: {
     gap: spacing.xs / 2,
   },
@@ -143,7 +153,7 @@ const styles = StyleSheet.create({
   },
   featuredContent: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     gap: spacing.sm,
   },
   featuredThumbnail: {
@@ -175,12 +185,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    right: spacing.sm,
-    bottom: spacing.sm,
+    right: 0,
+    bottom: 0,
   },
   thumbnail: {
     width: "100%",
     borderRadius: radius.sm,
+  },
+  soundscapeThumbnail: {
+    borderRadius: radius.md,
   },
   cardTitle: {
     fontSize: 12,
