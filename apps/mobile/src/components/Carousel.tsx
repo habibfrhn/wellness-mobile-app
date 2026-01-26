@@ -81,7 +81,7 @@ export default function Carousel({ title, tracks, onPress, variant = "standard" 
                     </View>
                   </View>
                   <View style={styles.playButton}>
-                    <MaterialCommunityIcons name="play" size={20} color={colors.primaryText} />
+                    <MaterialCommunityIcons name="play" size={16} color={colors.primaryText} />
                   </View>
                 </>
               ) : (
@@ -138,12 +138,14 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     padding: spacing.xs,
     justifyContent: "flex-start",
+    overflow: "hidden",
   },
   soundscapeCard: {
     padding: spacing.sm,
   },
   cardContent: {
     gap: spacing.xs / 2,
+    alignItems: "stretch",
   },
   featuredCard: {
     backgroundColor: colors.card,
@@ -181,22 +183,23 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
   },
   playButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
     right: spacing.sm,
     top: "50%",
-    transform: [{ translateY: -20 }],
+    transform: [{ translateY: -16 }],
   },
   thumbnail: {
     width: "100%",
     borderRadius: radius.sm,
   },
   soundscapeThumbnail: {
+    width: "100%",
     aspectRatio: 1,
     borderRadius: radius.md,
   },
