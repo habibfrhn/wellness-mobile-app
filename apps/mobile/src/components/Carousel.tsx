@@ -90,7 +90,7 @@ export default function Carousel({ title, tracks, onPress, variant = "standard" 
                     { height: thumbnailHeight },
                     item.contentType === "soundscape" && styles.soundscapeThumbnail,
                   ]}
-                  resizeMode={item.contentType === "soundscape" ? "contain" : "cover"}
+                  resizeMode="cover"
                 />
                 <Text style={styles.cardTitle} numberOfLines={2}>
                   {shortenTitle(item.title)}
@@ -149,6 +149,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radius.md,
     padding: spacing.sm,
+    paddingRight: spacing.xl + spacing.sm + spacing.xs,
     position: "relative",
   },
   featuredContent: {
@@ -185,8 +186,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    right: 0,
-    bottom: 0,
+    right: spacing.sm,
+    top: "50%",
+    transform: [{ translateY: -20 }],
   },
   thumbnail: {
     width: "100%",
