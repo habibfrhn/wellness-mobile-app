@@ -30,9 +30,10 @@ export default function HomeScreen({ navigation }: Props) {
   const Header = (
     <View>
       <Carousel
-        title="Tidur dengan panduan"
+        title="Tidur dalam 10 menit"
         tracks={AUDIO_TRACKS.filter((track) => track.contentType === "guided-sleep")}
         onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
+        variant="featured"
       />
       <Carousel
         title="Soundscape untuk tidur"
