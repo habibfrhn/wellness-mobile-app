@@ -74,10 +74,8 @@ export default function Carousel({ title, tracks, onPress, variant = "standard" 
                     <Text style={styles.featuredDuration}>{formatTime(item.durationSec)}</Text>
                   )}
                 </View>
-                <View style={styles.featuredAction}>
-                  <View style={styles.playButton}>
-                    <MaterialCommunityIcons name="play" size={20} color={colors.primaryText} />
-                  </View>
+                <View style={styles.playButton}>
+                  <MaterialCommunityIcons name="play" size={20} color={colors.primaryText} />
                 </View>
               </View>
             ) : (
@@ -141,10 +139,11 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radius.md,
     padding: spacing.sm,
+    position: "relative",
   },
   featuredContent: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: spacing.sm,
   },
   featuredThumbnail: {
@@ -168,10 +167,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.mutedText,
   },
-  featuredAction: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
   playButton: {
     width: 40,
     height: 40,
@@ -179,6 +174,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
+    position: "absolute",
+    right: spacing.sm,
+    bottom: spacing.sm,
   },
   thumbnail: {
     width: "100%",
