@@ -34,7 +34,6 @@ export default function Carousel({ title, tracks, onPress, variant = "standard" 
   const standardCardWidth = Math.max(130, Math.round((width - horizontalPadding * 2 - spacing.sm * 2) / 2.25));
   const cardWidth = isFeatured ? Math.round(width - horizontalPadding * 2) : standardCardWidth;
   const thumbnailSize = standardCardWidth - cardPadding * 2;
-  const thumbnailHeight = Math.round(thumbnailSize * 0.72);
 
   return (
     <View style={styles.container}>
@@ -87,11 +86,7 @@ export default function Carousel({ title, tracks, onPress, variant = "standard" 
                 <View style={styles.cardContent}>
                   <Image
                     source={item.thumbnail}
-                    style={
-                      isSoundscape
-                        ? [styles.thumbnail, styles.soundscapeThumbnail, { height: thumbnailSize }]
-                        : [styles.thumbnail, { height: thumbnailHeight }]
-                    }
+                    style={[styles.thumbnail, styles.soundscapeThumbnail, { height: thumbnailSize }]}
                     resizeMode="cover"
                   />
                   <Text style={styles.cardTitle} numberOfLines={2}>
@@ -185,9 +180,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    right: spacing.sm,
+    left: "50%",
     top: "50%",
-    transform: [{ translateY: -16 }],
+    transform: [{ translateX: -16 }, { translateY: -16 }],
   },
   thumbnail: {
     width: "100%",
