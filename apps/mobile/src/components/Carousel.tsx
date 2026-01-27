@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   cardContent: {
-    gap: spacing.xs / 2,
+    gap: 0,
     alignItems: "flex-start",
   },
   featuredCard: {
@@ -179,9 +179,10 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: colors.text,
     lineHeight: 16,
+    marginTop: spacing.xs,
   },
   metaRow: {
-    marginTop: 0,
+    marginTop: spacing.xs / 2,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
