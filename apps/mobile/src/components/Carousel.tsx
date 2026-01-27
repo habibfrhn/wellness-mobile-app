@@ -1,6 +1,5 @@
 import React from "react";
 import { View, Text, StyleSheet, FlatList, Pressable, Image, useWindowDimensions } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { colors, spacing, radius, typography } from "../theme/tokens";
 import type { AudioTrack } from "../content/audioCatalog";
 
@@ -59,29 +58,24 @@ export default function Carousel({ title, tracks, onPress, variant = "standard" 
               hitSlop={6}
             >
               {isFeatured ? (
-                <>
-                  <View style={styles.featuredContent}>
-                    <Image
-                      source={item.thumbnail}
-                      style={[styles.featuredThumbnail, { width: thumbnailSize, height: thumbnailSize }]}
-                      resizeMode="cover"
-                    />
-                    <View style={styles.featuredDetails}>
-                      <Text style={styles.featuredTitle} numberOfLines={2}>
-                        {item.title}
-                      </Text>
-                      <Text style={styles.featuredMeta} numberOfLines={1}>
-                        {item.creator}
-                      </Text>
-                      {isSoundscape ? null : (
-                        <Text style={styles.featuredDuration}>{formatTime(item.durationSec)}</Text>
-                      )}
-                    </View>
+                <View style={styles.featuredContent}>
+                  <Image
+                    source={item.thumbnail}
+                    style={[styles.featuredThumbnail, { width: thumbnailSize, height: thumbnailSize }]}
+                    resizeMode="cover"
+                  />
+                  <View style={styles.featuredDetails}>
+                    <Text style={styles.featuredTitle} numberOfLines={2}>
+                      {item.title}
+                    </Text>
+                    <Text style={styles.featuredMeta} numberOfLines={1}>
+                      {item.creator}
+                    </Text>
+                    {isSoundscape ? null : (
+                      <Text style={styles.featuredDuration}>{formatTime(item.durationSec)}</Text>
+                    )}
                   </View>
-                  <View style={styles.playButton}>
-                    <MaterialCommunityIcons name="play" size={16} color={colors.primaryText} />
-                  </View>
-                </>
+                </View>
               ) : (
                 <View style={styles.cardContent}>
                   <Image
@@ -171,18 +165,6 @@ const styles = StyleSheet.create({
   featuredDuration: {
     fontSize: 11,
     color: colors.mutedText,
-  },
-  playButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-    position: "absolute",
-    left: "50%",
-    top: "50%",
-    transform: [{ translateX: -16 }, { translateY: -16 }],
   },
   thumbnail: {
     width: "100%",
