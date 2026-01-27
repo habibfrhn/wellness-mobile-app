@@ -6,7 +6,6 @@
   - Choose a **matching cover + thumbnail pair** that share the same number (they are the same image at different sizes).
   - Set `durationSec` to the **actual file duration**.
   - If the file is `.m4a`, `category` defaults to **"audio"**.
-  - `category` is **"audio"**.
   - `title` can match the **file name**.
 
 ## UI composition rules
