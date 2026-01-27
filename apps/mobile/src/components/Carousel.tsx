@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   },
   featuredContent: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     gap: spacing.xs,
   },
   featuredThumbnail: {
@@ -158,6 +158,7 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: spacing.xs / 2,
     alignItems: "flex-start",
+    justifyContent: "center",
   },
   featuredTitle: {
     fontSize: 12,
