@@ -185,9 +185,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    left: "50%",
+    right: spacing.sm,
     top: "50%",
-    transform: [{ translateX: -16 }, { translateY: -16 }],
+    transform: [{ translateY: -16 }],
   },
   thumbnail: {
     width: "100%",
