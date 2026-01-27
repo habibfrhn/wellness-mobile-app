@@ -3,6 +3,7 @@ import { View, StyleSheet, ScrollView, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, spacing } from "../../theme/tokens";
 import { AUDIO_TRACKS } from "../../content/audioCatalog";
+import FeaturedAudioCard from "../../components/FeaturedAudioCard";
 import HomeCarouselSection from "../../components/HomeCarouselSection";
 
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -27,14 +28,18 @@ export default function HomeScreen({ navigation }: Props) {
     });
   }, []);
 
+  const guidedSleepTracks = AUDIO_TRACKS.filter((track) => track.contentType === "guided-sleep");
+  const featuredTrack = guidedSleepTracks[0];
+
   const Header = (
     <View>
-      <HomeCarouselSection
-        title="Tidur dalam 10 menit"
-        tracks={AUDIO_TRACKS.filter((track) => track.contentType === "guided-sleep")}
-        onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
-        variant="featured"
-      />
+      {featuredTrack ? (
+        <FeaturedAudioCard
+          title="Tidur dalam 10 menit"
+          track={featuredTrack}
+          onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
+        />
+      ) : null}
       <HomeCarouselSection
         title="Soundscape untuk tidur"
         tracks={AUDIO_TRACKS.filter((track) => track.contentType === "soundscape")}

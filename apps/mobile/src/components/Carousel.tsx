@@ -1,6 +1,5 @@
 import React from "react";
 import { View, Text, StyleSheet, FlatList, Pressable, Image, useWindowDimensions } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { colors, spacing, radius, typography } from "../theme/tokens";
 import type { AudioTrack } from "../content/audioCatalog";
 
@@ -15,7 +14,6 @@ type CarouselProps = {
   title: string;
   tracks: AudioTrack[];
   onPress: (track: AudioTrack) => void;
-  variant?: "standard" | "featured";
 };
 
 function shortenTitle(title: string, maxLength = 15) {
@@ -26,13 +24,12 @@ function shortenTitle(title: string, maxLength = 15) {
   return `${title.slice(0, maxLength - 1)}…`;
 }
 
-export default function Carousel({ title, tracks, onPress, variant = "standard" }: CarouselProps) {
+export default function Carousel({ title, tracks, onPress }: CarouselProps) {
   const { width } = useWindowDimensions();
   const horizontalPadding = spacing.sm;
-  const isFeatured = variant === "featured";
   const cardPadding = spacing.sm;
   const standardCardWidth = Math.max(130, Math.round((width - horizontalPadding * 2 - spacing.sm * 2) / 2.25));
-  const cardWidth = isFeatured ? Math.round(width - horizontalPadding * 2) : standardCardWidth;
+  const cardWidth = standardCardWidth;
   const thumbnailSize = standardCardWidth - cardPadding * 2;
 
   return (
@@ -52,54 +49,28 @@ export default function Carousel({ title, tracks, onPress, variant = "standard" 
             <Pressable
               onPress={() => onPress(item)}
               style={({ pressed }) => [
-                isFeatured ? styles.featuredCard : styles.card,
+                styles.card,
                 { width: cardWidth },
                 pressed && styles.pressed,
               ]}
               hitSlop={6}
             >
-              {isFeatured ? (
-                <>
-                  <View style={styles.featuredContent}>
-                    <Image
-                      source={item.thumbnail}
-                      style={[styles.featuredThumbnail, { width: thumbnailSize, height: thumbnailSize }]}
-                      resizeMode="cover"
-                    />
-                    <View style={styles.featuredDetails}>
-                      <Text style={styles.featuredTitle} numberOfLines={2}>
-                        {item.title}
-                      </Text>
-                      <Text style={styles.featuredMeta} numberOfLines={1}>
-                        {item.creator}
-                      </Text>
-                      {isSoundscape || isFeatured ? null : (
-                        <Text style={styles.featuredDuration}>{formatTime(item.durationSec)}</Text>
-                      )}
-                    </View>
-                  </View>
-                  <View style={styles.playButton}>
-                    <MaterialCommunityIcons name="play" size={16} color={colors.primaryText} />
-                  </View>
-                </>
-              ) : (
-                <View style={styles.cardContent}>
-                  <Image
-                    source={item.thumbnail}
-                    style={[styles.thumbnail, styles.soundscapeThumbnail, { height: thumbnailSize }]}
-                    resizeMode="cover"
-                  />
-                  <Text style={styles.cardTitle} numberOfLines={2}>
-                    {shortenTitle(item.title)}
+              <View style={styles.cardContent}>
+                <Image
+                  source={item.thumbnail}
+                  style={[styles.thumbnail, styles.soundscapeThumbnail, { height: thumbnailSize }]}
+                  resizeMode="cover"
+                />
+                <Text style={styles.cardTitle} numberOfLines={2}>
+                  {shortenTitle(item.title)}
+                </Text>
+                <View style={styles.metaRow}>
+                  <Text style={styles.cardMeta} numberOfLines={1}>
+                    {item.creator}
                   </Text>
-                  <View style={styles.metaRow}>
-                    <Text style={styles.cardMeta} numberOfLines={1}>
-                      {item.creator}
-                    </Text>
-                    {isSoundscape ? null : <Text style={styles.cardDuration}>{formatTime(item.durationSec)}</Text>}
-                  </View>
+                  {isSoundscape ? null : <Text style={styles.cardDuration}>{formatTime(item.durationSec)}</Text>}
                 </View>
-              )}
+              </View>
             </Pressable>
           );
         }}
@@ -137,54 +108,6 @@ const styles = StyleSheet.create({
   cardContent: {
     gap: 0,
     alignItems: "flex-start",
-  },
-  featuredCard: {
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    padding: spacing.sm,
-    position: "relative",
-  },
-  featuredContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xs,
-  },
-  featuredThumbnail: {
-    borderRadius: radius.md,
-  },
-  featuredDetails: {
-    flex: 1,
-    gap: spacing.xs / 2,
-    alignItems: "flex-start",
-    justifyContent: "center",
-    marginTop: -(spacing.xs / 2),
-  },
-  featuredTitle: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: colors.text,
-    lineHeight: 16,
-  },
-  featuredMeta: {
-    fontSize: 12,
-    color: colors.mutedText,
-  },
-  featuredDuration: {
-    fontSize: 11,
-    color: colors.mutedText,
-  },
-  playButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-    position: "absolute",
-    right: spacing.sm,
-    bottom: spacing.sm,
   },
   thumbnail: {
     width: "100%",
