@@ -71,7 +71,7 @@ export default function Carousel({ title, tracks, onPress, variant = "standard" 
                     <Text style={styles.featuredMeta} numberOfLines={1}>
                       {item.creator}
                     </Text>
-                    {isSoundscape ? null : (
+                    {isSoundscape || isFeatured ? null : (
                       <Text style={styles.featuredDuration}>{formatTime(item.durationSec)}</Text>
                     )}
                   </View>
