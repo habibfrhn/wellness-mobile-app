@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   featuredMeta: {
-    fontSize: 11,
+    fontSize: 12,
     color: colors.mutedText,
   },
   featuredDuration: {
