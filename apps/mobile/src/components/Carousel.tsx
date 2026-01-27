@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   cardContent: {
-    gap: spacing.xs,
+    gap: spacing.xs / 2,
     alignItems: "flex-start",
   },
   featuredCard: {
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   },
   featuredDetails: {
     flex: 1,
-    gap: spacing.xs,
+    gap: spacing.xs / 2,
   },
   featuredTitle: {
     fontSize: 12,
