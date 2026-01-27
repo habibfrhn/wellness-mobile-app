@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   },
   featuredDetails: {
     flex: 1,
-    gap: spacing.xs / 2,
+    gap: spacing.xs,
   },
   featuredTitle: {
     fontSize: 12,
