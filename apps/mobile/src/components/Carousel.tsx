@@ -159,6 +159,7 @@ const styles = StyleSheet.create({
     gap: spacing.xs / 2,
     alignItems: "flex-start",
     justifyContent: "center",
+    marginTop: -(spacing.xs / 2),
   },
   featuredTitle: {
     fontSize: 12,
