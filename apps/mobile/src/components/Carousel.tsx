@@ -151,6 +151,7 @@ const styles = StyleSheet.create({
   featuredDetails: {
     flex: 1,
     gap: spacing.xs / 2,
+    alignItems: "center",
   },
   featuredTitle: {
     fontSize: 12,
