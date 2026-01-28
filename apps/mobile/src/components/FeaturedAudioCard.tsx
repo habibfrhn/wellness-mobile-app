@@ -42,7 +42,7 @@ export default function FeaturedAudioCard({ title, track, onPress }: FeaturedAud
             </Text>
           </View>
         </View>
-        <MaterialCommunityIcons name="chevron-right" size={20} color={colors.mutedText} style={styles.nextIcon} />
+        <MaterialCommunityIcons name="arrow-right" size={20} color={colors.mutedText} style={styles.nextIcon} />
       </Pressable>
     </View>
   );
