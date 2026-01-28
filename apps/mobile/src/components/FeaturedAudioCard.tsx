@@ -1,7 +1,8 @@
 import React from "react";
 import { View, Text, StyleSheet, Pressable, Image, useWindowDimensions } from "react-native";
-import { colors, spacing, radius, typography } from "../theme/tokens";
+import { colors, spacing, radius } from "../theme/tokens";
 import type { AudioTrack } from "../content/audioCatalog";
+import SectionTitle from "./SectionTitle";
 
 type FeaturedAudioCardProps = {
   title: string;
@@ -19,7 +20,7 @@ export default function FeaturedAudioCard({ title, track, onPress }: FeaturedAud
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
+      <SectionTitle title={title} />
       <Pressable
         onPress={() => onPress(track)}
         style={({ pressed }) => [styles.card, { width: cardWidth }, pressed && styles.pressed]}
@@ -48,13 +49,6 @@ export default function FeaturedAudioCard({ title, track, onPress }: FeaturedAud
 const styles = StyleSheet.create({
   container: {
     paddingBottom: spacing.md,
-  },
-  title: {
-    fontSize: typography.body,
-    fontWeight: "700",
-    color: colors.text,
-    marginBottom: spacing.xs,
-    paddingLeft: spacing.sm,
   },
   card: {
     backgroundColor: colors.card,

@@ -1,7 +1,8 @@
 import React from "react";
-import { View, Text, StyleSheet, FlatList, Pressable, Image, useWindowDimensions } from "react-native";
-import { colors, spacing, radius, typography } from "../theme/tokens";
+import { View, StyleSheet, FlatList, Pressable, Image, useWindowDimensions } from "react-native";
+import { colors, spacing, radius } from "../theme/tokens";
 import type { AudioTrack } from "../content/audioCatalog";
+import SectionTitle from "./SectionTitle";
 
 function formatTime(sec: number) {
   const s = Math.max(0, Math.floor(sec));
@@ -34,7 +35,7 @@ export default function Carousel({ title, tracks, onPress }: CarouselProps) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
+      <SectionTitle title={title} />
       <FlatList
         data={tracks}
         keyExtractor={(item) => item.id}
@@ -83,15 +84,8 @@ const styles = StyleSheet.create({
   container: {
     paddingBottom: spacing.md,
   },
-  title: {
-    fontSize: typography.body,
-    fontWeight: "700",
-    color: colors.text,
-    marginBottom: spacing.xs,
-    paddingLeft: spacing.sm,
-  },
   listContent: {
-    paddingTop: spacing.xs / 2,
+    paddingTop: 0,
     paddingBottom: spacing.sm,
     paddingLeft: spacing.sm,
     paddingRight: spacing.sm,
