@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, FlatList, Pressable, Image, useWindowDimensions } from "react-native";
+import { View, Text, StyleSheet, FlatList, Pressable, Image, useWindowDimensions } from "react-native";
 import { colors, spacing, radius } from "../theme/tokens";
 import type { AudioTrack } from "../content/audioCatalog";
 import SectionTitle from "./SectionTitle";
