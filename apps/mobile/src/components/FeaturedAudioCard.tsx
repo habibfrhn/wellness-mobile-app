@@ -50,7 +50,7 @@ export default function FeaturedAudioCard({ title, track, onPress }: FeaturedAud
 
 const styles = StyleSheet.create({
   container: {
-    paddingBottom: spacing.md,
+    paddingBottom: spacing.md + spacing.sm,
   },
   card: {
     backgroundColor: colors.card,

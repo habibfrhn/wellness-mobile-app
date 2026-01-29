@@ -94,7 +94,7 @@ export const id = {
     durationBadge: "5 menit",
     noteNoAutoplay: "Audio tidak diputar otomatis. Anda yang memulai saat sudah siap.",
     featuredTitle: "Tidur dalam 10 menit",
-    afirmasiCarouselTitle: "Afirmasi untuk diri",
+    afirmasiCarouselTitle: "Afirmasi sebelum tidur",
     soundscapeCarouselTitle: "Soundscape untuk tidur",
   },
 
