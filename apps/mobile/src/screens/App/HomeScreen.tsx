@@ -5,6 +5,7 @@ import { colors, spacing } from "../../theme/tokens";
 import { AUDIO_TRACKS } from "../../content/audioCatalog";
 import FeaturedAudioCard from "../../components/FeaturedAudioCard";
 import HomeCarouselSection from "../../components/HomeCarouselSection";
+import { id } from "../../i18n/strings";
 
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AppStackParamList } from "../../navigation/types";
@@ -30,18 +31,24 @@ export default function HomeScreen({ navigation }: Props) {
 
   const guidedSleepTracks = AUDIO_TRACKS.filter((track) => track.contentType === "guided-sleep");
   const featuredTrack = guidedSleepTracks[0];
+  const afirmasiTracks = AUDIO_TRACKS.filter((track) => track.contentType === "afirmasi");
 
   const Header = (
     <View>
       {featuredTrack ? (
         <FeaturedAudioCard
-          title="Tidur dalam 10 menit"
+          title={id.home.featuredTitle}
           track={featuredTrack}
           onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
         />
       ) : null}
       <HomeCarouselSection
-        title="Soundscape untuk tidur"
+        title={id.home.afirmasiCarouselTitle}
+        tracks={afirmasiTracks}
+        onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
+      />
+      <HomeCarouselSection
+        title={id.home.soundscapeCarouselTitle}
         tracks={AUDIO_TRACKS.filter((track) => track.contentType === "soundscape")}
         onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
       />

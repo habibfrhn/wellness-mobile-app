@@ -1,4 +1,4 @@
-export type AudioId = "bersiap-tidur" | "lapisan-sunyi" | "dibawah-hujan" | "larut-perlahan";
+export type AudioId = "bersiap-tidur" | "lapisan-sunyi" | "dibawah-hujan" | "larut-perlahan" | "mencintai-diri";
 
 export type AudioTrack = {
   id: AudioId;
@@ -9,7 +9,7 @@ export type AudioTrack = {
   asset: number; // require(...)
   creator: string;
   category: string;
-  contentType: "soundscape" | "guided-sleep";
+  contentType: "soundscape" | "guided-sleep" | "afirmasi";
   cover: number;
   thumbnail: number;
   isPremium: boolean;
@@ -70,6 +70,20 @@ export const AUDIO_TRACKS = [
     contentType: "soundscape",
     cover: require("../../assets/image/cover/04-master-cover.jpg"),
     thumbnail: require("../../assets/image/thumbnail/04-master-thumbnail.jpg"),
+    isPremium: false,
+  },
+  {
+    id: "mencintai-diri",
+    order: 5,
+    title: "Mencintai Diri",
+    subtitle: "Afirmasi lembut untuk diri",
+    durationSec: 166,
+    asset: require("../../assets/audio/afirmasi/01-mencintai-diri-2m46s.m4a"),
+    creator: "Lumepo",
+    category: "audio",
+    contentType: "afirmasi",
+    cover: require("../../assets/image/cover/05-master-cover.jpg"),
+    thumbnail: require("../../assets/image/thumbnail/05-master-thumbnail.jpg"),
     isPremium: false,
   },
 ] satisfies AudioTrack[];
