@@ -21,6 +21,8 @@ export default function HomeHeaderMenu({ navigation }: Props) {
     navigation.navigate(route);
   };
 
+  const iconColor = isOpen ? colors.card : colors.text;
+
   return (
     <View style={styles.container}>
       <Pressable
@@ -32,7 +34,7 @@ export default function HomeHeaderMenu({ navigation }: Props) {
           pressed && styles.pressed,
         ]}
       >
-        <MaterialCommunityIcons name="menu" size={20} color={colors.text} />
+        <MaterialCommunityIcons name="menu" size={20} color={iconColor} />
       </Pressable>
 
       <Modal
@@ -42,7 +44,7 @@ export default function HomeHeaderMenu({ navigation }: Props) {
         onRequestClose={() => setIsOpen(false)}
       >
         <Pressable style={styles.overlay} onPress={() => setIsOpen(false)}>
-          <View style={[styles.dropdown, { top: insets.top + 12 }]}>
+          <View style={[styles.dropdown, { top: insets.top + spacing.lg }]}>
             <Pressable
               onPress={() => handleNavigate("Account")}
               style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
@@ -75,11 +77,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xs,
   },
   menuButton: {
-    padding: 6,
-    borderRadius: radius.sm,
+    width: spacing.xl,
+    height: spacing.xl,
+    borderRadius: spacing.xl / 2,
+    alignItems: "center",
+    justifyContent: "center",
   },
   menuButtonActive: {
-    backgroundColor: colors.border,
+    backgroundColor: colors.mutedText,
   },
   overlay: {
     flex: 1,
