@@ -80,12 +80,12 @@ const styles = StyleSheet.create({
   dropdown: {
     position: "absolute",
     right: spacing.sm + 2,
-    minWidth: 150,
     backgroundColor: colors.card,
     borderRadius: radius.sm,
     borderWidth: 1,
     borderColor: colors.border,
     paddingVertical: 4,
+    paddingHorizontal: spacing.xs,
     shadowColor: colors.text,
     shadowOpacity: 0.08,
     shadowRadius: 8,
@@ -96,11 +96,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    paddingHorizontal: spacing.xs,
+    paddingHorizontal: 0,
     paddingVertical: 6,
   },
   menuTextWrapper: {
-    flex: 1,
     alignItems: "flex-start",
   },
   menuItemPressed: {
