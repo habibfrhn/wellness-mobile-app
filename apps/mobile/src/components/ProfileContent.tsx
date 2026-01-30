@@ -10,6 +10,7 @@ type Props = {
   onNameChange: (value: string) => void;
   onSaveName: () => void;
   isSaveDisabled: boolean;
+  isNameTooLong: boolean;
   onLogout: () => void;
 };
 
@@ -19,8 +20,11 @@ export default function ProfileContent({
   onNameChange,
   onSaveName,
   isSaveDisabled,
+  isNameTooLong,
   onLogout,
 }: Props) {
+  const saveLabel = isNameTooLong ? id.account.nameMaxLength : id.account.saveName;
+
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
       <View>
@@ -42,7 +46,7 @@ export default function ProfileContent({
             pressed && !isSaveDisabled && styles.pressed,
           ]}
         >
-          <Text style={styles.primaryButtonText}>{id.account.saveName}</Text>
+          <Text style={styles.primaryButtonText}>{saveLabel}</Text>
         </Pressable>
       </View>
 

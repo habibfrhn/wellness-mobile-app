@@ -116,6 +116,7 @@ export const id = {
     nameLabel: "Nama",
     namePlaceholder: "Masukkan nama Anda",
     saveName: "Simpan nama",
+    nameMaxLength: "Maximal hanya 15 karakter",
     nameRequired: "Nama tidak boleh kosong.",
     nameSavedTitle: "Tersimpan",
     nameSavedBody: "Nama Anda berhasil diperbarui.",

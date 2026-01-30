@@ -15,14 +15,14 @@ export default function HomeHeaderLogo() {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: spacing.xs,
     width: spacing.xl,
     height: spacing.xl,
     alignItems: "center",
     justifyContent: "center",
+    marginLeft: spacing.xs,
   },
   logo: {
-    width: spacing.lg,
-    height: spacing.lg,
+    width: spacing.xl - spacing.xs / 2,
+    height: spacing.xl - spacing.xs / 2,
   },
 });

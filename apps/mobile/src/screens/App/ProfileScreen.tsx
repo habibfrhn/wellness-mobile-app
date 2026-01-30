@@ -13,6 +13,7 @@ export default function ProfileScreen({}: Props) {
   const [emailValue, setEmailValue] = useState<string>("");
   const [nameValue, setNameValue] = useState<string>("");
   const [initialName, setInitialName] = useState<string>("");
+  const maxNameLength = 15;
 
   useEffect(() => {
     let mounted = true;
@@ -38,7 +39,9 @@ export default function ProfileScreen({}: Props) {
   }, []);
 
   const trimmedName = nameValue.trim();
-  const isSaveDisabled = trimmedName.length === 0 || trimmedName === initialName.trim();
+  const isNameTooLong = trimmedName.length > maxNameLength;
+  const isSaveDisabled =
+    trimmedName.length === 0 || trimmedName === initialName.trim() || isNameTooLong;
 
   async function onSaveName() {
     if (!trimmedName) {
@@ -79,6 +82,7 @@ export default function ProfileScreen({}: Props) {
       onNameChange={setNameValue}
       onSaveName={onSaveName}
       isSaveDisabled={isSaveDisabled}
+      isNameTooLong={isNameTooLong}
       onLogout={onLogout}
     />
   );
