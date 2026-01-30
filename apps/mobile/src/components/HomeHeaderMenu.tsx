@@ -28,7 +28,7 @@ export default function HomeHeaderMenu({ navigation }: Props) {
         hitSlop={8}
         style={({ pressed }) => [styles.menuButton, pressed && styles.pressed]}
       >
-        <MaterialCommunityIcons name="menu" size={22} color={colors.text} />
+        <MaterialCommunityIcons name="menu" size={20} color={colors.text} />
       </Pressable>
 
       <Modal
@@ -43,7 +43,7 @@ export default function HomeHeaderMenu({ navigation }: Props) {
               onPress={() => handleNavigate("Account")}
               style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
             >
-              <MaterialCommunityIcons name="account-circle-outline" size={20} color={colors.text} />
+              <MaterialCommunityIcons name="account-circle-outline" size={16} color={colors.text} />
               <Text style={styles.menuText}>{id.account.profileMenu}</Text>
             </Pressable>
 
@@ -51,7 +51,7 @@ export default function HomeHeaderMenu({ navigation }: Props) {
               onPress={() => handleNavigate("Settings")}
               style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
             >
-              <MaterialCommunityIcons name="cog-outline" size={20} color={colors.text} />
+              <MaterialCommunityIcons name="cog-outline" size={16} color={colors.text} />
               <Text style={styles.menuText}>{id.account.settingsMenu}</Text>
             </Pressable>
           </View>
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xs,
   },
   menuButton: {
-    padding: spacing.xs,
+    padding: 6,
     borderRadius: radius.sm,
   },
   overlay: {
@@ -75,13 +75,13 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     position: "absolute",
-    right: spacing.sm,
-    minWidth: 170,
+    right: spacing.xs,
+    minWidth: 150,
     backgroundColor: colors.card,
     borderRadius: radius.sm,
     borderWidth: 1,
     borderColor: colors.border,
-    paddingVertical: spacing.xs,
+    paddingVertical: 4,
     shadowColor: colors.text,
     shadowOpacity: 0.08,
     shadowRadius: 8,
@@ -91,15 +91,15 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.xs,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+    gap: 6,
+    paddingHorizontal: spacing.xs,
+    paddingVertical: 6,
   },
   menuItemPressed: {
     backgroundColor: colors.bg,
   },
   menuText: {
-    fontSize: typography.body,
+    fontSize: typography.small,
     color: colors.text,
     fontWeight: "700",
   },
