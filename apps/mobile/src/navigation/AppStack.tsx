@@ -1,5 +1,4 @@
 import React from "react";
-import { Text, StyleSheet } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import HomeScreen from "../screens/App/HomeScreen";
@@ -8,8 +7,9 @@ import ProfileScreen from "../screens/App/ProfileScreen";
 import ResetPasswordScreen from "../screens/App/ResetPasswordScreen";
 import SettingsScreen from "../screens/App/SettingsScreen";
 import HomeHeaderMenu from "../components/HomeHeaderMenu";
+import HomeHeaderGreeting from "../components/HomeHeaderGreeting";
 import type { AppStackParamList } from "./types";
-import { colors, typography } from "../theme/tokens";
+import { colors } from "../theme/tokens";
 import { id } from "../i18n/strings";
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
@@ -27,7 +27,7 @@ export default function AppStack() {
         name="Home"
         options={({ navigation }) => ({
           headerTitle: "",
-          headerLeft: () => <Text style={styles.headerLeftText}>Lumepo</Text>,
+          headerLeft: () => <HomeHeaderGreeting />,
           headerRight: () => <HomeHeaderMenu navigation={navigation} />,
         })}
       >
@@ -64,12 +64,3 @@ export default function AppStack() {
     </Stack.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  headerLeftText: {
-    color: colors.text,
-    fontSize: typography.body,
-    fontWeight: "700",
-    paddingHorizontal: 2,
-  },
-});

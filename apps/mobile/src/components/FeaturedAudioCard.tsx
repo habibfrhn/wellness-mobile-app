@@ -39,11 +39,14 @@ export default function FeaturedAudioCard({ track, onPress }: FeaturedAudioCardP
           />
           <View style={styles.details}>
             <Text style={styles.cardTitle} numberOfLines={2}>
-              {`${track.title} (${formatTime(track.durationSec)})`}
+              {track.title}
             </Text>
-            <Text style={styles.cardMeta} numberOfLines={1}>
-              {track.creator}
-            </Text>
+            <View style={styles.metaRow}>
+              <Text style={styles.cardMeta} numberOfLines={1}>
+                {track.creator}
+              </Text>
+              <Text style={styles.cardDuration}>{formatTime(track.durationSec)}</Text>
+            </View>
           </View>
         </View>
         <MaterialCommunityIcons name="arrow-right" size={20} color={colors.mutedText} style={styles.nextIcon} />
@@ -75,21 +78,31 @@ const styles = StyleSheet.create({
   },
   details: {
     flex: 1,
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "center",
-    gap: spacing.xs / 2,
   },
   cardTitle: {
     fontSize: 12,
     fontWeight: "700",
     color: colors.text,
     lineHeight: 16,
-    textAlign: "center",
+    textAlign: "left",
+  },
+  metaRow: {
+    marginTop: spacing.xs / 2,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: spacing.xs / 2,
   },
   cardMeta: {
+    flex: 1,
     fontSize: 12,
     color: colors.mutedText,
-    textAlign: "center",
+  },
+  cardDuration: {
+    fontSize: 11,
+    color: colors.mutedText,
   },
   nextIcon: {
     position: "absolute",

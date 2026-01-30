@@ -93,6 +93,8 @@ export const id = {
     subtitle: "Pilihan sesi singkat untuk menutup hari dengan lebih tenang.",
     durationBadge: "5 menit",
     noteNoAutoplay: "Audio tidak diputar otomatis. Anda yang memulai saat sudah siap.",
+    greetingWithName: "Hai {name}, kamu siap beristirahat?",
+    greetingNoName: "Hai, kamu siap beristirahat?",
     afirmasiCarouselTitle: "Afirmasi sebelum tidur",
     soundscapeCarouselTitle: "Soundscape untuk tidur",
   },

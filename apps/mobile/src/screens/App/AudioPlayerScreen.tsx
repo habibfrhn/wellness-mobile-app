@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { View, Text, StyleSheet, Image, Pressable, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { BOTTOM_NAV_HEIGHT } from "../../navigation/BottomNav";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { getTrackById, isFavorite, toggleFavorite } from "../../content/audioCatalog";
 import { colors, spacing, radius, typography } from "../../theme/tokens";
@@ -291,7 +290,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
       <ScrollView
         contentContainerStyle={[
           styles.content,
-          { paddingBottom: spacing.xl + insets.bottom + BOTTOM_NAV_HEIGHT }
+          { paddingBottom: spacing.xl + insets.bottom }
         ]}
         showsVerticalScrollIndicator={false}
       >
