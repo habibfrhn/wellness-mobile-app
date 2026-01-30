@@ -37,7 +37,6 @@ export default function HomeScreen({ navigation }: Props) {
     <View>
       {featuredTrack ? (
         <FeaturedAudioCard
-          title={id.home.featuredTitle}
           track={featuredTrack}
           onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
         />
@@ -75,6 +74,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
   },
   listContent: {
-    paddingVertical: spacing.sm,
+    paddingTop: 0,
+    paddingBottom: spacing.sm,
   },
 });

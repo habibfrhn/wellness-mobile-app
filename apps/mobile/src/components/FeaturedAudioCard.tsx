@@ -3,15 +3,20 @@ import { View, Text, StyleSheet, Pressable, Image, useWindowDimensions } from "r
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { colors, spacing, radius } from "../theme/tokens";
 import type { AudioTrack } from "../content/audioCatalog";
-import SectionTitle from "./SectionTitle";
+
+function formatTime(sec: number) {
+  const s = Math.max(0, Math.floor(sec));
+  const mm = String(Math.floor(s / 60)).padStart(2, "0");
+  const ss = String(s % 60).padStart(2, "0");
+  return `${mm}:${ss}`;
+}
 
 type FeaturedAudioCardProps = {
-  title: string;
   track: AudioTrack;
   onPress: (track: AudioTrack) => void;
 };
 
-export default function FeaturedAudioCard({ title, track, onPress }: FeaturedAudioCardProps) {
+export default function FeaturedAudioCard({ track, onPress }: FeaturedAudioCardProps) {
   const { width } = useWindowDimensions();
   const horizontalPadding = spacing.sm;
   const cardPadding = spacing.sm;
@@ -21,7 +26,6 @@ export default function FeaturedAudioCard({ title, track, onPress }: FeaturedAud
 
   return (
     <View style={styles.container}>
-      <SectionTitle title={title} />
       <Pressable
         onPress={() => onPress(track)}
         style={({ pressed }) => [styles.card, { width: cardWidth }, pressed && styles.pressed]}
@@ -35,7 +39,7 @@ export default function FeaturedAudioCard({ title, track, onPress }: FeaturedAud
           />
           <View style={styles.details}>
             <Text style={styles.cardTitle} numberOfLines={2}>
-              {track.title}
+              {`${track.title} (${formatTime(track.durationSec)})`}
             </Text>
             <Text style={styles.cardMeta} numberOfLines={1}>
               {track.creator}

@@ -93,7 +93,6 @@ export const id = {
     subtitle: "Pilihan sesi singkat untuk menutup hari dengan lebih tenang.",
     durationBadge: "5 menit",
     noteNoAutoplay: "Audio tidak diputar otomatis. Anda yang memulai saat sudah siap.",
-    featuredTitle: "Tidur dalam 10 menit",
     afirmasiCarouselTitle: "Afirmasi sebelum tidur",
     soundscapeCarouselTitle: "Soundscape untuk tidur",
   },
