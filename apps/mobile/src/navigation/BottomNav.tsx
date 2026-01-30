@@ -17,7 +17,7 @@ const tabs = [
 type TabKey = (typeof tabs)[number]["key"];
 
 const routeToTab = (routeName: string): TabKey => {
-  if (routeName === "Account" || routeName === "ResetPassword") return "Account";
+  if (routeName === "Account" || routeName === "ResetPassword" || routeName === "Settings") return "Account";
   return "Home";
 };
 

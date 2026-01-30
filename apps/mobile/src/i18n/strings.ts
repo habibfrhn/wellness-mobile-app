@@ -113,6 +113,9 @@ export const id = {
   account: {
     title: "Akun",
     emailLabel: "Email",
+    settingsTitle: "Pengaturan",
+    profileMenu: "Profil",
+    settingsMenu: "Pengaturan",
 
     aboutTitle: "Tentang aplikasi",
     aboutBody: "Info versi membantu Anda saat menghubungi tim dukungan.",
