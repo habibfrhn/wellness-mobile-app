@@ -4,7 +4,8 @@
   "private": true,
   "packageManager": "pnpm@10.27.0",
   "scripts": {
-    "lint": "echo \"lint later\"",
-    "typecheck": "echo \"typecheck later\""
+    "lint": "pnpm -C apps/mobile lint",
+    "typecheck": "pnpm -C apps/mobile typecheck",
+    "pre-release": "pnpm -C apps/mobile pre-release"
   }
 }
