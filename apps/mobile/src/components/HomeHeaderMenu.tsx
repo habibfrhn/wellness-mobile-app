@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     position: "absolute",
-    right: spacing.xs + 6,
+    right: spacing.sm + 2,
     minWidth: 150,
     backgroundColor: colors.card,
     borderRadius: radius.sm,
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   },
   menuTextWrapper: {
     flex: 1,
-    alignItems: "flex-end",
+    alignItems: "flex-start",
   },
   menuItemPressed: {
     backgroundColor: colors.bg,
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     fontSize: typography.small,
     color: colors.text,
     fontWeight: "700",
-    textAlign: "right",
+    textAlign: "left",
   },
   pressed: {
     opacity: 0.75,
