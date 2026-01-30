@@ -12,6 +12,7 @@ type Props = NativeStackScreenProps<AppStackParamList, "Account">;
 export default function ProfileScreen({}: Props) {
   const [emailValue, setEmailValue] = useState<string>("");
   const [nameValue, setNameValue] = useState<string>("");
+  const [initialName, setInitialName] = useState<string>("");
 
   useEffect(() => {
     let mounted = true;
@@ -22,10 +23,12 @@ export default function ProfileScreen({}: Props) {
       if (error) {
         setEmailValue("");
         setNameValue("");
+        setInitialName("");
       } else {
         setEmailValue(data.user?.email ?? "");
         const userName = (data.user?.user_metadata?.full_name as string | undefined) ?? "";
         setNameValue(userName);
+        setInitialName(userName);
       }
     })();
 
@@ -34,19 +37,23 @@ export default function ProfileScreen({}: Props) {
     };
   }, []);
 
+  const trimmedName = nameValue.trim();
+  const isSaveDisabled = trimmedName.length === 0 || trimmedName === initialName.trim();
+
   async function onSaveName() {
-    if (!nameValue.trim()) {
+    if (!trimmedName) {
       Alert.alert(id.common.errorTitle, id.account.nameRequired);
       return;
     }
 
     const { error } = await supabase.auth.updateUser({
-      data: { full_name: nameValue.trim() },
+      data: { full_name: trimmedName },
     });
 
     if (error) {
       Alert.alert(id.common.errorTitle, error.message);
     } else {
+      setInitialName(trimmedName);
       Alert.alert(id.account.nameSavedTitle, id.account.nameSavedBody);
     }
   }
@@ -71,6 +78,7 @@ export default function ProfileScreen({}: Props) {
       name={nameValue}
       onNameChange={setNameValue}
       onSaveName={onSaveName}
+      isSaveDisabled={isSaveDisabled}
       onLogout={onLogout}
     />
   );

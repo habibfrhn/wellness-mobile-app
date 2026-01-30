@@ -9,10 +9,18 @@ type Props = {
   name: string;
   onNameChange: (value: string) => void;
   onSaveName: () => void;
+  isSaveDisabled: boolean;
   onLogout: () => void;
 };
 
-export default function ProfileContent({ email, name, onNameChange, onSaveName, onLogout }: Props) {
+export default function ProfileContent({
+  email,
+  name,
+  onNameChange,
+  onSaveName,
+  isSaveDisabled,
+  onLogout,
+}: Props) {
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
       <View>
@@ -25,7 +33,15 @@ export default function ProfileContent({ email, name, onNameChange, onSaveName, 
           style={styles.textInput}
           autoCapitalize="words"
         />
-        <Pressable onPress={onSaveName} style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
+        <Pressable
+          onPress={onSaveName}
+          disabled={isSaveDisabled}
+          style={({ pressed }) => [
+            styles.primaryButton,
+            isSaveDisabled && styles.primaryButtonDisabled,
+            pressed && !isSaveDisabled && styles.pressed,
+          ]}
+        >
           <Text style={styles.primaryButtonText}>{id.account.saveName}</Text>
         </Pressable>
       </View>
@@ -70,6 +86,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     borderRadius: radius.sm,
     backgroundColor: colors.primary,
+  },
+  primaryButtonDisabled: {
+    backgroundColor: colors.border,
   },
   primaryButtonText: {
     color: colors.primaryText,
