@@ -4,13 +4,14 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
-import AccountSummary from "../../components/AccountSummary";
+import ProfileContent from "../../components/ProfileContent";
 import type { AppStackParamList } from "../../navigation/types";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Account">;
 
-export default function AccountScreen({}: Props) {
+export default function ProfileScreen({}: Props) {
   const [emailValue, setEmailValue] = useState<string>("");
+  const [nameValue, setNameValue] = useState<string>("");
 
   useEffect(() => {
     let mounted = true;
@@ -20,8 +21,11 @@ export default function AccountScreen({}: Props) {
       if (!mounted) return;
       if (error) {
         setEmailValue("");
+        setNameValue("");
       } else {
         setEmailValue(data.user?.email ?? "");
+        const userName = (data.user?.user_metadata?.full_name as string | undefined) ?? "";
+        setNameValue(userName);
       }
     })();
 
@@ -29,6 +33,23 @@ export default function AccountScreen({}: Props) {
       mounted = false;
     };
   }, []);
+
+  async function onSaveName() {
+    if (!nameValue.trim()) {
+      Alert.alert(id.common.errorTitle, id.account.nameRequired);
+      return;
+    }
+
+    const { error } = await supabase.auth.updateUser({
+      data: { full_name: nameValue.trim() },
+    });
+
+    if (error) {
+      Alert.alert(id.common.errorTitle, error.message);
+    } else {
+      Alert.alert(id.account.nameSavedTitle, id.account.nameSavedBody);
+    }
+  }
 
   async function onLogout() {
     Alert.alert(id.account.confirmLogoutTitle, id.account.confirmLogoutBody, [
@@ -44,5 +65,13 @@ export default function AccountScreen({}: Props) {
     ]);
   }
 
-  return <AccountSummary email={emailValue} onLogout={onLogout} />;
+  return (
+    <ProfileContent
+      email={emailValue}
+      name={nameValue}
+      onNameChange={setNameValue}
+      onSaveName={onSaveName}
+      onLogout={onLogout}
+    />
+  );
 }

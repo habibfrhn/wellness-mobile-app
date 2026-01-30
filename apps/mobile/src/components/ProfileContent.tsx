@@ -1,17 +1,35 @@
 import React from "react";
-import { ScrollView, View, Text, Pressable, StyleSheet } from "react-native";
+import { ScrollView, View, Text, Pressable, StyleSheet, TextInput } from "react-native";
 
 import { colors, spacing, radius, typography } from "../theme/tokens";
 import { id } from "../i18n/strings";
 
 type Props = {
   email: string;
+  name: string;
+  onNameChange: (value: string) => void;
+  onSaveName: () => void;
   onLogout: () => void;
 };
 
-export default function AccountSummary({ email, onLogout }: Props) {
+export default function ProfileContent({ email, name, onNameChange, onSaveName, onLogout }: Props) {
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+      <View>
+        <Text style={styles.sectionTitle}>{id.account.nameLabel}</Text>
+        <TextInput
+          value={name}
+          onChangeText={onNameChange}
+          placeholder={id.account.namePlaceholder}
+          placeholderTextColor={colors.mutedText}
+          style={styles.textInput}
+          autoCapitalize="words"
+        />
+        <Pressable onPress={onSaveName} style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
+          <Text style={styles.primaryButtonText}>{id.account.saveName}</Text>
+        </Pressable>
+      </View>
+
       <View>
         <Text style={styles.sectionTitle}>{id.account.emailLabel}</Text>
         <Text style={styles.email}>{email || "-"}</Text>
@@ -34,7 +52,31 @@ const styles = StyleSheet.create({
   },
 
   sectionTitle: { fontSize: typography.small, color: colors.mutedText, fontWeight: "700" },
+  textInput: {
+    marginTop: spacing.xs,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.card,
+    fontSize: typography.body,
+    color: colors.text,
+  },
   email: { fontSize: typography.body, color: colors.text, fontWeight: "700" },
+  primaryButton: {
+    marginTop: spacing.sm,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.sm,
+    backgroundColor: colors.primary,
+  },
+  primaryButtonText: {
+    color: colors.primaryText,
+    fontSize: typography.body,
+    fontWeight: "800",
+    textAlign: "center",
+  },
 
   secondaryButton: {
     paddingVertical: spacing.sm,

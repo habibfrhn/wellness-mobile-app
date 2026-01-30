@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import HomeScreen from "../screens/App/HomeScreen";
 import AudioPlayerScreen from "../screens/App/AudioPlayerScreen";
-import AccountScreen from "../screens/App/AccountScreen";
+import ProfileScreen from "../screens/App/ProfileScreen";
 import ResetPasswordScreen from "../screens/App/ResetPasswordScreen";
 import SettingsScreen from "../screens/App/SettingsScreen";
 import HomeHeaderMenu from "../components/HomeHeaderMenu";
@@ -45,7 +45,7 @@ export default function AppStack() {
           headerBackTitleVisible: false,
         }}
       >
-        {(props) => <AccountScreen {...props} />}
+        {(props) => <ProfileScreen {...props} />}
       </Stack.Screen>
 
       <Stack.Screen

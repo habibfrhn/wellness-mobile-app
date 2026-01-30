@@ -111,6 +111,12 @@ export const id = {
 
   account: {
     title: "Akun",
+    nameLabel: "Nama",
+    namePlaceholder: "Masukkan nama Anda",
+    saveName: "Simpan nama",
+    nameRequired: "Nama tidak boleh kosong.",
+    nameSavedTitle: "Tersimpan",
+    nameSavedBody: "Nama Anda berhasil diperbarui.",
     emailLabel: "Email",
     settingsTitle: "Pengaturan",
     profileMenu: "Profil",
