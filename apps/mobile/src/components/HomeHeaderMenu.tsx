@@ -26,7 +26,11 @@ export default function HomeHeaderMenu({ navigation }: Props) {
       <Pressable
         onPress={() => setIsOpen((prev) => !prev)}
         hitSlop={8}
-        style={({ pressed }) => [styles.menuButton, pressed && styles.pressed]}
+        style={({ pressed }) => [
+          styles.menuButton,
+          isOpen && styles.menuButtonActive,
+          pressed && styles.pressed,
+        ]}
       >
         <MaterialCommunityIcons name="menu" size={20} color={colors.text} />
       </Pressable>
@@ -74,6 +78,9 @@ const styles = StyleSheet.create({
     padding: 6,
     borderRadius: radius.sm,
   },
+  menuButtonActive: {
+    backgroundColor: colors.border,
+  },
   overlay: {
     flex: 1,
   },
@@ -101,6 +108,7 @@ const styles = StyleSheet.create({
   },
   menuTextWrapper: {
     alignItems: "flex-start",
+    paddingRight: spacing.sm,
   },
   menuItemPressed: {
     backgroundColor: colors.bg,
