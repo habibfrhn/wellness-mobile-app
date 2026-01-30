@@ -39,13 +39,12 @@ export default function FeaturedAudioCard({ track, onPress }: FeaturedAudioCardP
           />
           <View style={styles.details}>
             <Text style={styles.cardTitle} numberOfLines={2}>
-              {track.title}
+              {`${track.title} (${formatTime(track.durationSec)})`}
             </Text>
             <View style={styles.metaRow}>
               <Text style={styles.cardMeta} numberOfLines={1}>
                 {track.creator}
               </Text>
-              <Text style={styles.cardDuration}>{formatTime(track.durationSec)}</Text>
             </View>
           </View>
         </View>
@@ -92,16 +91,11 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs / 2,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     gap: spacing.xs / 2,
   },
   cardMeta: {
-    flex: 1,
     fontSize: 12,
-    color: colors.mutedText,
-  },
-  cardDuration: {
-    fontSize: 11,
     color: colors.mutedText,
   },
   nextIcon: {

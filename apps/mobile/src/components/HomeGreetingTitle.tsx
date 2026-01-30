@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Text, StyleSheet } from "react-native";
 
 import { supabase } from "../services/supabase";
-import { colors, typography } from "../theme/tokens";
 import { id } from "../i18n/strings";
+import SectionTitle from "./SectionTitle";
 
-export default function HomeHeaderGreeting() {
+export default function HomeGreetingTitle() {
   const [name, setName] = useState<string>("");
 
   useEffect(() => {
@@ -36,14 +35,5 @@ export default function HomeHeaderGreeting() {
     ? id.home.greetingWithName.replace("{name}", trimmedName)
     : id.home.greetingNoName;
 
-  return <Text style={styles.headerLeftText}>{greeting}</Text>;
+  return <SectionTitle title={greeting} />;
 }
-
-const styles = StyleSheet.create({
-  headerLeftText: {
-    color: colors.text,
-    fontSize: typography.body,
-    fontWeight: "700",
-    paddingHorizontal: 2,
-  },
-});
