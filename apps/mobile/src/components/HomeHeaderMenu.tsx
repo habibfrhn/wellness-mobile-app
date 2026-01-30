@@ -44,7 +44,9 @@ export default function HomeHeaderMenu({ navigation }: Props) {
               style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
             >
               <MaterialCommunityIcons name="account-circle-outline" size={16} color={colors.text} />
-              <Text style={styles.menuText}>{id.account.profileMenu}</Text>
+              <View style={styles.menuTextWrapper}>
+                <Text style={styles.menuText}>{id.account.profileMenu}</Text>
+              </View>
             </Pressable>
 
             <Pressable
@@ -52,7 +54,9 @@ export default function HomeHeaderMenu({ navigation }: Props) {
               style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
             >
               <MaterialCommunityIcons name="cog-outline" size={16} color={colors.text} />
-              <Text style={styles.menuText}>{id.account.settingsMenu}</Text>
+              <View style={styles.menuTextWrapper}>
+                <Text style={styles.menuText}>{id.account.settingsMenu}</Text>
+              </View>
             </Pressable>
           </View>
         </Pressable>
@@ -75,7 +79,7 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     position: "absolute",
-    right: spacing.xs,
+    right: spacing.xs + 6,
     minWidth: 150,
     backgroundColor: colors.card,
     borderRadius: radius.sm,
@@ -95,6 +99,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xs,
     paddingVertical: 6,
   },
+  menuTextWrapper: {
+    flex: 1,
+    alignItems: "flex-end",
+  },
   menuItemPressed: {
     backgroundColor: colors.bg,
   },
@@ -102,6 +110,7 @@ const styles = StyleSheet.create({
     fontSize: typography.small,
     color: colors.text,
     fontWeight: "700",
+    textAlign: "right",
   },
   pressed: {
     opacity: 0.75,
