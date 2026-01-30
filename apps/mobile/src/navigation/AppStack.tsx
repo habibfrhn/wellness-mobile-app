@@ -6,6 +6,7 @@ import AudioPlayerScreen from "../screens/App/AudioPlayerScreen";
 import ProfileScreen from "../screens/App/ProfileScreen";
 import ResetPasswordScreen from "../screens/App/ResetPasswordScreen";
 import SettingsScreen from "../screens/App/SettingsScreen";
+import HomeHeaderLogo from "../components/HomeHeaderLogo";
 import HomeHeaderMenu from "../components/HomeHeaderMenu";
 import type { AppStackParamList } from "./types";
 import { colors } from "../theme/tokens";
@@ -26,7 +27,7 @@ export default function AppStack() {
         name="Home"
         options={({ navigation }) => ({
           headerTitle: "",
-          headerLeft: () => null,
+          headerLeft: () => <HomeHeaderLogo />,
           headerRight: () => <HomeHeaderMenu navigation={navigation} />,
         })}
       >
