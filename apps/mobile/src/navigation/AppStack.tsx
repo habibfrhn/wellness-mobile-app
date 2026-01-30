@@ -1,14 +1,15 @@
 import React from "react";
-import { Pressable, Text, View, StyleSheet } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import HomeScreen from "../screens/App/HomeScreen";
 import AudioPlayerScreen from "../screens/App/AudioPlayerScreen";
-import AccountScreen from "../screens/App/AccountScreen";
+import ProfileScreen from "../screens/App/ProfileScreen";
 import ResetPasswordScreen from "../screens/App/ResetPasswordScreen";
+import SettingsScreen from "../screens/App/SettingsScreen";
+import HomeHeaderMenu from "../components/HomeHeaderMenu";
 import type { AppStackParamList } from "./types";
-import { colors, spacing, typography } from "../theme/tokens";
+import { colors } from "../theme/tokens";
+import { id } from "../i18n/strings";
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -25,20 +26,8 @@ export default function AppStack() {
         name="Home"
         options={({ navigation }) => ({
           headerTitle: "",
-          headerLeft: () => <Text style={styles.headerLeftText}>Lumepo</Text>,
-          headerRight: ({ tintColor }) => (
-            <Pressable
-              onPress={() => navigation.navigate("Account")}
-              hitSlop={8}
-              style={styles.headerRight}
-            >
-              <MaterialCommunityIcons
-                name="account-circle-outline"
-                size={22}
-                color={tintColor ?? colors.text}
-              />
-            </Pressable>
-          ),
+          headerLeft: () => null,
+          headerRight: () => <HomeHeaderMenu navigation={navigation} />,
         })}
       >
         {(props) => <HomeScreen {...props} />}
@@ -55,7 +44,17 @@ export default function AppStack() {
           headerBackTitleVisible: false,
         }}
       >
-        {(props) => <AccountScreen {...props} />}
+        {(props) => <ProfileScreen {...props} />}
+      </Stack.Screen>
+
+      <Stack.Screen
+        name="Settings"
+        options={{
+          title: id.account.settingsTitle,
+          headerBackTitleVisible: false,
+        }}
+      >
+        {(props) => <SettingsScreen {...props} />}
       </Stack.Screen>
 
       <Stack.Screen name="ResetPassword" options={{ title: "Ubah kata sandi" }}>
@@ -64,15 +63,3 @@ export default function AppStack() {
     </Stack.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  headerLeftText: {
-    color: colors.text,
-    fontSize: typography.body,
-    fontWeight: "700",
-    paddingHorizontal: 2,
-  },
-  headerRight: {
-    paddingHorizontal: spacing.xs,
-  },
-});

@@ -93,7 +93,8 @@ export const id = {
     subtitle: "Pilihan sesi singkat untuk menutup hari dengan lebih tenang.",
     durationBadge: "5 menit",
     noteNoAutoplay: "Audio tidak diputar otomatis. Anda yang memulai saat sudah siap.",
-    featuredTitle: "Tidur dalam 10 menit",
+    greetingWithName: "Hai {name}, kamu siap beristirahat?",
+    greetingNoName: "Hai, kamu siap beristirahat?",
     afirmasiCarouselTitle: "Afirmasi sebelum tidur",
     soundscapeCarouselTitle: "Soundscape untuk tidur",
   },
@@ -112,7 +113,16 @@ export const id = {
 
   account: {
     title: "Akun",
+    nameLabel: "Nama",
+    namePlaceholder: "Masukkan nama Anda",
+    saveName: "Simpan nama",
+    nameRequired: "Nama tidak boleh kosong.",
+    nameSavedTitle: "Tersimpan",
+    nameSavedBody: "Nama Anda berhasil diperbarui.",
     emailLabel: "Email",
+    settingsTitle: "Pengaturan",
+    profileMenu: "Profil",
+    settingsMenu: "Pengaturan",
 
     aboutTitle: "Tentang aplikasi",
     aboutBody: "Info versi membantu Anda saat menghubungi tim dukungan.",

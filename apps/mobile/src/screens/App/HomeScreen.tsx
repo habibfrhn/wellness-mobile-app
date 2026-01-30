@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, spacing } from "../../theme/tokens";
 import { AUDIO_TRACKS } from "../../content/audioCatalog";
 import FeaturedAudioCard from "../../components/FeaturedAudioCard";
+import HomeGreetingTitle from "../../components/HomeGreetingTitle";
 import HomeCarouselSection from "../../components/HomeCarouselSection";
 import { id } from "../../i18n/strings";
 
@@ -35,9 +36,9 @@ export default function HomeScreen({ navigation }: Props) {
 
   const Header = (
     <View>
+      <HomeGreetingTitle />
       {featuredTrack ? (
         <FeaturedAudioCard
-          title={id.home.featuredTitle}
           track={featuredTrack}
           onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
         />
@@ -75,6 +76,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
   },
   listContent: {
-    paddingVertical: spacing.sm,
+    paddingTop: 0,
+    paddingBottom: spacing.sm,
   },
 });

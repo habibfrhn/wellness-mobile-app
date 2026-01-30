@@ -3,15 +3,20 @@ import { View, Text, StyleSheet, Pressable, Image, useWindowDimensions } from "r
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { colors, spacing, radius } from "../theme/tokens";
 import type { AudioTrack } from "../content/audioCatalog";
-import SectionTitle from "./SectionTitle";
+
+function formatTime(sec: number) {
+  const s = Math.max(0, Math.floor(sec));
+  const mm = String(Math.floor(s / 60)).padStart(2, "0");
+  const ss = String(s % 60).padStart(2, "0");
+  return `${mm}:${ss}`;
+}
 
 type FeaturedAudioCardProps = {
-  title: string;
   track: AudioTrack;
   onPress: (track: AudioTrack) => void;
 };
 
-export default function FeaturedAudioCard({ title, track, onPress }: FeaturedAudioCardProps) {
+export default function FeaturedAudioCard({ track, onPress }: FeaturedAudioCardProps) {
   const { width } = useWindowDimensions();
   const horizontalPadding = spacing.sm;
   const cardPadding = spacing.sm;
@@ -21,7 +26,6 @@ export default function FeaturedAudioCard({ title, track, onPress }: FeaturedAud
 
   return (
     <View style={styles.container}>
-      <SectionTitle title={title} />
       <Pressable
         onPress={() => onPress(track)}
         style={({ pressed }) => [styles.card, { width: cardWidth }, pressed && styles.pressed]}
@@ -35,11 +39,13 @@ export default function FeaturedAudioCard({ title, track, onPress }: FeaturedAud
           />
           <View style={styles.details}>
             <Text style={styles.cardTitle} numberOfLines={2}>
-              {track.title}
+              {`${track.title} (${formatTime(track.durationSec)})`}
             </Text>
-            <Text style={styles.cardMeta} numberOfLines={1}>
-              {track.creator}
-            </Text>
+            <View style={styles.metaRow}>
+              <Text style={styles.cardMeta} numberOfLines={1}>
+                {track.creator}
+              </Text>
+            </View>
           </View>
         </View>
         <MaterialCommunityIcons name="arrow-right" size={20} color={colors.mutedText} style={styles.nextIcon} />
@@ -71,21 +77,26 @@ const styles = StyleSheet.create({
   },
   details: {
     flex: 1,
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "center",
-    gap: spacing.xs / 2,
   },
   cardTitle: {
     fontSize: 12,
     fontWeight: "700",
     color: colors.text,
     lineHeight: 16,
-    textAlign: "center",
+    textAlign: "left",
+  },
+  metaRow: {
+    marginTop: spacing.xs / 2,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    gap: spacing.xs / 2,
   },
   cardMeta: {
     fontSize: 12,
     color: colors.mutedText,
-    textAlign: "center",
   },
   nextIcon: {
     position: "absolute",

@@ -10,12 +10,13 @@ import {
   Linking,
 } from "react-native";
 import * as Updates from "expo-updates";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { colors, spacing, radius, typography } from "../../theme/tokens";
-import { id } from "../../i18n/strings";
-import { supabase } from "../../services/supabase";
-import { getPendingUpdate, setPendingUpdate } from "../../services/updatesState";
-import type { AppStackParamList } from "../../navigation/types";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+
+import { colors, spacing, radius, typography } from "../theme/tokens";
+import { id } from "../i18n/strings";
+import { supabase } from "../services/supabase";
+import { getPendingUpdate, setPendingUpdate } from "../services/updatesState";
+import type { AppStackParamList } from "../navigation/types";
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
@@ -24,10 +25,10 @@ const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 // Safe fallback if bundler cannot resolve for some reason.
 function readAppVersionFromAppJson(): string {
   try {
-    // AccountScreen.tsx is at apps/mobile/src/screens/App/AccountScreen.tsx
-    // "../../../app.json" -> apps/mobile/app.json
+    // SettingsContent.tsx is at apps/mobile/src/components/SettingsContent.tsx
+    // "../../app.json" -> apps/mobile/app.json
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const cfg = require("../../../app.json") as any;
+    const cfg = require("../../app.json") as any;
     const v = cfg?.expo?.version;
     if (typeof v === "string" && v.trim().length > 0) return v.trim();
     return "1.0.0";
@@ -102,10 +103,11 @@ async function safeOpenEmail(email: string) {
   await safeOpenUrl(mailto);
 }
 
-type Props = NativeStackScreenProps<AppStackParamList, "Account">;
+type Props = {
+  navigation: NativeStackNavigationProp<AppStackParamList>;
+};
 
-export default function AccountScreen({ navigation }: Props) {
-  const [emailValue, setEmailValue] = useState<string>("");
+export default function SettingsContent({ navigation }: Props) {
   const [confirmText, setConfirmText] = useState("");
   const [busyDelete, setBusyDelete] = useState(false);
 
@@ -124,14 +126,6 @@ export default function AccountScreen({ navigation }: Props) {
     let mounted = true;
 
     (async () => {
-      const { data, error } = await supabase.auth.getUser();
-      if (!mounted) return;
-      if (error) {
-        setEmailValue("");
-      } else {
-        setEmailValue(data.user?.email ?? "");
-      }
-
       const pending = await getPendingUpdate();
       if (mounted) setHasPendingUpdate(pending);
     })();
@@ -145,20 +139,6 @@ export default function AccountScreen({ navigation }: Props) {
     () => confirmText.trim().toUpperCase() === "HAPUS" && !busyDelete,
     [confirmText, busyDelete]
   );
-
-  async function onLogout() {
-    Alert.alert(id.account.confirmLogoutTitle, id.account.confirmLogoutBody, [
-      { text: id.account.cancel, style: "cancel" },
-      {
-        text: id.account.logout,
-        style: "destructive",
-        onPress: async () => {
-          const { error } = await supabase.auth.signOut();
-          if (error) Alert.alert(id.common.errorTitle, error.message);
-        },
-      },
-    ]);
-  }
 
   async function onDeleteAccount() {
     Alert.alert(id.account.deleteTitle, id.account.deleteWarning, [
@@ -284,11 +264,6 @@ export default function AccountScreen({ navigation }: Props) {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      <View>
-        <Text style={styles.sectionTitle}>{id.account.emailLabel}</Text>
-        <Text style={styles.email}>{emailValue || "-"}</Text>
-      </View>
-
       <View style={styles.card}>
         <Text style={styles.cardTitle}>{id.account.updatesTitle}</Text>
 
@@ -331,10 +306,6 @@ export default function AccountScreen({ navigation }: Props) {
           <Text style={styles.secondaryActionButtonText}>{id.account.resetPasswordButton}</Text>
         </Pressable>
       </View>
-
-      <Pressable onPress={onLogout} style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
-        <Text style={styles.secondaryButtonText}>{id.account.logout}</Text>
-      </Pressable>
 
       <View style={styles.card}>
         <Text style={styles.cardTitle}>{id.account.helpTitle}</Text>
@@ -422,9 +393,6 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xl,
   },
 
-  sectionTitle: { fontSize: typography.small, color: colors.mutedText, fontWeight: "700" },
-  email: { fontSize: typography.body, color: colors.text, fontWeight: "700" },
-
   card: {
     padding: spacing.md,
     borderRadius: radius.sm,
@@ -503,21 +471,6 @@ const styles = StyleSheet.create({
   },
   dangerButtonText: {
     color: colors.primaryText,
-    fontSize: typography.body,
-    fontWeight: "800",
-    textAlign: "center",
-  },
-
-  secondaryButton: {
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.sm,
-    backgroundColor: colors.secondary,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  secondaryButtonText: {
-    color: colors.secondaryText,
     fontSize: typography.body,
     fontWeight: "800",
     textAlign: "center",
