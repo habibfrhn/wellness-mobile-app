@@ -518,14 +518,14 @@ const styles = StyleSheet.create({
     width: controlSizes.infoIcon,
     height: controlSizes.infoIcon,
     borderRadius: controlSizes.infoIcon / 2,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.white,
     alignItems: "center",
     justifyContent: "center",
   },
   infoIconText: {
     fontSize: typography.caption,
     fontWeight: "700",
-    color: colors.primaryText,
+    color: colors.text,
   },
   infoBubbleOverlay: {
     position: "absolute",
