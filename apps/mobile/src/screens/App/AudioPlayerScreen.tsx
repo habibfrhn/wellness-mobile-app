@@ -61,7 +61,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   const atEnd = duration > 0 && current >= duration - 0.25;
   const isSessionActive = isSoundscape && (activeStatus.playing || (current > 0 && !atEnd));
   const progressRatio = duration > 0 ? Math.min(Math.max(current / duration, 0), 1) : 0;
-  const progressHandleSize = spacing.sm;
+  const progressHandleSize = spacing.xs;
   const progressHandleLeft = progressWidth
     ? Math.min(Math.max(progressRatio * progressWidth - progressHandleSize / 2, 0), progressWidth - progressHandleSize)
     : 0;
@@ -311,7 +311,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
               <FontAwesome
                 name={favorite ? "heart" : "heart-o"}
                 size={typography.iconMd}
-                color={favorite ? colors.primary : colors.mutedText}
+                color={favorite ? colors.danger : colors.mutedText}
               />
             </Pressable>
           </View>
@@ -477,12 +477,12 @@ const styles = StyleSheet.create({
   },
   progressHandle: {
     position: "absolute",
-    width: spacing.sm,
-    height: spacing.sm,
-    borderRadius: spacing.sm / 2,
+    width: spacing.xs,
+    height: spacing.xs,
+    borderRadius: spacing.xs / 2,
     backgroundColor: colors.primary,
     top: "50%",
-    transform: [{ translateY: -(spacing.sm / 2) }],
+    transform: [{ translateY: -(spacing.xs / 2) }],
   },
   timeRow: {
     flexDirection: "row",
