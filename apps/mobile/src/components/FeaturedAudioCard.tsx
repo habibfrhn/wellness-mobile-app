@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, Pressable, Image, useWindowDimensions } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { colors, spacing, radius, typography, lineHeights, iconSizes } from "../theme/tokens";
+import { colors, spacing, radius, typography } from "../theme/tokens";
 import type { AudioTrack } from "../content/audioCatalog";
 
 function formatTime(sec: number) {
@@ -50,7 +50,7 @@ export default function FeaturedAudioCard({ track, onPress }: FeaturedAudioCardP
         </View>
         <MaterialCommunityIcons
           name="arrow-right"
-          size={iconSizes.md}
+          size={typography.iconMd}
           color={colors.mutedText}
           style={styles.nextIcon}
         />
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     fontSize: typography.caption,
     fontWeight: "700",
     color: colors.text,
-    lineHeight: lineHeights.tight,
+    lineHeight: typography.lineHeights.tight,
     textAlign: "left",
   },
   metaRow: {

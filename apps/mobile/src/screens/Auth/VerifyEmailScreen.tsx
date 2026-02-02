@@ -5,7 +5,7 @@ import * as IntentLauncher from "expo-intent-launcher";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AuthStackParamList } from "../../navigation/types";
-import { colors, spacing, radius, typography, lineHeights } from "../../theme/tokens";
+import { colors, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
 
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
   title: { fontSize: typography.h2, color: colors.text, fontWeight: "700" },
   subtitle: { marginTop: spacing.xs, fontSize: typography.body, color: colors.mutedText },
   email: { marginTop: spacing.xs, fontSize: typography.body, color: colors.text, fontWeight: "700" },
-  help: { fontSize: typography.small, color: colors.mutedText, lineHeight: lineHeights.normal },
+  help: { fontSize: typography.small, color: colors.mutedText, lineHeight: typography.lineHeights.normal },
 
   primaryButton: {
     paddingVertical: spacing.sm,

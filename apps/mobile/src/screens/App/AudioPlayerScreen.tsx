@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image, Pressable, ScrollView } from "react-nati
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { getTrackById, isFavorite, toggleFavorite } from "../../content/audioCatalog";
-import { colors, spacing, radius, typography, lineHeights, sizes } from "../../theme/tokens";
+import { colors, spacing, radius, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -447,9 +447,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: spacing.xs,
     bottom: spacing.xs,
-    width: sizes.favoriteButton,
-    height: sizes.favoriteButton,
-    borderRadius: sizes.favoriteButton / 2,
+    width: spacing.control.favoriteButton,
+    height: spacing.control.favoriteButton,
+    borderRadius: spacing.control.favoriteButton / 2,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.card,
@@ -457,16 +457,16 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   favoriteText: {
-    fontSize: typography.icon,
+    fontSize: typography.iconMd,
     color: colors.mutedText,
-    lineHeight: lineHeights.relaxed,
+    lineHeight: typography.lineHeights.relaxed,
   },
   favoriteActive: {
     color: colors.primary,
   },
   progressWrap: { marginTop: spacing.xl },
   progressTrack: {
-    height: sizes.progressHeight,
+    height: spacing.control.progressHeight,
     borderRadius: radius.full,
     backgroundColor: colors.border,
     overflow: "hidden",
@@ -507,9 +507,9 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   infoIcon: {
-    width: sizes.infoIcon,
-    height: sizes.infoIcon,
-    borderRadius: sizes.infoIcon / 2,
+    width: spacing.control.infoIcon,
+    height: spacing.control.infoIcon,
+    borderRadius: spacing.control.infoIcon / 2,
     backgroundColor: colors.border,
     alignItems: "center",
     justifyContent: "center",

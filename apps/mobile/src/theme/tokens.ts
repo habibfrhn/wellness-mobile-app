@@ -22,6 +22,11 @@ export const spacing = {
   md: 16,
   lg: 24,
   xl: 32,
+  control: {
+    favoriteButton: 36,
+    infoIcon: 18,
+    progressHeight: 5,
+  },
 };
 
 export const radius = {
@@ -41,22 +46,11 @@ export const typography = {
   caption: 12,
   micro: 11,
   tiny: 10,
-  icon: 20,
-};
-
-export const lineHeights = {
-  tight: 16,
-  normal: 20,
-  relaxed: 22,
-};
-
-export const iconSizes = {
-  sm: 16,
-  md: 20,
-};
-
-export const sizes = {
-  favoriteButton: 36,
-  infoIcon: 18,
-  progressHeight: 5,
+  iconSm: 16,
+  iconMd: 20,
+  lineHeights: {
+    tight: 16,
+    normal: 20,
+    relaxed: 22,
+  },
 };

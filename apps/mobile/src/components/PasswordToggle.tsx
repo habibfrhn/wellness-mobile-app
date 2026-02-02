@@ -2,7 +2,7 @@ import React from "react";
 import { Pressable, StyleProp, StyleSheet, ViewStyle } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-import { colors, spacing, iconSizes } from "../theme/tokens";
+import { colors, spacing, typography } from "../theme/tokens";
 
 type Props = {
   visible: boolean;
@@ -11,7 +11,7 @@ type Props = {
   style?: StyleProp<ViewStyle>;
 };
 
-const iconSize = iconSizes.md;
+const iconSize = typography.iconMd;
 
 export default function PasswordToggle({ visible, onPress, accessibilityLabel, style }: Props) {
   return (

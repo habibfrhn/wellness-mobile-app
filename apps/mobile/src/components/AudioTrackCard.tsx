@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet, Image } from "react-native";
-import { colors, spacing, radius, typography, lineHeights } from "../theme/tokens";
+import { colors, spacing, radius, typography } from "../theme/tokens";
 import type { AudioTrack } from "../content/audioCatalog";
 
 function formatTime(sec: number) {
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     fontSize: typography.caption,
     fontWeight: "700",
     color: colors.text,
-    lineHeight: lineHeights.tight,
+    lineHeight: typography.lineHeights.tight,
   },
   cardMetaRow: {
     marginTop: spacing.xs / 2,
