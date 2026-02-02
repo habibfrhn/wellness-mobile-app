@@ -6,6 +6,7 @@ import { AUDIO_TRACKS } from "../../content/audioCatalog";
 import FeaturedAudioCard from "../../components/FeaturedAudioCard";
 import HomeGreetingTitle from "../../components/HomeGreetingTitle";
 import HomeCarouselSection from "../../components/HomeCarouselSection";
+import AudioTrackListSection from "../../components/AudioTrackListSection";
 import { id } from "../../i18n/strings";
 
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -43,7 +44,7 @@ export default function HomeScreen({ navigation }: Props) {
           onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
         />
       ) : null}
-      <HomeCarouselSection
+      <AudioTrackListSection
         title={id.home.afirmasiCarouselTitle}
         tracks={afirmasiTracks}
         onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
