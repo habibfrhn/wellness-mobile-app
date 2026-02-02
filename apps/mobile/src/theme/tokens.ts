@@ -1,7 +1,10 @@
 export const colors = {
   bg: "#21325E",
-  text: "#212121",
-  mutedText: "#667085",
+  text: "#F0F0F0",
+  titleText: "#F0F0F0",
+  mutedText: "#C7D0E0",
+  cardText: "#000000",
+  cardMutedText: "#000000",
   border: "#E6E6E6",
   card: "#F0F0F0",
 
@@ -10,7 +13,7 @@ export const colors = {
   primaryText: "#21325E",
   secondary: "#B6D8F6",
   secondaryText: "#1F2A37",
-  accent: "#FACC15",
+  accent: "#5C7AEA",
 
   danger: "#B00020",
 };

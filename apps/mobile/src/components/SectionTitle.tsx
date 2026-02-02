@@ -14,7 +14,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: typography.body,
     fontWeight: "700",
-    color: colors.text,
+    color: colors.titleText,
     marginBottom: spacing.xs,
     paddingLeft: spacing.sm,
   },

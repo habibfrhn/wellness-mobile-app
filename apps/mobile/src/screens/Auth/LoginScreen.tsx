@@ -70,7 +70,7 @@ export default function LoginScreen({ navigation, route }: Props) {
             autoCorrect={false}
             keyboardType="email-address"
             placeholder={id.login.emailPlaceholder}
-            placeholderTextColor={colors.mutedText}
+            placeholderTextColor={colors.cardMutedText}
             style={styles.input}
           />
         </View>
@@ -85,7 +85,7 @@ export default function LoginScreen({ navigation, route }: Props) {
               autoCorrect={false}
               secureTextEntry={!showPassword}
               placeholder={id.login.passwordPlaceholder}
-              placeholderTextColor={colors.mutedText}
+              placeholderTextColor={colors.cardMutedText}
               style={styles.input}
             />
             <PasswordToggle
@@ -129,7 +129,7 @@ export default function LoginScreen({ navigation, route }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: spacing.lg, backgroundColor: colors.bg },
-  title: { fontSize: typography.h2, color: colors.text, fontWeight: "700" },
+  title: { fontSize: typography.h2, color: colors.titleText, fontWeight: "700" },
   subtitle: { marginTop: spacing.xs, fontSize: typography.body, color: colors.mutedText, lineHeight: 22 },
   label: { fontSize: typography.small, color: colors.text, fontWeight: "700", marginBottom: spacing.xs },
   inputWrap: { position: "relative" },
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingRight: spacing.xl,
     fontSize: typography.body,
-    color: colors.text,
+    color: colors.cardText,
     backgroundColor: colors.card
   },
   toggle: {

@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 12,
     fontWeight: "700",
-    color: colors.text,
+    color: colors.cardText,
     lineHeight: 16,
     textAlign: "left",
   },
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
   },
   cardMeta: {
     fontSize: 12,
-    color: colors.mutedText,
+    color: colors.cardText,
   },
   nextIcon: {
     position: "absolute",

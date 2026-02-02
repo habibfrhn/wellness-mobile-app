@@ -21,7 +21,7 @@ export default function HomeHeaderMenu({ navigation }: Props) {
     navigation.navigate(route);
   };
 
-  const iconColor = isOpen ? colors.card : colors.text;
+  const iconColor = colors.titleText;
 
   return (
     <View style={styles.container}>
@@ -49,7 +49,7 @@ export default function HomeHeaderMenu({ navigation }: Props) {
               onPress={() => handleNavigate("Account")}
               style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
             >
-              <MaterialCommunityIcons name="account-circle-outline" size={16} color={colors.text} />
+              <MaterialCommunityIcons name="account-circle-outline" size={16} color={colors.cardText} />
               <View style={styles.menuTextWrapper}>
                 <Text style={styles.menuText}>{id.account.profileMenu}</Text>
               </View>
@@ -59,7 +59,7 @@ export default function HomeHeaderMenu({ navigation }: Props) {
               onPress={() => handleNavigate("Settings")}
               style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
             >
-              <MaterialCommunityIcons name="cog-outline" size={16} color={colors.text} />
+              <MaterialCommunityIcons name="cog-outline" size={16} color={colors.cardText} />
               <View style={styles.menuTextWrapper}>
                 <Text style={styles.menuText}>{id.account.settingsMenu}</Text>
               </View>
@@ -116,11 +116,11 @@ const styles = StyleSheet.create({
     paddingRight: spacing.sm,
   },
   menuItemPressed: {
-    backgroundColor: colors.bg,
+    backgroundColor: colors.border,
   },
   menuText: {
     fontSize: typography.small,
-    color: colors.text,
+    color: colors.cardText,
     fontWeight: "700",
     textAlign: "left",
   },

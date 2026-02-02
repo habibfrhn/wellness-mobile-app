@@ -33,7 +33,7 @@ export default function ProfileContent({
           value={name}
           onChangeText={onNameChange}
           placeholder={id.account.namePlaceholder}
-          placeholderTextColor={colors.mutedText}
+          placeholderTextColor={colors.cardMutedText}
           style={styles.textInput}
           autoCapitalize="words"
         />
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xl,
   },
 
-  sectionTitle: { fontSize: typography.small, color: colors.mutedText, fontWeight: "700" },
+  sectionTitle: { fontSize: typography.small, color: colors.titleText, fontWeight: "700" },
   textInput: {
     marginTop: spacing.xs,
     paddingVertical: spacing.xs,
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.card,
     fontSize: typography.body,
-    color: colors.text,
+    color: colors.cardText,
   },
   email: { fontSize: typography.body, color: colors.text, fontWeight: "700" },
   primaryButton: {

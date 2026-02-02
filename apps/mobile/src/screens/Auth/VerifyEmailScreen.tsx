@@ -146,7 +146,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: spacing.lg, backgroundColor: colors.bg },
-  title: { fontSize: typography.h2, color: colors.text, fontWeight: "700" },
+  title: { fontSize: typography.h2, color: colors.titleText, fontWeight: "700" },
   subtitle: { marginTop: spacing.xs, fontSize: typography.body, color: colors.mutedText },
   email: { marginTop: spacing.xs, fontSize: typography.body, color: colors.text, fontWeight: "700" },
   help: { fontSize: typography.small, color: colors.mutedText, lineHeight: 20 },

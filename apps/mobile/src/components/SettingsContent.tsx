@@ -364,7 +364,7 @@ export default function SettingsContent({ navigation }: Props) {
           autoCapitalize="characters"
           autoCorrect={false}
           placeholder={id.account.deletePlaceholder}
-          placeholderTextColor={colors.mutedText}
+          placeholderTextColor={colors.cardMutedText}
           style={styles.input}
         />
 
@@ -401,12 +401,12 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     gap: spacing.sm,
   },
-  cardTitle: { fontSize: typography.body, color: colors.text, fontWeight: "800" },
-  cardBody: { fontSize: typography.small, color: colors.mutedText, lineHeight: 20 },
+  cardTitle: { fontSize: typography.body, color: colors.cardText, fontWeight: "800" },
+  cardBody: { fontSize: typography.small, color: colors.cardText, lineHeight: 20 },
 
   metaRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  metaLabel: { fontSize: typography.small, color: colors.mutedText, fontWeight: "700" },
-  metaValue: { fontSize: typography.small, color: colors.text, fontWeight: "800" },
+  metaLabel: { fontSize: typography.small, color: colors.cardText, fontWeight: "700" },
+  metaValue: { fontSize: typography.small, color: colors.cardText, fontWeight: "800" },
 
   primaryButton: {
     backgroundColor: colors.primary,
@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     fontSize: typography.body,
-    color: colors.text,
+    color: colors.cardText,
     backgroundColor: colors.card,
   },
 

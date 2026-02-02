@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 12,
     fontWeight: "700",
-    color: colors.text,
+    color: colors.cardText,
     lineHeight: 16,
   },
   cardMetaRow: {
@@ -79,11 +79,11 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: spacing.sm,
     fontSize: 11,
-    color: colors.mutedText,
+    color: colors.cardText,
   },
   cardDuration: {
     fontSize: 11,
-    color: colors.mutedText,
+    color: colors.cardText,
   },
   pressed: { opacity: 0.85 },
 });

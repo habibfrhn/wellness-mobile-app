@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 12,
     fontWeight: "700",
-    color: colors.text,
+    color: colors.cardText,
     lineHeight: 16,
     marginTop: spacing.xs,
   },
@@ -128,12 +128,12 @@ const styles = StyleSheet.create({
   cardMeta: {
     flex: 1,
     fontSize: 12,
-    color: colors.mutedText,
+    color: colors.cardText,
     marginRight: spacing.xs / 2,
   },
   cardDuration: {
     fontSize: 11,
-    color: colors.mutedText,
+    color: colors.cardText,
   },
   pressed: { opacity: 0.85 },
 });

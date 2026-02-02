@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
   titleTextWrap: {
     flex: 1,
   },
-  title: { fontSize: 18, color: colors.text, fontWeight: "700" },
+  title: { fontSize: 18, color: colors.titleText, fontWeight: "700" },
   creator: { marginTop: 2, fontSize: 12, color: colors.mutedText },
   favoriteButton: {
     position: "absolute",
@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
   },
   favoriteText: {
     fontSize: 20,
-    color: colors.mutedText,
+    color: colors.cardText,
     lineHeight: 22,
   },
   favoriteActive: {
@@ -500,7 +500,7 @@ const styles = StyleSheet.create({
   },
   optionTitle: {
     fontSize: 12,
-    color: colors.text,
+    color: colors.titleText,
     fontWeight: "600",
   },
   infoWrap: {
@@ -534,7 +534,7 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 11,
-    color: colors.mutedText,
+    color: colors.cardText,
   },
   timerRow: {
     flexDirection: "row",
@@ -556,7 +556,7 @@ const styles = StyleSheet.create({
   timerText: {
     fontSize: 10,
     fontWeight: "600",
-    color: colors.text,
+    color: colors.cardText,
     textAlign: "center",
   },
   timerTextActive: {
