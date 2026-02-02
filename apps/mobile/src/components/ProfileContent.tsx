@@ -77,8 +77,6 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.sm,
     borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
     backgroundColor: colors.card,
     fontSize: typography.body,
     color: colors.text,
@@ -106,8 +104,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     borderRadius: radius.sm,
     backgroundColor: colors.secondary,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   secondaryButtonText: {
     color: colors.secondaryText,

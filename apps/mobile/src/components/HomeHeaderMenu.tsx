@@ -94,8 +94,6 @@ const styles = StyleSheet.create({
     right: spacing.sm + spacing.xs / 4,
     backgroundColor: colors.card,
     borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
     paddingVertical: spacing.xs / 2,
     paddingHorizontal: spacing.xs,
     shadowColor: colors.text,

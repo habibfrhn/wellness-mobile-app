@@ -99,8 +99,6 @@ const styles = StyleSheet.create({
   },
   label: { fontSize: typography.small, color: colors.text, fontWeight: "700", marginBottom: spacing.xs },
   input: {
-    borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radius.sm,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
@@ -110,7 +108,7 @@ const styles = StyleSheet.create({
   },
   primaryButton: { marginTop: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.primary },
   primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
-  secondaryButton: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.secondary, borderWidth: 1, borderColor: colors.border },
+  secondaryButton: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.secondary },
   secondaryButtonText: { color: colors.secondaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
   disabled: { opacity: 0.6 },
   pressed: { opacity: 0.85 }

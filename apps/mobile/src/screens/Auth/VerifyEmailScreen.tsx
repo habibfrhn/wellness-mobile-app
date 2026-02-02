@@ -169,8 +169,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     borderRadius: radius.sm,
     backgroundColor: colors.bg,
-    borderWidth: 1,
-    borderColor: colors.primary,
   },
   primaryOutlineButtonText: {
     color: colors.text,
@@ -184,8 +182,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     borderRadius: radius.sm,
     backgroundColor: colors.secondary,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   secondaryButtonText: {
     color: colors.secondaryText,

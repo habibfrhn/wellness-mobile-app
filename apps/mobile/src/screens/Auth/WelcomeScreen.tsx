@@ -67,9 +67,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     borderRadius: radius.sm,
-    backgroundColor: colors.secondary,
-    borderWidth: 1,
-    borderColor: colors.border
+    backgroundColor: colors.secondary
   },
   secondaryButtonText: {
     color: colors.secondaryText,

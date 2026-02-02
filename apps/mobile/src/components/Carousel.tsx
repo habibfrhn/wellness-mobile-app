@@ -92,8 +92,6 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radius.md,
     padding: spacing.sm,
     justifyContent: "flex-start",

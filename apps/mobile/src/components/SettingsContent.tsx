@@ -397,8 +397,6 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     borderRadius: radius.sm,
     backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
     gap: spacing.sm,
   },
   cardTitle: { fontSize: typography.body, color: colors.text, fontWeight: "800" },
@@ -424,8 +422,6 @@ const styles = StyleSheet.create({
 
   secondaryActionButton: {
     backgroundColor: colors.bg,
-    borderWidth: 1,
-    borderColor: colors.border,
     paddingVertical: spacing.sm,
     borderRadius: radius.sm,
     alignItems: "center",
@@ -442,8 +438,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 10,
     borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
     backgroundColor: colors.bg,
     gap: 4,
   },
@@ -452,8 +446,6 @@ const styles = StyleSheet.create({
 
   label: { fontSize: typography.small, color: colors.text, fontWeight: "700" },
   input: {
-    borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radius.sm,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,

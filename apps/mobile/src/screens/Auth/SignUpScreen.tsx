@@ -171,8 +171,6 @@ const styles = StyleSheet.create({
   label: { fontSize: typography.small, color: colors.text, fontWeight: "700", marginBottom: spacing.xs },
   inputWrap: { position: "relative" },
   input: {
-    borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radius.sm,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
@@ -203,9 +201,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     borderRadius: radius.sm,
-    backgroundColor: colors.secondary,
-    borderWidth: 1,
-    borderColor: colors.border
+    backgroundColor: colors.secondary
   },
   secondaryButtonText: { color: colors.secondaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
 

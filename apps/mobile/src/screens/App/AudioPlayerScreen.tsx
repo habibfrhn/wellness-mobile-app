@@ -453,8 +453,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   favoriteText: {
     fontSize: typography.iconMd,
@@ -524,8 +522,6 @@ const styles = StyleSheet.create({
     bottom: 24,
     left: -8,
     backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radius.sm,
     paddingVertical: spacing.xs / 2,
     paddingHorizontal: spacing.sm,
@@ -545,13 +541,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs / 2,
     borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: colors.border,
     backgroundColor: colors.card,
   },
   timerPillActive: {
     backgroundColor: colors.primary,
-    borderColor: colors.primary,
   },
   timerText: {
     fontSize: typography.tiny,
@@ -579,8 +572,6 @@ const styles = StyleSheet.create({
   secondaryBtn: {
     flex: 1,
     backgroundColor: colors.secondary,
-    borderWidth: 1,
-    borderColor: colors.border,
     paddingVertical: spacing.sm,
     borderRadius: radius.sm,
     alignItems: "center",
