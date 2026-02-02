@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems: "center",
-    gap: spacing.xs,
+    gap: spacing.xs / 2,
   },
   optionTitle: {
     fontSize: typography.caption,
@@ -525,7 +525,7 @@ const styles = StyleSheet.create({
   infoIconText: {
     fontSize: typography.caption,
     fontWeight: "700",
-    color: colors.text,
+    color: colors.mutedText,
   },
   infoBubbleOverlay: {
     position: "absolute",
