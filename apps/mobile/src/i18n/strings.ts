@@ -104,7 +104,7 @@ export const id = {
     start: "Mulai",
     pause: "Pause",
     stop: "Stop",
-    restart: "Ulang dari awal",
+    restart: "Ulangi dari awal",
     timerLabel: "Timer",
     timerOff: "Off",
     timerEnd: "Akhiri saat audio selesai",

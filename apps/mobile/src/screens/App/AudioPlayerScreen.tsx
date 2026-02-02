@@ -311,7 +311,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
               <FontAwesome
                 name={favorite ? "heart" : "heart-o"}
                 size={typography.iconMd}
-                color={favorite ? colors.danger : colors.mutedText}
+                color={favorite ? "#FF4D4D" : colors.mutedText}
               />
             </Pressable>
           </View>
