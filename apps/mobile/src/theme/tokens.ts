@@ -1,13 +1,13 @@
 export const colors = {
-  bg: "#F7F7F7",
+  bg: "#21325E",
   text: "#212121",
   mutedText: "#667085",
   border: "#E6E6E6",
-  card: "#FFFFFF",
+  card: "#F0F0F0",
 
   // Brand
-  primary: "#1F4E79",
-  primaryText: "#FFFFFF",
+  primary: "#F1D00A",
+  primaryText: "#21325E",
   secondary: "#B6D8F6",
   secondaryText: "#1F2A37",
   accent: "#FACC15",
