@@ -2,8 +2,9 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSta
 import { View, Text, StyleSheet, Image, Pressable, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { getTrackById, isFavorite, toggleFavorite } from "../../content/audioCatalog";
-import { colors, spacing, radius, typography, lineHeights, controlSizes } from "../../theme/tokens";
+import { colors, spacing, radius, typography, controlSizes } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -307,9 +308,11 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
               hitSlop={6}
               onPress={() => setFavorite(toggleFavorite(track.id))}
             >
-              <Text style={[styles.favoriteText, favorite && styles.favoriteActive]}>
-                {favorite ? "♥" : "♡"}
-              </Text>
+              <FontAwesome
+                name={favorite ? "heart" : "heart-o"}
+                size={typography.iconMd}
+                color={favorite ? colors.primary : colors.mutedText}
+              />
             </Pressable>
           </View>
         </View>
@@ -460,14 +463,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: colors.card,
   },
-  favoriteText: {
-    fontSize: typography.iconMd,
-    color: colors.mutedText,
-    lineHeight: lineHeights.relaxed,
-  },
-  favoriteActive: {
-    color: colors.primary,
-  },
   progressWrap: { marginTop: spacing.xl },
   progressTrack: {
     height: controlSizes.progressHeight,
@@ -586,12 +581,12 @@ const styles = StyleSheet.create({
   primaryText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700" },
   secondaryBtn: {
     flex: 1,
-    backgroundColor: colors.secondary,
+    backgroundColor: "transparent",
     paddingVertical: spacing.sm,
     borderRadius: radius.sm,
     alignItems: "center",
     justifyContent: "center",
   },
-  secondaryText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
+  secondaryText: { color: colors.text, fontSize: typography.caption, fontWeight: "700", textAlign: "center" },
   pressed: { opacity: 0.85 },
 });
