@@ -12,7 +12,7 @@ import {
 import * as Updates from "expo-updates";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
-import { colors, spacing, radius, typography } from "../theme/tokens";
+import { colors, spacing, radius, typography, lineHeights } from "../theme/tokens";
 import { id } from "../i18n/strings";
 import { supabase } from "../services/supabase";
 import { getPendingUpdate, setPendingUpdate } from "../services/updatesState";
@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   cardTitle: { fontSize: typography.body, color: colors.text, fontWeight: "800" },
-  cardBody: { fontSize: typography.small, color: colors.mutedText, lineHeight: typography.lineHeights.normal },
+  cardBody: { fontSize: typography.small, color: colors.mutedText, lineHeight: lineHeights.normal },
 
   metaRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   metaLabel: { fontSize: typography.small, color: colors.mutedText, fontWeight: "700" },

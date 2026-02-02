@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../../navigation/types";
-import { colors, spacing, radius, typography } from "../../theme/tokens";
+import { colors, spacing, radius, typography, lineHeights } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Welcome">;
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: typography.body,
     color: colors.mutedText,
-    lineHeight: typography.lineHeights.relaxed
+    lineHeight: lineHeights.relaxed
   },
   primaryButton: {
     paddingVertical: spacing.sm,

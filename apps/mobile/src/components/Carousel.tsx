@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, FlatList, Pressable, Image, useWindowDimensions } from "react-native";
-import { colors, spacing, radius, typography } from "../theme/tokens";
+import { colors, spacing, radius, typography, lineHeights } from "../theme/tokens";
 import type { AudioTrack } from "../content/audioCatalog";
 import SectionTitle from "./SectionTitle";
 
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     fontSize: typography.caption,
     fontWeight: "700",
     color: colors.text,
-    lineHeight: typography.lineHeights.tight,
+    lineHeight: lineHeights.tight,
     marginTop: spacing.xs,
   },
   metaRow: {

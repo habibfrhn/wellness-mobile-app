@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image, Pressable, ScrollView } from "react-nati
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { getTrackById, isFavorite, toggleFavorite } from "../../content/audioCatalog";
-import { colors, spacing, radius, typography } from "../../theme/tokens";
+import { colors, spacing, radius, typography, lineHeights } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   favoriteText: {
     fontSize: typography.iconMd,
     color: colors.mutedText,
-    lineHeight: typography.lineHeights.relaxed,
+    lineHeight: lineHeights.relaxed,
   },
   favoriteActive: {
     color: colors.primary,

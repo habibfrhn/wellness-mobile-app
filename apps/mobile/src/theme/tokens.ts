@@ -37,6 +37,12 @@ export const radius = {
   full: 999,
 };
 
+export const lineHeights = {
+  tight: 16,
+  normal: 20,
+  relaxed: 22,
+};
+
 export const typography = {
   h1: 30,
   h2: 22,
@@ -48,9 +54,4 @@ export const typography = {
   tiny: 10,
   iconSm: 16,
   iconMd: 20,
-  lineHeights: {
-    tight: 16,
-    normal: 20,
-    relaxed: 22,
-  },
 };
