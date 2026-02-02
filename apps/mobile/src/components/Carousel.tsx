@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, FlatList, Pressable, Image, useWindowDimensions } from "react-native";
-import { colors, spacing, radius } from "../theme/tokens";
+import { colors, spacing, radius, typography, lineHeights } from "../theme/tokens";
 import type { AudioTrack } from "../content/audioCatalog";
 import SectionTitle from "./SectionTitle";
 
@@ -112,10 +112,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
   },
   cardTitle: {
-    fontSize: 12,
+    fontSize: typography.caption,
     fontWeight: "700",
     color: colors.text,
-    lineHeight: 16,
+    lineHeight: lineHeights.tight,
     marginTop: spacing.xs,
   },
   metaRow: {
@@ -127,12 +127,12 @@ const styles = StyleSheet.create({
   },
   cardMeta: {
     flex: 1,
-    fontSize: 12,
+    fontSize: typography.caption,
     color: colors.mutedText,
     marginRight: spacing.xs / 2,
   },
   cardDuration: {
-    fontSize: 11,
+    fontSize: typography.micro,
     color: colors.mutedText,
   },
   pressed: { opacity: 0.85 },

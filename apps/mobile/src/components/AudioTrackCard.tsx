@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet, Image } from "react-native";
-import { colors, spacing, radius, typography } from "../theme/tokens";
+import { colors, spacing, radius, typography, lineHeights } from "../theme/tokens";
 import type { AudioTrack } from "../content/audioCatalog";
 
 function formatTime(sec: number) {
@@ -64,13 +64,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cardTitle: {
-    fontSize: 12,
+    fontSize: typography.caption,
     fontWeight: "700",
     color: colors.text,
-    lineHeight: 16,
+    lineHeight: lineHeights.tight,
   },
   cardMetaRow: {
-    marginTop: 4,
+    marginTop: spacing.xs / 2,
     flexDirection: "row",
     alignItems: "flex-end",
     justifyContent: "space-between",
@@ -78,11 +78,11 @@ const styles = StyleSheet.create({
   cardMeta: {
     flex: 1,
     marginRight: spacing.sm,
-    fontSize: 11,
+    fontSize: typography.micro,
     color: colors.mutedText,
   },
   cardDuration: {
-    fontSize: 11,
+    fontSize: typography.micro,
     color: colors.mutedText,
   },
   pressed: { opacity: 0.85 },

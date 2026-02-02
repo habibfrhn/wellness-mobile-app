@@ -3,7 +3,7 @@ import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-nativ
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AuthStackParamList } from "../../navigation/types";
-import { colors, spacing, radius, typography } from "../../theme/tokens";
+import { colors, spacing, radius, typography, lineHeights } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase, AUTH_RESET } from "../../services/supabase";
 
@@ -91,7 +91,12 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: spacing.lg, backgroundColor: colors.bg },
   title: { fontSize: typography.h2, color: colors.text, fontWeight: "700" },
-  subtitle: { marginTop: spacing.xs, fontSize: typography.body, color: colors.mutedText, lineHeight: 22 },
+  subtitle: {
+    marginTop: spacing.xs,
+    fontSize: typography.body,
+    color: colors.mutedText,
+    lineHeight: lineHeights.relaxed,
+  },
   label: { fontSize: typography.small, color: colors.text, fontWeight: "700", marginBottom: spacing.xs },
   input: {
     borderWidth: 1,

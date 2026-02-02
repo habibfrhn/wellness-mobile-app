@@ -4,7 +4,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { colors, spacing, radius, typography } from "../theme/tokens";
+import { colors, spacing, radius, typography, iconSizes } from "../theme/tokens";
 import { id } from "../i18n/strings";
 import type { AppStackParamList } from "../navigation/types";
 
@@ -34,7 +34,7 @@ export default function HomeHeaderMenu({ navigation }: Props) {
           pressed && styles.pressed,
         ]}
       >
-        <MaterialCommunityIcons name="menu" size={20} color={iconColor} />
+        <MaterialCommunityIcons name="menu" size={iconSizes.md} color={iconColor} />
       </Pressable>
 
       <Modal
@@ -49,7 +49,7 @@ export default function HomeHeaderMenu({ navigation }: Props) {
               onPress={() => handleNavigate("Account")}
               style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
             >
-              <MaterialCommunityIcons name="account-circle-outline" size={16} color={colors.text} />
+              <MaterialCommunityIcons name="account-circle-outline" size={iconSizes.sm} color={colors.text} />
               <View style={styles.menuTextWrapper}>
                 <Text style={styles.menuText}>{id.account.profileMenu}</Text>
               </View>
@@ -59,7 +59,7 @@ export default function HomeHeaderMenu({ navigation }: Props) {
               onPress={() => handleNavigate("Settings")}
               style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
             >
-              <MaterialCommunityIcons name="cog-outline" size={16} color={colors.text} />
+              <MaterialCommunityIcons name="cog-outline" size={iconSizes.sm} color={colors.text} />
               <View style={styles.menuTextWrapper}>
                 <Text style={styles.menuText}>{id.account.settingsMenu}</Text>
               </View>
@@ -91,12 +91,12 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     position: "absolute",
-    right: spacing.sm + 2,
+    right: spacing.sm + spacing.xs / 4,
     backgroundColor: colors.card,
     borderRadius: radius.sm,
     borderWidth: 1,
     borderColor: colors.border,
-    paddingVertical: 4,
+    paddingVertical: spacing.xs / 2,
     paddingHorizontal: spacing.xs,
     shadowColor: colors.text,
     shadowOpacity: 0.08,
@@ -107,9 +107,9 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: spacing.sm / 2,
     paddingHorizontal: 0,
-    paddingVertical: 6,
+    paddingVertical: spacing.sm / 2,
   },
   menuTextWrapper: {
     alignItems: "flex-start",

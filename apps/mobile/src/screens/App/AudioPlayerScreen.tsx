@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image, Pressable, ScrollView } from "react-nati
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { getTrackById, isFavorite, toggleFavorite } from "../../content/audioCatalog";
-import { colors, spacing, radius, typography } from "../../theme/tokens";
+import { colors, spacing, radius, typography, lineHeights, sizes } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -441,15 +441,15 @@ const styles = StyleSheet.create({
   titleTextWrap: {
     flex: 1,
   },
-  title: { fontSize: 18, color: colors.text, fontWeight: "700" },
-  creator: { marginTop: 2, fontSize: 12, color: colors.mutedText },
+  title: { fontSize: typography.title, color: colors.text, fontWeight: "700" },
+  creator: { marginTop: spacing.xs / 4, fontSize: typography.caption, color: colors.mutedText },
   favoriteButton: {
     position: "absolute",
     right: spacing.xs,
     bottom: spacing.xs,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: sizes.favoriteButton,
+    height: sizes.favoriteButton,
+    borderRadius: sizes.favoriteButton / 2,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.card,
@@ -457,23 +457,23 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   favoriteText: {
-    fontSize: 20,
+    fontSize: typography.icon,
     color: colors.mutedText,
-    lineHeight: 22,
+    lineHeight: lineHeights.relaxed,
   },
   favoriteActive: {
     color: colors.primary,
   },
   progressWrap: { marginTop: spacing.xl },
   progressTrack: {
-    height: 5,
-    borderRadius: 999,
+    height: sizes.progressHeight,
+    borderRadius: radius.full,
     backgroundColor: colors.border,
     overflow: "hidden",
   },
   progressFill: {
     height: "100%",
-    borderRadius: 999,
+    borderRadius: radius.full,
     backgroundColor: colors.primary,
   },
   timeRow: {
@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs / 2,
     marginBottom: spacing.xl,
   },
-  timeText: { fontSize: 12, color: colors.mutedText },
+  timeText: { fontSize: typography.caption, color: colors.mutedText },
   controlsRow: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.md },
   soundscapeOptions: {
     marginTop: spacing.md,
@@ -499,7 +499,7 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   optionTitle: {
-    fontSize: 12,
+    fontSize: typography.caption,
     color: colors.text,
     fontWeight: "600",
   },
@@ -507,17 +507,17 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   infoIcon: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
+    width: sizes.infoIcon,
+    height: sizes.infoIcon,
+    borderRadius: sizes.infoIcon / 2,
     backgroundColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
   },
   infoIconText: {
-    fontSize: 12,
+    fontSize: typography.caption,
     fontWeight: "700",
-    color: "#fff",
+    color: colors.primaryText,
   },
   infoBubbleOverlay: {
     position: "absolute",
@@ -533,7 +533,7 @@ const styles = StyleSheet.create({
     minWidth: 180,
   },
   infoText: {
-    fontSize: 11,
+    fontSize: typography.micro,
     color: colors.mutedText,
   },
   timerRow: {
@@ -544,7 +544,7 @@ const styles = StyleSheet.create({
   timerPill: {
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs / 2,
-    borderRadius: 999,
+    borderRadius: radius.full,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.card,
@@ -554,7 +554,7 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
   },
   timerText: {
-    fontSize: 10,
+    fontSize: typography.tiny,
     fontWeight: "600",
     color: colors.text,
     textAlign: "center",
@@ -563,7 +563,7 @@ const styles = StyleSheet.create({
     color: colors.primaryText,
   },
   timerStatusText: {
-    fontSize: 12,
+    fontSize: typography.caption,
     fontWeight: "600",
     color: colors.mutedText,
   },

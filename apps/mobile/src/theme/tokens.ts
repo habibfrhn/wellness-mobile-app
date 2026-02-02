@@ -4,6 +4,7 @@ export const colors = {
   mutedText: "#667085",
   border: "#E6E6E6",
   card: "#FFFFFF",
+  white: "#FFFFFF",
 
   // Brand
   primary: "#1F4E79",
@@ -24,14 +25,38 @@ export const spacing = {
 };
 
 export const radius = {
+  xs: 8,
   sm: 12,
   md: 16,
   lg: 22,
+  full: 999,
 };
 
 export const typography = {
   h1: 30,
   h2: 22,
+  title: 18,
   body: 16,
   small: 14,
+  caption: 12,
+  micro: 11,
+  tiny: 10,
+  icon: 20,
+};
+
+export const lineHeights = {
+  tight: 16,
+  normal: 20,
+  relaxed: 22,
+};
+
+export const iconSizes = {
+  sm: 16,
+  md: 20,
+};
+
+export const sizes = {
+  favoriteButton: 36,
+  infoIcon: 18,
+  progressHeight: 5,
 };
