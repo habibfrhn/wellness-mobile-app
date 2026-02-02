@@ -59,6 +59,11 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   const current = Math.min(activeStatus.currentTime || 0, duration);
   const atEnd = duration > 0 && current >= duration - 0.25;
   const isSessionActive = isSoundscape && (activeStatus.playing || (current > 0 && !atEnd));
+  const progressRatio = duration > 0 ? Math.min(Math.max(current / duration, 0), 1) : 0;
+  const progressHandleSize = spacing.sm;
+  const progressHandleLeft = progressWidth
+    ? Math.min(Math.max(progressRatio * progressWidth - progressHandleSize / 2, 0), progressWidth - progressHandleSize)
+    : 0;
 
   const setPlayerVolume = useCallback((player: any, volume: number) => {
     try {
@@ -378,9 +383,10 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
                 <View
                   style={[
                     styles.progressFill,
-                    { width: duration > 0 && progressWidth ? `${(current / duration) * 100}%` : "0%" }
+                    { width: progressWidth ? `${progressRatio * 100}%` : "0%" }
                   ]}
                 />
+                <View style={[styles.progressHandle, { left: progressHandleLeft }]} />
               </View>
             </Pressable>
             <View style={styles.timeRow}>
@@ -466,13 +472,22 @@ const styles = StyleSheet.create({
   progressTrack: {
     height: controlSizes.progressHeight,
     borderRadius: radius.full,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.white,
     overflow: "hidden",
   },
   progressFill: {
     height: "100%",
     borderRadius: radius.full,
     backgroundColor: colors.primary,
+  },
+  progressHandle: {
+    position: "absolute",
+    width: spacing.sm,
+    height: spacing.sm,
+    borderRadius: spacing.sm / 2,
+    backgroundColor: colors.primary,
+    top: "50%",
+    transform: [{ translateY: -(spacing.sm / 2) }],
   },
   timeRow: {
     flexDirection: "row",
@@ -577,6 +592,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  secondaryText: { color: colors.secondaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
+  secondaryText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
   pressed: { opacity: 0.85 },
 });
