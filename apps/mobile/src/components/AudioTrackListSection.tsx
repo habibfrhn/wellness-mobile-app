@@ -16,9 +16,14 @@ export default function AudioTrackListSection({ title, tracks, onPress }: AudioT
     <View style={styles.container}>
       <SectionTitle title={title} />
       <View style={styles.list}>
-        {tracks.map((track) => (
-          <AudioTrackCard key={track.id} track={track} onPress={() => onPress(track)} />
-        ))}
+        {tracks.map((track, index) => {
+          const isLast = index === tracks.length - 1;
+          return (
+            <View key={track.id} style={isLast && styles.lastCard}>
+              <AudioTrackCard track={track} onPress={() => onPress(track)} />
+            </View>
+          );
+        })}
       </View>
     </View>
   );
@@ -31,5 +36,8 @@ const styles = StyleSheet.create({
   list: {
     paddingHorizontal: spacing.sm,
     gap: spacing.sm,
+  },
+  lastCard: {
+    paddingBottom: spacing.sm,
   },
 });
