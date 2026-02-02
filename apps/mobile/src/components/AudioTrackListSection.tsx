@@ -38,6 +38,6 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   lastCard: {
-    paddingBottom: spacing.sm,
+    paddingBottom: spacing.md,
   },
 });
