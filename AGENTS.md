@@ -17,3 +17,8 @@
 - Use `apps/mobile/src/i18n/strings.ts` for user-visible copy whenever practical.
 - Use `apps/mobile/src/theme/tokens.ts` for colors, spacing, radius, and typography values.
 - If a `theme.ts` file is introduced later, keep it consistent with `tokens.ts` and prefer tokens for raw values.
+
+## Token safety & exports
+- Only add **top-level** token exports in `apps/mobile/src/theme/tokens.ts` (avoid nested token objects that require extra lookups).
+- If you introduce a new token, update all consumers in the same change.
+- Run `rg` to confirm no references remain to old token shapes.
