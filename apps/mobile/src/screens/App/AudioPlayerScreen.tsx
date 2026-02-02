@@ -582,6 +582,8 @@ const styles = StyleSheet.create({
   secondaryBtn: {
     flex: 1,
     backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: colors.secondary,
     paddingVertical: spacing.sm,
     borderRadius: radius.sm,
     alignItems: "center",
