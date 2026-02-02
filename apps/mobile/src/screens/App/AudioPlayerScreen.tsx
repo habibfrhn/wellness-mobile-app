@@ -466,7 +466,7 @@ const styles = StyleSheet.create({
   progressTrack: {
     height: controlSizes.progressHeight,
     borderRadius: radius.full,
-    backgroundColor: colors.border,
+    backgroundColor: colors.bg,
     overflow: "hidden",
   },
   progressFill: {
@@ -508,7 +508,7 @@ const styles = StyleSheet.create({
     width: controlSizes.infoIcon,
     height: controlSizes.infoIcon,
     borderRadius: controlSizes.infoIcon / 2,
-    backgroundColor: colors.border,
+    backgroundColor: colors.bg,
     alignItems: "center",
     justifyContent: "center",
   },

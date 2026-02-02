@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   primaryButtonDisabled: {
-    backgroundColor: colors.border,
+    backgroundColor: colors.mutedText,
   },
   primaryButtonText: {
     color: colors.primaryText,

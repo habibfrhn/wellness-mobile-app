@@ -26,7 +26,7 @@ export default function AudioTrackListSection({ title, tracks, onPress }: AudioT
 
 const styles = StyleSheet.create({
   container: {
-    paddingBottom: spacing.xs,
+    paddingBottom: 0,
   },
   list: {
     paddingHorizontal: spacing.sm,
