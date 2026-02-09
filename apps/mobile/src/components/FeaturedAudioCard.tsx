@@ -1,6 +1,5 @@
 import React from "react";
 import { View, Text, StyleSheet, Pressable, Image, useWindowDimensions } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { colors, spacing, radius, typography, lineHeights } from "../theme/tokens";
 import type { AudioTrack } from "../content/audioCatalog";
 
@@ -48,12 +47,6 @@ export default function FeaturedAudioCard({ track, onPress }: FeaturedAudioCardP
             </View>
           </View>
         </View>
-        <MaterialCommunityIcons
-          name="arrow-right"
-          size={typography.iconMd}
-          color={colors.mutedText}
-          style={styles.nextIcon}
-        />
       </Pressable>
     </View>
   );
@@ -80,7 +73,7 @@ const styles = StyleSheet.create({
   },
   details: {
     flex: 1,
-    alignItems: "flex-start",
+    alignItems: "center",
     justifyContent: "center",
   },
   cardTitle: {
@@ -88,23 +81,18 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: colors.text,
     lineHeight: lineHeights.tight,
-    textAlign: "left",
+    textAlign: "center",
   },
   metaRow: {
     marginTop: spacing.xs / 2,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-start",
+    justifyContent: "center",
     gap: spacing.xs / 2,
   },
   cardMeta: {
     fontSize: typography.caption,
     color: colors.mutedText,
-  },
-  nextIcon: {
-    position: "absolute",
-    right: spacing.xs,
-    bottom: spacing.xs,
   },
   pressed: { opacity: 0.85 },
 });
