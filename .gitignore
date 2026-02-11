@@ -1,7 +1,6 @@
 ﻿# Env (ignore anywhere)
 **/.env
 **/.env.*
-!**/.env.example
 
 # Node / package managers
 **/node_modules/
