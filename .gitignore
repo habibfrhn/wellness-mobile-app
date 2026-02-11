@@ -40,6 +40,12 @@
 **/*.pem
 **/*.p8
 **/*.p12
+**/*.pfx
 **/*.key
 **/*.mobileprovision
 **/*.jks
+**/*.keystore
+**/google-services.json
+**/GoogleService-Info.plist
+**/.envrc
+**/.direnv/
