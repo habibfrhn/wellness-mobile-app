@@ -12,6 +12,7 @@ export type AuthStackParamList = {
 export type AppStackParamList = {
   Home: undefined;
   NightMode: undefined;
+  NightCheckIn: { mode: "calm_mind" | "release_accept" };
   Player: { audioId: AudioId };
   Account: undefined;
   Settings: undefined;

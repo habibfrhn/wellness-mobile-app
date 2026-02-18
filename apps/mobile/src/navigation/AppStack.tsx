@@ -2,6 +2,7 @@ import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import HomeScreen from "../screens/App/HomeScreen";
+import NightModeScreen from "../screens/App/NightModeScreen";
 import AudioPlayerScreen from "../screens/App/AudioPlayerScreen";
 import ProfileScreen from "../screens/App/ProfileScreen";
 import ResetPasswordScreen from "../screens/App/ResetPasswordScreen";
@@ -14,7 +15,7 @@ import { id } from "../i18n/strings";
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
-function NightModePlaceholderScreen() {
+function NightCheckInPlaceholderScreen() {
   return null;
 }
 
@@ -66,7 +67,17 @@ export default function AppStack() {
         {(props) => <ResetPasswordScreen {...props} />}
       </Stack.Screen>
 
-      <Stack.Screen name="NightMode" component={NightModePlaceholderScreen} options={{ title: "" }} />
+      <Stack.Screen
+        name="NightMode"
+        component={NightModeScreen}
+        options={{ title: "" }}
+      />
+
+      <Stack.Screen
+        name="NightCheckIn"
+        component={NightCheckInPlaceholderScreen}
+        options={{ title: "" }}
+      />
     </Stack.Navigator>
   );
 }
