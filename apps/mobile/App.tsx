@@ -6,7 +6,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import { supabase } from "./src/services/supabase";
+import { hasSupabaseEnv, missingSupabaseEnvMessage, supabase } from "./src/services/supabase";
 import { handleAuthLink } from "./src/services/authLinks";
 import AuthStack from "./src/navigation/AuthStack";
 import AppStack from "./src/navigation/AppStack";
@@ -94,6 +94,12 @@ export default function App() {
       // no-op if it's already hidden
     }
   };
+
+  useEffect(() => {
+    if (hasSupabaseEnv) return;
+
+    Alert.alert(id.common.errorTitle, missingSupabaseEnvMessage);
+  }, []);
 
   // Clear reset override once user signs out (we sign out after reset success)
   useEffect(() => {

@@ -6,26 +6,30 @@ import { createClient, processLock } from "@supabase/supabase-js";
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    [
-      "Missing Supabase env.",
-      'Set "EXPO_PUBLIC_SUPABASE_URL" and "EXPO_PUBLIC_SUPABASE_ANON_KEY".',
-      "- Local dev: put them in apps/mobile/.env (loaded by Expo).",
-      "- EAS builds: set them in EAS environment variables (development/preview/production).",
-    ].join(" ")
-  );
-}
+const FALLBACK_SUPABASE_URL = "https://placeholder.supabase.co";
+const FALLBACK_SUPABASE_ANON_KEY = "missing-anon-key";
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    ...(Platform.OS !== "web" ? { storage: AsyncStorage } : {}),
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: false,
-    lock: processLock,
-  },
-});
+export const hasSupabaseEnv = Boolean(supabaseUrl && supabaseAnonKey);
+export const missingSupabaseEnvMessage = [
+  "Missing Supabase env.",
+  'Set "EXPO_PUBLIC_SUPABASE_URL" and "EXPO_PUBLIC_SUPABASE_ANON_KEY".',
+  "- Local dev: put them in apps/mobile/.env (loaded by Expo).",
+  "- EAS builds: set them in EAS environment variables (development/preview/production).",
+].join(" ");
+
+export const supabase = createClient(
+  supabaseUrl ?? FALLBACK_SUPABASE_URL,
+  supabaseAnonKey ?? FALLBACK_SUPABASE_ANON_KEY,
+  {
+    auth: {
+      ...(Platform.OS !== "web" ? { storage: AsyncStorage } : {}),
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: false,
+      lock: processLock,
+    },
+  }
+);
 
 if (Platform.OS !== "web") {
   AppState.addEventListener("change", (state) => {
