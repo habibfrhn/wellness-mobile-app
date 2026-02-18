@@ -104,6 +104,8 @@ export const id = {
     nightModeCalmMindSubtitle: "Untuk overthinking & pikiran berputar",
     nightModeReleaseAcceptTitle: "Lepaskan & Terima",
     nightModeReleaseAcceptSubtitle: "Untuk beban emosi & rasa bersalah",
+    nightCheckInQuestion: "Seberapa tegang pikiranmu sekarang?",
+    nightCheckInStartCta: "Mulai",
     afirmasiCarouselTitle: "Afirmasi sebelum tidur",
     soundscapeCarouselTitle: "Soundscape untuk tidur",
   },

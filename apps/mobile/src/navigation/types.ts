@@ -13,6 +13,7 @@ export type AppStackParamList = {
   Home: undefined;
   NightMode: undefined;
   NightCheckIn: { mode: "calm_mind" | "release_accept" };
+  NightStep1: { mode: "calm_mind" | "release_accept"; stressBefore: number };
   Player: { audioId: AudioId };
   Account: undefined;
   Settings: undefined;
