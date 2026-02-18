@@ -192,21 +192,21 @@ export default function App() {
       <SafeAreaProvider>
         <NavigationContainer>
           {Platform.OS === "web" ? (
-            <RootStack.Navigator initialRouteName="Landing" screenOptions={{ headerShown: false }}>
-              <RootStack.Screen name="Landing" component={LandingScreen} />
-              <RootStack.Screen name="Auth">
-                {() => <AuthStack key={`auth-${initialAuthRoute}`} initialRouteName={initialAuthRoute} />}
-              </RootStack.Screen>
-              <RootStack.Screen name="App" component={AppStack} />
-            </RootStack.Navigator>
+            shouldShowAuth ? (
+              <RootStack.Navigator initialRouteName="Landing" screenOptions={{ headerShown: false }}>
+                <RootStack.Screen name="Landing" component={LandingScreen} />
+                <RootStack.Screen name="Auth">
+                  {() => <AuthStack key={`auth-${initialAuthRoute}`} initialRouteName={initialAuthRoute} />}
+                </RootStack.Screen>
+                <RootStack.Screen name="App" component={AppStack} />
+              </RootStack.Navigator>
+            ) : (
+              <AppStack />
+            )
+          ) : shouldShowAuth ? (
+            <AuthStack key={`auth-${initialAuthRoute}`} initialRouteName={initialAuthRoute} />
           ) : (
-            <>
-              {shouldShowAuth ? (
-                <AuthStack key={`auth-${initialAuthRoute}`} initialRouteName={initialAuthRoute} />
-              ) : (
-                <AppStack />
-              )}
-            </>
+            <AppStack />
           )}
         </NavigationContainer>
       </SafeAreaProvider>
