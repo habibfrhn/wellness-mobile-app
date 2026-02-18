@@ -97,7 +97,7 @@ export const id = {
     greetingNoName: "Selamat malam",
     streakPlaceholder: "0 malam berturut-turut",
     lastNightPlaceholder: "Tadi malam: stres —",
-    primarySleepCta: "Mulai Ritual Malam Ini",
+    primarySleepCta: "Mulai Tidur",
     secondaryModeCta: "Ganti mode",
     afirmasiCarouselTitle: "Afirmasi sebelum tidur",
     soundscapeCarouselTitle: "Soundscape untuk tidur",
