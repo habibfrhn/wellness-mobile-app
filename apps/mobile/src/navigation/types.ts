@@ -11,6 +11,7 @@ export type AuthStackParamList = {
 
 export type AppStackParamList = {
   Home: undefined;
+  NightMode: undefined;
   Player: { audioId: AudioId };
   Account: undefined;
   Settings: undefined;

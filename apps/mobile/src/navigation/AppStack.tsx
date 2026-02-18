@@ -14,6 +14,10 @@ import { id } from "../i18n/strings";
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
+function NightModePlaceholderScreen() {
+  return null;
+}
+
 export default function AppStack() {
   return (
     <Stack.Navigator
@@ -61,6 +65,8 @@ export default function AppStack() {
       <Stack.Screen name="ResetPassword" options={{ title: "Ubah kata sandi" }}>
         {(props) => <ResetPasswordScreen {...props} />}
       </Stack.Screen>
+
+      <Stack.Screen name="NightMode" component={NightModePlaceholderScreen} options={{ title: "" }} />
     </Stack.Navigator>
   );
 }
