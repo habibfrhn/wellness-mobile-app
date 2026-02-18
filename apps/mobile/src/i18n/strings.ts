@@ -109,6 +109,8 @@ export const id = {
     nightStep1Header: "Langkah 1 dari 3",
     nightStep1CalmMindTitle: "Tenangkan Pikiran",
     nightStep1ReleaseAcceptTitle: "Lepaskan & Terima",
+    nightStep2Header: "Langkah 2 dari 3",
+    nightStep2Title: "Tidur Terpandu",
     afirmasiCarouselTitle: "Afirmasi sebelum tidur",
     soundscapeCarouselTitle: "Soundscape untuk tidur",
   },

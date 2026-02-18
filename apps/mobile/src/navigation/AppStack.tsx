@@ -5,6 +5,7 @@ import HomeScreen from "../screens/App/HomeScreen";
 import NightModeScreen from "../screens/App/NightModeScreen";
 import NightCheckInScreen from "../screens/App/NightCheckInScreen";
 import NightStep1Screen from "../screens/App/NightStep1Screen";
+import NightStep2Screen from "../screens/App/NightStep2Screen";
 import AudioPlayerScreen from "../screens/App/AudioPlayerScreen";
 import ProfileScreen from "../screens/App/ProfileScreen";
 import ResetPasswordScreen from "../screens/App/ResetPasswordScreen";
@@ -17,7 +18,7 @@ import { id } from "../i18n/strings";
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
-function NightStep2PlaceholderScreen() {
+function NightStep3PlaceholderScreen() {
   return null;
 }
 
@@ -89,7 +90,13 @@ export default function AppStack() {
 
       <Stack.Screen
         name="NightStep2"
-        component={NightStep2PlaceholderScreen}
+        component={NightStep2Screen}
+        options={{ title: "" }}
+      />
+
+      <Stack.Screen
+        name="NightStep3"
+        component={NightStep3PlaceholderScreen}
         options={{ title: "" }}
       />
     </Stack.Navigator>
