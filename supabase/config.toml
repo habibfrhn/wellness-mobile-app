@@ -383,3 +383,5 @@ s3_secret_key = "env(S3_SECRET_KEY)"
 
 [functions.delete-account]
 verify_jwt = false
+[functions.record-night-session]
+verify_jwt = false

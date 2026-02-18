@@ -10,6 +10,34 @@ type SaveNightSessionInput = {
   completedAt?: Date;
 };
 
+type RecordNightSessionPayload = {
+  date_key: string;
+  mode: NightSessionMode;
+  stress_before: number;
+  stress_after: number;
+};
+
+export async function recordNightSession(payload: RecordNightSessionPayload): Promise<boolean> {
+  try {
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+    if (sessionError || !accessToken) {
+      return false;
+    }
+
+    const { error } = await supabase.functions.invoke<{ ok: boolean }>("record-night-session", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: payload,
+    });
+
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Persist one completed night session row to Supabase.
  *
@@ -23,28 +51,10 @@ export async function saveNightSessionCompletion({
   stressAfter,
   completedAt = new Date(),
 }: SaveNightSessionInput): Promise<boolean> {
-  try {
-    const { data, error: userError } = await supabase.auth.getUser();
-    if (userError || !data.user?.id) {
-      return false;
-    }
-
-    const payload = {
-      user_id: data.user.id,
-      date_key: getNightDateKey(completedAt),
-      mode,
-      stress_before: stressBefore,
-      stress_after: stressAfter,
-      completed_at: completedAt.toISOString(),
-    };
-
-    const { error } = await supabase.from("night_sessions").insert(payload);
-    if (error) {
-      return false;
-    }
-
-    return true;
-  } catch {
-    return false;
-  }
+  return recordNightSession({
+    date_key: getNightDateKey(completedAt),
+    mode,
+    stress_before: stressBefore,
+    stress_after: stressAfter,
+  });
 }

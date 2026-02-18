@@ -4,7 +4,8 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { id } from "../../i18n/strings";
 import type { AppStackParamList } from "../../navigation/types";
-import { saveNightSessionCompletion } from "../../services/nightSessions";
+import { recordNightSession } from "../../services/nightSessions";
+import { getNightDateKey } from "../../services/nightStreak";
 import { colors, radius, spacing, typography } from "../../theme/tokens";
 
 type Props = NativeStackScreenProps<AppStackParamList, "NightCheckOut">;
@@ -32,7 +33,12 @@ export default function NightCheckOutScreen({ navigation, route }: Props) {
     timeoutRef.current = setTimeout(() => {
       // Persist to Supabase in the background. Failures are intentionally ignored
       // so users can continue seamlessly when offline or when backend is unavailable.
-      void saveNightSessionCompletion({ mode, stressBefore, stressAfter });
+      void recordNightSession({
+        date_key: getNightDateKey(),
+        mode,
+        stress_before: stressBefore,
+        stress_after: stressAfter,
+      });
 
       navigation.navigate("Home", {
         completed: true,
