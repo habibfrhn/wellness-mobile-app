@@ -8,5 +8,8 @@
     "typecheck": "pnpm -C apps/mobile typecheck",
     "pre-release": "pnpm -C apps/mobile pre-release",
     "start:web": "pnpm -C apps/mobile web"
+  },
+  "devDependencies": {
+    "supabase": "^2.76.10"
   }
 }
