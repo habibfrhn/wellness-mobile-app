@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Image, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -11,15 +11,29 @@ import HomeGreetingTitle from "../../components/HomeGreetingTitle";
 import HomeNightSummary from "../../components/HomeNightSummary";
 import { id } from "../../i18n/strings";
 import type { AppStackParamList } from "../../navigation/types";
+import { getNightStreakState, registerNightCompletion } from "../../services/nightStreak";
 import { colors, spacing } from "../../theme/tokens";
+
+type HomeRouteParams = AppStackParamList["Home"];
 
 type Props = {
   navigation: NativeStackNavigationProp<AppStackParamList, "Home">;
+  routeParams?: HomeRouteParams;
   centered?: boolean;
 };
 
-export default function HomeScreenBase({ navigation, centered = false }: Props) {
+export default function HomeScreenBase({ navigation, routeParams, centered = false }: Props) {
   const insets = useSafeAreaInsets();
+  const [streakCount, setStreakCount] = useState(0);
+  const [lastNightStressDelta, setLastNightStressDelta] = useState<number | null>(null);
+
+  const completionPayload = useMemo(() => {
+    if (!routeParams || routeParams.completed !== true) {
+      return null;
+    }
+
+    return routeParams;
+  }, [routeParams]);
 
   useEffect(() => {
     const coverUris = Array.from(
@@ -34,6 +48,40 @@ export default function HomeScreenBase({ navigation, centered = false }: Props) 
       Image.prefetch(uri);
     });
   }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const syncNightSummary = async () => {
+      if (completionPayload) {
+        const next = await registerNightCompletion();
+
+        if (!mounted) {
+          return;
+        }
+
+        setStreakCount(next.streakCount);
+        setLastNightStressDelta(completionPayload.stressBefore - completionPayload.stressAfter);
+
+        // Clear route params so coming back to Home doesn't re-register this same completion.
+        navigation.setParams(undefined);
+        return;
+      }
+
+      const saved = await getNightStreakState();
+      if (!mounted) {
+        return;
+      }
+
+      setStreakCount(saved.streakCount);
+    };
+
+    syncNightSummary();
+
+    return () => {
+      mounted = false;
+    };
+  }, [completionPayload, navigation]);
 
   const guidedSleepTracks = AUDIO_TRACKS.filter((track) => track.contentType === "guided-sleep");
   const featuredTrack = guidedSleepTracks[0];
@@ -52,6 +100,8 @@ export default function HomeScreenBase({ navigation, centered = false }: Props) 
       <View style={centered ? styles.contentWrap : undefined}>
         <HomeGreetingTitle />
         <HomeNightSummary
+          streakCount={streakCount}
+          lastNightStressDelta={lastNightStressDelta}
           onPressPrimary={() => navigation.navigate("NightMode")}
           onPressSecondary={() => {
             // placeholder action

@@ -6,6 +6,6 @@ import HomeScreenBase from "./HomeScreenBase";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Home">;
 
-export default function HomeScreen({ navigation }: Props) {
-  return <HomeScreenBase navigation={navigation} />;
+export default function HomeScreen({ navigation, route }: Props) {
+  return <HomeScreenBase navigation={navigation} routeParams={route.params} />;
 }
