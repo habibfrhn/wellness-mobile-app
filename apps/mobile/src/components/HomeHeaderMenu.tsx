@@ -96,15 +96,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     paddingVertical: spacing.xs / 2,
     paddingHorizontal: spacing.xs,
-    ...(Platform.OS === "web"
-      ? { boxShadow: `0px 4px 8px ${colors.text}14` }
-      : {
-          shadowColor: colors.text,
-          shadowOpacity: 0.08,
-          shadowRadius: 8,
-          shadowOffset: { width: 0, height: 4 },
-          elevation: 2,
-        }),
+    boxShadow: `0px 4px 8px ${colors.text}14`,
+    elevation: Platform.OS === "android" ? 2 : 0,
   },
   menuItem: {
     flexDirection: "row",
