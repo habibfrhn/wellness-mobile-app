@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, Pressable, StyleSheet, Alert, Platform } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AuthStackParamList } from "../../navigation/types";
@@ -48,8 +48,13 @@ export default function LoginScreen({ navigation, route }: Props) {
       const verified = Boolean(data.user?.email_confirmed_at);
       if (!verified) {
         navigation.replace("VerifyEmail", { email: e });
+        return;
       }
-      // If verified, App.tsx will route them to AppStack automatically.
+
+      if (Platform.OS === "web") {
+        navigation.getParent()?.navigate("App");
+      }
+      // On native, App.tsx will route them to AppStack automatically.
     } finally {
       setBusy(false);
     }
