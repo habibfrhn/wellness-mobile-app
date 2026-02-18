@@ -7,6 +7,7 @@ import NightCheckInScreen from "../screens/App/NightCheckInScreen";
 import NightStep1Screen from "../screens/App/NightStep1Screen";
 import NightStep2Screen from "../screens/App/NightStep2Screen";
 import NightStep3Screen from "../screens/App/NightStep3Screen";
+import NightCheckOutScreen from "../screens/App/NightCheckOutScreen";
 import AudioPlayerScreen from "../screens/App/AudioPlayerScreen";
 import ProfileScreen from "../screens/App/ProfileScreen";
 import ResetPasswordScreen from "../screens/App/ResetPasswordScreen";
@@ -18,10 +19,6 @@ import { colors } from "../theme/tokens";
 import { id } from "../i18n/strings";
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
-
-function NightCheckOutPlaceholderScreen() {
-  return null;
-}
 
 export default function AppStack() {
   return (
@@ -103,7 +100,7 @@ export default function AppStack() {
 
       <Stack.Screen
         name="NightCheckOut"
-        component={NightCheckOutPlaceholderScreen}
+        component={NightCheckOutScreen}
         options={{ title: "" }}
       />
     </Stack.Navigator>

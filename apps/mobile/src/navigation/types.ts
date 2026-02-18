@@ -10,7 +10,13 @@ export type AuthStackParamList = {
 };
 
 export type AppStackParamList = {
-  Home: undefined;
+  Home:
+    | undefined
+    | {
+        completed: true;
+        stressBefore: number;
+        stressAfter: number;
+      };
   NightMode: undefined;
   NightCheckIn: { mode: "calm_mind" | "release_accept" };
   NightStep1: { mode: "calm_mind" | "release_accept"; stressBefore: number };
