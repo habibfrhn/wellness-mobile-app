@@ -1,7 +1,7 @@
 import "react-native-url-polyfill/auto";
 import { AppState, Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createClient, processLock } from "@supabase/supabase-js";
+import { createClient, processLock, type SupabaseClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
@@ -17,10 +17,16 @@ export const missingSupabaseEnvMessage = [
   "- EAS builds: set them in EAS environment variables (development/preview/production).",
 ].join(" ");
 
-export const supabase = createClient(
-  supabaseUrl ?? FALLBACK_SUPABASE_URL,
-  supabaseAnonKey ?? FALLBACK_SUPABASE_ANON_KEY,
-  {
+type SupabaseClientSingleton = SupabaseClient;
+
+type GlobalWithSupabase = typeof globalThis & {
+  __wellnessSupabaseClient?: SupabaseClientSingleton;
+};
+
+const globalRef = globalThis as GlobalWithSupabase;
+
+function createSupabaseClient(): SupabaseClientSingleton {
+  return createClient(supabaseUrl ?? FALLBACK_SUPABASE_URL, supabaseAnonKey ?? FALLBACK_SUPABASE_ANON_KEY, {
     auth: {
       ...(Platform.OS !== "web" ? { storage: AsyncStorage } : {}),
       persistSession: true,
@@ -28,8 +34,14 @@ export const supabase = createClient(
       detectSessionInUrl: false,
       lock: processLock,
     },
-  }
-);
+  });
+}
+
+export const supabase = globalRef.__wellnessSupabaseClient ?? createSupabaseClient();
+
+if (!globalRef.__wellnessSupabaseClient) {
+  globalRef.__wellnessSupabaseClient = supabase;
+}
 
 if (Platform.OS !== "web") {
   AppState.addEventListener("change", (state) => {

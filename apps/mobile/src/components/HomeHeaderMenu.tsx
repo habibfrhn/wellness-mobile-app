@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Pressable, StyleSheet, Text, Modal } from "react-native";
+import { View, Pressable, StyleSheet, Text, Modal, Platform } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -96,11 +96,15 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     paddingVertical: spacing.xs / 2,
     paddingHorizontal: spacing.xs,
-    shadowColor: colors.text,
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 2,
+    ...(Platform.OS === "web"
+      ? { boxShadow: `0px 4px 8px ${colors.text}14` }
+      : {
+          shadowColor: colors.text,
+          shadowOpacity: 0.08,
+          shadowRadius: 8,
+          shadowOffset: { width: 0, height: 4 },
+          elevation: 2,
+        }),
   },
   menuItem: {
     flexDirection: "row",
