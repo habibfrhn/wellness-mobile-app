@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, Alert, View } from "react-native";
+import { ActivityIndicator, Alert, Platform, View } from "react-native";
 import * as Linking from "expo-linking";
 import * as Updates from "expo-updates";
 import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { supabase } from "./src/services/supabase";
@@ -10,12 +11,21 @@ import { handleAuthLink } from "./src/services/authLinks";
 import AuthStack from "./src/navigation/AuthStack";
 import AppStack from "./src/navigation/AppStack";
 import type { AuthStackParamList } from "./src/navigation/types";
+import LandingScreen from "./src/screens/LandingScreen";
 import { id } from "./src/i18n/strings";
 import { hideSplashScreen, preventAutoHideSplashScreen } from "./src/services/splashScreen";
 import { setPendingUpdate } from "./src/services/updatesState";
 import { clearNextAuthRoute, getNextAuthRoute } from "./src/services/authStart";
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
+
+type RootStackParamList = {
+  Landing: undefined;
+  Auth: undefined;
+  App: undefined;
+};
+
+const RootStack = createNativeStackNavigator<RootStackParamList>();
 
 preventAutoHideSplashScreen().catch(() => {
   // no-op if it's already hidden
@@ -181,10 +191,22 @@ export default function App() {
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <SafeAreaProvider>
         <NavigationContainer>
-          {shouldShowAuth ? (
-            <AuthStack key={`auth-${initialAuthRoute}`} initialRouteName={initialAuthRoute} />
+          {Platform.OS === "web" ? (
+            <RootStack.Navigator initialRouteName="Landing" screenOptions={{ headerShown: false }}>
+              <RootStack.Screen name="Landing" component={LandingScreen} />
+              <RootStack.Screen name="Auth">
+                {() => <AuthStack key={`auth-${initialAuthRoute}`} initialRouteName={initialAuthRoute} />}
+              </RootStack.Screen>
+              <RootStack.Screen name="App" component={AppStack} />
+            </RootStack.Navigator>
           ) : (
-            <AppStack />
+            <>
+              {shouldShowAuth ? (
+                <AuthStack key={`auth-${initialAuthRoute}`} initialRouteName={initialAuthRoute} />
+              ) : (
+                <AppStack />
+              )}
+            </>
           )}
         </NavigationContainer>
       </SafeAreaProvider>
