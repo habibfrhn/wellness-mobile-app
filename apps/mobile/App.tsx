@@ -29,6 +29,32 @@ const RootStack = createNativeStackNavigator<RootStackParamList>();
 
 
 LogBox.ignoreLogs(["props.pointerEvents is deprecated. Use style.pointerEvents"]);
+
+type ConsoleWithPointerEventsGuard = Console & {
+  __wellnessPointerEventsWarnGuard?: boolean;
+};
+
+if (Platform.OS === "web") {
+  const guardedConsole = console as ConsoleWithPointerEventsGuard;
+
+  if (!guardedConsole.__wellnessPointerEventsWarnGuard) {
+    const originalWarn = console.warn;
+    console.warn = (...args: unknown[]) => {
+      const [firstArg] = args;
+      if (
+        typeof firstArg === "string" &&
+        firstArg.includes("props.pointerEvents is deprecated. Use style.pointerEvents")
+      ) {
+        return;
+      }
+
+      originalWarn(...args);
+    };
+
+    guardedConsole.__wellnessPointerEventsWarnGuard = true;
+  }
+}
+
 preventAutoHideSplashScreen().catch(() => {
   // no-op if it's already hidden
 });
