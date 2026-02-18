@@ -306,6 +306,17 @@ export default function SettingsContent({ navigation }: Props) {
           <Text style={styles.secondaryActionButtonText}>{id.account.resetPasswordButton}</Text>
         </Pressable>
       </View>
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>{id.account.reminderTitle}</Text>
+        <Text style={styles.cardBody}>{id.account.reminderBody}</Text>
+        <Pressable
+          onPress={() => navigation.navigate("ReminderSettings")}
+          style={({ pressed }) => [styles.secondaryActionButton, pressed && styles.pressed]}
+        >
+          <Text style={styles.secondaryActionButtonText}>{id.account.reminderManageButton}</Text>
+        </Pressable>
+      </View>
+
 
       <View style={styles.card}>
         <Text style={styles.cardTitle}>{id.account.helpTitle}</Text>

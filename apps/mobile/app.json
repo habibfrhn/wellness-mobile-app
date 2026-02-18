@@ -28,13 +28,17 @@
           "barStyle": "light",
           "visibility": "visible"
         }
-      ]
+      ],
+      "expo-notifications"
     ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.wellnessapp.mobile",
       "infoPlist": {
-        "UIBackgroundModes": ["audio"]
+        "UIBackgroundModes": [
+          "audio"
+        ],
+        "NSUserNotificationUsageDescription": "Aplikasi menggunakan notifikasi untuk pengingat ritual malam harian."
       }
     },
     "android": {

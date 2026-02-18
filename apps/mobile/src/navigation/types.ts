@@ -26,5 +26,6 @@ export type AppStackParamList = {
   Player: { audioId: AudioId };
   Account: undefined;
   Settings: undefined;
+  ReminderSettings: undefined;
   ResetPassword: undefined;
 };

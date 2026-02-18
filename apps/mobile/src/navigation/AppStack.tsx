@@ -12,6 +12,7 @@ import AudioPlayerScreen from "../screens/App/AudioPlayerScreen";
 import ProfileScreen from "../screens/App/ProfileScreen";
 import ResetPasswordScreen from "../screens/App/ResetPasswordScreen";
 import SettingsScreen from "../screens/App/SettingsScreen";
+import ReminderSettingsScreen from "../screens/App/ReminderSettingsScreen";
 import HomeHeaderLogo from "../components/HomeHeaderLogo";
 import HomeHeaderMenu from "../components/HomeHeaderMenu";
 import type { AppStackParamList } from "./types";
@@ -62,6 +63,17 @@ export default function AppStack() {
         }}
       >
         {(props) => <SettingsScreen {...props} />}
+      </Stack.Screen>
+
+
+      <Stack.Screen
+        name="ReminderSettings"
+        options={{
+          title: id.account.reminderScreenTitle,
+          headerBackTitleVisible: false,
+        }}
+      >
+        {(props) => <ReminderSettingsScreen {...props} />}
       </Stack.Screen>
 
       <Stack.Screen name="ResetPassword" options={{ title: "Ubah kata sandi" }}>
