@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Image, ScrollView, StyleSheet, View } from "react-native";
+import { Image, Platform, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
@@ -36,9 +36,21 @@ export default function HomeScreenBase({ navigation, routeParams, centered = fal
   }, [routeParams]);
 
   useEffect(() => {
+    if (Platform.OS === "web") {
+      return;
+    }
+
+    const resolveAssetSource = (Image as unknown as {
+      resolveAssetSource?: (asset: number) => { uri?: string } | undefined;
+    }).resolveAssetSource;
+
+    if (!resolveAssetSource) {
+      return;
+    }
+
     const coverUris = Array.from(
       new Set(
-        AUDIO_TRACKS.map((track) => Image.resolveAssetSource(track.cover)?.uri).filter(
+        AUDIO_TRACKS.map((track) => resolveAssetSource(track.cover)?.uri).filter(
           (uri): uri is string => Boolean(uri)
         )
       )
