@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, Alert, Platform, View } from "react-native";
+import { ActivityIndicator, Alert, LogBox, Platform, View } from "react-native";
 import * as Linking from "expo-linking";
 import * as Updates from "expo-updates";
 import { NavigationContainer } from "@react-navigation/native";
@@ -27,6 +27,8 @@ type RootStackParamList = {
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 
+
+LogBox.ignoreLogs(["props.pointerEvents is deprecated. Use style.pointerEvents"]);
 preventAutoHideSplashScreen().catch(() => {
   // no-op if it's already hidden
 });
