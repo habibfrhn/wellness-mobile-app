@@ -104,7 +104,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
 const styles = StyleSheet.create({
   mobilePage: {
     flex: 1,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.white,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.lg,
   },
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   },
   desktopPage: {
     flex: 1,
-    backgroundColor: "#F8F9FB",
+    backgroundColor: colors.white,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.lg,
   },
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   },
   brand: {
     fontSize: typography.title,
-    color: "#2F62E9",
+    color: colors.primary,
     fontWeight: "800",
   },
   navRow: {
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
   navLinkActive: {
     color: colors.text,
     borderBottomWidth: 2,
-    borderBottomColor: "#2F62E9",
+    borderBottomColor: colors.primary,
     paddingBottom: spacing.xs,
   },
   headerActions: {
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   getStartedButton: {
-    backgroundColor: "#E9EFFD",
+    backgroundColor: colors.secondary,
     borderRadius: radius.full,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
   getStartedText: {
     fontSize: typography.small,
     fontWeight: "700",
-    color: colors.text,
+    color: colors.primaryText,
   },
   heroCard: {
     backgroundColor: colors.card,
@@ -236,14 +236,14 @@ const styles = StyleSheet.create({
   },
   badge: {
     alignSelf: "flex-start",
-    backgroundColor: "#EEF3FF",
+    backgroundColor: `${colors.primary}1A`,
     borderRadius: radius.full,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
   },
   badgeText: {
     fontSize: typography.caption,
-    color: "#2F62E9",
+    color: colors.primary,
     fontWeight: "700",
   },
   heroIntro: {
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   primaryCta: {
-    backgroundColor: "#2F62E9",
+    backgroundColor: colors.primary,
     borderRadius: radius.full,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
@@ -282,13 +282,13 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   secondaryCta: {
-    backgroundColor: "#E6ECF6",
+    backgroundColor: colors.secondary,
     borderRadius: radius.full,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
   },
   secondaryCtaText: {
-    color: colors.text,
+    color: colors.primaryText,
     fontSize: typography.body,
     fontWeight: "700",
   },
