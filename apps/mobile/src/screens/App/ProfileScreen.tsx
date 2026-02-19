@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Alert } from "react-native";
+import { Alert, Platform } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { id } from "../../i18n/strings";
@@ -8,6 +8,15 @@ import ProfileContent from "../../components/ProfileContent";
 import type { AppStackParamList } from "../../navigation/types";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Account">;
+
+
+function confirmOnWeb(title: string, message: string) {
+  if (Platform.OS === "web" && typeof window !== "undefined") {
+    return window.confirm(`${title}\n\n${message}`);
+  }
+
+  return null;
+}
 
 export default function ProfileScreen({}: Props) {
   const [emailValue, setEmailValue] = useState<string>("");
@@ -62,14 +71,26 @@ export default function ProfileScreen({}: Props) {
   }
 
   async function onLogout() {
+    const logoutAction = async () => {
+      const { error } = await supabase.auth.signOut();
+      if (error) Alert.alert(id.common.errorTitle, error.message);
+    };
+
+    const approvedOnWeb = confirmOnWeb(id.account.confirmLogoutTitle, id.account.confirmLogoutBody);
+    if (approvedOnWeb !== null) {
+      if (approvedOnWeb) {
+        await logoutAction();
+      }
+      return;
+    }
+
     Alert.alert(id.account.confirmLogoutTitle, id.account.confirmLogoutBody, [
       { text: id.account.cancel, style: "cancel" },
       {
         text: id.account.logout,
         style: "destructive",
-        onPress: async () => {
-          const { error } = await supabase.auth.signOut();
-          if (error) Alert.alert(id.common.errorTitle, error.message);
+        onPress: () => {
+          void logoutAction();
         },
       },
     ]);

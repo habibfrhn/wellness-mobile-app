@@ -8,6 +8,7 @@ import {
   TextInput,
   ScrollView,
   Linking,
+  Platform,
 } from "react-native";
 import * as Updates from "expo-updates";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -109,6 +110,15 @@ async function safeOpenEmail(email: string) {
   await safeOpenUrl(mailto);
 }
 
+
+function confirmOnWeb(title: string, message: string) {
+  if (Platform.OS === "web" && typeof window !== "undefined") {
+    return window.confirm(`${title}\n\n${message}`);
+  }
+
+  return null;
+}
+
 type Props = {
   navigation: NativeStackNavigationProp<AppStackParamList>;
 };
@@ -147,46 +157,58 @@ export default function SettingsContent({ navigation }: Props) {
   );
 
   async function onDeleteAccount() {
+    const deleteAction = async () => {
+      if (!canDelete) {
+        Alert.alert(id.account.deleteConfirmTitle, id.account.deleteConfirmBody);
+        return;
+      }
+
+      setBusyDelete(true);
+      try {
+        const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
+        if (sessionErr) {
+          Alert.alert(id.common.errorTitle, sessionErr.message);
+          return;
+        }
+
+        const accessToken = sessionData.session?.access_token;
+        if (!accessToken) {
+          Alert.alert(id.common.errorTitle, id.account.sessionMissing);
+          return;
+        }
+
+        await callDeleteAccount(accessToken);
+
+        Alert.alert(id.account.deletedTitle, id.account.deletedBody, [
+          {
+            text: id.common.ok,
+            onPress: async () => {
+              await supabase.auth.signOut();
+            },
+          },
+        ]);
+      } catch (e: any) {
+        Alert.alert(id.common.errorTitle, String(e?.message ?? e));
+      } finally {
+        setBusyDelete(false);
+      }
+    };
+
+    const approvedOnWeb = confirmOnWeb(id.account.deleteTitle, id.account.deleteWarning);
+    if (approvedOnWeb !== null) {
+      if (approvedOnWeb) {
+        await deleteAction();
+      }
+      return;
+    }
+
     Alert.alert(id.account.deleteTitle, id.account.deleteWarning, [
       { text: id.account.cancel, style: "cancel" },
       {
         text: id.account.deleteContinue,
         style: "destructive",
-        onPress: async () => {
-          if (!canDelete) {
-            Alert.alert(id.account.deleteConfirmTitle, id.account.deleteConfirmBody);
-            return;
-          }
-
-          setBusyDelete(true);
-          try {
-            const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
-            if (sessionErr) {
-              Alert.alert(id.common.errorTitle, sessionErr.message);
-              return;
-            }
-
-            const accessToken = sessionData.session?.access_token;
-            if (!accessToken) {
-              Alert.alert(id.common.errorTitle, id.account.sessionMissing);
-              return;
-            }
-
-            await callDeleteAccount(accessToken);
-
-            Alert.alert(id.account.deletedTitle, id.account.deletedBody, [
-              {
-                text: id.common.ok,
-                onPress: async () => {
-                  await supabase.auth.signOut();
-                },
-              },
-            ]);
-          } catch (e: any) {
-            Alert.alert(id.common.errorTitle, String(e?.message ?? e));
-          } finally {
-            setBusyDelete(false);
-          }
+        onPress: () => {
+          void deleteAction();
         },
       },
     ]);
@@ -244,6 +266,18 @@ export default function SettingsContent({ navigation }: Props) {
       }
 
       // Update available: ask permission to download now
+      const approvedOnWeb = confirmOnWeb(id.account.updatesAvailableTitle, id.account.updatesAvailableBody);
+      if (approvedOnWeb !== null) {
+        if (approvedOnWeb) {
+          await downloadAndReload();
+        } else {
+          await setPendingUpdate(true);
+          setHasPendingUpdate(true);
+          Alert.alert(id.account.updatesLaterTitle, id.account.updatesLaterBody);
+        }
+        return;
+      }
+
       Alert.alert(id.account.updatesAvailableTitle, id.account.updatesAvailableBody, [
         {
           text: id.account.updatesLater,
@@ -270,16 +304,28 @@ export default function SettingsContent({ navigation }: Props) {
 
 
   async function onLogout() {
+    const logoutAction = async () => {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        Alert.alert(id.common.errorTitle, error.message);
+      }
+    };
+
+    const approvedOnWeb = confirmOnWeb(id.account.confirmLogoutTitle, id.account.confirmLogoutBody);
+    if (approvedOnWeb !== null) {
+      if (approvedOnWeb) {
+        await logoutAction();
+      }
+      return;
+    }
+
     Alert.alert(id.account.confirmLogoutTitle, id.account.confirmLogoutBody, [
       { text: id.account.cancel, style: "cancel" },
       {
         text: id.account.logout,
         style: "destructive",
-        onPress: async () => {
-          const { error } = await supabase.auth.signOut();
-          if (error) {
-            Alert.alert(id.common.errorTitle, error.message);
-          }
+        onPress: () => {
+          void logoutAction();
         },
       },
     ]);
