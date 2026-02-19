@@ -2,85 +2,84 @@ import React from "react";
 import { NavigationProp, ParamListBase } from "@react-navigation/native";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import WebFrame from "../components/WebFrame";
+import { colors, radius, spacing, typography, lineHeights } from "../theme/tokens";
+
 type LandingScreenProps = {
   navigation: NavigationProp<ParamListBase>;
 };
 
 export default function LandingScreen({ navigation }: LandingScreenProps) {
   const handlePrimaryPress = () => {
-    // TODO: Confirm route name if "Auth" differs in navigator config.
     navigation.navigate("Auth");
   };
 
   return (
-    <View style={styles.page}>
+    <WebFrame>
       <View style={styles.container}>
-        <Text style={styles.headline}>
-          Ritual malam 15 menit untuk menutup hari dengan tenang.
-        </Text>
+        <Text style={styles.headline}>Ritual malam 15 menit untuk menutup hari dengan tenang.</Text>
 
-        <Text style={styles.subtext}>
-          Tanpa iklan. Tanpa scrolling. Tanpa overstimulation.
-        </Text>
+        <Text style={styles.subtext}>Tanpa iklan. Tanpa scrolling. Tanpa overstimulation.</Text>
 
-        <Pressable onPress={handlePrimaryPress} style={styles.primaryButton}>
+        <Pressable onPress={handlePrimaryPress} style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
           <Text style={styles.primaryButtonText}>Coba Gratis (Beta)</Text>
         </Pressable>
 
-        <Pressable onPress={() => navigation.navigate("Auth")}>
+        <Pressable onPress={() => navigation.navigate("Auth")} style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
           <Text style={styles.secondaryButtonText}>Masuk</Text>
         </Pressable>
       </View>
-    </View>
+    </WebFrame>
   );
 }
 
 const styles = StyleSheet.create({
-  page: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 24,
-    paddingVertical: 32,
-    backgroundColor: "#FFFFFF",
-  },
   container: {
-    width: "100%",
-    maxWidth: 480,
-    alignItems: "center",
-    gap: 16,
+    flex: 1,
+    justifyContent: "center",
+    gap: spacing.md,
   },
   headline: {
-    fontSize: 32,
-    lineHeight: 40,
+    fontSize: typography.h1,
+    lineHeight: typography.h1 + spacing.sm,
     fontWeight: "700",
     textAlign: "center",
-    color: "#111827",
+    color: colors.text,
   },
   subtext: {
-    fontSize: 18,
-    lineHeight: 28,
+    fontSize: typography.body,
+    lineHeight: lineHeights.relaxed,
     textAlign: "center",
-    color: "#4B5563",
-    marginBottom: 8,
+    color: colors.mutedText,
+    marginBottom: spacing.sm,
   },
   primaryButton: {
     width: "100%",
-    maxWidth: 320,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    backgroundColor: "#111827",
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.sm,
+    backgroundColor: colors.text,
     alignItems: "center",
+    marginTop: spacing.sm,
   },
   primaryButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#FFFFFF",
+    fontSize: typography.body,
+    fontWeight: "700",
+    color: colors.white,
+  },
+  secondaryButton: {
+    width: "100%",
+    paddingVertical: spacing.sm,
+    borderRadius: radius.sm,
+    alignItems: "center",
+    backgroundColor: colors.secondary,
   },
   secondaryButtonText: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#111827",
+    fontSize: typography.body,
+    fontWeight: "600",
+    color: colors.secondaryText,
+  },
+  pressed: {
+    opacity: 0.85,
   },
 });
