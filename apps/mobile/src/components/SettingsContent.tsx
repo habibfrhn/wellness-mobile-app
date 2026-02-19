@@ -87,6 +87,12 @@ async function safeOpenUrl(url: string) {
       Alert.alert(id.account.comingSoonTitle, id.account.comingSoonBody);
       return;
     }
+
+    if (typeof window !== "undefined") {
+      await Linking.openURL(url);
+      return;
+    }
+
     const can = await Linking.canOpenURL(url);
     if (!can) {
       Alert.alert(id.common.errorTitle, id.account.openLinkFailed);
@@ -262,6 +268,23 @@ export default function SettingsContent({ navigation }: Props) {
     }
   }
 
+
+  async function onLogout() {
+    Alert.alert(id.account.confirmLogoutTitle, id.account.confirmLogoutBody, [
+      { text: id.account.cancel, style: "cancel" },
+      {
+        text: id.account.logout,
+        style: "destructive",
+        onPress: async () => {
+          const { error } = await supabase.auth.signOut();
+          if (error) {
+            Alert.alert(id.common.errorTitle, error.message);
+          }
+        },
+      },
+    ]);
+  }
+
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
       <View style={styles.card}>
@@ -304,6 +327,13 @@ export default function SettingsContent({ navigation }: Props) {
           style={({ pressed }) => [styles.secondaryActionButton, pressed && styles.pressed]}
         >
           <Text style={styles.secondaryActionButtonText}>{id.account.resetPasswordButton}</Text>
+        </Pressable>
+
+        <Pressable
+          onPress={onLogout}
+          style={({ pressed }) => [styles.secondaryActionButton, pressed && styles.pressed]}
+        >
+          <Text style={styles.secondaryActionButtonText}>{id.account.logout}</Text>
         </Pressable>
       </View>
       <View style={styles.card}>
