@@ -1,6 +1,6 @@
 import React from "react";
 import { NavigationProp, ParamListBase } from "@react-navigation/native";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 import useViewportWidth from "../hooks/useViewportWidth";
 import { colors, radius, spacing, typography, lineHeights } from "../theme/tokens";
@@ -10,7 +10,7 @@ type LandingScreenProps = {
 };
 
 const WEB_BREAKPOINT = 640;
-const HERO_PLACEHOLDER_IMAGE = require("../../assets/image/cover/01-master-cover.jpg");
+const HERO_IMAGE = require("../../assets/image/cover/01-master-cover.jpg");
 
 export default function LandingScreen({ navigation }: LandingScreenProps) {
   const width = useViewportWidth();
@@ -24,7 +24,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
     return (
       <View style={styles.mobilePage}>
         <View style={styles.mobileContent}>
-          <Image source={HERO_PLACEHOLDER_IMAGE} style={styles.mobileImage} resizeMode="cover" />
+          <Image source={HERO_IMAGE} style={styles.mobileImage} resizeMode="cover" />
           <Text style={styles.mobileHeadline}>Ritual malam 15 menit untuk menutup hari dengan tenang.</Text>
           <Text style={styles.mobileSubtext}>Tanpa iklan. Tanpa scrolling. Tanpa overstimulation.</Text>
 
@@ -41,96 +41,63 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
   }
 
   return (
-    <ScrollView style={styles.desktopPage} contentContainerStyle={styles.desktopPageContent}>
+    <View style={styles.desktopPage}>
       <View style={styles.desktopContainer}>
-        <View style={styles.headerRow}>
+        <View style={styles.header}>
           <Text style={styles.brand}>Lumepo</Text>
 
-          <View style={styles.headerRight}>
-            <Text style={styles.navLink}>Fitur</Text>
-            <Text style={styles.navLink}>Cara Kerja</Text>
-            <Text style={styles.navLink}>FAQ</Text>
-            <Pressable onPress={handleAuthPress} style={({ pressed }) => [styles.loginButton, pressed && styles.pressed]}>
-              <Text style={styles.loginButtonText}>Masuk</Text>
+          <View style={styles.navRow}>
+            <Text style={[styles.navLink, styles.navLinkActive]}>Home</Text>
+            <Text style={styles.navLink}>Who we serve</Text>
+            <Text style={styles.navLink}>Our Features</Text>
+            <Text style={styles.navLink}>Helpful Resources</Text>
+          </View>
+
+          <View style={styles.headerActions}>
+            <Pressable onPress={handleAuthPress} style={({ pressed }) => [styles.loginGhost, pressed && styles.pressed]}>
+              <Text style={styles.loginGhostText}>Login</Text>
+            </Pressable>
+            <Pressable onPress={handleAuthPress} style={({ pressed }) => [styles.getStartedButton, pressed && styles.pressed]}>
+              <Text style={styles.getStartedText}>Get Started</Text>
             </Pressable>
           </View>
         </View>
 
-        <View style={styles.heroSection}>
-          <View style={styles.heroImageWrap}>
-            <Image source={HERO_PLACEHOLDER_IMAGE} style={styles.heroImage} resizeMode="cover" />
-          </View>
+        <View style={styles.heroCard}>
+          <View style={styles.heroLeft}>
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>Ritual Malam Harian</Text>
+            </View>
 
-          <View style={styles.heroContent}>
-            <Text style={styles.heroTitle}>Ritual malam 15 menit untuk menutup hari dengan tenang.</Text>
-            <Text style={styles.heroSubtitle}>Tanpa iklan. Tanpa scrolling. Tanpa overstimulation.</Text>
+            <Text style={styles.heroIntro}>Introducing a Smarter Night Routine</Text>
+            <Text style={styles.heroTitle}>Effortless Sleep Ritual for Busy Minds</Text>
+            <Text style={styles.heroSubtitle}>
+              Pendek, terstruktur, dan menenangkan—membantu kamu wind-down dari hari yang melelahkan tanpa distraksi.
+            </Text>
 
             <View style={styles.heroActions}>
-              <Pressable onPress={handleAuthPress} style={({ pressed }) => [styles.heroPrimaryButton, pressed && styles.pressed]}>
-                <Text style={styles.heroPrimaryButtonText}>Coba Gratis (Beta)</Text>
+              <Pressable onPress={handleAuthPress} style={({ pressed }) => [styles.primaryCta, pressed && styles.pressed]}>
+                <Text style={styles.primaryCtaText}>Get Started</Text>
               </Pressable>
-
-              <Pressable onPress={handleAuthPress} style={({ pressed }) => [styles.heroSecondaryButton, pressed && styles.pressed]}>
-                <Text style={styles.heroSecondaryButtonText}>Jadi Founding Member</Text>
+              <Pressable onPress={handleAuthPress} style={({ pressed }) => [styles.secondaryCta, pressed && styles.pressed]}>
+                <Text style={styles.secondaryCtaText}>Coba Demo</Text>
               </Pressable>
             </View>
+          </View>
 
-            <Text style={styles.heroTrustText}>
-              Dirancang untuk pekerja yang sulit wind-down karena stres & overthinking.
-            </Text>
+          <View style={styles.heroRight}>
+            <Image source={HERO_IMAGE} style={styles.heroImage} resizeMode="cover" />
           </View>
         </View>
 
-        <View style={styles.infoSection}>
-          <Text style={styles.sectionTitle}>Cara Kerja</Text>
-          <View style={styles.stepsRow}>
-            <View style={styles.stepCard}>
-              <Text style={styles.stepNumber}>01</Text>
-              <Text style={styles.stepTitle}>Pilih Mode</Text>
-              <Text style={styles.stepBody}>Pilih mode yang sesuai kondisi malam kamu dalam hitungan detik.</Text>
-            </View>
-            <View style={styles.stepCard}>
-              <Text style={styles.stepNumber}>02</Text>
-              <Text style={styles.stepTitle}>Ritual 3 Langkah</Text>
-              <Text style={styles.stepBody}>Ikuti alur singkat untuk release stres, menenangkan pikiran, dan mematikan layar.</Text>
-            </View>
-            <View style={styles.stepCard}>
-              <Text style={styles.stepNumber}>03</Text>
-              <Text style={styles.stepTitle}>Tidur Lebih Tenang</Text>
-              <Text style={styles.stepBody}>Bangun lebih segar karena malam kamu ditutup dengan ritme yang konsisten.</Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.infoSection}>
-          <Text style={styles.sectionTitle}>Apa yang kamu dapat</Text>
-          <View style={styles.benefitsCard}>
-            <Text style={styles.benefitItem}>• Audio ritual malam singkat tanpa distraksi.</Text>
-            <Text style={styles.benefitItem}>• Struktur 15 menit yang mudah diikuti setiap hari.</Text>
-            <Text style={styles.benefitItem}>• Pengalaman tenang: tanpa iklan, tanpa scrolling, minim overstimulation.</Text>
-            <Text style={styles.benefitItem}>• Fokus pada pemulihan energi dan kualitas tidur yang lebih stabil.</Text>
-          </View>
-        </View>
-
-        <View style={[styles.infoSection, styles.lastSection]}>
-          <Text style={styles.sectionTitle}>FAQ</Text>
-          <View style={styles.faqList}>
-            <View style={styles.faqItem}>
-              <Text style={styles.faqQuestion}>Apakah ini aplikasi meditasi?</Text>
-              <Text style={styles.faqAnswer}>Bukan. Lumepo dirancang spesifik sebagai ritual malam yang praktis untuk wind-down.</Text>
-            </View>
-            <View style={styles.faqItem}>
-              <Text style={styles.faqQuestion}>Berapa lama ritualnya?</Text>
-              <Text style={styles.faqAnswer}>Rata-rata 15 menit, jadi mudah konsisten meski hari terasa padat.</Text>
-            </View>
-            <View style={styles.faqItem}>
-              <Text style={styles.faqQuestion}>Apakah saya perlu internet terus?</Text>
-              <Text style={styles.faqAnswer}>Beberapa konten bisa dipakai lebih hemat koneksi sesuai dukungan platform saat ini.</Text>
-            </View>
-          </View>
+        <View style={styles.logoRow}>
+          <Text style={styles.logoText}>NVIDIA</Text>
+          <Text style={styles.logoText}>INCEPTION PROGRAM</Text>
+          <Text style={styles.logoText}>HOSPITAL LOGO</Text>
+          <Text style={styles.logoText}>Better Healthcare</Text>
         </View>
       </View>
-    </ScrollView>
+    </View>
   );
 }
 
@@ -190,192 +157,162 @@ const styles = StyleSheet.create({
   },
   desktopPage: {
     flex: 1,
-    backgroundColor: colors.bg,
-  },
-  desktopPageContent: {
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.xl,
+    backgroundColor: "#F8F9FB",
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
   },
   desktopContainer: {
     width: "100%",
-    maxWidth: 1040,
+    maxWidth: 1100,
     marginHorizontal: "auto",
-    gap: spacing.xl,
+    gap: spacing.lg,
   },
-  headerRow: {
+  header: {
     backgroundColor: colors.card,
     borderRadius: radius.md,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    boxShadow: `0px 8px 24px ${colors.text}14`,
+    justifyContent: "space-between",
   },
   brand: {
     fontSize: typography.title,
-    fontWeight: "700",
-    color: colors.text,
+    color: "#2F62E9",
+    fontWeight: "800",
   },
-  headerRight: {
+  navRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.md,
+    gap: spacing.lg,
   },
   navLink: {
     fontSize: typography.small,
     color: colors.mutedText,
     fontWeight: "600",
   },
-  loginButton: {
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.sm,
-    backgroundColor: colors.secondary,
+  navLinkActive: {
+    color: colors.text,
+    borderBottomWidth: 2,
+    borderBottomColor: "#2F62E9",
+    paddingBottom: spacing.xs,
   },
-  loginButtonText: {
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  loginGhost: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  loginGhostText: {
+    color: colors.text,
     fontSize: typography.small,
-    color: colors.white,
     fontWeight: "700",
   },
-  heroSection: {
+  getStartedButton: {
+    backgroundColor: "#E9EFFD",
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+  },
+  getStartedText: {
+    fontSize: typography.small,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  heroCard: {
     backgroundColor: colors.card,
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
     padding: spacing.xl,
     flexDirection: "row",
     gap: spacing.xl,
-    boxShadow: `0px 12px 32px ${colors.text}14`,
+    alignItems: "center",
   },
-  heroImageWrap: {
+  heroLeft: {
     flex: 1,
-    borderRadius: radius.md,
-    overflow: "hidden",
-  },
-  heroImage: {
-    width: "100%",
-    height: "100%",
-    minHeight: 380,
-  },
-  heroContent: {
-    flex: 1,
-    justifyContent: "center",
     gap: spacing.md,
   },
-  heroTitle: {
-    fontSize: typography.h1 + 8,
-    lineHeight: typography.h1 + spacing.xl,
+  badge: {
+    alignSelf: "flex-start",
+    backgroundColor: "#EEF3FF",
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  badgeText: {
+    fontSize: typography.caption,
+    color: "#2F62E9",
     fontWeight: "700",
+  },
+  heroIntro: {
+    fontSize: typography.small,
+    color: colors.mutedText,
+    fontWeight: "600",
+  },
+  heroTitle: {
+    fontSize: 54,
+    lineHeight: 58,
     color: colors.text,
+    fontWeight: "800",
+    letterSpacing: -1,
+    maxWidth: 540,
   },
   heroSubtitle: {
     fontSize: typography.title,
     lineHeight: lineHeights.relaxed + spacing.xs,
     color: colors.mutedText,
+    maxWidth: 520,
   },
   heroActions: {
     flexDirection: "row",
-    gap: spacing.md,
+    gap: spacing.sm,
+    alignItems: "center",
   },
-  heroPrimaryButton: {
-    backgroundColor: colors.text,
-    borderRadius: radius.sm,
-    minHeight: 52,
+  primaryCta: {
+    backgroundColor: "#2F62E9",
+    borderRadius: radius.full,
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    justifyContent: "center",
+    paddingVertical: spacing.sm,
   },
-  heroPrimaryButtonText: {
+  primaryCtaText: {
     color: colors.white,
-    fontWeight: "700",
     fontSize: typography.body,
+    fontWeight: "700",
   },
-  heroSecondaryButton: {
-    backgroundColor: colors.secondary,
-    borderRadius: radius.sm,
-    minHeight: 52,
+  secondaryCta: {
+    backgroundColor: "#E6ECF6",
+    borderRadius: radius.full,
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    justifyContent: "center",
+    paddingVertical: spacing.sm,
   },
-  heroSecondaryButtonText: {
-    color: colors.white,
-    fontWeight: "700",
-    fontSize: typography.body,
-  },
-  heroTrustText: {
-    fontSize: typography.small,
-    color: colors.mutedText,
-    lineHeight: lineHeights.relaxed,
-  },
-  infoSection: {
-    backgroundColor: colors.card,
-    borderRadius: radius.md,
-    padding: spacing.xl,
-    gap: spacing.lg,
-  },
-  lastSection: {
-    marginBottom: spacing.xl,
-  },
-  sectionTitle: {
-    fontSize: typography.h2,
-    fontWeight: "700",
+  secondaryCtaText: {
     color: colors.text,
+    fontSize: typography.body,
+    fontWeight: "700",
   },
-  stepsRow: {
-    flexDirection: "row",
-    gap: spacing.md,
-  },
-  stepCard: {
+  heroRight: {
     flex: 1,
-    backgroundColor: colors.bg,
-    borderRadius: radius.sm,
-    padding: spacing.md,
-    gap: spacing.sm,
+    borderRadius: radius.md,
+    overflow: "hidden",
+    minHeight: 560,
   },
-  stepNumber: {
-    fontSize: typography.small,
+  heroImage: {
+    width: "100%",
+    height: "100%",
+  },
+  logoRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+  },
+  logoText: {
+    fontSize: typography.caption,
     color: colors.mutedText,
     fontWeight: "700",
-  },
-  stepTitle: {
-    fontSize: typography.title,
-    color: colors.text,
-    fontWeight: "700",
-  },
-  stepBody: {
-    fontSize: typography.small,
-    lineHeight: lineHeights.relaxed,
-    color: colors.mutedText,
-  },
-  benefitsCard: {
-    backgroundColor: colors.bg,
-    borderRadius: radius.sm,
-    padding: spacing.lg,
-    gap: spacing.sm,
-  },
-  benefitItem: {
-    fontSize: typography.body,
-    lineHeight: lineHeights.relaxed,
-    color: colors.text,
-  },
-  faqList: {
-    gap: spacing.md,
-  },
-  faqItem: {
-    backgroundColor: colors.bg,
-    borderRadius: radius.sm,
-    padding: spacing.md,
-    gap: spacing.xs,
-  },
-  faqQuestion: {
-    fontSize: typography.title,
-    color: colors.text,
-    fontWeight: "700",
-  },
-  faqAnswer: {
-    fontSize: typography.small,
-    lineHeight: lineHeights.relaxed,
-    color: colors.mutedText,
+    opacity: 0.8,
   },
   pressed: {
     opacity: 0.85,
