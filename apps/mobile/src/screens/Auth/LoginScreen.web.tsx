@@ -8,6 +8,8 @@ import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
 import PasswordToggle from "../../components/PasswordToggle";
 import WebResponsiveFrame from "../../components/WebResponsiveFrame";
+import useViewportWidth from "../../hooks/useViewportWidth";
+import { getWebDesktopTypeScale } from "../../theme/webDesktopTypeScale";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
@@ -16,6 +18,8 @@ function isValidEmail(email: string) {
 }
 
 export default function LoginScreen({ navigation, route }: Props) {
+  const width = useViewportWidth();
+  const desktopScale = getWebDesktopTypeScale(width);
   const [email, setEmail] = useState(route.params?.initialEmail ?? "");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -58,10 +62,38 @@ export default function LoginScreen({ navigation, route }: Props) {
   return (
     <WebResponsiveFrame>
       <View style={styles.container}>
-        <Text style={styles.title}>{id.login.title}</Text>
-        <Text style={styles.subtitle}>{id.login.subtitle}</Text>
+        <Text
+          style={[
+            styles.title,
+            desktopScale.isDesktopWeb && {
+              fontSize: desktopScale.headingSize,
+              lineHeight: desktopScale.headingLineHeight,
+            },
+          ]}
+        >
+          {id.login.title}
+        </Text>
+        <Text
+          style={[
+            styles.subtitle,
+            desktopScale.isDesktopWeb && {
+              marginTop: desktopScale.titleToSubtitleGap,
+              lineHeight: desktopScale.bodyLineHeight,
+            },
+          ]}
+        >
+          {id.login.subtitle}
+        </Text>
 
-        <View style={styles.formStack}>
+        <View
+          style={[
+            styles.formStack,
+            desktopScale.isDesktopWeb && {
+              marginTop: desktopScale.sectionPadding,
+              gap: desktopScale.sectionGap,
+            },
+          ]}
+        >
           <View>
             <Text style={styles.label}>{id.login.emailLabel}</Text>
             <TextInput
@@ -72,7 +104,7 @@ export default function LoginScreen({ navigation, route }: Props) {
               keyboardType="email-address"
               placeholder={id.login.emailPlaceholder}
               placeholderTextColor={colors.mutedText}
-              style={styles.input}
+              style={[styles.input, desktopScale.isDesktopWeb && styles.inputDesktop]}
             />
           </View>
 
@@ -87,7 +119,7 @@ export default function LoginScreen({ navigation, route }: Props) {
                 secureTextEntry={!showPassword}
                 placeholder={id.login.passwordPlaceholder}
                 placeholderTextColor={colors.mutedText}
-                style={styles.input}
+                style={[styles.input, desktopScale.isDesktopWeb && styles.inputDesktop]}
               />
               <PasswordToggle
                 visible={showPassword}
@@ -103,6 +135,10 @@ export default function LoginScreen({ navigation, route }: Props) {
             disabled={!canSubmit}
             style={({ pressed }) => [
               styles.primaryButton,
+              desktopScale.isDesktopWeb && {
+                paddingVertical: desktopScale.buttonPaddingVertical,
+                minHeight: desktopScale.buttonMinHeight,
+              },
               (!canSubmit || busy) && styles.disabled,
               pressed && canSubmit && styles.pressed,
             ]}
@@ -112,14 +148,28 @@ export default function LoginScreen({ navigation, route }: Props) {
 
           <Pressable
             onPress={() => navigation.navigate("ForgotPassword", { initialEmail: email.trim() })}
-            style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+            style={({ pressed }) => [
+              styles.secondaryButton,
+              desktopScale.isDesktopWeb && {
+                paddingVertical: spacing.md,
+                minHeight: desktopScale.buttonMinHeight,
+              },
+              pressed && styles.pressed,
+            ]}
           >
             <Text style={styles.secondaryButtonText}>{id.login.forgot}</Text>
           </Pressable>
 
           <Pressable
             onPress={() => navigation.replace("SignUp", { initialEmail: email.trim() })}
-            style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+            style={({ pressed }) => [
+              styles.secondaryButton,
+              desktopScale.isDesktopWeb && {
+                paddingVertical: spacing.md,
+                minHeight: desktopScale.buttonMinHeight,
+              },
+              pressed && styles.pressed,
+            ]}
           >
             <Text style={styles.secondaryButtonText}>{id.login.create}</Text>
           </Pressable>
@@ -151,6 +201,10 @@ const styles = StyleSheet.create({
     color: colors.text,
     backgroundColor: colors.bg,
   },
+  inputDesktop: {
+    minHeight: 52,
+    lineHeight: lineHeights.relaxed + spacing.xs,
+  },
   toggle: {
     position: "absolute",
     right: spacing.sm,
@@ -164,6 +218,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     borderRadius: radius.sm,
     backgroundColor: colors.primary,
+    justifyContent: "center",
   },
   primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
   secondaryButton: {
@@ -171,6 +226,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     borderRadius: radius.sm,
     backgroundColor: colors.secondary,
+    justifyContent: "center",
   },
   secondaryButtonText: { color: colors.secondaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
   disabled: { opacity: 0.6 },

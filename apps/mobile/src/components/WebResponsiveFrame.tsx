@@ -33,14 +33,14 @@ const styles = StyleSheet.create({
   page: {
     flex: 1,
     backgroundColor: colors.bg,
-    padding: spacing.lg,
+    padding: spacing.xl,
   },
   content: {
     flex: 1,
     width: "100%",
     maxWidth: 480,
     marginHorizontal: "auto",
-    padding: spacing.lg,
+    padding: spacing.xl,
     backgroundColor: colors.card,
     borderRadius: radius.md,
     boxShadow: `0px 8px 24px ${colors.text}14`,

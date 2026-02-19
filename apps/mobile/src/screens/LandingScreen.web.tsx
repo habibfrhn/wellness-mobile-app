@@ -3,6 +3,8 @@ import { NavigationProp, ParamListBase } from "@react-navigation/native";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import WebResponsiveFrame from "../components/WebResponsiveFrame";
+import useViewportWidth from "../hooks/useViewportWidth";
+import { getWebDesktopTypeScale } from "../theme/webDesktopTypeScale";
 import { colors, radius, spacing, typography, lineHeights } from "../theme/tokens";
 
 type LandingScreenProps = {
@@ -10,22 +12,65 @@ type LandingScreenProps = {
 };
 
 export default function LandingScreen({ navigation }: LandingScreenProps) {
+  const width = useViewportWidth();
+  const desktopScale = getWebDesktopTypeScale(width);
+
   const handlePrimaryPress = () => {
     navigation.navigate("Auth");
   };
 
   return (
     <WebResponsiveFrame>
-      <View style={styles.container}>
-        <Text style={styles.headline}>Ritual malam 15 menit untuk menutup hari dengan tenang.</Text>
+      <View style={[styles.container, desktopScale.isDesktopWeb && { gap: desktopScale.sectionGap }]}>
+        <Text
+          style={[
+            styles.headline,
+            desktopScale.isDesktopWeb && {
+              fontSize: desktopScale.headingSize,
+              lineHeight: desktopScale.headingLineHeight,
+            },
+          ]}
+        >
+          Ritual malam 15 menit untuk menutup hari dengan tenang.
+        </Text>
 
-        <Text style={styles.subtext}>Tanpa iklan. Tanpa scrolling. Tanpa overstimulation.</Text>
+        <Text
+          style={[
+            styles.subtext,
+            desktopScale.isDesktopWeb && {
+              lineHeight: desktopScale.bodyLineHeight,
+              marginBottom: desktopScale.titleToSubtitleGap,
+            },
+          ]}
+        >
+          Tanpa iklan. Tanpa scrolling. Tanpa overstimulation.
+        </Text>
 
-        <Pressable onPress={handlePrimaryPress} style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
+        <Pressable
+          onPress={handlePrimaryPress}
+          style={({ pressed }) => [
+            styles.primaryButton,
+            desktopScale.isDesktopWeb && {
+              paddingVertical: desktopScale.buttonPaddingVertical,
+              minHeight: desktopScale.buttonMinHeight,
+            },
+            pressed && styles.pressed,
+          ]}
+        >
           <Text style={styles.primaryButtonText}>Coba Gratis (Beta)</Text>
         </Pressable>
 
-        <Pressable onPress={() => navigation.navigate("Auth")} style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
+        <Pressable
+          onPress={() => navigation.navigate("Auth")}
+          style={({ pressed }) => [
+            styles.secondaryButton,
+            desktopScale.isDesktopWeb && {
+              paddingVertical: spacing.md,
+              minHeight: desktopScale.buttonMinHeight,
+            },
+            pressed && styles.pressed,
+          ]}
+        >
           <Text style={styles.secondaryButtonText}>Masuk</Text>
         </Pressable>
       </View>
@@ -60,6 +105,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     backgroundColor: colors.text,
     alignItems: "center",
+    justifyContent: "center",
     marginTop: spacing.sm,
   },
   primaryButtonText: {
@@ -72,6 +118,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     borderRadius: radius.sm,
     alignItems: "center",
+    justifyContent: "center",
     backgroundColor: colors.secondary,
   },
   secondaryButtonText: {
