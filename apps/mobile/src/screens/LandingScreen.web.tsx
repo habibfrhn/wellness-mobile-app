@@ -2,7 +2,7 @@ import React from "react";
 import { NavigationProp, ParamListBase } from "@react-navigation/native";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import WebFrame from "../components/WebFrame";
+import WebResponsiveFrame from "../components/WebResponsiveFrame";
 import { colors, radius, spacing, typography, lineHeights } from "../theme/tokens";
 
 type LandingScreenProps = {
@@ -15,7 +15,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
   };
 
   return (
-    <WebFrame>
+    <WebResponsiveFrame>
       <View style={styles.container}>
         <Text style={styles.headline}>Ritual malam 15 menit untuk menutup hari dengan tenang.</Text>
 
@@ -29,7 +29,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
           <Text style={styles.secondaryButtonText}>Masuk</Text>
         </Pressable>
       </View>
-    </WebFrame>
+    </WebResponsiveFrame>
   );
 }
 

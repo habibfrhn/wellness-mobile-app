@@ -4,15 +4,15 @@ import { StyleSheet } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AppStackParamList } from "../../navigation/types";
 import HomeScreenBase from "./HomeScreenBase";
-import WebFrame from "../../components/WebFrame";
+import WebResponsiveFrame from "../../components/WebResponsiveFrame";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Home">;
 
 export default function HomeScreen({ navigation, route }: Props) {
   return (
-    <WebFrame contentStyle={styles.frameContent}>
+    <WebResponsiveFrame contentStyle={styles.frameContent}>
       <HomeScreenBase navigation={navigation} routeParams={route.params} centered />
-    </WebFrame>
+    </WebResponsiveFrame>
   );
 }
 

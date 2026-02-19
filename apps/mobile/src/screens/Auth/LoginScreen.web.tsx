@@ -7,7 +7,7 @@ import { colors, spacing, radius, typography, lineHeights } from "../../theme/to
 import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
 import PasswordToggle from "../../components/PasswordToggle";
-import WebFrame from "../../components/WebFrame";
+import WebResponsiveFrame from "../../components/WebResponsiveFrame";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
@@ -56,7 +56,7 @@ export default function LoginScreen({ navigation, route }: Props) {
   }
 
   return (
-    <WebFrame>
+    <WebResponsiveFrame>
       <View style={styles.container}>
         <Text style={styles.title}>{id.login.title}</Text>
         <Text style={styles.subtitle}>{id.login.subtitle}</Text>
@@ -125,7 +125,7 @@ export default function LoginScreen({ navigation, route }: Props) {
           </Pressable>
         </View>
       </View>
-    </WebFrame>
+    </WebResponsiveFrame>
   );
 }
 
