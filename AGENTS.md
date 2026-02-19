@@ -22,3 +22,20 @@
 - Only add **top-level** token exports in `apps/mobile/src/theme/tokens.ts` (avoid nested token objects that require extra lookups).
 - If you introduce a new token, update all consumers in the same change.
 - Run `rg` to confirm no references remain to old token shapes.
+
+## Web responsive layout rules
+- Do **not** use user-agent detection.
+- Do **not** use `Platform.OS` alone to branch responsive layout.
+- For web responsiveness, use viewport width (`window.innerWidth`) via `apps/mobile/src/hooks/useViewportWidth.ts`.
+- Use a breakpoint of **640px** for mobile-like vs framed web layout.
+- Apply framed desktop web layout with `apps/mobile/src/components/WebResponsiveFrame.tsx`.
+- Keep changes scoped to `.web.tsx` screens so native iOS/Android UI remains unchanged.
+
+## Codex workflow best practices
+- Before editing, inspect existing patterns in nearby files and reuse existing tokens/strings/components.
+- Keep business logic and navigation behavior unchanged unless explicitly requested.
+- Prefer minimal, targeted diffs; avoid drive-by refactors.
+- Run relevant checks after changes (`pnpm typecheck`, `pnpm lint`, and targeted runtime validation when possible).
+- If repo-wide checks fail for pre-existing reasons, clearly report that they are unrelated.
+- For visual web UI changes, run the app and capture a screenshot artifact when tooling is available.
+- Commit only the intended files; verify with `git status` and `git diff --staged`.

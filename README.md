@@ -224,6 +224,25 @@ For operational checklists, see:
 
 ---
 
+## Web responsive layout policy
+
+The app now uses a viewport-based responsive wrapper for select **web-only** screens.
+
+- `apps/mobile/src/hooks/useViewportWidth.ts` tracks `window.innerWidth` and updates on resize (SSR-safe with `typeof window !== "undefined"`).
+- `apps/mobile/src/components/WebResponsiveFrame.tsx` applies breakpoint behavior:
+  - `Platform.OS !== "web"` → render children unchanged.
+  - `window.innerWidth <= 640` → render children unchanged (mobile-like web).
+  - `window.innerWidth > 640` → render children in a centered frame (`maxWidth: 480`, padding, neutral background, subtle elevation).
+- Applied in web screens only:
+  - `apps/mobile/src/screens/LandingScreen.web.tsx`
+  - `apps/mobile/src/screens/App/HomeScreen.web.tsx`
+  - `apps/mobile/src/screens/Auth/LoginScreen.web.tsx`
+
+Guardrails:
+- Do not use user-agent detection for layout decisions.
+- Do not change native iOS/Android layout behavior when improving web layout.
+- Prefer `.web.tsx` entry points for web-specific presentation changes.
+
 ## Notes for contributors
 
 - Keep screens focused on composition; place reusable visuals in `src/components`.
