@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { NavigationProp, ParamListBase } from "@react-navigation/native";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
@@ -19,114 +19,139 @@ type SectionKey =
   | "faq"
   | "closing-cta";
 
+const MOBILE_BREAKPOINT = 640;
+
 export default function LandingScreen({ navigation }: LandingScreenProps) {
   const scrollRef = useRef<ScrollView | null>(null);
-  const sectionRefs = useRef<Record<SectionKey, View | null>>({
-    beranda: null,
-    hero: null,
-    "untuk-siapa": null,
-    "cara-kerja": null,
-    manfaat: null,
-    diferensiasi: null,
-    trust: null,
-    faq: null,
-    "closing-cta": null,
+  const [viewportWidth, setViewportWidth] = useState<number>(() => window.innerWidth);
+  const sectionOffsets = useRef<Record<SectionKey, number>>({
+    beranda: 0,
+    hero: 0,
+    "untuk-siapa": 0,
+    "cara-kerja": 0,
+    manfaat: 0,
+    diferensiasi: 0,
+    trust: 0,
+    faq: 0,
+    "closing-cta": 0,
   });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setViewportWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  const isDesktop = viewportWidth > MOBILE_BREAKPOINT;
 
   const goToAuth = () => {
     navigation.navigate("Auth");
   };
 
   const goToSection = (key: SectionKey) => {
-    const target = sectionRefs.current[key];
-    if (!target || !scrollRef.current) return;
-
-    target.measureLayout(scrollRef.current.getInnerViewNode(), (_x, y) => {
-      scrollRef.current?.scrollTo({ y, animated: true });
-    });
+    if (!isDesktop) return;
+    scrollRef.current?.scrollTo({ y: sectionOffsets.current[key], animated: true });
   };
 
   return (
     <ScrollView ref={scrollRef} style={styles.page} contentContainerStyle={styles.content}>
-      <View ref={(node) => {
-          sectionRefs.current.beranda = node;
-        }} nativeID="beranda" style={styles.section}>
-        <Text style={styles.sectionTitle}>Header</Text>
-        <View style={styles.row}>
-          <Pressable onPress={() => goToSection("untuk-siapa")} style={styles.linkButton}>
-            <Text style={styles.linkText}>Untuk Siapa</Text>
-          </Pressable>
-          <Pressable onPress={() => goToSection("cara-kerja")} style={styles.linkButton}>
-            <Text style={styles.linkText}>Cara Kerja</Text>
-          </Pressable>
-          <Pressable onPress={() => goToSection("faq")} style={styles.linkButton}>
-            <Text style={styles.linkText}>FAQ</Text>
-          </Pressable>
+      <View nativeID="beranda" onLayout={(event) => {
+        sectionOffsets.current.beranda = event.nativeEvent.layout.y;
+      }} style={[styles.section, styles.headerSection]}>
+        <Text style={styles.brand}>Lumepo</Text>
+
+        {isDesktop ? (
+          <View style={styles.headerDesktopNav}>
+            <Pressable onPress={() => goToSection("beranda")}>
+              <Text style={styles.navText}>Beranda</Text>
+            </Pressable>
+            <Pressable onPress={() => goToSection("untuk-siapa")}>
+              <Text style={styles.navText}>Untuk Siapa</Text>
+            </Pressable>
+            <Pressable onPress={() => goToSection("manfaat")}>
+              <Text style={styles.navText}>Manfaat</Text>
+            </Pressable>
+            <Pressable onPress={() => goToSection("faq")}>
+              <Text style={styles.navText}>FAQ</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <View />
+        )}
+
+        <View style={styles.headerActions}>
+          {isDesktop ? (
+            <Pressable onPress={goToAuth} style={styles.textButton}>
+              <Text style={styles.textButtonLabel}>Masuk</Text>
+            </Pressable>
+          ) : null}
           <Pressable onPress={goToAuth} style={styles.ctaButton}>
-            <Text style={styles.ctaText}>Masuk / Daftar</Text>
+            <Text style={styles.ctaText}>Mulai Gratis</Text>
           </Pressable>
         </View>
       </View>
 
-      <View ref={(node) => {
-          sectionRefs.current.hero = node;
-        }} nativeID="hero" style={styles.section}>
+      <View nativeID="hero" onLayout={(event) => {
+        sectionOffsets.current.hero = event.nativeEvent.layout.y;
+      }} style={styles.section}>
         <Text style={styles.sectionTitle}>Hero</Text>
         <Text style={styles.sectionBody}>Placeholder konten section Hero.</Text>
-        <Pressable onPress={goToAuth} style={styles.ctaButton}>
-          <Text style={styles.ctaText}>Mulai Sekarang</Text>
-        </Pressable>
       </View>
 
-      <View ref={(node) => {
-          sectionRefs.current["untuk-siapa"] = node;
-        }} nativeID="untuk-siapa" style={styles.section}>
+      <View nativeID="untuk-siapa" onLayout={(event) => {
+        sectionOffsets.current["untuk-siapa"] = event.nativeEvent.layout.y;
+      }} style={styles.section}>
         <Text style={styles.sectionTitle}>Untuk Siapa</Text>
         <Text style={styles.sectionBody}>Placeholder konten section Untuk Siapa.</Text>
       </View>
 
-      <View ref={(node) => {
-          sectionRefs.current["cara-kerja"] = node;
-        }} nativeID="cara-kerja" style={styles.section}>
+      <View nativeID="cara-kerja" onLayout={(event) => {
+        sectionOffsets.current["cara-kerja"] = event.nativeEvent.layout.y;
+      }} style={styles.section}>
         <Text style={styles.sectionTitle}>Cara Kerja</Text>
         <Text style={styles.sectionBody}>Placeholder konten section Cara Kerja.</Text>
       </View>
 
-      <View ref={(node) => {
-          sectionRefs.current.manfaat = node;
-        }} nativeID="manfaat" style={styles.section}>
+      <View nativeID="manfaat" onLayout={(event) => {
+        sectionOffsets.current.manfaat = event.nativeEvent.layout.y;
+      }} style={styles.section}>
         <Text style={styles.sectionTitle}>Manfaat</Text>
         <Text style={styles.sectionBody}>Placeholder konten section Manfaat.</Text>
       </View>
 
-      <View ref={(node) => {
-          sectionRefs.current.diferensiasi = node;
-        }} nativeID="diferensiasi" style={styles.section}>
+      <View nativeID="diferensiasi" onLayout={(event) => {
+        sectionOffsets.current.diferensiasi = event.nativeEvent.layout.y;
+      }} style={styles.section}>
         <Text style={styles.sectionTitle}>Diferensiasi</Text>
         <Text style={styles.sectionBody}>Placeholder konten section Diferensiasi.</Text>
       </View>
 
-      <View ref={(node) => {
-          sectionRefs.current.trust = node;
-        }} nativeID="trust" style={styles.section}>
+      <View nativeID="trust" onLayout={(event) => {
+        sectionOffsets.current.trust = event.nativeEvent.layout.y;
+      }} style={styles.section}>
         <Text style={styles.sectionTitle}>Trust</Text>
         <Text style={styles.sectionBody}>Placeholder konten section Trust.</Text>
       </View>
 
-      <View ref={(node) => {
-          sectionRefs.current.faq = node;
-        }} nativeID="faq" style={styles.section}>
+      <View nativeID="faq" onLayout={(event) => {
+        sectionOffsets.current.faq = event.nativeEvent.layout.y;
+      }} style={styles.section}>
         <Text style={styles.sectionTitle}>FAQ</Text>
         <Text style={styles.sectionBody}>Placeholder konten section FAQ.</Text>
       </View>
 
-      <View ref={(node) => {
-          sectionRefs.current["closing-cta"] = node;
-        }} nativeID="closing-cta" style={styles.section}>
+      <View nativeID="closing-cta" onLayout={(event) => {
+        sectionOffsets.current["closing-cta"] = event.nativeEvent.layout.y;
+      }} style={styles.section}>
         <Text style={styles.sectionTitle}>Closing CTA</Text>
         <Text style={styles.sectionBody}>Placeholder konten section Closing CTA.</Text>
         <Pressable onPress={goToAuth} style={styles.ctaButton}>
-          <Text style={styles.ctaText}>Coba Gratis</Text>
+          <Text style={styles.ctaText}>Mulai Gratis</Text>
         </Pressable>
       </View>
     </ScrollView>
@@ -149,6 +174,41 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     gap: spacing.sm,
   },
+  headerSection: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: spacing.md,
+  },
+  brand: {
+    fontSize: typography.title,
+    fontWeight: "800",
+    color: colors.primary,
+  },
+  headerDesktopNav: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.lg,
+  },
+  navText: {
+    fontSize: typography.small,
+    color: colors.text,
+    fontWeight: "600",
+  },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  textButton: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  textButtonLabel: {
+    fontSize: typography.small,
+    color: colors.text,
+    fontWeight: "700",
+  },
   sectionTitle: {
     fontSize: typography.h2,
     fontWeight: "700",
@@ -157,21 +217,6 @@ const styles = StyleSheet.create({
   sectionBody: {
     fontSize: typography.body,
     color: colors.mutedText,
-  },
-  row: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing.sm,
-  },
-  linkButton: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderWidth: 1,
-    borderColor: `${colors.mutedText}33`,
-  },
-  linkText: {
-    fontSize: typography.small,
-    color: colors.text,
   },
   ctaButton: {
     paddingHorizontal: spacing.md,
