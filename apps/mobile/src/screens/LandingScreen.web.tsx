@@ -142,8 +142,23 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         }}
         style={styles.section}
       >
-        <Text style={styles.sectionTitle}>Untuk Siapa</Text>
-        <Text style={styles.sectionBody}>Placeholder konten section Untuk Siapa.</Text>
+        <Text style={styles.sectionTitle}>Malam seharusnya jadi waktu beristirahat.</Text>
+        <Text style={styles.sectionBody}>
+          Tapi sering kali, justru di malam hari pikiran terasa paling bising.
+Tubuh ingin tidur, tapi hati dan kepala belum selesai.
+        </Text>
+
+        <View style={[styles.calmCardsRow, !isDesktop && styles.calmCardsColumn]}>
+          <View style={styles.calmCard}>
+            <Text style={styles.calmCardText}>Hari terasa belum benar-benar selesai.</Text>
+          </View>
+          <View style={styles.calmCard}>
+            <Text style={styles.calmCardText}>Pikiran mengulang percakapan dan keputusan.</Text>
+          </View>
+          <View style={styles.calmCard}>
+            <Text style={styles.calmCardText}>Kamu ingin tenang, tapi tidak tahu mulai dari mana.</Text>
+          </View>
+        </View>
       </View>
 
       <View
@@ -333,6 +348,28 @@ const styles = StyleSheet.create({
   heroImage: {
     width: "100%",
     height: "100%",
+  },
+
+  calmCardsRow: {
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
+  calmCardsColumn: {
+    flexDirection: "column",
+  },
+  calmCard: {
+    flex: 1,
+    padding: spacing.md,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: `${colors.mutedText}2E`,
+    backgroundColor: colors.white,
+    boxShadow: `0px 4px 16px ${colors.text}12`,
+  },
+  calmCardText: {
+    fontSize: typography.body,
+    lineHeight: 24,
+    color: colors.text,
   },
   sectionTitle: {
     fontSize: typography.h2,
