@@ -197,8 +197,25 @@ Tubuh ingin tidur, tapi hati dan kepala belum selesai.
         }}
         style={styles.section}
       >
-        <Text style={styles.sectionTitle}>Manfaat</Text>
-        <Text style={styles.sectionBody}>Placeholder konten section Manfaat.</Text>
+        <Text style={styles.sectionTitle}>Apa yang Berubah Setelah Beberapa Malam?</Text>
+
+        <View style={[styles.benefitsGrid, !isDesktop && styles.benefitsGridMobile]}>
+          <View style={[styles.benefitItem, isDesktop && styles.benefitItemDesktop]}>
+            <Text style={styles.benefitText}>Pikiran lebih cepat melambat.</Text>
+          </View>
+          <View style={[styles.benefitItem, isDesktop && styles.benefitItemDesktop]}>
+            <Text style={styles.benefitText}>Tidur terasa lebih dalam.</Text>
+          </View>
+          <View style={[styles.benefitItem, isDesktop && styles.benefitItemDesktop]}>
+            <Text style={styles.benefitText}>Bangun dengan rasa yang lebih ringan.</Text>
+          </View>
+          <View style={[styles.benefitItem, isDesktop && styles.benefitItemDesktop]}>
+            <Text style={styles.benefitText}>Tidak lagi bergantung pada video acak.</Text>
+          </View>
+          <View style={[styles.benefitItem, isDesktop && styles.benefitItemDesktop]}>
+            <Text style={styles.benefitText}>Punya ruang kecil untuk menutup hari dengan sadar.</Text>
+          </View>
+        </View>
       </View>
 
       <View
@@ -421,6 +438,33 @@ const styles = StyleSheet.create({
     fontSize: typography.small,
     color: colors.text,
     fontWeight: "600",
+  },
+
+  benefitsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    columnGap: spacing.sm,
+    rowGap: spacing.sm,
+  },
+  benefitsGridMobile: {
+    flexDirection: "column",
+  },
+  benefitItem: {
+    width: "100%",
+    padding: spacing.md,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: `${colors.mutedText}2E`,
+    backgroundColor: colors.white,
+    boxShadow: `0px 4px 16px ${colors.text}12`,
+  },
+  benefitItemDesktop: {
+    width: "48%",
+  },
+  benefitText: {
+    fontSize: typography.body,
+    color: colors.text,
+    lineHeight: 24,
   },
   sectionTitle: {
     fontSize: typography.h2,
