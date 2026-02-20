@@ -168,8 +168,26 @@ Tubuh ingin tidur, tapi hati dan kepala belum selesai.
         }}
         style={styles.section}
       >
-        <Text style={styles.sectionTitle}>Cara Kerja</Text>
-        <Text style={styles.sectionBody}>Placeholder konten section Cara Kerja.</Text>
+        <Text style={styles.sectionTitle}>Kamu Tidak Perlu Lebih Kuat. Kamu Hanya Perlu Sebuah Ritual.</Text>
+
+        <View style={[styles.stepsRow, !isDesktop && styles.stepsColumn]}>
+          <View style={styles.stepCard}>
+            <Text style={styles.stepTitle}>1) Pilih Mode Malam Ini</Text>
+            <Text style={styles.stepBody}>Tenangkan pikiran atau lepaskan beban hari.</Text>
+          </View>
+
+          <View style={styles.stepCard}>
+            <Text style={styles.stepTitle}>2) Ikuti Alur Terpandu</Text>
+            <Text style={styles.stepBody}>Tanpa perlu memilih lagi. Tanpa perlu berpikir lagi.</Text>
+          </View>
+
+          <View style={styles.stepCard}>
+            <Text style={styles.stepTitle}>3) Biarkan Malam Bekerja</Text>
+            <Text style={styles.stepBody}>Masuk tidur dengan lebih pelan dan stabil.</Text>
+          </View>
+        </View>
+
+        <Text style={styles.stepNote}>Total waktu sekitar 15 menit.</Text>
       </View>
 
       <View
@@ -370,6 +388,39 @@ const styles = StyleSheet.create({
     fontSize: typography.body,
     lineHeight: 24,
     color: colors.text,
+  },
+
+  stepsRow: {
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
+  stepsColumn: {
+    flexDirection: "column",
+  },
+  stepCard: {
+    flex: 1,
+    padding: spacing.md,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: `${colors.mutedText}2E`,
+    backgroundColor: colors.white,
+    boxShadow: `0px 4px 16px ${colors.text}12`,
+    gap: spacing.xs,
+  },
+  stepTitle: {
+    fontSize: typography.body,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  stepBody: {
+    fontSize: typography.body,
+    lineHeight: 24,
+    color: colors.mutedText,
+  },
+  stepNote: {
+    fontSize: typography.small,
+    color: colors.text,
+    fontWeight: "600",
   },
   sectionTitle: {
     fontSize: typography.h2,
