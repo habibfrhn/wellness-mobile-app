@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderRadius: radius.md,
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.sm,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -233,7 +233,8 @@ const styles = StyleSheet.create({
   heroCard: {
     backgroundColor: colors.card,
     borderRadius: radius.md,
-    padding: spacing.xl,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.lg,
     flexDirection: "row",
     gap: spacing.xl,
     alignItems: "center",
