@@ -160,8 +160,8 @@ const styles = StyleSheet.create({
   desktopPage: {
     flex: 1,
     backgroundColor: colors.white,
-    paddingVertical: spacing.lg,
-    gap: spacing.sm,
+    paddingVertical: spacing.xs,
+    gap: spacing.xs,
   },
   headerShell: {
     width: "100%",
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderRadius: radius.md,
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.xs,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderRadius: radius.md,
     paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.lg,
+    paddingVertical: spacing.xs,
     flexDirection: "row",
     gap: spacing.xl,
     alignItems: "center",
