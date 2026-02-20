@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.white,
     paddingVertical: spacing.lg,
-    gap: spacing.lg,
+    gap: spacing.sm,
   },
   headerShell: {
     width: "100%",
