@@ -225,8 +225,23 @@ Tubuh ingin tidur, tapi hati dan kepala belum selesai.
         }}
         style={styles.section}
       >
-        <Text style={styles.sectionTitle}>Diferensiasi</Text>
-        <Text style={styles.sectionBody}>Placeholder konten section Diferensiasi.</Text>
+        <Text style={styles.sectionTitle}>Bukan Konten. Sebuah Ritual.</Text>
+
+        <View style={[styles.ritualColumns, !isDesktop && styles.ritualColumnsMobile]}>
+          <View style={styles.ritualCard}>
+            <Text style={styles.ritualCardTitle}>Yang sering terjadi</Text>
+            <Text style={styles.ritualCardItem}>• Banyak pilihan.</Text>
+            <Text style={styles.ritualCardItem}>• Banyak distraksi.</Text>
+            <Text style={styles.ritualCardItem}>• Mudah terbawa scrolling.</Text>
+          </View>
+
+          <View style={styles.ritualCard}>
+            <Text style={styles.ritualCardTitle}>Dengan Lumepo</Text>
+            <Text style={styles.ritualCardItem}>• Satu tombol.</Text>
+            <Text style={styles.ritualCardItem}>• Satu alur.</Text>
+            <Text style={styles.ritualCardItem}>• Satu ruang untuk tenang.</Text>
+          </View>
+        </View>
       </View>
 
       <View
@@ -464,6 +479,35 @@ const styles = StyleSheet.create({
   benefitText: {
     fontSize: typography.body,
     color: colors.text,
+    lineHeight: 24,
+  },
+
+  ritualColumns: {
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
+  ritualColumnsMobile: {
+    flexDirection: "column",
+  },
+  ritualCard: {
+    flex: 1,
+    padding: spacing.md,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: `${colors.mutedText}2E`,
+    backgroundColor: colors.white,
+    boxShadow: `0px 4px 16px ${colors.text}12`,
+    gap: spacing.xs,
+  },
+  ritualCardTitle: {
+    fontSize: typography.body,
+    fontWeight: "700",
+    color: colors.text,
+    marginBottom: spacing.xs,
+  },
+  ritualCardItem: {
+    fontSize: typography.body,
+    color: colors.mutedText,
     lineHeight: 24,
   },
   sectionTitle: {
