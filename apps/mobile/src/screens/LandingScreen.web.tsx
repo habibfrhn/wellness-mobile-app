@@ -10,7 +10,7 @@ type LandingScreenProps = {
 };
 
 const WEB_BREAKPOINT = 640;
-const HERO_IMAGE = require("../../assets/image/cover/01-master-cover.jpg");
+const HERO_IMAGE = require("../../assets/image/landing-page/1.jpg");
 
 export default function LandingScreen({ navigation }: LandingScreenProps) {
   const width = useViewportWidth();
