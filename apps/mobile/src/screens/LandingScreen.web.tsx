@@ -2,6 +2,7 @@ import React from "react";
 import { NavigationProp, ParamListBase } from "@react-navigation/native";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
+import { id } from "../i18n/strings";
 import useViewportWidth from "../hooks/useViewportWidth";
 import { colors, radius, spacing, typography, lineHeights } from "../theme/tokens";
 
@@ -10,11 +11,13 @@ type LandingScreenProps = {
 };
 
 const WEB_BREAKPOINT = 640;
+const COMPACT_DESKTOP_BREAKPOINT = 1024;
 const HERO_IMAGE = require("../../assets/image/landing-page/1.jpg");
 
 export default function LandingScreen({ navigation }: LandingScreenProps) {
   const width = useViewportWidth();
   const isDesktopWeb = width > WEB_BREAKPOINT;
+  const isCompactDesktop = width <= COMPACT_DESKTOP_BREAKPOINT;
 
   const handleAuthPress = () => {
     navigation.navigate("Auth");
@@ -25,15 +28,15 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
       <View style={styles.mobilePage}>
         <View style={styles.mobileContent}>
           <Image source={HERO_IMAGE} style={styles.mobileImage} resizeMode="cover" />
-          <Text style={styles.mobileHeadline}>Ritual malam 15 menit untuk menutup hari dengan tenang.</Text>
-          <Text style={styles.mobileSubtext}>Tanpa iklan. Tanpa scrolling. Tanpa overstimulation.</Text>
+          <Text style={styles.mobileHeadline}>{id.landing.mobileHeadline}</Text>
+          <Text style={styles.mobileSubtext}>{id.landing.mobileSubtext}</Text>
 
           <Pressable onPress={handleAuthPress} style={({ pressed }) => [styles.mobilePrimaryButton, pressed && styles.pressed]}>
-            <Text style={styles.mobilePrimaryButtonText}>Coba Gratis (Beta)</Text>
+            <Text style={styles.mobilePrimaryButtonText}>{id.landing.mobilePrimaryCta}</Text>
           </Pressable>
 
           <Pressable onPress={handleAuthPress} style={({ pressed }) => [styles.mobileSecondaryButton, pressed && styles.pressed]}>
-            <Text style={styles.mobileSecondaryButtonText}>Masuk</Text>
+            <Text style={styles.mobileSecondaryButtonText}>{id.landing.mobileSecondaryCta}</Text>
           </Pressable>
         </View>
       </View>
@@ -46,48 +49,50 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         <View style={styles.header}>
           <Text style={styles.brand}>Lumepo</Text>
 
-          <View style={styles.navRow}>
-            <Text style={[styles.navLink, styles.navLinkActive]}>Home</Text>
-            <Text style={styles.navLink}>Who we serve</Text>
-            <Text style={styles.navLink}>Our Features</Text>
-            <Text style={styles.navLink}>Helpful Resources</Text>
-          </View>
+          {!isCompactDesktop ? (
+            <View style={styles.navRow}>
+              <Text style={[styles.navLink, styles.navLinkActive]}>{id.landing.navHome}</Text>
+              <Text style={styles.navLink}>{id.landing.navWhoWeServe}</Text>
+              <Text style={styles.navLink}>{id.landing.navFeatures}</Text>
+              <Text style={styles.navLink}>{id.landing.navResources}</Text>
+            </View>
+          ) : (
+            <View />
+          )}
 
           <View style={styles.headerActions}>
             <Pressable onPress={handleAuthPress} style={({ pressed }) => [styles.loginGhost, pressed && styles.pressed]}>
-              <Text style={styles.loginGhostText}>Login</Text>
+              <Text style={styles.loginGhostText}>{id.landing.loginCta}</Text>
             </Pressable>
             <Pressable onPress={handleAuthPress} style={({ pressed }) => [styles.getStartedButton, pressed && styles.pressed]}>
-              <Text style={styles.getStartedText}>Get Started</Text>
+              <Text style={styles.getStartedText}>{id.landing.getStartedCta}</Text>
             </Pressable>
           </View>
         </View>
       </View>
 
       <View style={styles.desktopContainer}>
-        <View style={styles.heroCard}>
+        <View style={[styles.heroCard, isCompactDesktop && styles.heroCardCompact]}>
           <View style={styles.heroLeft}>
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>Ritual Malam Harian</Text>
+              <Text style={styles.badgeText}>{id.landing.badge}</Text>
             </View>
 
-            <Text style={styles.heroIntro}>Introducing a Smarter Night Routine</Text>
-            <Text style={styles.heroTitle}>Effortless Sleep Ritual for Busy Minds</Text>
-            <Text style={styles.heroSubtitle}>
-              Pendek, terstruktur, dan menenangkan—membantu kamu wind-down dari hari yang melelahkan tanpa distraksi.
-            </Text>
+            <Text style={styles.heroIntro}>{id.landing.heroIntro}</Text>
+            <Text style={styles.heroTitle}>{id.landing.heroTitle}</Text>
+            <Text style={styles.heroSubtitle}>{id.landing.heroSubtitle}</Text>
 
             <View style={styles.heroActions}>
               <Pressable onPress={handleAuthPress} style={({ pressed }) => [styles.primaryCta, pressed && styles.pressed]}>
-                <Text style={styles.primaryCtaText}>Get Started</Text>
+                <Text style={styles.primaryCtaText}>{id.landing.getStartedCta}</Text>
               </Pressable>
               <Pressable onPress={handleAuthPress} style={({ pressed }) => [styles.secondaryCta, pressed && styles.pressed]}>
-                <Text style={styles.secondaryCtaText}>Coba Demo</Text>
+                <Text style={styles.secondaryCtaText}>{id.landing.secondaryHeroCta}</Text>
               </Pressable>
             </View>
           </View>
 
-          <View style={styles.heroRight}>
+          <View style={[styles.heroRight, isCompactDesktop && styles.heroRightCompact]}>
             <Image source={HERO_IMAGE} style={styles.heroImage} resizeMode="cover" />
           </View>
         </View>
@@ -237,7 +242,10 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
     flexDirection: "row",
     gap: spacing.xl,
-    alignItems: "center",
+    alignItems: "stretch",
+  },
+  heroCardCompact: {
+    flexDirection: "column-reverse",
   },
   heroLeft: {
     flex: 1,
@@ -306,6 +314,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     overflow: "hidden",
     minHeight: 560,
+    height: 560,
+  },
+  heroRightCompact: {
+    minHeight: 360,
+    height: 360,
   },
   heroImage: {
     width: "100%",

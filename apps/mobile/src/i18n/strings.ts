@@ -22,6 +22,25 @@ export const id = {
     secondaryCta: "Masuk",
   },
 
+
+  landing: {
+    mobileHeadline: "Ritual malam 15 menit untuk menutup hari dengan tenang.",
+    mobileSubtext: "Tanpa iklan. Tanpa scrolling. Tanpa overstimulation.",
+    mobilePrimaryCta: "Coba Gratis (Beta)",
+    mobileSecondaryCta: "Masuk",
+    navHome: "Home",
+    navWhoWeServe: "Who we serve",
+    navFeatures: "Our Features",
+    navResources: "Helpful Resources",
+    loginCta: "Login",
+    getStartedCta: "Get Started",
+    badge: "Ritual Malam Harian",
+    heroIntro: "Introducing a Smarter Night Routine",
+    heroTitle: "Effortless Sleep Ritual for Busy Minds",
+    heroSubtitle: "Pendek, terstruktur, dan menenangkan—membantu kamu wind-down dari hari yang melelahkan tanpa distraksi.",
+    secondaryHeroCta: "Coba Demo",
+  },
+
   signup: {
     title: "Buat akun",
     subtitle: "Kami akan meminta verifikasi email sebelum Anda bisa mulai sesi.",
