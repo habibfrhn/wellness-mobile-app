@@ -42,7 +42,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
 
   return (
     <View style={styles.desktopPage}>
-      <View style={styles.desktopContainer}>
+      <View style={styles.headerShell}>
         <View style={styles.header}>
           <Text style={styles.brand}>Lumepo</Text>
 
@@ -62,7 +62,9 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
             </Pressable>
           </View>
         </View>
+      </View>
 
+      <View style={styles.desktopContainer}>
         <View style={styles.heroCard}>
           <View style={styles.heroLeft}>
             <View style={styles.badge}>
@@ -158,16 +160,22 @@ const styles = StyleSheet.create({
   desktopPage: {
     flex: 1,
     backgroundColor: colors.white,
-    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.lg,
+    gap: spacing.lg,
+  },
+  headerShell: {
+    width: "100%",
+    paddingHorizontal: spacing.lg,
   },
   desktopContainer: {
     width: "100%",
     maxWidth: 1100,
     marginHorizontal: "auto",
+    paddingHorizontal: spacing.lg,
     gap: spacing.lg,
   },
   header: {
+    width: "100%",
     backgroundColor: colors.card,
     borderRadius: radius.md,
     paddingHorizontal: spacing.lg,
