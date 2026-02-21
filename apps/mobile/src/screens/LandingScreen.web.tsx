@@ -61,7 +61,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         onLayout={(event) => {
           sectionOffsets.current.beranda = event.nativeEvent.layout.y;
         }}
-        style={[styles.section, isDesktop && styles.sectionDesktop, styles.headerSection]}
+        style={[styles.section, isDesktop && styles.sectionDesktop, styles.headerSection, isDesktop && styles.headerSectionDesktop]}
       >
         <Text style={styles.brand}>Lumepo</Text>
 
@@ -101,7 +101,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         onLayout={(event) => {
           sectionOffsets.current.hero = event.nativeEvent.layout.y;
         }}
-        style={[styles.section, isDesktop && styles.sectionDesktop]}
+        style={[styles.section, isDesktop && styles.sectionDesktop, styles.heroSection, isDesktop && styles.heroSectionDesktop]}
       >
         <View style={[styles.heroLayout, !isDesktop && styles.heroLayoutMobile]}>
           <View style={styles.heroTextColumn}>
@@ -314,11 +314,11 @@ const styles = StyleSheet.create({
   content: {
     width: "100%",
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
+    paddingVertical: spacing.xl,
     gap: spacing.lg,
   },
   contentDesktop: {
-    paddingVertical: spacing.lg,
+    paddingVertical: spacing.xl,
     gap: 0,
   },
   section: {
@@ -326,19 +326,23 @@ const styles = StyleSheet.create({
     maxWidth: 1100,
     marginHorizontal: "auto",
     paddingHorizontal: 0,
-    paddingVertical: spacing.lg,
+    paddingVertical: spacing.xl,
     gap: spacing.md,
     backgroundColor: colors.white,
   },
   sectionDesktop: {
     paddingHorizontal: spacing.lg,
-    paddingVertical: 80,
+    paddingVertical: 64,
   },
   headerSection: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     gap: spacing.md,
+    paddingVertical: 14,
+  },
+  headerSectionDesktop: {
+    paddingVertical: 18,
   },
   brand: {
     fontSize: typography.title,
@@ -368,6 +372,14 @@ const styles = StyleSheet.create({
     fontSize: typography.small,
     color: colors.text,
     fontWeight: "700",
+  },
+  heroSection: {
+    paddingTop: 40,
+    paddingBottom: 36,
+  },
+  heroSectionDesktop: {
+    paddingTop: 56,
+    paddingBottom: 56,
   },
   heroLayout: {
     flexDirection: "row",
@@ -436,7 +448,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   heroCtaRowDesktop: {
-    marginTop: spacing.sm,
+    marginTop: 0,
     gap: spacing.md,
   },
   heroImageCard: {
