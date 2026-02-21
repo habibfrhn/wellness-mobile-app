@@ -293,13 +293,14 @@ Tubuh ingin tidur, tapi hati dan kepala belum selesai.
         onLayout={(event) => {
           sectionOffsets.current["closing-cta"] = event.nativeEvent.layout.y;
         }}
-        style={styles.section}
+        style={[styles.section, styles.closingCtaSection]}
       >
-        <Text style={styles.sectionTitle}>Closing CTA</Text>
-        <Text style={styles.sectionBody}>Placeholder konten section Closing CTA.</Text>
+        <Text style={styles.sectionTitle}>Malam Ini, Kamu Bisa Memulainya.</Text>
+        <Text style={styles.closingCtaSubtext}>Cukup 15 menit sebelum tidur.</Text>
         <Pressable onPress={goToAuth} style={styles.ctaButton}>
           <Text style={styles.ctaText}>Mulai Gratis</Text>
         </Pressable>
+        <Text style={styles.closingCtaMicrocopy}>Tanpa kartu kredit.</Text>
       </View>
     </ScrollView>
   );
@@ -569,6 +570,19 @@ const styles = StyleSheet.create({
     lineHeight: 28,
     color: colors.mutedText,
     maxWidth: 760,
+  },
+  closingCtaSection: {
+    alignItems: "center",
+  },
+  closingCtaSubtext: {
+    fontSize: typography.body,
+    color: colors.mutedText,
+    textAlign: "center",
+  },
+  closingCtaMicrocopy: {
+    fontSize: typography.caption,
+    color: colors.mutedText,
+    textAlign: "center",
   },
   ctaButton: {
     paddingHorizontal: spacing.md,
