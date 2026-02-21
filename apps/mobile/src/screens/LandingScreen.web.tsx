@@ -269,7 +269,23 @@ Tubuh ingin tidur, tapi hati dan kepala belum selesai.
         style={styles.section}
       >
         <Text style={styles.sectionTitle}>FAQ</Text>
-        <Text style={styles.sectionBody}>Placeholder konten section FAQ.</Text>
+
+        <View style={styles.faqList}>
+          <View style={styles.faqItem}>
+            <Text style={styles.faqQuestion}>Apakah ini cocok kalau saya sering overthinking?</Text>
+            <Text style={styles.faqAnswer}>Ya. Ritual ini membantu pikiran melambat dengan alur yang lembut dan terarah.</Text>
+          </View>
+
+          <View style={styles.faqItem}>
+            <Text style={styles.faqQuestion}>Berapa lama durasinya?</Text>
+            <Text style={styles.faqAnswer}>Sekitar 15 menit sebelum tidur.</Text>
+          </View>
+
+          <View style={styles.faqItem}>
+            <Text style={styles.faqQuestion}>Apakah perlu bayar?</Text>
+            <Text style={styles.faqAnswer}>Kamu bisa mulai gratis di fase beta.</Text>
+          </View>
+        </View>
       </View>
 
       <View
@@ -512,6 +528,29 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   ritualCardItem: {
+    fontSize: typography.body,
+    color: colors.mutedText,
+    lineHeight: 24,
+  },
+  faqList: {
+    gap: spacing.sm,
+  },
+  faqItem: {
+    padding: spacing.md,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: `${colors.mutedText}2E`,
+    backgroundColor: colors.white,
+    boxShadow: `0px 4px 16px ${colors.text}12`,
+    gap: spacing.xs,
+  },
+  faqQuestion: {
+    fontSize: typography.body,
+    fontWeight: "700",
+    color: colors.text,
+    lineHeight: 24,
+  },
+  faqAnswer: {
     fontSize: typography.body,
     color: colors.mutedText,
     lineHeight: 24,
