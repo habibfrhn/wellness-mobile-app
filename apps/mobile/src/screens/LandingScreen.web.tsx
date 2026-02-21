@@ -516,10 +516,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   heroCtaRowBreathing: {
-    marginTop: 50,
+    marginTop: spacing.xl,
   },
   heroCtaRowDesktop: {
-    marginTop: 50,
+    marginTop: spacing.xl,
     gap: spacing.md,
   },
   heroImageCard: {
