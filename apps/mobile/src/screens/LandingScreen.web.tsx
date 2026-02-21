@@ -86,11 +86,11 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
 
         <View style={styles.headerActions}>
           {isDesktop ? (
-            <Pressable onPress={goToAuth} style={styles.textButton}>
+            <Pressable onPress={goToAuth} style={[styles.textButton, styles.headerTextButton]}>
               <Text style={styles.textButtonLabel}>Masuk</Text>
             </Pressable>
           ) : null}
-          <Pressable onPress={goToAuth} style={styles.ctaButton}>
+          <Pressable onPress={goToAuth} style={[styles.ctaButton, styles.headerPrimaryButton]}>
             <Text style={styles.ctaText}>Mulai Gratis</Text>
           </Pressable>
         </View>
@@ -339,10 +339,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     gap: spacing.md,
-    paddingVertical: 14,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderColor: "rgba(0,0,0,0.06)",
   },
   headerSectionDesktop: {
-    paddingVertical: 18,
+    paddingVertical: 12,
   },
   brand: {
     fontSize: typography.title,
@@ -365,6 +367,12 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   textButton: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  headerTextButton: {
+    minHeight: 36,
+    justifyContent: "center",
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
   },
@@ -634,6 +642,12 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     backgroundColor: colors.primary,
     borderRadius: radius.sm,
+  },
+  headerPrimaryButton: {
+    minHeight: 38,
+    justifyContent: "center",
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
   },
   ctaText: {
     fontSize: typography.body,
