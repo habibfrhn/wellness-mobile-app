@@ -108,7 +108,6 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
             <View style={styles.badgePill}>
               <Text style={styles.badgeText}>Ruang tenang tiap malam</Text>
             </View>
-            <Text style={styles.heroIntro}>Ruang tenang untuk menutup hari.</Text>
             <Text style={[styles.heroTitle, isDesktop && styles.heroTitleDesktop]}>Tutup hari dengan lebih tenang</Text>
             <Text style={styles.heroBodyCopy}>Untuk kamu yang lelah, tapi pikiran masih terus berjalan.</Text>
             <View style={[styles.heroCtaRow, isDesktop && styles.heroCtaRowDesktop]}>
