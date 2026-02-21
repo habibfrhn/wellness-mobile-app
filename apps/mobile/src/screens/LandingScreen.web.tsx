@@ -156,7 +156,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
             </Pressable>
           ) : null}
           <Pressable onPress={goToAuth} style={[styles.ctaButton, styles.headerPrimaryButton]}>
-            <Text style={styles.ctaText}>Mulai Gratis</Text>
+            <Text style={styles.ctaText}>Buat akun</Text>
           </Pressable>
         </View>
       </View>
@@ -177,10 +177,10 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
             <Text style={styles.heroBodyCopy}>Untuk kamu yang lelah, tapi pikiran masih terus berjalan.</Text>
             <View style={[styles.heroCtaRow, styles.heroCtaRowBreathing, isDesktop && styles.heroCtaRowDesktop]}>
               <Pressable onPress={goToAuth} style={styles.ctaButton}>
-                <Text style={styles.ctaText}>Mulai tidur sekarang</Text>
+                <Text style={styles.ctaText}>Mulai gratis</Text>
               </Pressable>
               <Pressable onPress={() => setIsFoundingOpen(true)} style={styles.secondaryButton}>
-                <Text style={styles.secondaryButtonText}>Jadi Founding Member</Text>
+                <Text style={styles.secondaryButtonText}>Jadi founding member</Text>
               </Pressable>
             </View>
           </View>
