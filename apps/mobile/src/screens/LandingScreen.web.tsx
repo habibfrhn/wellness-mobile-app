@@ -251,8 +251,14 @@ Tubuh ingin tidur, tapi hati dan kepala belum selesai.
         }}
         style={styles.section}
       >
-        <Text style={styles.sectionTitle}>Trust</Text>
-        <Text style={styles.sectionBody}>Placeholder konten section Trust.</Text>
+        <Text style={styles.sectionTitle}>Dibuat dari Pengalaman Nyata.</Text>
+        <Text style={styles.trustBody}>
+          Aplikasi ini lahir dari seseorang yang juga sering merasa sulit mematikan pikiran di malam hari.
+{"\n"}
+          Bukan tentang menjadi lebih produktif.
+{"\n"}
+          Tapi tentang memberi diri sendiri ruang untuk berhenti.
+        </Text>
       </View>
 
       <View
@@ -518,6 +524,12 @@ const styles = StyleSheet.create({
   sectionBody: {
     fontSize: typography.body,
     color: colors.mutedText,
+  },
+  trustBody: {
+    fontSize: typography.body,
+    lineHeight: 28,
+    color: colors.mutedText,
+    maxWidth: 760,
   },
   ctaButton: {
     paddingHorizontal: spacing.md,
