@@ -110,12 +110,12 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
             </View>
             <Text style={[styles.heroTitle, isDesktop && styles.heroTitleDesktop]}>Tutup hari dengan lebih tenang</Text>
             <Text style={styles.heroBodyCopy}>Untuk kamu yang lelah, tapi pikiran masih terus berjalan.</Text>
-            <View style={[styles.heroCtaRow, isDesktop && styles.heroCtaRowDesktop]}>
+            <View style={[styles.heroCtaRow, styles.heroCtaRowBreathing, isDesktop && styles.heroCtaRowDesktop]}>
               <Pressable onPress={goToAuth} style={styles.ctaButton}>
-                <Text style={styles.ctaText}>Mulai Ritual Malam Ini</Text>
+                <Text style={styles.ctaText}>Mulai tidur sekarang</Text>
               </Pressable>
               <Pressable onPress={() => goToSection("cara-kerja")} style={styles.secondaryButton}>
-                <Text style={styles.secondaryButtonText}>Pelajari Cara Kerjanya</Text>
+                <Text style={styles.secondaryButtonText}>Jadi Founding Member</Text>
               </Pressable>
             </View>
           </View>
@@ -457,6 +457,9 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: spacing.sm,
     alignItems: "center",
+  },
+  heroCtaRowBreathing: {
+    marginTop: 20,
   },
   heroCtaRowDesktop: {
     marginTop: 0,
