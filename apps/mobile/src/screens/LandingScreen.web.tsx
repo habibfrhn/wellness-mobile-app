@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
   },
   heroImageCard: {
     width: "100%",
-    aspectRatio: 2 / 3,
+    aspectRatio: 4 / 5,
     borderRadius: radius.md,
     overflow: "hidden",
     backgroundColor: colors.card,
