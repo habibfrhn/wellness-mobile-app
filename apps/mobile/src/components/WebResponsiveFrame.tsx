@@ -7,11 +7,12 @@ import useViewportWidth from "../hooks/useViewportWidth";
 type Props = {
   children: ReactNode;
   contentStyle?: StyleProp<ViewStyle>;
+  disableFrame?: boolean;
 };
 
 const WEB_BREAKPOINT = 640;
 
-export default function WebResponsiveFrame({ children, contentStyle }: Props) {
+export default function WebResponsiveFrame({ children, contentStyle, disableFrame = false }: Props) {
   const width = useViewportWidth();
 
   if (Platform.OS !== "web") {
@@ -22,6 +23,10 @@ export default function WebResponsiveFrame({ children, contentStyle }: Props) {
     return <>{children}</>;
   }
 
+  if (disableFrame) {
+    return <View style={styles.fullWidth}>{children}</View>;
+  }
+
   return (
     <View style={styles.page}>
       <View style={[styles.content, contentStyle]}>{children}</View>
@@ -30,6 +35,11 @@ export default function WebResponsiveFrame({ children, contentStyle }: Props) {
 }
 
 const styles = StyleSheet.create({
+  fullWidth: {
+    flex: 1,
+    width: "100%",
+    minHeight: "100vh" as unknown as number,
+  },
   page: {
     flex: 1,
     backgroundColor: colors.bg,

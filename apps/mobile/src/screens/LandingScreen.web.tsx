@@ -50,7 +50,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
   };
 
   return (
-    <WebResponsiveFrame contentStyle={styles.webFrameContent}>
+    <WebResponsiveFrame disableFrame>
       <ScrollView
         ref={scrollRef}
         style={styles.page}
@@ -308,10 +308,6 @@ const styles = StyleSheet.create({
   page: {
     flex: 1,
     backgroundColor: colors.white,
-  },
-  webFrameContent: {
-    maxWidth: 1100,
-    padding: spacing.lg,
   },
   content: {
     padding: spacing.lg,
