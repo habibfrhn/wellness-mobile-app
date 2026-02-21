@@ -119,8 +119,8 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         }}
         style={[styles.section, isDesktop && styles.sectionDesktop, styles.heroSection, isDesktop && styles.heroSectionDesktop]}
       >
-        <View style={[styles.heroLayout, !isDesktop && styles.heroLayoutMobile]}>
-          <View style={styles.heroTextColumn}>
+        <View style={[styles.heroLayout, isDesktop && styles.heroLayoutDesktop, !isDesktop && styles.heroLayoutMobile]}>
+          <View style={[styles.heroTextColumn, isDesktop && styles.heroTextColumnDesktop]}>
             <View style={styles.badgePill}>
               <Text style={styles.badgeText}>Ruang tenang tiap malam</Text>
             </View>
@@ -136,7 +136,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
             </View>
           </View>
 
-          <View style={styles.heroImageCard}>
+          <View style={[styles.heroImageCard, isDesktop && styles.heroImageCardDesktop]}>
             <Image source={HERO_IMAGE} style={styles.heroImage} resizeMode="cover" />
           </View>
         </View>
@@ -441,11 +441,14 @@ const styles = StyleSheet.create({
   heroSectionDesktop: {
     paddingTop: 56,
     paddingBottom: 56,
+    minHeight: "75vh" as unknown as number,
   },
   heroLayout: {
     flexDirection: "row",
     gap: spacing.lg,
-    alignItems: "stretch",
+  },
+  heroLayoutDesktop: {
+    alignItems: "center",
   },
   heroLayoutMobile: {
     flexDirection: "column",
@@ -453,6 +456,9 @@ const styles = StyleSheet.create({
   heroTextColumn: {
     flex: 1,
     gap: spacing.sm,
+  },
+  heroTextColumnDesktop: {
+    justifyContent: "center",
   },
   badgePill: {
     alignSelf: "flex-start",
@@ -523,12 +529,16 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   heroImageCard: {
-    flex: 1,
-    minHeight: 420,
+    width: "100%",
+    aspectRatio: 2 / 3,
     borderRadius: radius.md,
     overflow: "hidden",
     backgroundColor: colors.card,
     boxShadow: `0px 10px 30px ${colors.text}1F`,
+  },
+  heroImageCardDesktop: {
+    flex: 1,
+    maxWidth: 460,
   },
   heroImage: {
     width: "100%",
