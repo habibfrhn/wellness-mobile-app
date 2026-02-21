@@ -106,15 +106,11 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         <View style={[styles.heroLayout, !isDesktop && styles.heroLayoutMobile]}>
           <View style={styles.heroTextColumn}>
             <View style={styles.badgePill}>
-              <Text style={styles.badgeText}>Ritual Malam Harian</Text>
+              <Text style={styles.badgeText}>Ruang tenang tiap malam</Text>
             </View>
             <Text style={styles.heroIntro}>Ruang tenang untuk menutup hari.</Text>
-            <Text style={[styles.heroTitle, isDesktop && styles.heroTitleDesktop]}>Tutup Hari dengan Lebih Tenang.</Text>
-            <Text style={[styles.heroSubheadline, isDesktop && styles.heroSubheadlineDesktop]}>Untuk kamu yang lelah, tapi pikiran masih terus berjalan.</Text>
-            <Text style={[styles.heroDescription, isDesktop && styles.heroDescriptionDesktop]}>
-              Ritual singkat dan terstruktur untuk membantu kamu perlahan melepaskan hari — tanpa iklan, tanpa scrolling,
-              tanpa distraksi.
-            </Text>
+            <Text style={[styles.heroTitle, isDesktop && styles.heroTitleDesktop]}>Tutup hari dengan lebih tenang</Text>
+            <Text style={styles.heroBodyCopy}>Untuk kamu yang lelah, tapi pikiran masih terus berjalan.</Text>
             <View style={[styles.heroCtaRow, isDesktop && styles.heroCtaRowDesktop]}>
               <Pressable onPress={goToAuth} style={styles.ctaButton}>
                 <Text style={styles.ctaText}>Mulai Ritual Malam Ini</Text>
@@ -443,6 +439,13 @@ const styles = StyleSheet.create({
     fontSize: typography.body,
     lineHeight: 24,
     color: colors.mutedText,
+    maxWidth: 620,
+  },
+  heroBodyCopy: {
+    fontSize: typography.body,
+    lineHeight: 24,
+    color: colors.mutedText,
+    fontWeight: "400",
     maxWidth: 620,
   },
   heroDescriptionDesktop: {
