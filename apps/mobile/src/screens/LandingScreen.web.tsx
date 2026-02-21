@@ -1,8 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef } from "react";
 import { NavigationProp, ParamListBase } from "@react-navigation/native";
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { colors, radius, spacing, typography } from "../theme/tokens";
+import useViewportWidth from "../hooks/useViewportWidth";
+import WebResponsiveFrame from "../components/WebResponsiveFrame";
 
 type LandingScreenProps = {
   navigation: NavigationProp<ParamListBase>;
@@ -24,7 +26,7 @@ const HERO_IMAGE = require("../../assets/image/landing-page/1.jpg");
 
 export default function LandingScreen({ navigation }: LandingScreenProps) {
   const scrollRef = useRef<ScrollView | null>(null);
-  const [viewportWidth, setViewportWidth] = useState<number>(() => window.innerWidth);
+  const viewportWidth = useViewportWidth();
   const sectionOffsets = useRef<Record<SectionKey, number>>({
     beranda: 0,
     hero: 0,
@@ -37,17 +39,6 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
     "closing-cta": 0,
   });
 
-  useEffect(() => {
-    const handleResize = () => {
-      setViewportWidth(window.innerWidth);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
   const isDesktop = viewportWidth > MOBILE_BREAKPOINT;
 
   const goToAuth = () => {
@@ -59,13 +50,18 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
   };
 
   return (
-    <ScrollView ref={scrollRef} style={styles.page} contentContainerStyle={styles.content}>
+    <WebResponsiveFrame contentStyle={styles.webFrameContent}>
+      <ScrollView
+        ref={scrollRef}
+        style={styles.page}
+        contentContainerStyle={[styles.content, isDesktop && styles.contentDesktop]}
+      >
       <View
         nativeID="beranda"
         onLayout={(event) => {
           sectionOffsets.current.beranda = event.nativeEvent.layout.y;
         }}
-        style={[styles.section, styles.headerSection]}
+        style={[styles.section, isDesktop && styles.sectionDesktop, styles.headerSection]}
       >
         <Text style={styles.brand}>Lumepo</Text>
 
@@ -105,7 +101,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         onLayout={(event) => {
           sectionOffsets.current.hero = event.nativeEvent.layout.y;
         }}
-        style={styles.section}
+        style={[styles.section, isDesktop && styles.sectionDesktop]}
       >
         <View style={[styles.heroLayout, !isDesktop && styles.heroLayoutMobile]}>
           <View style={styles.heroTextColumn}>
@@ -113,13 +109,13 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
               <Text style={styles.badgeText}>Ritual Malam Harian</Text>
             </View>
             <Text style={styles.heroIntro}>Ruang tenang untuk menutup hari.</Text>
-            <Text style={styles.heroTitle}>Tutup Hari dengan Lebih Tenang.</Text>
-            <Text style={styles.heroSubheadline}>Untuk kamu yang lelah, tapi pikiran masih terus berjalan.</Text>
-            <Text style={styles.heroDescription}>
+            <Text style={[styles.heroTitle, isDesktop && styles.heroTitleDesktop]}>Tutup Hari dengan Lebih Tenang.</Text>
+            <Text style={[styles.heroSubheadline, isDesktop && styles.heroSubheadlineDesktop]}>Untuk kamu yang lelah, tapi pikiran masih terus berjalan.</Text>
+            <Text style={[styles.heroDescription, isDesktop && styles.heroDescriptionDesktop]}>
               Ritual singkat dan terstruktur untuk membantu kamu perlahan melepaskan hari — tanpa iklan, tanpa scrolling,
               tanpa distraksi.
             </Text>
-            <View style={styles.heroCtaRow}>
+            <View style={[styles.heroCtaRow, isDesktop && styles.heroCtaRowDesktop]}>
               <Pressable onPress={goToAuth} style={styles.ctaButton}>
                 <Text style={styles.ctaText}>Mulai Ritual Malam Ini</Text>
               </Pressable>
@@ -140,11 +136,12 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         onLayout={(event) => {
           sectionOffsets.current["untuk-siapa"] = event.nativeEvent.layout.y;
         }}
-        style={styles.section}
+        style={[styles.section, isDesktop && styles.sectionDesktop]}
       >
-        <Text style={styles.sectionTitle}>Malam seharusnya jadi waktu beristirahat.</Text>
+        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop]}>Malam seharusnya jadi waktu beristirahat.</Text>
         <Text style={styles.sectionBody}>
           Tapi sering kali, justru di malam hari pikiran terasa paling bising.
+{"\n"}
 Tubuh ingin tidur, tapi hati dan kepala belum selesai.
         </Text>
 
@@ -166,9 +163,9 @@ Tubuh ingin tidur, tapi hati dan kepala belum selesai.
         onLayout={(event) => {
           sectionOffsets.current["cara-kerja"] = event.nativeEvent.layout.y;
         }}
-        style={styles.section}
+        style={[styles.section, isDesktop && styles.sectionDesktop]}
       >
-        <Text style={styles.sectionTitle}>Kamu Tidak Perlu Lebih Kuat. Kamu Hanya Perlu Sebuah Ritual.</Text>
+        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop]}>Kamu Tidak Perlu Lebih Kuat. Kamu Hanya Perlu Sebuah Ritual.</Text>
 
         <View style={[styles.stepsRow, !isDesktop && styles.stepsColumn]}>
           <View style={styles.stepCard}>
@@ -195,9 +192,9 @@ Tubuh ingin tidur, tapi hati dan kepala belum selesai.
         onLayout={(event) => {
           sectionOffsets.current.manfaat = event.nativeEvent.layout.y;
         }}
-        style={styles.section}
+        style={[styles.section, isDesktop && styles.sectionDesktop]}
       >
-        <Text style={styles.sectionTitle}>Apa yang Berubah Setelah Beberapa Malam?</Text>
+        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop]}>Apa yang Berubah Setelah Beberapa Malam?</Text>
 
         <View style={[styles.benefitsGrid, !isDesktop && styles.benefitsGridMobile]}>
           <View style={[styles.benefitItem, isDesktop && styles.benefitItemDesktop]}>
@@ -223,9 +220,9 @@ Tubuh ingin tidur, tapi hati dan kepala belum selesai.
         onLayout={(event) => {
           sectionOffsets.current.diferensiasi = event.nativeEvent.layout.y;
         }}
-        style={styles.section}
+        style={[styles.section, isDesktop && styles.sectionDesktop]}
       >
-        <Text style={styles.sectionTitle}>Bukan Konten. Sebuah Ritual.</Text>
+        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop]}>Bukan Konten. Sebuah Ritual.</Text>
 
         <View style={[styles.ritualColumns, !isDesktop && styles.ritualColumnsMobile]}>
           <View style={styles.ritualCard}>
@@ -249,9 +246,9 @@ Tubuh ingin tidur, tapi hati dan kepala belum selesai.
         onLayout={(event) => {
           sectionOffsets.current.trust = event.nativeEvent.layout.y;
         }}
-        style={styles.section}
+        style={[styles.section, isDesktop && styles.sectionDesktop]}
       >
-        <Text style={styles.sectionTitle}>Dibuat dari Pengalaman Nyata.</Text>
+        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop]}>Dibuat dari Pengalaman Nyata.</Text>
         <Text style={styles.trustBody}>
           Aplikasi ini lahir dari seseorang yang juga sering merasa sulit mematikan pikiran di malam hari.
 {"\n"}
@@ -266,9 +263,9 @@ Tubuh ingin tidur, tapi hati dan kepala belum selesai.
         onLayout={(event) => {
           sectionOffsets.current.faq = event.nativeEvent.layout.y;
         }}
-        style={styles.section}
+        style={[styles.section, isDesktop && styles.sectionDesktop]}
       >
-        <Text style={styles.sectionTitle}>FAQ</Text>
+        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop]}>FAQ</Text>
 
         <View style={styles.faqList}>
           <View style={styles.faqItem}>
@@ -293,16 +290,17 @@ Tubuh ingin tidur, tapi hati dan kepala belum selesai.
         onLayout={(event) => {
           sectionOffsets.current["closing-cta"] = event.nativeEvent.layout.y;
         }}
-        style={[styles.section, styles.closingCtaSection]}
+        style={[styles.section, isDesktop && styles.sectionDesktop, styles.closingCtaSection]}
       >
-        <Text style={styles.sectionTitle}>Malam Ini, Kamu Bisa Memulainya.</Text>
+        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop]}>Malam Ini, Kamu Bisa Memulainya.</Text>
         <Text style={styles.closingCtaSubtext}>Cukup 15 menit sebelum tidur.</Text>
         <Pressable onPress={goToAuth} style={styles.ctaButton}>
           <Text style={styles.ctaText}>Mulai Gratis</Text>
         </Pressable>
         <Text style={styles.closingCtaMicrocopy}>Tanpa kartu kredit.</Text>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </WebResponsiveFrame>
   );
 }
 
@@ -311,16 +309,36 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.white,
   },
+  webFrameContent: {
+    maxWidth: 1100,
+    padding: spacing.lg,
+  },
   content: {
     padding: spacing.lg,
     gap: spacing.md,
   },
+  contentDesktop: {
+    alignItems: "center",
+    paddingVertical: spacing.xl,
+    gap: spacing.lg,
+  },
   section: {
+    width: "100%",
     padding: spacing.md,
     borderWidth: 1,
     borderColor: `${colors.mutedText}33`,
     backgroundColor: colors.card,
     gap: spacing.sm,
+    borderRadius: radius.md,
+  },
+  sectionDesktop: {
+    width: "100%",
+    maxWidth: 1100,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.xl,
+    borderRadius: radius.lg,
+    borderColor: `${colors.mutedText}22`,
+    boxShadow: `0px 10px 24px ${colors.text}0D`,
   },
   headerSection: {
     flexDirection: "row",
@@ -392,11 +410,19 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: colors.text,
   },
+  heroTitleDesktop: {
+    fontSize: 52,
+    lineHeight: 60,
+  },
   heroSubheadline: {
     fontSize: typography.title,
     lineHeight: 26,
     color: colors.text,
     fontWeight: "600",
+  },
+  heroSubheadlineDesktop: {
+    fontSize: 24,
+    lineHeight: 34,
   },
   heroDescription: {
     fontSize: typography.body,
@@ -404,11 +430,20 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
     maxWidth: 620,
   },
+  heroDescriptionDesktop: {
+    fontSize: typography.title,
+    lineHeight: 32,
+    maxWidth: 640,
+  },
   heroCtaRow: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: spacing.sm,
     alignItems: "center",
+  },
+  heroCtaRowDesktop: {
+    marginTop: spacing.sm,
+    gap: spacing.md,
   },
   heroImageCard: {
     flex: 1,
@@ -560,6 +595,10 @@ const styles = StyleSheet.create({
     fontSize: typography.h2,
     fontWeight: "700",
     color: colors.text,
+  },
+  sectionTitleDesktop: {
+    fontSize: 36,
+    lineHeight: 44,
   },
   sectionBody: {
     fontSize: typography.body,
