@@ -339,12 +339,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     gap: spacing.md,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderColor: "rgba(0,0,0,0.06)",
+    paddingTop: 5,
+    paddingBottom: 5,
   },
   headerSectionDesktop: {
-    paddingVertical: 12,
+    paddingTop: 5,
+    paddingBottom: 5,
   },
   brand: {
     fontSize: typography.title,
@@ -371,10 +371,11 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
   },
   headerTextButton: {
-    minHeight: 36,
+    height: 32,
     justifyContent: "center",
     paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+    paddingVertical: 0,
+    marginVertical: 0,
   },
   textButtonLabel: {
     fontSize: typography.small,
@@ -644,10 +645,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
   },
   headerPrimaryButton: {
-    minHeight: 38,
+    height: 34,
     justifyContent: "center",
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+    paddingVertical: 0,
+    marginVertical: 0,
   },
   ctaText: {
     fontSize: typography.body,
