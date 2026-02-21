@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { NavigationProp, ParamListBase } from "@react-navigation/native";
 import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
@@ -23,12 +23,20 @@ type SectionKey =
 
 const MOBILE_BREAKPOINT = 640;
 const HERO_IMAGE = require("../../assets/image/landing-page/1.jpg");
+const TRACKED_SECTIONS: SectionKey[] = ["beranda", "untuk-siapa", "cara-kerja", "manfaat", "faq"];
+const HEADER_NAV_ITEMS: Array<{ key: SectionKey; label: string }> = [
+  { key: "beranda", label: "Beranda" },
+  { key: "untuk-siapa", label: "Untuk Siapa" },
+  { key: "manfaat", label: "Manfaat" },
+  { key: "faq", label: "FAQ" },
+];
 
 export default function LandingScreen({ navigation }: LandingScreenProps) {
   const scrollRef = useRef<ScrollView | null>(null);
   const [isFoundingOpen, setIsFoundingOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [activeSection, setActiveSection] = useState<SectionKey>("beranda");
   const viewportWidth = useViewportWidth();
   const sectionOffsets = useRef<Record<SectionKey, number>>({
     beranda: 0,
@@ -64,6 +72,53 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
     }
   };
 
+  useEffect(() => {
+    const hasObserver = typeof window !== "undefined" && typeof IntersectionObserver !== "undefined";
+    if (!hasObserver) {
+      return;
+    }
+
+    const elements = TRACKED_SECTIONS.map((sectionKey) => ({
+      sectionKey,
+      element: document.getElementById(sectionKey),
+    })).filter((item): item is { sectionKey: SectionKey; element: HTMLElement } => Boolean(item.element));
+
+    if (!elements.length) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const intersectingEntries = entries.filter((entry) => entry.isIntersecting);
+        if (!intersectingEntries.length) {
+          return;
+        }
+
+        const focalPoint = window.innerHeight * 0.35;
+        const nextEntry = intersectingEntries
+          .sort(
+            (a, b) =>
+              Math.abs(a.boundingClientRect.top - focalPoint) - Math.abs(b.boundingClientRect.top - focalPoint),
+          )[0];
+
+        const nextSection = nextEntry.target.id as SectionKey;
+        if (TRACKED_SECTIONS.includes(nextSection)) {
+          setActiveSection(nextSection);
+        }
+      },
+      {
+        threshold: [0.3, 0.4, 0.6],
+        rootMargin: "0px 0px -45% 0px",
+      },
+    );
+
+    elements.forEach(({ element }) => observer.observe(element));
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   return (
     <WebResponsiveFrame disableFrame>
       <ScrollView
@@ -83,18 +138,12 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
 
         {isDesktop ? (
           <View style={styles.headerDesktopNav}>
-            <Pressable onPress={() => goToSection("beranda")}>
-              <Text style={styles.navText}>Beranda</Text>
-            </Pressable>
-            <Pressable onPress={() => goToSection("untuk-siapa")}>
-              <Text style={styles.navText}>Untuk Siapa</Text>
-            </Pressable>
-            <Pressable onPress={() => goToSection("manfaat")}>
-              <Text style={styles.navText}>Manfaat</Text>
-            </Pressable>
-            <Pressable onPress={() => goToSection("faq")}>
-              <Text style={styles.navText}>FAQ</Text>
-            </Pressable>
+            {HEADER_NAV_ITEMS.map((item) => (
+              <Pressable key={item.key} onPress={() => goToSection(item.key)} style={styles.navItem}>
+                <Text style={styles.navText}>{item.label}</Text>
+                <View style={[styles.navUnderline, activeSection === item.key && styles.navUnderlineActive, { transition: "opacity 180ms ease" } as any]} />
+              </Pressable>
+            ))}
           </View>
         ) : (
           <View />
@@ -408,10 +457,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.lg,
   },
+  navItem: {
+    position: "relative",
+    paddingBottom: spacing.xs,
+  },
   navText: {
     fontSize: typography.small,
     color: colors.text,
     fontWeight: "600",
+  },
+  navUnderline: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 2,
+    backgroundColor: colors.primary,
+    opacity: 0,
+  },
+  navUnderlineActive: {
+    opacity: 1,
   },
   headerActions: {
     flexDirection: "row",
