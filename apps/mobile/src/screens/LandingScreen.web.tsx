@@ -1,6 +1,6 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { NavigationProp, ParamListBase } from "@react-navigation/native";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { colors, radius, spacing, typography } from "../theme/tokens";
 import useViewportWidth from "../hooks/useViewportWidth";
@@ -26,6 +26,9 @@ const HERO_IMAGE = require("../../assets/image/landing-page/1.jpg");
 
 export default function LandingScreen({ navigation }: LandingScreenProps) {
   const scrollRef = useRef<ScrollView | null>(null);
+  const [isFoundingOpen, setIsFoundingOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [submitted, setSubmitted] = useState(false);
   const viewportWidth = useViewportWidth();
   const sectionOffsets = useRef<Record<SectionKey, number>>({
     beranda: 0,
@@ -49,12 +52,25 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
     scrollRef.current?.scrollTo({ y: sectionOffsets.current[key], animated: true });
   };
 
+  const closeFoundingModal = () => {
+    setIsFoundingOpen(false);
+    setSubmitted(false);
+    setEmail("");
+  };
+
+  const submitFounding = () => {
+    if (email.includes("@")) {
+      setSubmitted(true);
+    }
+  };
+
   return (
     <WebResponsiveFrame disableFrame>
       <ScrollView
         ref={scrollRef}
         style={styles.page}
         contentContainerStyle={[styles.content, isDesktop && styles.contentDesktop]}
+        scrollEnabled={!isFoundingOpen}
       >
       <View
         nativeID="beranda"
@@ -114,7 +130,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
               <Pressable onPress={goToAuth} style={styles.ctaButton}>
                 <Text style={styles.ctaText}>Mulai tidur sekarang</Text>
               </Pressable>
-              <Pressable onPress={() => goToSection("cara-kerja")} style={styles.secondaryButton}>
+              <Pressable onPress={() => setIsFoundingOpen(true)} style={styles.secondaryButton}>
                 <Text style={styles.secondaryButtonText}>Jadi Founding Member</Text>
               </Pressable>
             </View>
@@ -295,6 +311,47 @@ Tubuh ingin tidur, tapi hati dan kepala belum selesai.
         <Text style={styles.closingCtaMicrocopy}>Tanpa kartu kredit.</Text>
       </View>
       </ScrollView>
+
+      {isFoundingOpen ? (
+        <View style={styles.modalOverlay}>
+          <Pressable style={styles.modalBackdrop} onPress={closeFoundingModal} />
+          <View style={styles.modalCard}>
+            <Pressable onPress={closeFoundingModal} style={styles.modalCloseButton}>
+              <Text style={styles.modalCloseText}>×</Text>
+            </Pressable>
+
+            <Text style={styles.modalTitle}>Jadi Founding Member</Text>
+            <Text style={styles.modalBody}>
+              Kami membuka kesempatan untuk 100 orang pertama yang ingin mendukung pengembangan Lumepo.
+              {"\n"}
+              {"\n"}
+              Sebagai Founding Member, kamu akan mendapatkan:
+              {"\n"}• Akses seumur hidup saat aplikasi resmi diluncurkan.
+              {"\n"}• Harga spesial sebagai pendukung awal.
+              {"\n"}• Kesempatan memberi masukan langsung dalam pengembangan.
+            </Text>
+            <Text style={styles.modalNote}>Kontribusi awal kamu membantu kami menyelesaikan pengembangan aplikasi.</Text>
+
+            {submitted ? (
+              <Text style={styles.modalThanks}>Terima kasih. Kami akan menghubungi kamu segera.</Text>
+            ) : (
+              <>
+                <TextInput
+                  value={email}
+                  onChangeText={setEmail}
+                  placeholder="Masukkan email kamu"
+                  style={styles.modalInput}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                />
+                <Pressable onPress={submitFounding} style={styles.modalSubmitButton}>
+                  <Text style={styles.modalSubmitText}>Saya ingin jadi Founding Member</Text>
+                </Pressable>
+              </>
+            )}
+          </View>
+        </View>
+      ) : null}
     </WebResponsiveFrame>
   );
 }
@@ -459,10 +516,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   heroCtaRowBreathing: {
-    marginTop: 20,
+    marginTop: 50,
   },
   heroCtaRowDesktop: {
-    marginTop: 0,
+    marginTop: 50,
     gap: spacing.md,
   },
   heroImageCard: {
@@ -673,5 +730,81 @@ const styles = StyleSheet.create({
     fontSize: typography.body,
     fontWeight: "700",
     color: colors.text,
+  },
+
+  modalOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 20,
+    padding: spacing.lg,
+  },
+  modalBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.4)",
+  },
+  modalCard: {
+    width: "100%",
+    maxWidth: 480,
+    borderRadius: radius.md,
+    backgroundColor: colors.white,
+    padding: spacing.xl,
+    gap: spacing.md,
+  },
+  modalCloseButton: {
+    position: "absolute",
+    top: spacing.sm,
+    right: spacing.sm,
+    width: 32,
+    height: 32,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modalCloseText: {
+    fontSize: 24,
+    color: colors.mutedText,
+    lineHeight: 24,
+  },
+  modalTitle: {
+    fontSize: typography.h2,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  modalBody: {
+    fontSize: typography.body,
+    lineHeight: 24,
+    color: colors.mutedText,
+  },
+  modalNote: {
+    fontSize: typography.small,
+    color: colors.mutedText,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 13,
+    fontSize: typography.body,
+    color: colors.text,
+    backgroundColor: colors.white,
+  },
+  modalSubmitButton: {
+    backgroundColor: colors.primary,
+    borderRadius: radius.sm,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    alignItems: "center",
+  },
+  modalSubmitText: {
+    fontSize: typography.body,
+    fontWeight: "700",
+    color: colors.white,
+  },
+  modalThanks: {
+    fontSize: typography.body,
+    color: colors.text,
+    lineHeight: 24,
+    fontWeight: "600",
   },
 });
