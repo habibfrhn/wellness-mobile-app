@@ -258,7 +258,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
           </View>
 
           <View style={[styles.processContentColumn, isDesktop && styles.processContentColumnDesktop]}>
-            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop]}>[Placeholder judul section]</Text>
+            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop]}>Alur malam yang menenangkan.</Text>
 
             <View style={styles.processStepsStack}>
               <View style={styles.stepCard}>
@@ -271,13 +271,14 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
                 <Text style={styles.stepBody}>Tanpa perlu memilih lagi. Tanpa perlu berpikir lagi.</Text>
               </View>
 
-              <View style={styles.stepCard}>
-                <Text style={styles.stepTitle}>3) Biarkan Malam Bekerja</Text>
-                <Text style={styles.stepBody}>Masuk tidur dengan lebih pelan dan stabil.</Text>
+              <View style={styles.stepCardWithNote}>
+                <View style={styles.stepCard}>
+                  <Text style={styles.stepTitle}>3) Biarkan Malam Bekerja</Text>
+                  <Text style={styles.stepBody}>Masuk tidur dengan lebih pelan dan stabil.</Text>
+                </View>
+                <Text style={styles.stepNote}>Total waktu sekitar 15 menit.</Text>
               </View>
             </View>
-
-            <Text style={styles.stepNote}>Total waktu sekitar 15 menit.</Text>
           </View>
         </View>
       </View>
@@ -740,6 +741,9 @@ const styles = StyleSheet.create({
   processStepsStack: {
     gap: spacing.sm,
   },
+  stepCardWithNote: {
+    gap: spacing.xs,
+  },
 
   stepsRow: {
     flexDirection: "row",
@@ -770,8 +774,8 @@ const styles = StyleSheet.create({
   },
   stepNote: {
     fontSize: typography.small,
-    color: colors.text,
-    fontWeight: "600",
+    color: colors.mutedText,
+    fontWeight: "500",
   },
 
   benefitsGrid: {
