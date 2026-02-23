@@ -27,6 +27,7 @@ const EMPATHY_IMAGE_ONE = require("../../assets/image/landing-page/2.jpg");
 const EMPATHY_IMAGE_TWO = require("../../assets/image/landing-page/3.jpg");
 const EMPATHY_IMAGE_THREE = require("../../assets/image/landing-page/6.jpg");
 const EMPATHY_IMAGE_FOUR = require("../../assets/image/landing-page/4.jpg");
+const BENEFITS_IMAGE = require("../../assets/image/landing-page/8.jpg");
 const HERO_GAP = 20;
 const HERO_IMAGE_RATIO = 4 / 5;
 const BUTTON_PADDING_VERTICAL_DESKTOP = 12;
@@ -300,38 +301,18 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         }}
         style={[styles.section, isDesktop && styles.sectionDesktop]}
       >
-        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop]}>Apa yang Berubah Setelah Beberapa Malam?</Text>
+        <View style={[styles.benefitsLayout, isDesktop ? styles.benefitsLayoutDesktop : styles.benefitsLayoutMobile]}>
+          <View style={[styles.benefitsTextColumn, isDesktop && styles.benefitsTextColumnDesktop]}>
+            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.benefitsTitle]}>Yang kamu rasakan</Text>
+            <Text style={styles.benefitsBody}>
+              Pikiran lebih cepat melambat. Tidur terasa lebih dalam.{"\n"}
+              Bangun lebih ringan. Tidak lagi bergantung pada video acak.{"\n"}
+              Ada ruang kecil untuk menutup hari dengan sadar.
+            </Text>
+          </View>
 
-        <View style={[styles.benefitsGrid, !isDesktop && styles.benefitsGridMobile]}>
-          <View style={[styles.benefitItem, isDesktop && styles.benefitItemDesktop]}>
-            <View style={styles.benefitItemContent}>
-              <Text style={styles.benefitText}>Pikiran lebih cepat melambat.</Text>
-            </View>
-          </View>
-          <View style={[styles.benefitItem, isDesktop && styles.benefitItemDesktop]}>
-            <View style={styles.benefitItemContent}>
-              <Text style={styles.benefitText}>Tidur terasa lebih dalam.</Text>
-            </View>
-          </View>
-          <View style={[styles.benefitItem, isDesktop && styles.benefitItemDesktop]}>
-            <View style={styles.benefitItemContent}>
-              <Text style={styles.benefitText}>Bangun dengan rasa yang lebih ringan.</Text>
-            </View>
-          </View>
-          <View style={[styles.benefitItem, isDesktop && styles.benefitItemDesktop]}>
-            <View style={styles.benefitItemContent}>
-              <Text style={styles.benefitText}>Tidak lagi bergantung pada video acak.</Text>
-            </View>
-          </View>
-          <View style={[styles.benefitItem, isDesktop && styles.benefitItemDesktop]}>
-            <View style={styles.benefitItemContent}>
-              <Text style={styles.benefitText}>Punya ruang kecil untuk menutup hari dengan sadar.</Text>
-            </View>
-          </View>
-          <View style={[styles.benefitItem, isDesktop && styles.benefitItemDesktop]}>
-            <View style={styles.benefitItemContent}>
-              <Text style={styles.benefitText}>Malam terasa lebih aman dan terkendali.</Text>
-            </View>
+          <View style={[styles.benefitsImageCard, isDesktop && styles.benefitsImageCardDesktop]}>
+            <Image source={BENEFITS_IMAGE} style={styles.heroImage} resizeMode="cover" />
           </View>
         </View>
       </View>
@@ -818,40 +799,44 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  benefitsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    alignItems: "stretch",
-    columnGap: spacing.sm,
-    rowGap: spacing.sm,
+  benefitsLayout: {
+    width: "100%",
+    gap: spacing.md,
   },
-  benefitsGridMobile: {
+  benefitsLayoutDesktop: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 40,
+  },
+  benefitsLayoutMobile: {
     flexDirection: "column",
   },
-  benefitItem: {
+  benefitsTextColumn: {
     width: "100%",
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: `${colors.mutedText}2E`,
-    backgroundColor: colors.white,
-    boxShadow: `0px 4px 16px ${colors.text}12`,
-  },
-  benefitItemDesktop: {
-    width: "31.5%",
-    flexBasis: "31.5%",
-    maxWidth: "31.5%",
-    minHeight: 132,
-  },
-  benefitItemContent: {
-    flex: 1,
     justifyContent: "center",
   },
-  benefitText: {
+  benefitsTextColumnDesktop: {
+    flex: 1,
+  },
+  benefitsTitle: {
+    textAlign: "left",
+    marginBottom: spacing.sm,
+  },
+  benefitsBody: {
     fontSize: typography.body,
-    color: colors.text,
-    lineHeight: 24,
+    lineHeight: 30,
+    color: colors.mutedText,
+  },
+  benefitsImageCard: {
+    width: "100%",
+    aspectRatio: HERO_IMAGE_RATIO,
+    borderRadius: radius.md,
+    overflow: "hidden",
+    backgroundColor: colors.white,
+  },
+  benefitsImageCardDesktop: {
+    flex: 1,
+    maxWidth: 460,
   },
 
   ritualColumns: {
