@@ -304,22 +304,34 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
 
         <View style={[styles.benefitsGrid, !isDesktop && styles.benefitsGridMobile]}>
           <View style={[styles.benefitItem, isDesktop && styles.benefitItemDesktop]}>
-            <Text style={styles.benefitText}>Pikiran lebih cepat melambat.</Text>
+            <View style={styles.benefitItemContent}>
+              <Text style={styles.benefitText}>Pikiran lebih cepat melambat.</Text>
+            </View>
           </View>
           <View style={[styles.benefitItem, isDesktop && styles.benefitItemDesktop]}>
-            <Text style={styles.benefitText}>Tidur terasa lebih dalam.</Text>
+            <View style={styles.benefitItemContent}>
+              <Text style={styles.benefitText}>Tidur terasa lebih dalam.</Text>
+            </View>
           </View>
           <View style={[styles.benefitItem, isDesktop && styles.benefitItemDesktop]}>
-            <Text style={styles.benefitText}>Bangun dengan rasa yang lebih ringan.</Text>
+            <View style={styles.benefitItemContent}>
+              <Text style={styles.benefitText}>Bangun dengan rasa yang lebih ringan.</Text>
+            </View>
           </View>
           <View style={[styles.benefitItem, isDesktop && styles.benefitItemDesktop]}>
-            <Text style={styles.benefitText}>Tidak lagi bergantung pada video acak.</Text>
+            <View style={styles.benefitItemContent}>
+              <Text style={styles.benefitText}>Tidak lagi bergantung pada video acak.</Text>
+            </View>
           </View>
           <View style={[styles.benefitItem, isDesktop && styles.benefitItemDesktop]}>
-            <Text style={styles.benefitText}>Punya ruang kecil untuk menutup hari dengan sadar.</Text>
+            <View style={styles.benefitItemContent}>
+              <Text style={styles.benefitText}>Punya ruang kecil untuk menutup hari dengan sadar.</Text>
+            </View>
           </View>
           <View style={[styles.benefitItem, isDesktop && styles.benefitItemDesktop]}>
-            <Text style={styles.benefitText}>Malam terasa lebih aman dan terkendali.</Text>
+            <View style={styles.benefitItemContent}>
+              <Text style={styles.benefitText}>Malam terasa lebih aman dan terkendali.</Text>
+            </View>
           </View>
         </View>
       </View>
@@ -809,6 +821,7 @@ const styles = StyleSheet.create({
   benefitsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
+    alignItems: "stretch",
     columnGap: spacing.sm,
     rowGap: spacing.sm,
   },
@@ -826,6 +839,13 @@ const styles = StyleSheet.create({
   },
   benefitItemDesktop: {
     width: "31.5%",
+    flexBasis: "31.5%",
+    maxWidth: "31.5%",
+    minHeight: 132,
+  },
+  benefitItemContent: {
+    flex: 1,
+    justifyContent: "center",
   },
   benefitText: {
     fontSize: typography.body,
