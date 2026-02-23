@@ -26,6 +26,7 @@ const HERO_IMAGE = require("../../assets/image/landing-page/1.jpg");
 const EMPATHY_IMAGE_ONE = require("../../assets/image/landing-page/2.jpg");
 const EMPATHY_IMAGE_TWO = require("../../assets/image/landing-page/3.jpg");
 const EMPATHY_IMAGE_THREE = require("../../assets/image/landing-page/6.jpg");
+const EMPATHY_IMAGE_FOUR = require("../../assets/image/landing-page/4.jpg");
 const HERO_GAP = 20;
 const HERO_IMAGE_RATIO = 4 / 5;
 const BUTTON_PADDING_VERTICAL_DESKTOP = 12;
@@ -265,7 +266,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
 
         <View style={[styles.processLayout, isDesktop ? styles.processLayoutDesktop : styles.processLayoutMobile]}>
           <View style={[styles.processImageCard, isDesktop && styles.processImageCardDesktop]}>
-            <Image source={EMPATHY_IMAGE_THREE} style={styles.heroImage} resizeMode="cover" />
+            <Image source={EMPATHY_IMAGE_FOUR} style={styles.heroImage} resizeMode="cover" />
           </View>
 
           <View style={[styles.processContentColumn, isDesktop && styles.processContentColumnDesktop]}>
