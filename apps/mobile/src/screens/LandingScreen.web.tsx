@@ -318,6 +318,9 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
           <View style={[styles.benefitItem, isDesktop && styles.benefitItemDesktop]}>
             <Text style={styles.benefitText}>Punya ruang kecil untuk menutup hari dengan sadar.</Text>
           </View>
+          <View style={[styles.benefitItem, isDesktop && styles.benefitItemDesktop]}>
+            <Text style={styles.benefitText}>Malam terasa lebih aman dan terkendali.</Text>
+          </View>
         </View>
       </View>
 
@@ -818,7 +821,7 @@ const styles = StyleSheet.create({
     boxShadow: `0px 4px 16px ${colors.text}12`,
   },
   benefitItemDesktop: {
-    width: "48%",
+    width: "31.5%",
   },
   benefitText: {
     fontSize: typography.body,
