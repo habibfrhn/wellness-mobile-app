@@ -28,6 +28,8 @@ const EMPATHY_IMAGE_TWO = require("../../assets/image/landing-page/3.jpg");
 const EMPATHY_IMAGE_THREE = require("../../assets/image/landing-page/6.jpg");
 const EMPATHY_IMAGE_FOUR = require("../../assets/image/landing-page/4.jpg");
 const BENEFITS_IMAGE = require("../../assets/image/landing-page/8.jpg");
+const RITUAL_IMAGE_ONE = require("../../assets/image/landing-page/5.jpg");
+const RITUAL_IMAGE_TWO = require("../../assets/image/landing-page/7.jpg");
 const HERO_GAP = 20;
 const HERO_IMAGE_RATIO = 4 / 5;
 const BUTTON_PADDING_VERTICAL_DESKTOP = 12;
@@ -324,17 +326,34 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         }}
         style={[styles.section, isDesktop && styles.sectionDesktop]}
       >
-        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop]}>Bukan Konten. Sebuah Ritual.</Text>
+        <Text
+          style={[
+            styles.sectionTitle,
+            isDesktop && styles.sectionTitleDesktop,
+            styles.processTitleSpacing,
+            isDesktop && styles.processTitleSpacingDesktop,
+          ]}
+        >
+          Bukan Konten. Sebuah Ritual.
+        </Text>
 
-        <View style={[styles.ritualColumns, !isDesktop && styles.ritualColumnsMobile]}>
-          <View style={styles.ritualCard}>
+        <View style={styles.ritualGrid}>
+          <View style={[styles.ritualCard, isDesktop && styles.ritualGridCardDesktop]}>
             <Text style={styles.ritualCardTitle}>Yang sering terjadi</Text>
             <Text style={styles.ritualCardItem}>• Banyak pilihan.</Text>
             <Text style={styles.ritualCardItem}>• Banyak distraksi.</Text>
             <Text style={styles.ritualCardItem}>• Mudah terbawa scrolling.</Text>
           </View>
 
-          <View style={styles.ritualCard}>
+          <View style={[styles.ritualImageCard, isDesktop && styles.ritualGridCardDesktop]}>
+            <Image source={RITUAL_IMAGE_ONE} style={styles.ritualImage} resizeMode="cover" />
+          </View>
+
+          <View style={[styles.ritualImageCard, isDesktop && styles.ritualGridCardDesktop]}>
+            <Image source={RITUAL_IMAGE_TWO} style={styles.ritualImage} resizeMode="cover" />
+          </View>
+
+          <View style={[styles.ritualCard, isDesktop && styles.ritualGridCardDesktop]}>
             <Text style={styles.ritualCardTitle}>Dengan Lumepo</Text>
             <Text style={styles.ritualCardItem}>• Satu tombol.</Text>
             <Text style={styles.ritualCardItem}>• Satu alur.</Text>
@@ -827,22 +846,48 @@ const styles = StyleSheet.create({
     maxWidth: 460,
   },
 
-  ritualColumns: {
+  ritualGrid: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: spacing.sm,
   },
-  ritualColumnsMobile: {
-    flexDirection: "column",
-  },
   ritualCard: {
-    flex: 1,
+    width: "100%",
+    minHeight: 220,
     padding: spacing.md,
     borderRadius: radius.sm,
     borderWidth: 1,
     borderColor: `${colors.mutedText}2E`,
     backgroundColor: colors.white,
-    boxShadow: `0px 4px 16px ${colors.text}12`,
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 4,
+    justifyContent: "center",
     gap: spacing.xs,
+  },
+  ritualGridCardDesktop: {
+    flexBasis: "49%",
+    maxWidth: "49%",
+    aspectRatio: HERO_IMAGE_RATIO,
+  },
+  ritualImageCard: {
+    width: "100%",
+    minHeight: 220,
+    padding: 0,
+    borderRadius: radius.sm,
+    overflow: "hidden",
+    backgroundColor: colors.white,
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 4,
+  },
+  ritualImage: {
+    width: "100%",
+    height: "100%",
   },
   ritualCardTitle: {
     fontSize: typography.body,
