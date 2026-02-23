@@ -793,6 +793,7 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
   },
   stepNote: {
+    alignSelf: "flex-end",
     fontSize: typography.small,
     color: colors.mutedText,
     fontWeight: "500",
