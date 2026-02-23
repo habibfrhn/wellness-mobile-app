@@ -23,6 +23,9 @@ type SectionKey =
 
 const MOBILE_BREAKPOINT = 640;
 const HERO_IMAGE = require("../../assets/image/landing-page/1.jpg");
+const EMPATHY_IMAGE_ONE = require("../../assets/image/landing-page/2.jpg");
+const EMPATHY_IMAGE_TWO = require("../../assets/image/landing-page/3.jpg");
+const EMPATHY_IMAGE_THREE = require("../../assets/image/landing-page/6.jpg");
 const HERO_GAP = 20;
 const TRACKED_SECTIONS: SectionKey[] = ["beranda", "untuk-siapa", "cara-kerja", "manfaat", "faq"];
 const HEADER_NAV_ITEMS: Array<{ key: SectionKey; label: string }> = [
@@ -199,21 +202,21 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         }}
         style={[styles.section, isDesktop && styles.sectionDesktop]}
       >
-        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop]}>Malam seharusnya jadi waktu beristirahat.</Text>
-        <Text style={styles.sectionBody}>
-          Tapi sering kali, justru di malam hari pikiran terasa paling bising.
-{"\n"}
-Tubuh ingin tidur, tapi hati dan kepala belum selesai.
+        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.sectionTitleCentered]}>
+          Malam seharusnya jadi waktu beristirahat.
         </Text>
 
         <View style={[styles.calmCardsRow, !isDesktop && styles.calmCardsColumn]}>
           <View style={styles.calmCard}>
-            <Text style={styles.calmCardText}>Hari terasa belum benar-benar selesai.</Text>
+            <Image source={EMPATHY_IMAGE_ONE} style={styles.calmCardImage} resizeMode="cover" />
+            <Text style={styles.calmCardText}>Rasanya hari belum benar-benar selesai.</Text>
           </View>
           <View style={styles.calmCard}>
-            <Text style={styles.calmCardText}>Pikiran mengulang percakapan dan keputusan.</Text>
+            <Image source={EMPATHY_IMAGE_TWO} style={styles.calmCardImage} resizeMode="cover" />
+            <Text style={styles.calmCardText}>Pikiran terus memutar ulang percakapan dan keputusan.</Text>
           </View>
           <View style={styles.calmCard}>
+            <Image source={EMPATHY_IMAGE_THREE} style={styles.calmCardImage} resizeMode="cover" />
             <Text style={styles.calmCardText}>Kamu ingin tenang, tapi tidak tahu mulai dari mana.</Text>
           </View>
         </View>
@@ -618,7 +621,7 @@ const styles = StyleSheet.create({
 
   calmCardsRow: {
     flexDirection: "row",
-    gap: spacing.sm,
+    gap: spacing.md,
   },
   calmCardsColumn: {
     flexDirection: "column",
@@ -626,16 +629,22 @@ const styles = StyleSheet.create({
   calmCard: {
     flex: 1,
     padding: spacing.md,
-    borderRadius: radius.sm,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: `${colors.mutedText}2E`,
+    borderColor: "rgba(0, 0, 0, 0.06)",
     backgroundColor: colors.white,
-    boxShadow: `0px 4px 16px ${colors.text}12`,
+    gap: spacing.sm,
+  },
+  calmCardImage: {
+    width: "100%",
+    height: 156,
+    borderRadius: 12,
   },
   calmCardText: {
     fontSize: typography.body,
     lineHeight: 24,
     color: colors.text,
+    textAlign: "center",
   },
 
   stepsRow: {
@@ -757,6 +766,9 @@ const styles = StyleSheet.create({
   sectionTitleDesktop: {
     fontSize: 36,
     lineHeight: 44,
+  },
+  sectionTitleCentered: {
+    textAlign: "center",
   },
   sectionBody: {
     fontSize: typography.body,
