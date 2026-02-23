@@ -23,6 +23,7 @@ type SectionKey =
 
 const MOBILE_BREAKPOINT = 640;
 const HERO_IMAGE = require("../../assets/image/landing-page/1.jpg");
+const HERO_GAP = 20;
 const TRACKED_SECTIONS: SectionKey[] = ["beranda", "untuk-siapa", "cara-kerja", "manfaat", "faq"];
 const HEADER_NAV_ITEMS: Array<{ key: SectionKey; label: string }> = [
   { key: "beranda", label: "Beranda" },
@@ -173,8 +174,8 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
             <View style={styles.badgePill}>
               <Text style={styles.badgeText}>Ruang tenang tiap malam</Text>
             </View>
-            <Text style={[styles.heroTitle, isDesktop && styles.heroTitleDesktop]}>Tutup hari dengan lebih tenang</Text>
-            <Text style={styles.heroBodyCopy}>Untuk kamu yang lelah, tapi pikiran masih terus berjalan.</Text>
+            <Text style={[styles.heroTitle, styles.heroTitleSpacing, isDesktop && styles.heroTitleDesktop]}>Tutup hari dengan lebih tenang</Text>
+            <Text style={[styles.heroBodyCopy, styles.heroBodyCopySpacing]}>Untuk kamu yang lelah, tapi pikiran masih terus berjalan.</Text>
             <View style={[styles.heroCtaRow, styles.heroCtaRowBreathing, isDesktop && styles.heroCtaRowDesktop]}>
               <Pressable onPress={goToAuth} style={styles.ctaButton}>
                 <Text style={styles.ctaText}>Mulai gratis</Text>
@@ -520,7 +521,7 @@ const styles = StyleSheet.create({
   },
   heroTextColumn: {
     flex: 1,
-    gap: spacing.sm,
+    gap: 0,
   },
   heroTextColumnDesktop: {
     justifyContent: "center",
@@ -575,6 +576,12 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     maxWidth: 620,
   },
+  heroTitleSpacing: {
+    marginTop: HERO_GAP,
+  },
+  heroBodyCopySpacing: {
+    marginTop: HERO_GAP,
+  },
   heroDescriptionDesktop: {
     fontSize: typography.title,
     lineHeight: 32,
@@ -587,10 +594,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   heroCtaRowBreathing: {
-    marginTop: spacing.xl,
+    marginTop: HERO_GAP,
   },
   heroCtaRowDesktop: {
-    marginTop: spacing.xl,
     gap: spacing.md,
   },
   heroImageCard: {
