@@ -177,7 +177,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
             <View style={styles.badgePill}>
               <Text style={styles.badgeText}>Ruang tenang tiap malam</Text>
             </View>
-            <Text style={[styles.heroTitle, styles.heroTitleSpacing, isDesktop && styles.heroTitleDesktop]}>Tutup hari dengan lebih tenang</Text>
+            <Text style={[styles.heroTitle, styles.heroTitleSpacing, isDesktop && styles.heroTitleDesktop]}>Tutup hari dengan lebih tenang.</Text>
             <Text style={[styles.heroBodyCopy, styles.heroBodyCopySpacing]}>Untuk kamu yang lelah, tapi pikiran masih terus berjalan.</Text>
             <View style={[styles.heroCtaRow, styles.heroCtaRowBreathing, isDesktop && styles.heroCtaRowDesktop]}>
               <Pressable onPress={goToAuth} style={styles.ctaButton}>
@@ -200,24 +200,24 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         onLayout={(event) => {
           sectionOffsets.current["untuk-siapa"] = event.nativeEvent.layout.y;
         }}
-        style={[styles.section, isDesktop && styles.sectionDesktop]}
+        style={[styles.section, isDesktop && styles.sectionDesktop, styles.empathySection, isDesktop && styles.empathySectionDesktop]}
       >
-        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.sectionTitleCentered]}>
+        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.sectionTitleCentered, styles.empathySectionTitle]}>
           Malam seharusnya jadi waktu beristirahat.
         </Text>
 
         <View style={[styles.calmCardsRow, !isDesktop && styles.calmCardsColumn]}>
           <View style={styles.calmCard}>
             <Image source={EMPATHY_IMAGE_ONE} style={styles.calmCardImage} resizeMode="cover" />
-            <Text style={styles.calmCardText}>Rasanya hari belum benar-benar selesai.</Text>
+            <Text style={[styles.calmCardText, styles.empathyCardText]}>Seolah hari belum benar-benar berakhir.</Text>
           </View>
           <View style={styles.calmCard}>
             <Image source={EMPATHY_IMAGE_TWO} style={styles.calmCardImage} resizeMode="cover" />
-            <Text style={styles.calmCardText}>Pikiran terus memutar ulang percakapan dan keputusan.</Text>
+            <Text style={[styles.calmCardText, styles.empathyCardText]}>Pikiran terus mengulang percakapan dan keputusan yang sudah lewat.</Text>
           </View>
           <View style={styles.calmCard}>
             <Image source={EMPATHY_IMAGE_THREE} style={styles.calmCardImage} resizeMode="cover" />
-            <Text style={styles.calmCardText}>Kamu ingin tenang, tapi tidak tahu mulai dari mana.</Text>
+            <Text style={[styles.calmCardText, styles.empathyCardText]}>Kamu ingin tenang, tapi tidak tahu mulai dari mana.</Text>
           </View>
         </View>
       </View>
@@ -619,6 +619,21 @@ const styles = StyleSheet.create({
     height: "100%",
   },
 
+  empathySection: {
+    maxWidth: "100%",
+    marginHorizontal: 0,
+    paddingHorizontal: spacing.lg,
+    backgroundColor: "#3E497A",
+  },
+  empathySectionDesktop: {
+    paddingHorizontal: 48,
+  },
+  empathySectionTitle: {
+    color: colors.white,
+  },
+  empathyCardText: {
+    color: "rgba(255,255,255,0.9)",
+  },
   calmCardsRow: {
     flexDirection: "row",
     gap: spacing.md,
@@ -631,8 +646,8 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "rgba(0, 0, 0, 0.06)",
-    backgroundColor: colors.white,
+    borderColor: "rgba(255,255,255,0.16)",
+    backgroundColor: "rgba(255,255,255,0.04)",
     gap: spacing.sm,
   },
   calmCardImage: {
