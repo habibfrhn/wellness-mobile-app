@@ -517,18 +517,20 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   heroSection: {
-    paddingTop: 0,
-    paddingBottom: 0,
+    paddingTop: 40,
+    paddingBottom: 32,
+    marginBottom: 0,
   },
   heroSectionDesktop: {
-    minHeight: "75vh" as unknown as number,
+    paddingTop: 60,
+    paddingBottom: 40,
   },
   heroLayout: {
     flexDirection: "row",
     gap: spacing.lg,
   },
   heroLayoutDesktop: {
-    alignItems: "center",
+    alignItems: "flex-start",
   },
   heroLayoutMobile: {
     flexDirection: "column",
@@ -538,7 +540,7 @@ const styles = StyleSheet.create({
     gap: 0,
   },
   heroTextColumnDesktop: {
-    justifyContent: "center",
+    justifyContent: "flex-start",
   },
   badgePill: {
     alignSelf: "flex-start",
