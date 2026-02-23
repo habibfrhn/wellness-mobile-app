@@ -539,7 +539,7 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   heroLayoutDesktop: {
-    alignItems: "flex-start",
+    alignItems: "center",
   },
   heroLayoutMobile: {
     flexDirection: "column",
@@ -549,7 +549,8 @@ const styles = StyleSheet.create({
     gap: 0,
   },
   heroTextColumnDesktop: {
-    justifyContent: "flex-start",
+    flex: 1,
+    justifyContent: "center",
   },
   badgePill: {
     alignSelf: "flex-start",
