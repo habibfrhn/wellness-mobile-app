@@ -268,7 +268,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         </Text>
 
         <View style={[styles.processLayout, isDesktop ? styles.processLayoutDesktop : styles.processLayoutMobile]}>
-          <View style={[styles.benefitsImageCard, isDesktop && styles.benefitsImageCardDesktop]}>
+          <View style={[styles.processImageCard, isDesktop && styles.processImageCardDesktop]}>
             <Image source={EMPATHY_IMAGE_FOUR} style={styles.heroImage} resizeMode="cover" />
           </View>
 
@@ -840,6 +840,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   benefitsImageCardDesktop: {
+    flex: 1,
+    maxWidth: 460,
+  },
+
+  processImageCard: {
+    width: "100%",
+    aspectRatio: 16 / 9,
+    borderRadius: radius.md,
+    overflow: "hidden",
+    backgroundColor: colors.white,
+  },
+  processImageCardDesktop: {
     flex: 1,
     maxWidth: 460,
   },
