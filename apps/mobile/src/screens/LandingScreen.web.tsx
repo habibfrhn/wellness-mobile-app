@@ -762,9 +762,12 @@ const styles = StyleSheet.create({
     marginBottom: SECTION_TITLE_TO_CONTENT_GAP_DESKTOP,
   },
   processStepsStack: {
+    display: "flex",
+    flexDirection: "column",
     gap: spacing.sm,
   },
   stepCardWithNote: {
+    flex: 1,
     gap: spacing.xs,
   },
 
@@ -777,6 +780,7 @@ const styles = StyleSheet.create({
   },
   stepCard: {
     flex: 1,
+    justifyContent: "center",
     padding: spacing.md,
     borderRadius: radius.sm,
     borderWidth: 1,
