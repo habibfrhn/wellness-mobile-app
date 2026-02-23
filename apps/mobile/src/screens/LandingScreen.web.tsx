@@ -27,6 +27,9 @@ const EMPATHY_IMAGE_ONE = require("../../assets/image/landing-page/2.jpg");
 const EMPATHY_IMAGE_TWO = require("../../assets/image/landing-page/3.jpg");
 const EMPATHY_IMAGE_THREE = require("../../assets/image/landing-page/6.jpg");
 const HERO_GAP = 20;
+const SECTION_PAD_Y_DESKTOP = 56;
+const SECTION_PAD_Y_MOBILE = 36;
+const SECTION_GAP = 0;
 const TRACKED_SECTIONS: SectionKey[] = ["beranda", "untuk-siapa", "cara-kerja", "manfaat", "faq"];
 const HEADER_NAV_ITEMS: Array<{ key: SectionKey; label: string }> = [
   { key: "beranda", label: "Beranda" },
@@ -208,18 +211,26 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
           </Text>
 
           <View style={[styles.calmCardsRow, !isDesktop && styles.calmCardsColumn]}>
-          <View style={styles.calmCard}>
-            <Image source={EMPATHY_IMAGE_ONE} style={styles.calmCardImage} resizeMode="cover" />
-            <Text style={[styles.calmCardText, styles.empathyCardText]}>Seolah hari belum benar-benar berakhir.</Text>
-          </View>
-          <View style={styles.calmCard}>
-            <Image source={EMPATHY_IMAGE_TWO} style={styles.calmCardImage} resizeMode="cover" />
-            <Text style={[styles.calmCardText, styles.empathyCardText]}>Pikiran terus mengulang percakapan dan keputusan yang sudah lewat.</Text>
-          </View>
-          <View style={styles.calmCard}>
-            <Image source={EMPATHY_IMAGE_THREE} style={styles.calmCardImage} resizeMode="cover" />
-            <Text style={[styles.calmCardText, styles.empathyCardText]}>Kamu ingin tenang, tapi tidak tahu mulai dari mana.</Text>
-          </View>
+            <View style={styles.calmCard}>
+              <Image source={EMPATHY_IMAGE_ONE} style={styles.calmCardImage} resizeMode="cover" />
+              <View style={styles.calmCardBody}>
+                <Text style={[styles.calmCardText, styles.empathyCardText]}>Seolah hari belum benar-benar berakhir.</Text>
+              </View>
+            </View>
+            <View style={styles.calmCard}>
+              <Image source={EMPATHY_IMAGE_TWO} style={styles.calmCardImage} resizeMode="cover" />
+              <View style={styles.calmCardBody}>
+                <Text style={[styles.calmCardText, styles.empathyCardText]}>
+                  Pikiran terus mengulang percakapan dan keputusan yang sudah lewat.
+                </Text>
+              </View>
+            </View>
+            <View style={styles.calmCard}>
+              <Image source={EMPATHY_IMAGE_THREE} style={styles.calmCardImage} resizeMode="cover" />
+              <View style={styles.calmCardBody}>
+                <Text style={[styles.calmCardText, styles.empathyCardText]}>Kamu ingin tenang, tapi tidak tahu mulai dari mana.</Text>
+              </View>
+            </View>
           </View>
         </View>
       </View>
@@ -421,25 +432,25 @@ const styles = StyleSheet.create({
   content: {
     width: "100%",
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.xl,
-    gap: spacing.lg,
+    paddingVertical: SECTION_PAD_Y_MOBILE,
+    gap: SECTION_GAP,
   },
   contentDesktop: {
-    paddingVertical: spacing.xl,
-    gap: 0,
+    paddingVertical: SECTION_PAD_Y_DESKTOP,
+    gap: SECTION_GAP,
   },
   section: {
     width: "100%",
     maxWidth: 1100,
     marginHorizontal: "auto",
     paddingHorizontal: 0,
-    paddingVertical: spacing.xl,
+    paddingVertical: SECTION_PAD_Y_MOBILE,
     gap: spacing.md,
     backgroundColor: colors.white,
   },
   sectionDesktop: {
     paddingHorizontal: spacing.lg,
-    paddingVertical: 64,
+    paddingVertical: SECTION_PAD_Y_DESKTOP,
   },
   headerSection: {
     flexDirection: "row",
@@ -506,12 +517,10 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   heroSection: {
-    paddingTop: 40,
-    paddingBottom: 36,
+    paddingTop: 0,
+    paddingBottom: 0,
   },
   heroSectionDesktop: {
-    paddingTop: 56,
-    paddingBottom: 56,
     minHeight: "75vh" as unknown as number,
   },
   heroLayout: {
@@ -623,21 +632,21 @@ const styles = StyleSheet.create({
 
   empathySectionOuter: {
     width: "100%",
-    backgroundColor: "#21325E",
+    backgroundColor: colors.white,
   },
   empathySectionInner: {
     width: "100%",
     maxWidth: 1100,
     marginHorizontal: "auto",
     paddingHorizontal: 24,
-    paddingVertical: spacing.xl,
+    paddingVertical: SECTION_PAD_Y_MOBILE,
     gap: spacing.md,
   },
   empathySectionInnerDesktop: {
-    paddingVertical: 64,
+    paddingVertical: SECTION_PAD_Y_DESKTOP,
   },
   empathySectionTitle: {
-    color: colors.white,
+    color: "#111111",
   },
   empathyCardText: {
     color: "#1C1C1C",
@@ -651,17 +660,18 @@ const styles = StyleSheet.create({
   },
   calmCard: {
     flex: 1,
-    padding: spacing.lg,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: "rgba(0, 0, 0, 0.06)",
     backgroundColor: colors.white,
-    gap: spacing.sm,
+    overflow: "hidden",
   },
   calmCardImage: {
     width: "100%",
     height: 156,
-    borderRadius: 12,
+  },
+  calmCardBody: {
+    padding: 20,
   },
   calmCardText: {
     fontSize: typography.body,
