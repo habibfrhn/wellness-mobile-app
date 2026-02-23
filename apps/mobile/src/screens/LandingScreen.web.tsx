@@ -35,6 +35,8 @@ const BUTTON_PADDING_HORIZONTAL_MOBILE = 18;
 const BUTTON_BORDER_RADIUS = 10;
 const SECTION_PAD_Y_DESKTOP = 56;
 const SECTION_PAD_Y_MOBILE = 36;
+const SECTION_TITLE_TO_CONTENT_GAP_MOBILE = 24;
+const SECTION_TITLE_TO_CONTENT_GAP_DESKTOP = 36;
 const SECTION_GAP = 0;
 const TRACKED_SECTIONS: SectionKey[] = ["beranda", "untuk-siapa", "cara-kerja", "manfaat", "faq"];
 const HEADER_NAV_ITEMS: Array<{ key: SectionKey; label: string }> = [
@@ -257,14 +259,16 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         }}
         style={[styles.section, isDesktop && styles.sectionDesktop]}
       >
+        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.processTitleSpacing, isDesktop && styles.processTitleSpacingDesktop]}>
+          Alur malam yang menenangkan.
+        </Text>
+
         <View style={[styles.processLayout, isDesktop ? styles.processLayoutDesktop : styles.processLayoutMobile]}>
           <View style={[styles.processImageCard, isDesktop && styles.processImageCardDesktop]}>
             <Image source={EMPATHY_IMAGE_ONE} style={styles.heroImage} resizeMode="cover" />
           </View>
 
           <View style={[styles.processContentColumn, isDesktop && styles.processContentColumnDesktop]}>
-            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop]}>Alur malam yang menenangkan.</Text>
-
             <View style={styles.processStepsStack}>
               <View style={styles.stepCard}>
                 <Text style={styles.stepTitle}>1) Pilih Mode Malam Ini</Text>
@@ -676,10 +680,10 @@ const styles = StyleSheet.create({
     color: "#111111",
   },
   empathySectionTitleSpacing: {
-    marginBottom: 24,
+    marginBottom: SECTION_TITLE_TO_CONTENT_GAP_MOBILE,
   },
   empathySectionTitleSpacingDesktop: {
-    marginBottom: 36,
+    marginBottom: SECTION_TITLE_TO_CONTENT_GAP_DESKTOP,
   },
   empathyCardText: {
     color: "#1C1C1C",
@@ -694,10 +698,13 @@ const styles = StyleSheet.create({
   calmCard: {
     flex: 1,
     borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "rgba(0, 0, 0, 0.06)",
-    backgroundColor: colors.white,
+    backgroundColor: "#FFFFFF",
     overflow: "hidden",
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 4,
   },
   calmCardImage: {
     width: "100%",
@@ -720,6 +727,7 @@ const styles = StyleSheet.create({
   processLayoutDesktop: {
     flexDirection: "row",
     alignItems: "flex-start",
+    gap: 40,
   },
   processLayoutMobile: {
     flexDirection: "column",
@@ -738,10 +746,16 @@ const styles = StyleSheet.create({
   },
   processContentColumn: {
     width: "100%",
-    gap: spacing.sm,
   },
   processContentColumnDesktop: {
     flex: 1,
+  },
+  processTitleSpacing: {
+    marginBottom: SECTION_TITLE_TO_CONTENT_GAP_MOBILE,
+    textAlign: "left",
+  },
+  processTitleSpacingDesktop: {
+    marginBottom: SECTION_TITLE_TO_CONTENT_GAP_DESKTOP,
   },
   processStepsStack: {
     gap: spacing.sm,
