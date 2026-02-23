@@ -195,18 +195,19 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         </View>
       </View>
 
-      <View
-        nativeID="untuk-siapa"
-        onLayout={(event) => {
-          sectionOffsets.current["untuk-siapa"] = event.nativeEvent.layout.y;
-        }}
-        style={[styles.section, isDesktop && styles.sectionDesktop, styles.empathySection, isDesktop && styles.empathySectionDesktop]}
-      >
-        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.sectionTitleCentered, styles.empathySectionTitle]}>
-          Malam seharusnya jadi waktu beristirahat.
-        </Text>
+      <View style={styles.empathySectionOuter}>
+        <View
+          nativeID="untuk-siapa"
+          onLayout={(event) => {
+            sectionOffsets.current["untuk-siapa"] = event.nativeEvent.layout.y;
+          }}
+          style={[styles.empathySectionInner, isDesktop && styles.empathySectionInnerDesktop]}
+        >
+          <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.sectionTitleCentered, styles.empathySectionTitle]}>
+            Malam seharusnya jadi waktu beristirahat.
+          </Text>
 
-        <View style={[styles.calmCardsRow, !isDesktop && styles.calmCardsColumn]}>
+          <View style={[styles.calmCardsRow, !isDesktop && styles.calmCardsColumn]}>
           <View style={styles.calmCard}>
             <Image source={EMPATHY_IMAGE_ONE} style={styles.calmCardImage} resizeMode="cover" />
             <Text style={[styles.calmCardText, styles.empathyCardText]}>Seolah hari belum benar-benar berakhir.</Text>
@@ -218,6 +219,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
           <View style={styles.calmCard}>
             <Image source={EMPATHY_IMAGE_THREE} style={styles.calmCardImage} resizeMode="cover" />
             <Text style={[styles.calmCardText, styles.empathyCardText]}>Kamu ingin tenang, tapi tidak tahu mulai dari mana.</Text>
+          </View>
           </View>
         </View>
       </View>
@@ -619,20 +621,26 @@ const styles = StyleSheet.create({
     height: "100%",
   },
 
-  empathySection: {
-    maxWidth: "100%",
-    marginHorizontal: 0,
-    paddingHorizontal: spacing.lg,
-    backgroundColor: "#3E497A",
+  empathySectionOuter: {
+    width: "100%",
+    backgroundColor: "#21325E",
   },
-  empathySectionDesktop: {
-    paddingHorizontal: 48,
+  empathySectionInner: {
+    width: "100%",
+    maxWidth: 1100,
+    marginHorizontal: "auto",
+    paddingHorizontal: 24,
+    paddingVertical: spacing.xl,
+    gap: spacing.md,
+  },
+  empathySectionInnerDesktop: {
+    paddingVertical: 64,
   },
   empathySectionTitle: {
     color: colors.white,
   },
   empathyCardText: {
-    color: "rgba(255,255,255,0.9)",
+    color: "#1C1C1C",
   },
   calmCardsRow: {
     flexDirection: "row",
@@ -643,11 +651,11 @@ const styles = StyleSheet.create({
   },
   calmCard: {
     flex: 1,
-    padding: spacing.md,
+    padding: spacing.lg,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.16)",
-    backgroundColor: "rgba(255,255,255,0.04)",
+    borderColor: "rgba(0, 0, 0, 0.06)",
+    backgroundColor: colors.white,
     gap: spacing.sm,
   },
   calmCardImage: {
