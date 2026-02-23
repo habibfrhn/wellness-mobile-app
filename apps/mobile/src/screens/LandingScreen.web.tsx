@@ -27,6 +27,7 @@ const EMPATHY_IMAGE_ONE = require("../../assets/image/landing-page/2.jpg");
 const EMPATHY_IMAGE_TWO = require("../../assets/image/landing-page/3.jpg");
 const EMPATHY_IMAGE_THREE = require("../../assets/image/landing-page/6.jpg");
 const HERO_GAP = 20;
+const HERO_IMAGE_RATIO = 4 / 5;
 const SECTION_PAD_Y_DESKTOP = 56;
 const SECTION_PAD_Y_MOBILE = 36;
 const SECTION_GAP = 0;
@@ -251,26 +252,34 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         }}
         style={[styles.section, isDesktop && styles.sectionDesktop]}
       >
-        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop]}>Kamu Tidak Perlu Lebih Kuat. Kamu Hanya Perlu Sebuah Ritual.</Text>
-
-        <View style={[styles.stepsRow, !isDesktop && styles.stepsColumn]}>
-          <View style={styles.stepCard}>
-            <Text style={styles.stepTitle}>1) Pilih Mode Malam Ini</Text>
-            <Text style={styles.stepBody}>Tenangkan pikiran atau lepaskan beban hari.</Text>
+        <View style={[styles.processLayout, isDesktop ? styles.processLayoutDesktop : styles.processLayoutMobile]}>
+          <View style={[styles.processImageCard, isDesktop && styles.processImageCardDesktop]}>
+            <Image source={EMPATHY_IMAGE_ONE} style={styles.heroImage} resizeMode="cover" />
           </View>
 
-          <View style={styles.stepCard}>
-            <Text style={styles.stepTitle}>2) Ikuti Alur Terpandu</Text>
-            <Text style={styles.stepBody}>Tanpa perlu memilih lagi. Tanpa perlu berpikir lagi.</Text>
-          </View>
+          <View style={[styles.processContentColumn, isDesktop && styles.processContentColumnDesktop]}>
+            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop]}>[Placeholder judul section]</Text>
 
-          <View style={styles.stepCard}>
-            <Text style={styles.stepTitle}>3) Biarkan Malam Bekerja</Text>
-            <Text style={styles.stepBody}>Masuk tidur dengan lebih pelan dan stabil.</Text>
+            <View style={styles.processStepsStack}>
+              <View style={styles.stepCard}>
+                <Text style={styles.stepTitle}>1) Pilih Mode Malam Ini</Text>
+                <Text style={styles.stepBody}>Tenangkan pikiran atau lepaskan beban hari.</Text>
+              </View>
+
+              <View style={styles.stepCard}>
+                <Text style={styles.stepTitle}>2) Ikuti Alur Terpandu</Text>
+                <Text style={styles.stepBody}>Tanpa perlu memilih lagi. Tanpa perlu berpikir lagi.</Text>
+              </View>
+
+              <View style={styles.stepCard}>
+                <Text style={styles.stepTitle}>3) Biarkan Malam Bekerja</Text>
+                <Text style={styles.stepBody}>Masuk tidur dengan lebih pelan dan stabil.</Text>
+              </View>
+            </View>
+
+            <Text style={styles.stepNote}>Total waktu sekitar 15 menit.</Text>
           </View>
         </View>
-
-        <Text style={styles.stepNote}>Total waktu sekitar 15 menit.</Text>
       </View>
 
       <View
@@ -627,7 +636,7 @@ const styles = StyleSheet.create({
   },
   heroImageCard: {
     width: "100%",
-    aspectRatio: 4 / 5,
+    aspectRatio: HERO_IMAGE_RATIO,
     borderRadius: radius.md,
     overflow: "hidden",
     backgroundColor: colors.card,
@@ -696,6 +705,40 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     color: colors.text,
     textAlign: "center",
+  },
+
+  processLayout: {
+    width: "100%",
+    gap: spacing.md,
+  },
+  processLayoutDesktop: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  processLayoutMobile: {
+    flexDirection: "column",
+  },
+  processImageCard: {
+    width: "100%",
+    aspectRatio: HERO_IMAGE_RATIO,
+    borderRadius: radius.md,
+    overflow: "hidden",
+    backgroundColor: colors.card,
+    boxShadow: `0px 10px 30px ${colors.text}1F`,
+  },
+  processImageCardDesktop: {
+    flex: 1,
+    maxWidth: 460,
+  },
+  processContentColumn: {
+    width: "100%",
+    gap: spacing.sm,
+  },
+  processContentColumnDesktop: {
+    flex: 1,
+  },
+  processStepsStack: {
+    gap: spacing.sm,
   },
 
   stepsRow: {
