@@ -853,7 +853,7 @@ const styles = StyleSheet.create({
   },
   ritualCard: {
     width: "100%",
-    minHeight: 220,
+    aspectRatio: 16 / 9,
     padding: spacing.md,
     borderRadius: radius.sm,
     borderWidth: 1,
@@ -870,11 +870,10 @@ const styles = StyleSheet.create({
   ritualGridCardDesktop: {
     flexBasis: "49%",
     maxWidth: "49%",
-    aspectRatio: HERO_IMAGE_RATIO,
   },
   ritualImageCard: {
     width: "100%",
-    minHeight: 220,
+    aspectRatio: 16 / 9,
     padding: 0,
     borderRadius: radius.sm,
     overflow: "hidden",
