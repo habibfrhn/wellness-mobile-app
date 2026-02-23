@@ -265,7 +265,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
 
         <View style={[styles.processLayout, isDesktop ? styles.processLayoutDesktop : styles.processLayoutMobile]}>
           <View style={[styles.processImageCard, isDesktop && styles.processImageCardDesktop]}>
-            <Image source={EMPATHY_IMAGE_ONE} style={styles.heroImage} resizeMode="cover" />
+            <Image source={EMPATHY_IMAGE_THREE} style={styles.heroImage} resizeMode="cover" />
           </View>
 
           <View style={[styles.processContentColumn, isDesktop && styles.processContentColumnDesktop]}>
