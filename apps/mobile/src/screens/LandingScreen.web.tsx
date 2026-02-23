@@ -206,7 +206,16 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
           }}
           style={[styles.empathySectionInner, isDesktop && styles.empathySectionInnerDesktop]}
         >
-          <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.sectionTitleCentered, styles.empathySectionTitle]}>
+          <Text
+            style={[
+              styles.sectionTitle,
+              isDesktop && styles.sectionTitleDesktop,
+              styles.sectionTitleCentered,
+              styles.empathySectionTitle,
+              styles.empathySectionTitleSpacing,
+              isDesktop && styles.empathySectionTitleSpacingDesktop,
+            ]}
+          >
             Malam seharusnya jadi waktu beristirahat.
           </Text>
 
@@ -642,13 +651,19 @@ const styles = StyleSheet.create({
     marginHorizontal: "auto",
     paddingHorizontal: 24,
     paddingVertical: SECTION_PAD_Y_MOBILE,
-    gap: spacing.md,
+    gap: 0,
   },
   empathySectionInnerDesktop: {
     paddingVertical: SECTION_PAD_Y_DESKTOP,
   },
   empathySectionTitle: {
     color: "#111111",
+  },
+  empathySectionTitleSpacing: {
+    marginBottom: 24,
+  },
+  empathySectionTitleSpacingDesktop: {
+    marginBottom: 36,
   },
   empathyCardText: {
     color: "#1C1C1C",
