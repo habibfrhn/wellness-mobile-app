@@ -830,7 +830,8 @@ const styles = StyleSheet.create({
   },
   benefitItem: {
     width: "100%",
-    padding: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     borderRadius: radius.sm,
     borderWidth: 1,
     borderColor: `${colors.mutedText}2E`,
