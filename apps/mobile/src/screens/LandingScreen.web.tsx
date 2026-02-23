@@ -28,6 +28,11 @@ const EMPATHY_IMAGE_TWO = require("../../assets/image/landing-page/3.jpg");
 const EMPATHY_IMAGE_THREE = require("../../assets/image/landing-page/6.jpg");
 const HERO_GAP = 20;
 const HERO_IMAGE_RATIO = 4 / 5;
+const BUTTON_PADDING_VERTICAL_DESKTOP = 12;
+const BUTTON_PADDING_HORIZONTAL_DESKTOP = 20;
+const BUTTON_PADDING_VERTICAL_MOBILE = 10;
+const BUTTON_PADDING_HORIZONTAL_MOBILE = 18;
+const BUTTON_BORDER_RADIUS = 10;
 const SECTION_PAD_Y_DESKTOP = 56;
 const SECTION_PAD_Y_MOBILE = 36;
 const SECTION_GAP = 0;
@@ -163,7 +168,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
               <Text style={styles.textButtonLabel}>Masuk</Text>
             </Pressable>
           ) : null}
-          <Pressable onPress={goToAuth} style={[styles.ctaButton, styles.headerPrimaryButton]}>
+          <Pressable onPress={goToAuth} style={[styles.ctaButton, isDesktop ? styles.buttonDesktop : styles.buttonMobile]}>
             <Text style={styles.ctaText}>Buat akun</Text>
           </Pressable>
         </View>
@@ -184,10 +189,10 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
             <Text style={[styles.heroTitle, styles.heroTitleSpacing, isDesktop && styles.heroTitleDesktop]}>Tutup hari dengan lebih tenang.</Text>
             <Text style={[styles.heroBodyCopy, styles.heroBodyCopySpacing]}>Untuk kamu yang lelah, tapi pikiran masih terus berjalan.</Text>
             <View style={[styles.heroCtaRow, styles.heroCtaRowBreathing, isDesktop && styles.heroCtaRowDesktop]}>
-              <Pressable onPress={goToAuth} style={styles.ctaButton}>
+              <Pressable onPress={goToAuth} style={[styles.ctaButton, isDesktop ? styles.buttonDesktop : styles.buttonMobile]}>
                 <Text style={styles.ctaText}>Mulai gratis</Text>
               </Pressable>
-              <Pressable onPress={() => setIsFoundingOpen(true)} style={styles.secondaryButton}>
+              <Pressable onPress={() => setIsFoundingOpen(true)} style={[styles.secondaryButton, isDesktop ? styles.buttonDesktop : styles.buttonMobile]}>
                 <Text style={styles.secondaryButtonText}>Jadi founding member</Text>
               </Pressable>
             </View>
@@ -390,7 +395,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
       >
         <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop]}>Malam Ini, Kamu Bisa Memulainya.</Text>
         <Text style={styles.closingCtaSubtext}>Cukup 15 menit sebelum tidur.</Text>
-        <Pressable onPress={goToAuth} style={styles.ctaButton}>
+        <Pressable onPress={goToAuth} style={[styles.ctaButton, isDesktop ? styles.buttonDesktop : styles.buttonMobile]}>
           <Text style={styles.ctaText}>Mulai Gratis</Text>
         </Pressable>
         <Text style={styles.closingCtaMicrocopy}>Tanpa kartu kredit.</Text>
@@ -891,30 +896,28 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
     textAlign: "center",
   },
+  buttonDesktop: {
+    paddingVertical: BUTTON_PADDING_VERTICAL_DESKTOP,
+    paddingHorizontal: BUTTON_PADDING_HORIZONTAL_DESKTOP,
+  },
+  buttonMobile: {
+    paddingVertical: BUTTON_PADDING_VERTICAL_MOBILE,
+    paddingHorizontal: BUTTON_PADDING_HORIZONTAL_MOBILE,
+  },
   ctaButton: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
     backgroundColor: colors.primary,
-    borderRadius: radius.sm,
+    borderRadius: BUTTON_BORDER_RADIUS,
   },
-  headerPrimaryButton: {
-    height: 34,
-    justifyContent: "center",
-    paddingHorizontal: spacing.md,
-    paddingVertical: 0,
-    marginVertical: 0,
-  },
+
   ctaText: {
     fontSize: typography.body,
     fontWeight: "700",
     color: colors.white,
   },
   secondaryButton: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
     borderWidth: 1,
     borderColor: `${colors.mutedText}44`,
-    borderRadius: radius.sm,
+    borderRadius: BUTTON_BORDER_RADIUS,
     backgroundColor: colors.white,
   },
   secondaryButtonText: {
