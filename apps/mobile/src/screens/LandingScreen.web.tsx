@@ -275,18 +275,18 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
 
           <View style={[styles.processContentColumn, isDesktop && styles.processContentColumnDesktop]}>
             <View style={styles.processStepsStack}>
-              <View style={styles.stepCard}>
+              <View style={[styles.stepCard, isDesktop && styles.stepCardDesktop]}>
                 <Text style={styles.stepTitle}>1) Pilih Mode Malam Ini</Text>
                 <Text style={styles.stepBody}>Tenangkan pikiran atau lepaskan beban hari.</Text>
               </View>
 
-              <View style={styles.stepCard}>
+              <View style={[styles.stepCard, isDesktop && styles.stepCardDesktop]}>
                 <Text style={styles.stepTitle}>2) Ikuti Alur Terpandu</Text>
                 <Text style={styles.stepBody}>Tanpa perlu memilih lagi. Tanpa perlu berpikir lagi.</Text>
               </View>
 
               <View style={styles.stepCardWithNote}>
-                <View style={styles.stepCard}>
+                <View style={[styles.stepCard, isDesktop && styles.stepCardDesktop]}>
                   <Text style={styles.stepTitle}>3) Biarkan Malam Bekerja</Text>
                   <Text style={styles.stepBody}>Masuk tidur dengan lebih pelan dan stabil.</Text>
                 </View>
@@ -747,7 +747,7 @@ const styles = StyleSheet.create({
   },
   processLayoutDesktop: {
     flexDirection: "row",
-    alignItems: "stretch",
+    alignItems: "center",
     gap: 40,
   },
   processLayoutMobile: {
@@ -758,6 +758,7 @@ const styles = StyleSheet.create({
   },
   processContentColumnDesktop: {
     flex: 1,
+    justifyContent: "center",
   },
   processTitleSpacing: {
     marginBottom: SECTION_TITLE_TO_CONTENT_GAP_MOBILE,
@@ -772,7 +773,6 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   stepCardWithNote: {
-    flex: 1,
     gap: spacing.xs,
   },
 
@@ -784,7 +784,6 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   stepCard: {
-    flex: 1,
     justifyContent: "center",
     padding: spacing.md,
     borderRadius: radius.sm,
@@ -798,6 +797,9 @@ const styles = StyleSheet.create({
     fontSize: typography.body,
     fontWeight: "700",
     color: colors.text,
+  },
+  stepCardDesktop: {
+    minHeight: 120,
   },
   stepBody: {
     fontSize: typography.body,
@@ -862,8 +864,8 @@ const styles = StyleSheet.create({
   },
   processImageCardDesktop: {
     flex: 1,
-    height: "100%",
-    minHeight: 460,
+    maxWidth: 600,
+    aspectRatio: 16 / 9,
   },
 
   ritualGrid: {
