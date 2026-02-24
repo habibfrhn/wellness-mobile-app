@@ -334,19 +334,19 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
               isDesktop && styles.ritualSectionTitleDesktop,
             ]}
           >
-            Bukan konten. Sebuah sistem.
-          </Text>
-          <Text style={styles.ritualSubheading}>
-            Saat malam datang, kamu tidak perlu memilih banyak hal. Cukup ikuti satu alur yang menenangkan.
+            Bukan konten. Sebuah kebiasaan.
           </Text>
         </View>
 
         <View style={styles.ritualGrid}>
           <View style={[styles.ritualCard, isDesktop && styles.ritualGridCardDesktop]}>
             <Text style={styles.ritualCardTitle}>Yang sering terjadi</Text>
-            <Text style={styles.ritualCardItem}>Terlalu banyak pilihan</Text>
-            <Text style={styles.ritualCardItem}>Mudah terdistraksi</Text>
-            <Text style={styles.ritualCardItem}>Akhirnya tetap scrolling</Text>
+            <View style={styles.ritualCardDivider} />
+            <View style={styles.ritualCardLines}>
+              <Text style={styles.ritualCardItem}>Kebanyakan pilihan</Text>
+              <Text style={styles.ritualCardItem}>Mudah terdistraksi</Text>
+              <Text style={styles.ritualCardItem}>Akhirnya tetap scrolling</Text>
+            </View>
           </View>
 
           <View style={[styles.ritualImageCard, isDesktop && styles.ritualGridCardDesktop]}>
@@ -359,9 +359,12 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
 
           <View style={[styles.ritualCard, isDesktop && styles.ritualGridCardDesktop]}>
             <Text style={styles.ritualCardTitle}>Dengan Lumepo</Text>
-            <Text style={styles.ritualCardItem}>Satu tombol untuk mulai</Text>
-            <Text style={styles.ritualCardItem}>Satu alur yang jelas</Text>
-            <Text style={styles.ritualCardItem}>Satu ruang untuk tenang</Text>
+            <View style={styles.ritualCardDivider} />
+            <View style={styles.ritualCardLines}>
+              <Text style={styles.ritualCardItem}>Mulai dengan satu tombol</Text>
+              <Text style={styles.ritualCardItem}>Tinggal ikuti langkahnya</Text>
+              <Text style={styles.ritualCardItem}>Punya ruang untuk tenang</Text>
+            </View>
           </View>
         </View>
       </View>
@@ -879,7 +882,6 @@ const styles = StyleSheet.create({
 
   ritualHeading: {
     marginBottom: SECTION_TITLE_TO_CONTENT_GAP_MOBILE,
-    gap: spacing.xs,
   },
   ritualHeadingDesktop: {
     marginBottom: SECTION_TITLE_TO_CONTENT_GAP_DESKTOP,
@@ -891,13 +893,6 @@ const styles = StyleSheet.create({
     fontSize: 32,
     lineHeight: 40,
   },
-  ritualSubheading: {
-    fontSize: typography.body,
-    lineHeight: 24,
-    color: colors.mutedText,
-    maxWidth: 720,
-    textAlign: "left",
-  },
   ritualGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -906,7 +901,8 @@ const styles = StyleSheet.create({
   ritualCard: {
     width: "100%",
     aspectRatio: 16 / 9,
-    padding: spacing.sm,
+    paddingHorizontal: 24,
+    paddingVertical: 18,
     borderRadius: radius.sm,
     borderWidth: 1,
     borderColor: `${colors.mutedText}2E`,
@@ -917,7 +913,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 6 },
     elevation: 4,
     justifyContent: "center",
-    gap: spacing.xs,
+    gap: 0,
   },
   ritualGridCardDesktop: {
     flexBasis: "49%",
@@ -946,10 +942,19 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginBottom: 6,
   },
+  ritualCardDivider: {
+    height: 1,
+    backgroundColor: "rgba(0,0,0,0.06)",
+    marginVertical: 12,
+  },
+  ritualCardLines: {
+    gap: 6,
+  },
   ritualCardItem: {
-    fontSize: typography.body,
+    fontSize: 17,
     color: colors.mutedText,
-    lineHeight: 24,
+    lineHeight: 22,
+    fontWeight: "500",
   },
   faqList: {
     gap: spacing.sm,
