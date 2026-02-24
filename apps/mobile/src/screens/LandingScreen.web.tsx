@@ -308,7 +308,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
           <View style={[styles.benefitsTextColumn, isDesktop && styles.benefitsTextColumnDesktop]}>
             <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.benefitsTitle]}>Yang kamu rasakan</Text>
             <Text style={styles.benefitsBody}>
-              Pelan-pelan pikiran mulai melambat, dan tubuh terasa lebih siap untuk tidur. Tidur terasa lebih dalam, bangun pun lebih ringan. Kamu tidak perlu lagi bergantung pada video acak—ada ruang kecil untuk menutup hari dengan sadar.
+              Pelan pelan pikiran mulai melambat dan tubuh terasa lebih siap untuk tidur. Tidur terasa lebih dalam dan bangun pun lebih ringan. Kamu tidak perlu lagi bergantung pada video acak. Kamu punya ruang kecil untuk menutup hari dengan sadar.
             </Text>
           </View>
 
