@@ -374,11 +374,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
               Dibuat dari Pengalaman Nyata.
             </Text>
             <Text style={styles.trustBody}>
-              Aplikasi ini lahir dari seseorang yang juga sering merasa sulit mematikan pikiran di malam hari.
-{"\n"}
-              Bukan tentang menjadi lebih produktif.
-{"\n"}
-              Tapi tentang memberi diri sendiri ruang untuk berhenti.
+              Aplikasi ini lahir dari seseorang yang juga sering merasa sulit mematikan pikiran di malam hari. Bukan tentang menjadi lebih produktif, tapi tentang memberi diri sendiri ruang untuk berhenti.
             </Text>
           </View>
 
