@@ -269,7 +269,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         </Text>
 
         <View style={[styles.processLayout, isDesktop ? styles.processLayoutDesktop : styles.processLayoutMobile]}>
-          <View style={[styles.processImageCard, isDesktop && styles.processImageCardDesktop]}>
+          <View style={[styles.processImageCard, !isDesktop && styles.processImageCardMobile, isDesktop && styles.processImageCardDesktop]}>
             <Image source={EMPATHY_IMAGE_FOUR} style={styles.heroImage} resizeMode="cover" />
           </View>
 
@@ -751,7 +751,7 @@ const styles = StyleSheet.create({
   },
   processLayoutDesktop: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "stretch",
     gap: 40,
   },
   processLayoutMobile: {
@@ -857,14 +857,17 @@ const styles = StyleSheet.create({
 
   processImageCard: {
     width: "100%",
-    aspectRatio: 16 / 9,
     borderRadius: radius.md,
     overflow: "hidden",
     backgroundColor: colors.white,
   },
+  processImageCardMobile: {
+    aspectRatio: 16 / 9,
+  },
   processImageCardDesktop: {
     flex: 1,
-    maxWidth: 460,
+    height: "100%",
+    minHeight: 460,
   },
 
   ritualGrid: {
