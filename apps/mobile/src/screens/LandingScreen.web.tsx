@@ -759,6 +759,7 @@ const styles = StyleSheet.create({
   processContentColumnDesktop: {
     flex: 1,
     justifyContent: "center",
+    flexBasis: "45%",
   },
   processTitleSpacing: {
     marginBottom: SECTION_TITLE_TO_CONTENT_GAP_MOBILE,
@@ -863,9 +864,11 @@ const styles = StyleSheet.create({
     aspectRatio: 16 / 9,
   },
   processImageCardDesktop: {
-    flex: 1,
-    maxWidth: 600,
-    aspectRatio: 16 / 9,
+    flex: 1.2,
+    flexBasis: "55%",
+    width: "100%",
+    height: 340,
+    maxWidth: 640,
   },
 
   ritualGrid: {
