@@ -30,6 +30,7 @@ const EMPATHY_IMAGE_FOUR = require("../../assets/image/landing-page/4.jpg");
 const BENEFITS_IMAGE = require("../../assets/image/landing-page/8.jpg");
 const RITUAL_IMAGE_ONE = require("../../assets/image/landing-page/5.jpg");
 const RITUAL_IMAGE_TWO = require("../../assets/image/landing-page/7.jpg");
+const TRUST_IMAGE = require("../../assets/image/landing-page/9.jpg");
 const HERO_GAP = 20;
 const HERO_IMAGE_RATIO = 4 / 5;
 const BUTTON_PADDING_VERTICAL_DESKTOP = 12;
@@ -367,14 +368,24 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         }}
         style={[styles.section, isDesktop && styles.sectionDesktop]}
       >
-        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop]}>Dibuat dari Pengalaman Nyata.</Text>
-        <Text style={styles.trustBody}>
-          Aplikasi ini lahir dari seseorang yang juga sering merasa sulit mematikan pikiran di malam hari.
+        <View style={[styles.trustLayout, isDesktop ? styles.trustLayoutDesktop : styles.trustLayoutMobile]}>
+          <View style={[styles.trustTextColumn, isDesktop && styles.trustTextColumnDesktop]}>
+            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.trustTitle]}>
+              Dibuat dari Pengalaman Nyata.
+            </Text>
+            <Text style={styles.trustBody}>
+              Aplikasi ini lahir dari seseorang yang juga sering merasa sulit mematikan pikiran di malam hari.
 {"\n"}
-          Bukan tentang menjadi lebih produktif.
+              Bukan tentang menjadi lebih produktif.
 {"\n"}
-          Tapi tentang memberi diri sendiri ruang untuk berhenti.
-        </Text>
+              Tapi tentang memberi diri sendiri ruang untuk berhenti.
+            </Text>
+          </View>
+
+          <View style={[styles.trustImageCard, isDesktop && styles.trustImageCardDesktop]}>
+            <Image source={TRUST_IMAGE} style={styles.heroImage} resizeMode="cover" />
+          </View>
+        </View>
       </View>
 
       <View
@@ -953,6 +964,41 @@ const styles = StyleSheet.create({
     lineHeight: 28,
     color: colors.mutedText,
     maxWidth: 760,
+  },
+  trustLayout: {
+    width: "100%",
+    gap: spacing.md,
+  },
+  trustLayoutDesktop: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 40,
+  },
+  trustLayoutMobile: {
+    flexDirection: "column",
+  },
+  trustTextColumn: {
+    width: "100%",
+    justifyContent: "center",
+  },
+  trustTextColumnDesktop: {
+    flex: 1,
+  },
+  trustTitle: {
+    textAlign: "left",
+    marginBottom: spacing.sm,
+  },
+  trustImageCard: {
+    width: "100%",
+    aspectRatio: 16 / 9,
+    borderRadius: radius.md,
+    overflow: "hidden",
+    backgroundColor: colors.white,
+    padding: 0,
+  },
+  trustImageCardDesktop: {
+    flex: 1,
+    maxWidth: 460,
   },
   closingCtaSection: {
     alignItems: "center",
