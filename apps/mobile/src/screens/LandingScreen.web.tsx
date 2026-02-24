@@ -774,7 +774,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   stepCardWithNote: {
-    gap: spacing.xs,
+    gap: 6,
   },
 
   stepsRow: {
@@ -786,13 +786,14 @@ const styles = StyleSheet.create({
   },
   stepCard: {
     justifyContent: "center",
-    padding: spacing.md,
+    paddingVertical: 11,
+    paddingHorizontal: 15,
     borderRadius: radius.sm,
     borderWidth: 1,
     borderColor: `${colors.mutedText}2E`,
     backgroundColor: colors.white,
     boxShadow: `0px 4px 16px ${colors.text}12`,
-    gap: spacing.xs,
+    gap: 6,
   },
   stepTitle: {
     fontSize: typography.body,
@@ -800,7 +801,7 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   stepCardDesktop: {
-    minHeight: 120,
+    minHeight: 80,
   },
   stepBody: {
     fontSize: typography.body,
