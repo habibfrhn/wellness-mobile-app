@@ -191,10 +191,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
       >
         <View style={[styles.heroLayout, isDesktop && styles.heroLayoutDesktop, !isDesktop && styles.heroLayoutMobile]}>
           <View style={[styles.heroTextColumn, isDesktop && styles.heroTextColumnDesktop]}>
-            <View style={styles.badgePill}>
-              <Text style={styles.badgeText}>Ruang tenang tiap malam</Text>
-            </View>
-            <Text style={[styles.heroTitle, styles.heroTitleSpacing, isDesktop && styles.heroTitleDesktop]}>Tutup hari dengan lebih tenang.</Text>
+            <Text style={[styles.heroTitle, isDesktop && styles.heroTitleDesktop]}>Tutup hari dengan lebih tenang.</Text>
             <Text style={[styles.heroBodyCopy, styles.heroBodyCopySpacing]}>Untuk kamu yang lelah, tapi pikiran masih terus berjalan.</Text>
             <View style={[styles.heroCtaRow, styles.heroCtaRowBreathing, isDesktop && styles.heroCtaRowDesktop]}>
               <Pressable onPress={goToAuth} style={[styles.ctaButton, isDesktop ? styles.buttonDesktop : styles.buttonMobile]}>
@@ -609,18 +606,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
   },
-  badgePill: {
-    alignSelf: "flex-start",
-    borderRadius: radius.full,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    backgroundColor: `${colors.primary}14`,
-  },
-  badgeText: {
-    fontSize: typography.caption,
-    fontWeight: "700",
-    color: colors.primary,
-  },
   heroIntro: {
     fontSize: typography.small,
     color: colors.mutedText,
@@ -658,9 +643,6 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
     fontWeight: "400",
     maxWidth: 620,
-  },
-  heroTitleSpacing: {
-    marginTop: HERO_GAP,
   },
   heroBodyCopySpacing: {
     marginTop: HERO_GAP,
