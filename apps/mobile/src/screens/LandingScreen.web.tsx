@@ -439,6 +439,46 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
           </View>
         </View>
       </View>
+
+      <View style={styles.footerSection}>
+        <View style={[styles.footerContent, isDesktop && styles.footerContentDesktop]}>
+          <View style={styles.footerColumn}>
+            <Text style={styles.footerBrandTitle}>Lumepo</Text>
+            <Text style={styles.footerDescription}>Ruang tenang untuk menutup hari dengan sadar.</Text>
+            <Text style={styles.footerCopyright}>© 2025 Lumepo. Semua hak dilindungi.</Text>
+          </View>
+
+          <View style={styles.footerColumn}>
+            <Text style={styles.footerHeading}>Navigasi</Text>
+            <Pressable onPress={() => goToSection("beranda")} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
+              <Text style={styles.footerLinkText}>Beranda</Text>
+            </Pressable>
+            <Pressable onPress={() => goToSection("untuk-siapa")} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
+              <Text style={styles.footerLinkText}>Untuk Siapa</Text>
+            </Pressable>
+            <Pressable onPress={() => goToSection("manfaat")} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
+              <Text style={styles.footerLinkText}>Manfaat</Text>
+            </Pressable>
+            <Pressable onPress={() => goToSection("faq")} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
+              <Text style={styles.footerLinkText}>FAQ</Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.footerColumn}>
+            <Text style={styles.footerHeading}>Informasi</Text>
+            <Pressable onPress={() => {}} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
+              <Text style={styles.footerLinkText}>Kebijakan Privasi</Text>
+            </Pressable>
+            <Pressable onPress={() => {}} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
+              <Text style={styles.footerLinkText}>Syarat & Ketentuan</Text>
+            </Pressable>
+            <Pressable onPress={() => {}} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
+              <Text style={styles.footerLinkText}>Kontak</Text>
+            </Pressable>
+            <Text style={styles.footerContact}>hello@lumepo.id</Text>
+          </View>
+        </View>
+      </View>
       </ScrollView>
 
       {isFoundingOpen ? (
@@ -514,7 +554,7 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 1100,
     marginHorizontal: "auto",
-    paddingHorizontal: 0,
+    paddingHorizontal: spacing.lg,
     paddingVertical: SECTION_PAD_Y_MOBILE,
     gap: spacing.md,
     backgroundColor: colors.white,
@@ -1110,6 +1150,73 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
 
+  footerSection: {
+    width: "100%",
+    backgroundColor: "#21325E",
+    marginTop: spacing.lg,
+    marginBottom: 0,
+  },
+  footerContent: {
+    width: "100%",
+    maxWidth: 1100,
+    marginHorizontal: "auto",
+    paddingHorizontal: spacing.lg,
+    paddingVertical: SECTION_PAD_Y_MOBILE,
+    flexDirection: "column",
+    gap: spacing.lg,
+  },
+  footerContentDesktop: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: SECTION_PAD_Y_DESKTOP,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: 40,
+  },
+  footerColumn: {
+    flex: 1,
+    gap: spacing.xs,
+  },
+  footerBrandTitle: {
+    fontSize: typography.title,
+    fontWeight: "800",
+    color: colors.white,
+  },
+  footerDescription: {
+    fontSize: typography.body,
+    color: "rgba(255,255,255,0.8)",
+    lineHeight: 24,
+    maxWidth: 300,
+  },
+  footerCopyright: {
+    fontSize: typography.caption,
+    color: "rgba(255,255,255,0.7)",
+    marginTop: spacing.xs,
+  },
+  footerHeading: {
+    fontSize: typography.body,
+    fontWeight: "700",
+    color: colors.white,
+    marginBottom: spacing.xs,
+  },
+  footerLinkPressable: {
+    alignSelf: "flex-start",
+    paddingVertical: 2,
+    opacity: 0.85,
+  },
+  footerLinkPressableHover: {
+    opacity: 1,
+  },
+  footerLinkText: {
+    fontSize: typography.body,
+    color: "rgba(255,255,255,0.8)",
+    lineHeight: 24,
+  },
+  footerContact: {
+    fontSize: typography.body,
+    color: colors.white,
+    marginTop: spacing.xs,
+  },
   modalOverlay: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: "center",
