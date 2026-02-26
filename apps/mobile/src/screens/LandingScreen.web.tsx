@@ -31,6 +31,7 @@ const BENEFITS_IMAGE = require("../../assets/image/landing-page/8.jpg");
 const RITUAL_IMAGE_ONE = require("../../assets/image/landing-page/5.jpg");
 const RITUAL_IMAGE_TWO = require("../../assets/image/landing-page/7.jpg");
 const TRUST_IMAGE = require("../../assets/image/landing-page/9.jpg");
+const CLOSING_CTA_IMAGE = require("../../assets/image/landing-page/10.jpg");
 const HERO_GAP = 20;
 const HERO_IMAGE_RATIO = 4 / 5;
 const BUTTON_PADDING_VERTICAL_DESKTOP = 12;
@@ -426,12 +427,20 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         }}
         style={[styles.section, isDesktop && styles.sectionDesktop, styles.closingCtaSection]}
       >
-        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop]}>Malam Ini, Kamu Bisa Memulainya.</Text>
-        <Text style={styles.closingCtaSubtext}>Cukup 15 menit sebelum tidur.</Text>
-        <Pressable onPress={goToAuth} style={[styles.ctaButton, isDesktop ? styles.buttonDesktop : styles.buttonMobile]}>
-          <Text style={styles.ctaText}>Mulai Gratis</Text>
-        </Pressable>
-        <Text style={styles.closingCtaMicrocopy}>Tanpa kartu kredit.</Text>
+        <View style={[styles.closingCtaLayout, isDesktop ? styles.closingCtaLayoutDesktop : styles.closingCtaLayoutMobile]}>
+          <View style={[styles.closingCtaTextColumn, isDesktop && styles.closingCtaTextColumnDesktop]}>
+            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop]}>Malam Ini, Kamu Bisa Memulainya.</Text>
+            <Text style={styles.closingCtaSubtext}>Cukup 15 menit sebelum tidur.</Text>
+            <Pressable onPress={goToAuth} style={[styles.ctaButton, isDesktop ? styles.buttonDesktop : styles.buttonMobile]}>
+              <Text style={styles.ctaText}>Mulai Gratis</Text>
+            </Pressable>
+            <Text style={styles.closingCtaMicrocopy}>Tanpa kartu kredit.</Text>
+          </View>
+
+          <View style={[styles.closingCtaImageCard, isDesktop && styles.closingCtaImageCardDesktop]}>
+            <Image source={CLOSING_CTA_IMAGE} style={styles.heroImage} resizeMode="cover" />
+          </View>
+        </View>
       </View>
       </ScrollView>
 
@@ -1037,17 +1046,47 @@ const styles = StyleSheet.create({
     maxWidth: 460,
   },
   closingCtaSection: {
+    alignItems: "stretch",
+  },
+  closingCtaLayout: {
+    width: "100%",
     alignItems: "center",
+    gap: spacing.lg,
+  },
+  closingCtaLayoutDesktop: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 40,
+  },
+  closingCtaLayoutMobile: {
+    flexDirection: "column",
+  },
+  closingCtaTextColumn: {
+    width: "100%",
+    gap: spacing.md,
+  },
+  closingCtaTextColumnDesktop: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  closingCtaImageCard: {
+    width: "100%",
+    aspectRatio: HERO_IMAGE_RATIO,
+    borderRadius: radius.md,
+    overflow: "hidden",
+  },
+  closingCtaImageCardDesktop: {
+    flex: 1,
   },
   closingCtaSubtext: {
     fontSize: typography.body,
     color: colors.mutedText,
-    textAlign: "center",
+    textAlign: "left",
   },
   closingCtaMicrocopy: {
     fontSize: typography.caption,
     color: colors.mutedText,
-    textAlign: "center",
+    textAlign: "left",
   },
   buttonDesktop: {
     paddingVertical: BUTTON_PADDING_VERTICAL_DESKTOP,
