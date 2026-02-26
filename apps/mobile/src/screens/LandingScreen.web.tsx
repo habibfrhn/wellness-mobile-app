@@ -176,8 +176,8 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
               <Text style={styles.textButtonLabel}>Masuk</Text>
             </Pressable>
           ) : null}
-          <Pressable onPress={goToAuth} style={[styles.ctaButton, isDesktop ? styles.buttonDesktop : styles.buttonMobile]}>
-            <Text style={styles.ctaText}>Buat akun</Text>
+          <Pressable onPress={goToAuth} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile]}>
+            <Text style={styles.landingButtonPrimaryText}>Buat akun</Text>
           </Pressable>
         </View>
       </View>
@@ -194,11 +194,11 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
             <Text style={[styles.heroTitle, isDesktop && styles.heroTitleDesktop]}>Tutup hari dengan lebih tenang.</Text>
             <Text style={[styles.heroBodyCopy, styles.heroBodyCopySpacing]}>Untuk kamu yang lelah, tapi pikiran masih terus berjalan.</Text>
             <View style={[styles.heroCtaRow, styles.heroCtaRowBreathing, isDesktop && styles.heroCtaRowDesktop]}>
-              <Pressable onPress={goToAuth} style={[styles.ctaButton, isDesktop ? styles.buttonDesktop : styles.buttonMobile]}>
-                <Text style={styles.ctaText}>Mulai gratis</Text>
+              <Pressable onPress={goToAuth} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile]}>
+                <Text style={styles.landingButtonPrimaryText}>Mulai gratis</Text>
               </Pressable>
-              <Pressable onPress={() => setIsFoundingOpen(true)} style={[styles.secondaryButton, isDesktop ? styles.buttonDesktop : styles.buttonMobile]}>
-                <Text style={styles.secondaryButtonText}>Jadi founding member</Text>
+              <Pressable onPress={() => setIsFoundingOpen(true)} style={[styles.landingButtonBase, styles.landingButtonSecondary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile]}>
+                <Text style={styles.landingButtonSecondaryText}>Jadi founding member</Text>
               </Pressable>
             </View>
           </View>
@@ -428,8 +428,8 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
           <View style={[styles.closingCtaTextColumn, isDesktop && styles.closingCtaTextColumnDesktop]}>
             <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop]}>Malam Ini, Kamu Bisa Memulainya.</Text>
             <Text style={styles.closingCtaSubtext}>Cukup 15 menit sebelum tidur.</Text>
-            <Pressable onPress={goToAuth} style={[styles.ctaButton, isDesktop ? styles.buttonDesktop : styles.buttonMobile]}>
-              <Text style={styles.ctaText}>Mulai Gratis</Text>
+            <Pressable onPress={goToAuth} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile]}>
+              <Text style={styles.landingButtonPrimaryText}>Mulai Gratis</Text>
             </Pressable>
             <Text style={styles.closingCtaMicrocopy}>Tanpa kartu kredit.</Text>
           </View>
@@ -473,8 +473,16 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
                   autoCapitalize="none"
                   keyboardType="email-address"
                 />
-                <Pressable onPress={submitFounding} style={styles.modalSubmitButton}>
-                  <Text style={styles.modalSubmitText}>Saya ingin jadi Founding Member</Text>
+                <Pressable
+                  onPress={submitFounding}
+                  style={[
+                    styles.landingButtonBase,
+                    styles.landingButtonPrimary,
+                    isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile,
+                    styles.modalSubmitButton,
+                  ]}
+                >
+                  <Text style={styles.landingButtonPrimaryText}>Saya ingin jadi Founding Member</Text>
                 </Pressable>
               </>
             )}
@@ -1070,31 +1078,33 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
     textAlign: "left",
   },
-  buttonDesktop: {
+  landingButtonBase: {
+    borderRadius: BUTTON_BORDER_RADIUS,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  landingButtonSizeDesktop: {
     paddingVertical: BUTTON_PADDING_VERTICAL_DESKTOP,
     paddingHorizontal: BUTTON_PADDING_HORIZONTAL_DESKTOP,
   },
-  buttonMobile: {
+  landingButtonSizeMobile: {
     paddingVertical: BUTTON_PADDING_VERTICAL_MOBILE,
     paddingHorizontal: BUTTON_PADDING_HORIZONTAL_MOBILE,
   },
-  ctaButton: {
+  landingButtonPrimary: {
     backgroundColor: colors.primary,
-    borderRadius: BUTTON_BORDER_RADIUS,
   },
-
-  ctaText: {
+  landingButtonPrimaryText: {
     fontSize: typography.body,
     fontWeight: "700",
     color: colors.white,
   },
-  secondaryButton: {
+  landingButtonSecondary: {
     borderWidth: 1,
     borderColor: `${colors.mutedText}44`,
-    borderRadius: BUTTON_BORDER_RADIUS,
     backgroundColor: colors.white,
   },
-  secondaryButtonText: {
+  landingButtonSecondaryText: {
     fontSize: typography.body,
     fontWeight: "700",
     color: colors.text,
@@ -1158,16 +1168,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   modalSubmitButton: {
-    backgroundColor: colors.primary,
-    borderRadius: radius.sm,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    alignItems: "center",
-  },
-  modalSubmitText: {
-    fontSize: typography.body,
-    fontWeight: "700",
-    color: colors.white,
+    width: "100%",
   },
   modalThanks: {
     fontSize: typography.body,
