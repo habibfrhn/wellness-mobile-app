@@ -177,7 +177,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
               <Text style={styles.textButtonLabel}>Masuk</Text>
             </Pressable>
           ) : null}
-          <Pressable onPress={goToAuth} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile]}>
+          <Pressable onPress={goToAuth} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, isDesktop && styles.headerPrimaryButtonCompact]}>
             <Text style={styles.landingButtonPrimaryText}>Buat akun</Text>
           </Pressable>
         </View>
@@ -578,12 +578,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     gap: spacing.md,
-    paddingTop: 6,
-    paddingBottom: 6,
+    paddingTop: 4,
+    paddingBottom: 4,
   },
   headerSectionDesktop: {
-    paddingTop: 6,
-    paddingBottom: 6,
+    paddingTop: 4,
+    paddingBottom: 4,
   },
   brand: {
     fontSize: typography.title,
@@ -636,6 +636,9 @@ const styles = StyleSheet.create({
     fontSize: typography.small,
     color: colors.text,
     fontWeight: "700",
+  },
+  headerPrimaryButtonCompact: {
+    paddingVertical: 10,
   },
   heroSection: {
     paddingTop: 40,
