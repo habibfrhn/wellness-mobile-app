@@ -206,10 +206,10 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
             <Text style={[styles.heroTitle, isDesktop && styles.heroTitleDesktop, styles.heroTitleSpacing, isDesktop && styles.heroTitleSpacingDesktop]}>Tutup hari dengan lebih tenang</Text>
             <Text style={styles.heroBodyCopy}>Untuk kamu yang lelah, tapi pikiran masih terus berjalan.</Text>
             <View style={[styles.heroCtaRow, styles.heroCtaRowBreathing, isDesktop && styles.heroCtaRowDesktop]}>
-              <Pressable onPress={goToAuth} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile]}>
+              <Pressable onPress={goToAuth} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.heroCtaButton]}>
                 <Text style={styles.landingButtonPrimaryText}>Mulai gratis</Text>
               </Pressable>
-              <Pressable onPress={() => setIsFoundingOpen(true)} style={[styles.landingButtonBase, styles.landingButtonSecondary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile]}>
+              <Pressable onPress={() => setIsFoundingOpen(true)} style={[styles.landingButtonBase, styles.landingButtonSecondary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.heroCtaButton]}>
                 <Text style={styles.landingButtonSecondaryText}>Jadi founding member</Text>
               </Pressable>
             </View>
@@ -675,6 +675,7 @@ const styles = StyleSheet.create({
   heroTextColumn: {
     flex: 1,
     gap: 0,
+    alignItems: "center",
   },
   heroTextColumnDesktop: {
     flex: 1,
@@ -690,6 +691,7 @@ const styles = StyleSheet.create({
     lineHeight: 42,
     fontWeight: "800",
     color: colors.text,
+    textAlign: "center",
   },
   heroTitleDesktop: {
     fontSize: 46,
@@ -723,6 +725,7 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
     fontWeight: "400",
     maxWidth: 620,
+    textAlign: "center",
   },
   heroDescriptionDesktop: {
     fontSize: typography.title,
@@ -730,16 +733,21 @@ const styles = StyleSheet.create({
     maxWidth: 640,
   },
   heroCtaRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+    flexDirection: "column",
     gap: spacing.sm,
     alignItems: "center",
+    width: "100%",
   },
   heroCtaRowBreathing: {
     marginTop: HERO_GAP,
   },
   heroCtaRowDesktop: {
-    gap: spacing.md,
+    gap: spacing.sm,
+  },
+  heroCtaButton: {
+    width: "100%",
+    maxWidth: 300,
+    alignSelf: "center",
   },
   heroImageCard: {
     width: "100%",
