@@ -578,11 +578,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     gap: spacing.md,
-    paddingTop: 6,
+    paddingTop: 8,
     paddingBottom: 0,
   },
   headerSectionDesktop: {
-    paddingTop: 8,
+    paddingTop: 10,
     paddingBottom: 0,
   },
   brand: {
