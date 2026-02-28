@@ -41,8 +41,8 @@ const BUTTON_PADDING_HORIZONTAL_MOBILE = 18;
 const BUTTON_BORDER_RADIUS = 10;
 const SECTION_PAD_Y_DESKTOP = 56;
 const SECTION_PAD_Y_MOBILE = 36;
-const SECTION_TITLE_TO_CONTENT_GAP_MOBILE = 24;
-const SECTION_TITLE_TO_CONTENT_GAP_DESKTOP = 36;
+const TITLE_TO_CONTENT_GAP_MOBILE = 16;
+const TITLE_TO_CONTENT_GAP_DESKTOP = 24;
 const SECTION_GAP = 0;
 const TRACKED_SECTIONS: SectionKey[] = ["beranda", "untuk-siapa", "cara-kerja", "manfaat", "faq"];
 const HEADER_NAV_ITEMS: Array<{ key: SectionKey; label: string }> = [
@@ -191,8 +191,8 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
       >
         <View style={[styles.heroLayout, isDesktop && styles.heroLayoutDesktop, !isDesktop && styles.heroLayoutMobile]}>
           <View style={[styles.heroTextColumn, isDesktop && styles.heroTextColumnDesktop]}>
-            <Text style={[styles.heroTitle, isDesktop && styles.heroTitleDesktop]}>Tutup hari dengan lebih tenang.</Text>
-            <Text style={[styles.heroBodyCopy, styles.heroBodyCopySpacing]}>Untuk kamu yang lelah, tapi pikiran masih terus berjalan.</Text>
+            <Text style={[styles.heroTitle, isDesktop && styles.heroTitleDesktop, styles.heroTitleSpacing, isDesktop && styles.heroTitleSpacingDesktop]}>Tutup hari dengan lebih tenang</Text>
+            <Text style={styles.heroBodyCopy}>Untuk kamu yang lelah, tapi pikiran masih terus berjalan.</Text>
             <View style={[styles.heroCtaRow, styles.heroCtaRowBreathing, isDesktop && styles.heroCtaRowDesktop]}>
               <Pressable onPress={goToAuth} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile]}>
                 <Text style={styles.landingButtonPrimaryText}>Mulai gratis</Text>
@@ -227,7 +227,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
               isDesktop && styles.empathySectionTitleSpacingDesktop,
             ]}
           >
-            Malam seharusnya jadi waktu beristirahat.
+            Malam seharusnya jadi waktu beristirahat
           </Text>
 
           <View style={[styles.calmCardsRow, !isDesktop && styles.calmCardsColumn]}>
@@ -263,7 +263,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         style={[styles.section, isDesktop && styles.sectionDesktop]}
       >
         <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.processTitleSpacing, isDesktop && styles.processTitleSpacingDesktop]}>
-          Alur malam yang menenangkan.
+          Alur malam yang menenangkan
         </Text>
 
         <View style={[styles.processLayout, isDesktop ? styles.processLayoutDesktop : styles.processLayoutMobile]}>
@@ -332,7 +332,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
               isDesktop && styles.ritualSectionTitleDesktop,
             ]}
           >
-            Bukan konten. Sebuah kebiasaan.
+            Bukan konten. Sebuah kebiasaan
           </Text>
         </View>
 
@@ -426,9 +426,9 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
       >
         <View style={[styles.closingCtaLayout, isDesktop ? styles.closingCtaLayoutDesktop : styles.closingCtaLayoutMobile]}>
           <View style={[styles.closingCtaTextColumn, isDesktop && styles.closingCtaTextColumnDesktop]}>
-            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop]}>Malam Ini, Kamu Bisa Memulainya.</Text>
+            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.closingCtaTitleSpacing, isDesktop && styles.closingCtaTitleSpacingDesktop]}>Malam Ini, Kamu Bisa Memulainya</Text>
             <Text style={styles.closingCtaSubtext}>Cukup 15 menit sebelum tidur.</Text>
-            <Pressable onPress={goToAuth} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile]}>
+            <Pressable onPress={goToAuth} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.closingCtaButton]}>
               <Text style={styles.landingButtonPrimaryText}>Mulai Gratis</Text>
             </Pressable>
             <Text style={styles.closingCtaMicrocopy}>Tanpa kartu kredit.</Text>
@@ -568,12 +568,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     gap: spacing.md,
-    paddingTop: 0,
-    paddingBottom: 0,
+    paddingTop: 6,
+    paddingBottom: 6,
   },
   headerSectionDesktop: {
-    paddingTop: 0,
-    paddingBottom: 0,
+    paddingTop: 6,
+    paddingBottom: 6,
   },
   brand: {
     fontSize: typography.title,
@@ -669,6 +669,12 @@ const styles = StyleSheet.create({
     fontSize: 52,
     lineHeight: 60,
   },
+  heroTitleSpacing: {
+    marginBottom: TITLE_TO_CONTENT_GAP_MOBILE,
+  },
+  heroTitleSpacingDesktop: {
+    marginBottom: TITLE_TO_CONTENT_GAP_DESKTOP,
+  },
   heroSubheadline: {
     fontSize: typography.title,
     lineHeight: 26,
@@ -691,9 +697,6 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
     fontWeight: "400",
     maxWidth: 620,
-  },
-  heroBodyCopySpacing: {
-    marginTop: HERO_GAP,
   },
   heroDescriptionDesktop: {
     fontSize: typography.title,
@@ -748,10 +751,10 @@ const styles = StyleSheet.create({
     color: "#111111",
   },
   empathySectionTitleSpacing: {
-    marginBottom: SECTION_TITLE_TO_CONTENT_GAP_MOBILE,
+    marginBottom: TITLE_TO_CONTENT_GAP_MOBILE,
   },
   empathySectionTitleSpacingDesktop: {
-    marginBottom: SECTION_TITLE_TO_CONTENT_GAP_DESKTOP,
+    marginBottom: TITLE_TO_CONTENT_GAP_DESKTOP,
   },
   empathyCardText: {
     color: "#1C1C1C",
@@ -809,11 +812,11 @@ const styles = StyleSheet.create({
     flexBasis: "45%",
   },
   processTitleSpacing: {
-    marginBottom: SECTION_TITLE_TO_CONTENT_GAP_MOBILE,
+    marginBottom: TITLE_TO_CONTENT_GAP_MOBILE,
     textAlign: "left",
   },
   processTitleSpacingDesktop: {
-    marginBottom: SECTION_TITLE_TO_CONTENT_GAP_DESKTOP,
+    marginBottom: TITLE_TO_CONTENT_GAP_DESKTOP,
   },
   processStepsStack: {
     display: "flex",
@@ -920,10 +923,10 @@ const styles = StyleSheet.create({
   },
 
   ritualHeading: {
-    marginBottom: SECTION_TITLE_TO_CONTENT_GAP_MOBILE,
+    marginBottom: TITLE_TO_CONTENT_GAP_MOBILE,
   },
   ritualHeadingDesktop: {
-    marginBottom: SECTION_TITLE_TO_CONTENT_GAP_DESKTOP,
+    marginBottom: TITLE_TO_CONTENT_GAP_DESKTOP,
   },
   ritualSectionTitle: {
     textAlign: "left",
@@ -1093,7 +1096,7 @@ const styles = StyleSheet.create({
   },
   closingCtaTextColumn: {
     width: "100%",
-    gap: spacing.md,
+    gap: 0,
   },
   closingCtaTextColumnDesktop: {
     flex: 1,
@@ -1112,6 +1115,17 @@ const styles = StyleSheet.create({
     fontSize: typography.body,
     color: colors.mutedText,
     textAlign: "left",
+    marginBottom: spacing.md,
+  },
+  closingCtaTitleSpacing: {
+    marginBottom: TITLE_TO_CONTENT_GAP_MOBILE,
+  },
+  closingCtaTitleSpacingDesktop: {
+    marginBottom: TITLE_TO_CONTENT_GAP_DESKTOP,
+  },
+  closingCtaButton: {
+    alignSelf: "flex-start",
+    marginBottom: spacing.sm,
   },
   closingCtaMicrocopy: {
     fontSize: typography.caption,
@@ -1153,6 +1167,8 @@ const styles = StyleSheet.create({
   footerSection: {
     width: "100%",
     backgroundColor: "#21325E",
+    alignSelf: "stretch",
+    marginHorizontal: -spacing.lg,
     marginTop: spacing.lg,
     marginBottom: 0,
   },
@@ -1161,13 +1177,13 @@ const styles = StyleSheet.create({
     maxWidth: 1100,
     marginHorizontal: "auto",
     paddingHorizontal: spacing.lg,
-    paddingVertical: SECTION_PAD_Y_MOBILE,
+    paddingVertical: 28,
     flexDirection: "column",
     gap: spacing.lg,
   },
   footerContentDesktop: {
     paddingHorizontal: spacing.lg,
-    paddingVertical: SECTION_PAD_Y_DESKTOP,
+    paddingVertical: 36,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
