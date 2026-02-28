@@ -673,14 +673,14 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   heroTitle: {
-    fontSize: 42,
-    lineHeight: 48,
+    fontSize: 36,
+    lineHeight: 42,
     fontWeight: "800",
     color: colors.text,
   },
   heroTitleDesktop: {
-    fontSize: 52,
-    lineHeight: 60,
+    fontSize: 46,
+    lineHeight: 54,
   },
   heroTitleSpacing: {
     marginBottom: GAP_TITLE_TO_CONTENT_MOBILE,
