@@ -203,8 +203,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
       >
         <View style={[styles.heroLayout, isDesktop && styles.heroLayoutDesktop, !isDesktop && styles.heroLayoutMobile]}>
           <View style={[styles.heroTextColumn, isDesktop && styles.heroTextColumnDesktop]}>
-            <Text style={[styles.heroTitle, isDesktop && styles.heroTitleDesktop, styles.heroTitleSpacing, isDesktop && styles.heroTitleSpacingDesktop]}>Tutup hari dengan lebih tenang</Text>
-            <Text style={styles.heroBodyCopy}>Untuk kamu yang lelah, tapi pikiran masih terus berjalan.</Text>
+            <Text style={[styles.heroTitle, isDesktop && styles.heroTitleDesktop]}>Tutup hari dengan lebih tenang</Text>
             <View style={[styles.heroCtaRow, styles.heroCtaRowBreathing, isDesktop && styles.heroCtaRowDesktop]}>
               <Pressable onPress={goToAuth} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.heroCtaButton]}>
                 <Text style={styles.landingButtonPrimaryText}>Mulai gratis</Text>
@@ -697,12 +696,6 @@ const styles = StyleSheet.create({
     fontSize: 46,
     lineHeight: 54,
   },
-  heroTitleSpacing: {
-    marginBottom: GAP_TITLE_TO_CONTENT_MOBILE,
-  },
-  heroTitleSpacingDesktop: {
-    marginBottom: GAP_TITLE_TO_CONTENT_DESKTOP,
-  },
   heroSubheadline: {
     fontSize: typography.title,
     lineHeight: 26,
@@ -718,14 +711,6 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     color: colors.mutedText,
     maxWidth: 620,
-  },
-  heroBodyCopy: {
-    fontSize: typography.body,
-    lineHeight: 24,
-    color: colors.mutedText,
-    fontWeight: "400",
-    maxWidth: 620,
-    textAlign: "center",
   },
   heroDescriptionDesktop: {
     fontSize: typography.title,
