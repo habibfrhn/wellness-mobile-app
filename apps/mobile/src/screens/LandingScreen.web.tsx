@@ -53,6 +53,7 @@ const SECTION_TITLE_STYLE_DESKTOP = {
   fontSize: 32,
   lineHeight: 40,
 };
+const DESKTOP_TWO_COLUMN_GAP = 56;
 const SECTION_GAP = 0;
 const TRACKED_SECTIONS: SectionKey[] = ["beranda", "untuk-siapa", "cara-kerja", "manfaat", "faq"];
 const HEADER_NAV_ITEMS: Array<{ key: SectionKey; label: string }> = [
@@ -666,6 +667,7 @@ const styles = StyleSheet.create({
   },
   heroLayoutDesktop: {
     alignItems: "center",
+    gap: DESKTOP_TWO_COLUMN_GAP,
   },
   heroLayoutMobile: {
     flexDirection: "column",
@@ -813,7 +815,7 @@ const styles = StyleSheet.create({
   processLayoutDesktop: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 40,
+    gap: DESKTOP_TWO_COLUMN_GAP,
   },
   processLayoutMobile: {
     flexDirection: "column",
@@ -883,7 +885,7 @@ const styles = StyleSheet.create({
   benefitsLayoutDesktop: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 40,
+    gap: DESKTOP_TWO_COLUMN_GAP,
   },
   benefitsLayoutMobile: {
     flexDirection: "column",
@@ -1053,7 +1055,7 @@ const styles = StyleSheet.create({
   trustLayoutDesktop: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 40,
+    gap: DESKTOP_TWO_COLUMN_GAP,
   },
   trustLayoutMobile: {
     flexDirection: "column",
@@ -1091,7 +1093,7 @@ const styles = StyleSheet.create({
   closingCtaLayoutDesktop: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 40,
+    gap: DESKTOP_TWO_COLUMN_GAP,
   },
   closingCtaLayoutMobile: {
     flexDirection: "column",
