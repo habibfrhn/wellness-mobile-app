@@ -578,14 +578,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     gap: spacing.md,
-    paddingTop: 0,
+    paddingTop: 6,
     paddingBottom: 0,
-    marginTop: 0,
   },
   headerSectionDesktop: {
-    paddingTop: 0,
+    paddingTop: 8,
     paddingBottom: 0,
-    marginTop: 0,
   },
   brand: {
     fontSize: typography.title,
