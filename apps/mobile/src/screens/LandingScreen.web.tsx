@@ -41,8 +41,8 @@ const BUTTON_PADDING_HORIZONTAL_MOBILE = 18;
 const BUTTON_BORDER_RADIUS = 10;
 const SECTION_PAD_Y_DESKTOP = 56;
 const SECTION_PAD_Y_MOBILE = 36;
-const TITLE_TO_CONTENT_GAP_MOBILE = 16;
-const TITLE_TO_CONTENT_GAP_DESKTOP = 24;
+const GAP_TITLE_TO_CONTENT_MOBILE = 16;
+const GAP_TITLE_TO_CONTENT_DESKTOP = 24;
 const SECTION_GAP = 0;
 const TRACKED_SECTIONS: SectionKey[] = ["beranda", "untuk-siapa", "cara-kerja", "manfaat", "faq"];
 const HEADER_NAV_ITEMS: Array<{ key: SectionKey; label: string }> = [
@@ -224,8 +224,8 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
               isDesktop && styles.sectionTitleDesktop,
               styles.sectionTitleCentered,
               styles.empathySectionTitle,
-              styles.empathySectionTitleSpacing,
-              isDesktop && styles.empathySectionTitleSpacingDesktop,
+              styles.sectionTitleToContentGap,
+              isDesktop && styles.sectionTitleToContentGapDesktop,
             ]}
           >
             Malam seharusnya jadi waktu beristirahat
@@ -683,10 +683,10 @@ const styles = StyleSheet.create({
     lineHeight: 60,
   },
   heroTitleSpacing: {
-    marginBottom: TITLE_TO_CONTENT_GAP_MOBILE,
+    marginBottom: GAP_TITLE_TO_CONTENT_MOBILE,
   },
   heroTitleSpacingDesktop: {
-    marginBottom: TITLE_TO_CONTENT_GAP_DESKTOP,
+    marginBottom: GAP_TITLE_TO_CONTENT_DESKTOP,
   },
   heroSubheadline: {
     fontSize: typography.title,
@@ -763,12 +763,6 @@ const styles = StyleSheet.create({
   empathySectionTitle: {
     color: "#111111",
   },
-  empathySectionTitleSpacing: {
-    marginBottom: TITLE_TO_CONTENT_GAP_MOBILE,
-  },
-  empathySectionTitleSpacingDesktop: {
-    marginBottom: TITLE_TO_CONTENT_GAP_DESKTOP,
-  },
   empathyCardText: {
     color: "#1C1C1C",
   },
@@ -825,11 +819,11 @@ const styles = StyleSheet.create({
     flexBasis: "45%",
   },
   processTitleSpacing: {
-    marginBottom: TITLE_TO_CONTENT_GAP_MOBILE,
+    marginBottom: GAP_TITLE_TO_CONTENT_MOBILE,
     textAlign: "left",
   },
   processTitleSpacingDesktop: {
-    marginBottom: TITLE_TO_CONTENT_GAP_DESKTOP,
+    marginBottom: GAP_TITLE_TO_CONTENT_DESKTOP,
   },
   processStepsStack: {
     display: "flex",
@@ -936,10 +930,10 @@ const styles = StyleSheet.create({
   },
 
   ritualHeading: {
-    marginBottom: TITLE_TO_CONTENT_GAP_MOBILE,
+    marginBottom: GAP_TITLE_TO_CONTENT_MOBILE,
   },
   ritualHeadingDesktop: {
-    marginBottom: TITLE_TO_CONTENT_GAP_DESKTOP,
+    marginBottom: GAP_TITLE_TO_CONTENT_DESKTOP,
   },
   ritualSectionTitle: {
     textAlign: "left",
@@ -1046,6 +1040,12 @@ const styles = StyleSheet.create({
   sectionTitleCentered: {
     textAlign: "center",
   },
+  sectionTitleToContentGap: {
+    marginBottom: GAP_TITLE_TO_CONTENT_MOBILE,
+  },
+  sectionTitleToContentGapDesktop: {
+    marginBottom: GAP_TITLE_TO_CONTENT_DESKTOP,
+  },
   sectionBody: {
     fontSize: typography.body,
     color: colors.mutedText,
@@ -1131,10 +1131,10 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   closingCtaTitleSpacing: {
-    marginBottom: TITLE_TO_CONTENT_GAP_MOBILE,
+    marginBottom: GAP_TITLE_TO_CONTENT_MOBILE,
   },
   closingCtaTitleSpacingDesktop: {
-    marginBottom: TITLE_TO_CONTENT_GAP_DESKTOP,
+    marginBottom: GAP_TITLE_TO_CONTENT_DESKTOP,
   },
   closingCtaButton: {
     alignSelf: "flex-start",
