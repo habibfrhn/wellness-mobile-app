@@ -43,6 +43,16 @@ const SECTION_PAD_Y_DESKTOP = 56;
 const SECTION_PAD_Y_MOBILE = 36;
 const GAP_TITLE_TO_CONTENT_MOBILE = 16;
 const GAP_TITLE_TO_CONTENT_DESKTOP = 24;
+const SECTION_TITLE_COLOR = "#21325E";
+const SECTION_TITLE_STYLE = {
+  fontSize: 24,
+  lineHeight: 30,
+  fontWeight: "700" as const,
+};
+const SECTION_TITLE_STYLE_DESKTOP = {
+  fontSize: 32,
+  lineHeight: 40,
+};
 const SECTION_GAP = 0;
 const TRACKED_SECTIONS: SectionKey[] = ["beranda", "untuk-siapa", "cara-kerja", "manfaat", "faq"];
 const HEADER_NAV_ITEMS: Array<{ key: SectionKey; label: string }> = [
@@ -223,7 +233,6 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
               styles.sectionTitle,
               isDesktop && styles.sectionTitleDesktop,
               styles.sectionTitleCentered,
-              styles.empathySectionTitle,
               styles.sectionTitleToContentGap,
               isDesktop && styles.sectionTitleToContentGapDesktop,
             ]}
@@ -263,7 +272,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         }}
         style={[styles.section, isDesktop && styles.sectionDesktop]}
       >
-        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.processTitleSpacing, isDesktop && styles.processTitleSpacingDesktop]}>
+        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.processTitleSpacing, styles.sectionTitleToContentGap, isDesktop && styles.sectionTitleToContentGapDesktop]}>
           Alur malam yang menenangkan
         </Text>
 
@@ -305,7 +314,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
       >
         <View style={[styles.benefitsLayout, isDesktop ? styles.benefitsLayoutDesktop : styles.benefitsLayoutMobile]}>
           <View style={[styles.benefitsTextColumn, isDesktop && styles.benefitsTextColumnDesktop]}>
-            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.benefitsTitle]}>Yang kamu rasakan</Text>
+            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.benefitsTitle, styles.sectionTitleToContentGap, isDesktop && styles.sectionTitleToContentGapDesktop]}>Yang kamu rasakan</Text>
             <Text style={styles.benefitsBody}>
               Pelan pelan pikiran mulai melambat dan tubuh lebih siap untuk tidur. Tidur terasa lebih dalam dan bangun lebih ringan. Kamu punya ruang untuk menutup hari dengan sadar.
             </Text>
@@ -324,13 +333,15 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         }}
         style={[styles.section, isDesktop && styles.sectionDesktop]}
       >
-        <View style={[styles.ritualHeading, isDesktop && styles.ritualHeadingDesktop]}>
+        <View>
           <Text
             style={[
               styles.sectionTitle,
               isDesktop && styles.sectionTitleDesktop,
               styles.ritualSectionTitle,
               isDesktop && styles.ritualSectionTitleDesktop,
+              styles.sectionTitleToContentGap,
+              isDesktop && styles.sectionTitleToContentGapDesktop,
             ]}
           >
             Bukan konten. Sebuah kebiasaan.
@@ -375,7 +386,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
       >
         <View style={[styles.trustLayout, isDesktop ? styles.trustLayoutDesktop : styles.trustLayoutMobile]}>
           <View style={[styles.trustTextColumn, isDesktop && styles.trustTextColumnDesktop]}>
-            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.trustTitle]}>
+            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.trustTitle, styles.sectionTitleToContentGap, isDesktop && styles.sectionTitleToContentGapDesktop]}>
               Dibuat dari Pengalaman Nyata
             </Text>
             <Text style={styles.trustBody}>
@@ -396,7 +407,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         }}
         style={[styles.section, isDesktop && styles.sectionDesktop]}
       >
-        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop]}>FAQ</Text>
+        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.sectionTitleToContentGap, isDesktop && styles.sectionTitleToContentGapDesktop]}>FAQ</Text>
 
         <View style={styles.faqList}>
           <View style={styles.faqItem}>
@@ -425,7 +436,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
       >
         <View style={[styles.closingCtaLayout, isDesktop ? styles.closingCtaLayoutDesktop : styles.closingCtaLayoutMobile]}>
           <View style={[styles.closingCtaTextColumn, isDesktop && styles.closingCtaTextColumnDesktop]}>
-            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.closingCtaTitleSpacing, isDesktop && styles.closingCtaTitleSpacingDesktop]}>Malam Ini, Kamu Bisa Memulainya</Text>
+            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.sectionTitleToContentGap, isDesktop && styles.sectionTitleToContentGapDesktop]}>Malam Ini, Kamu Bisa Memulainya</Text>
             <Text style={styles.closingCtaSubtext}>Cukup 15 menit sebelum tidur.</Text>
             <Pressable onPress={goToAuth} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.closingCtaButton]}>
               <Text style={styles.landingButtonPrimaryText}>Mulai Gratis</Text>
@@ -760,9 +771,6 @@ const styles = StyleSheet.create({
   empathySectionInnerDesktop: {
     paddingVertical: SECTION_PAD_Y_DESKTOP,
   },
-  empathySectionTitle: {
-    color: "#111111",
-  },
   empathyCardText: {
     color: "#1C1C1C",
   },
@@ -819,11 +827,7 @@ const styles = StyleSheet.create({
     flexBasis: "45%",
   },
   processTitleSpacing: {
-    marginBottom: GAP_TITLE_TO_CONTENT_MOBILE,
     textAlign: "left",
-  },
-  processTitleSpacingDesktop: {
-    marginBottom: GAP_TITLE_TO_CONTENT_DESKTOP,
   },
   processStepsStack: {
     display: "flex",
@@ -893,7 +897,6 @@ const styles = StyleSheet.create({
   },
   benefitsTitle: {
     textAlign: "left",
-    marginBottom: spacing.sm,
   },
   benefitsBody: {
     fontSize: typography.body,
@@ -929,12 +932,6 @@ const styles = StyleSheet.create({
     maxWidth: 640,
   },
 
-  ritualHeading: {
-    marginBottom: GAP_TITLE_TO_CONTENT_MOBILE,
-  },
-  ritualHeadingDesktop: {
-    marginBottom: GAP_TITLE_TO_CONTENT_DESKTOP,
-  },
   ritualSectionTitle: {
     textAlign: "left",
   },
@@ -1024,13 +1021,11 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   sectionTitle: {
-    fontSize: typography.h2,
-    fontWeight: "700",
-    color: colors.text,
+    ...SECTION_TITLE_STYLE,
+    color: SECTION_TITLE_COLOR,
   },
   sectionTitleDesktop: {
-    fontSize: 36,
-    lineHeight: 44,
+    ...SECTION_TITLE_STYLE_DESKTOP,
   },
   sectionTitleCentered: {
     textAlign: "center",
@@ -1072,7 +1067,6 @@ const styles = StyleSheet.create({
   },
   trustTitle: {
     textAlign: "left",
-    marginBottom: spacing.sm,
   },
   trustImageCard: {
     width: "100%",
@@ -1124,12 +1118,6 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
     textAlign: "left",
     marginBottom: spacing.md,
-  },
-  closingCtaTitleSpacing: {
-    marginBottom: GAP_TITLE_TO_CONTENT_MOBILE,
-  },
-  closingCtaTitleSpacingDesktop: {
-    marginBottom: GAP_TITLE_TO_CONTENT_DESKTOP,
   },
   closingCtaButton: {
     alignSelf: "flex-start",
