@@ -307,7 +307,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
           <View style={[styles.benefitsTextColumn, isDesktop && styles.benefitsTextColumnDesktop]}>
             <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.benefitsTitle]}>Yang kamu rasakan</Text>
             <Text style={styles.benefitsBody}>
-              Pelan pelan pikiran mulai melambat dan tubuh terasa lebih siap untuk tidur. Tidur terasa lebih dalam dan bangun pun lebih ringan. Kamu tidak perlu lagi bergantung pada video acak. Kamu punya ruang kecil untuk menutup hari dengan sadar.
+              Pelan pelan pikiran mulai melambat dan tubuh lebih siap untuk tidur. Tidur terasa lebih dalam dan bangun lebih ringan. Kamu punya ruang untuk menutup hari dengan sadar.
             </Text>
           </View>
 
@@ -340,7 +340,6 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         <View style={styles.ritualGrid}>
           <View style={[styles.ritualCard, isDesktop && styles.ritualGridCardDesktop]}>
             <Text style={styles.ritualCardTitle}>Yang sering terjadi</Text>
-            <View style={styles.ritualCardDivider} />
             <View style={styles.ritualCardLines}>
               <Text style={styles.ritualCardItem}>Kebanyakan pilihan</Text>
               <Text style={styles.ritualCardItem}>Mudah terdistraksi</Text>
@@ -358,7 +357,6 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
 
           <View style={[styles.ritualCard, isDesktop && styles.ritualGridCardDesktop]}>
             <Text style={styles.ritualCardTitle}>Dengan Lumepo</Text>
-            <View style={styles.ritualCardDivider} />
             <View style={styles.ritualCardLines}>
               <Text style={styles.ritualCardItem}>Mulai dengan satu tombol</Text>
               <Text style={styles.ritualCardItem}>Tinggal ikuti langkahnya</Text>
@@ -950,8 +948,8 @@ const styles = StyleSheet.create({
   ritualCard: {
     width: "100%",
     aspectRatio: 16 / 9,
-    paddingHorizontal: 24,
-    paddingVertical: 18,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     borderRadius: radius.sm,
     borderWidth: 1,
     borderColor: `${colors.mutedText}2E`,
@@ -987,23 +985,18 @@ const styles = StyleSheet.create({
   },
   ritualCardTitle: {
     fontSize: typography.body,
-    fontWeight: "700",
+    fontWeight: "600",
     color: colors.text,
-    marginBottom: 6,
-  },
-  ritualCardDivider: {
-    height: 1,
-    backgroundColor: "rgba(0,0,0,0.06)",
-    marginVertical: 12,
+    marginBottom: 10,
   },
   ritualCardLines: {
-    gap: 6,
+    gap: 4,
   },
   ritualCardItem: {
-    fontSize: 17,
-    color: colors.mutedText,
-    lineHeight: 22,
-    fontWeight: "500",
+    fontSize: 16,
+    color: "rgba(0,0,0,0.7)",
+    lineHeight: 21,
+    fontWeight: "400",
   },
   faqList: {
     gap: spacing.sm,
