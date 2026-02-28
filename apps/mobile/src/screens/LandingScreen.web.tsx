@@ -148,6 +148,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         contentContainerStyle={[styles.content, isDesktop && styles.contentDesktop]}
         scrollEnabled={!isFoundingOpen}
       >
+      <View style={[styles.mainContent, isDesktop && styles.mainContentDesktop]}>
       <View
         nativeID="beranda"
         onLayout={(event) => {
@@ -332,7 +333,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
               isDesktop && styles.ritualSectionTitleDesktop,
             ]}
           >
-            Bukan konten. Sebuah kebiasaan
+            Bukan konten. Sebuah kebiasaan.
           </Text>
         </View>
 
@@ -377,7 +378,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         <View style={[styles.trustLayout, isDesktop ? styles.trustLayoutDesktop : styles.trustLayoutMobile]}>
           <View style={[styles.trustTextColumn, isDesktop && styles.trustTextColumnDesktop]}>
             <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.trustTitle]}>
-              Dibuat dari Pengalaman Nyata.
+              Dibuat dari Pengalaman Nyata
             </Text>
             <Text style={styles.trustBody}>
               Aplikasi ini lahir dari seseorang yang juga sering merasa sulit mematikan pikiran di malam hari. Bukan tentang menjadi lebih produktif, tapi tentang memberi diri sendiri ruang untuk berhenti.
@@ -438,6 +439,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
             <Image source={CLOSING_CTA_IMAGE} style={styles.heroImage} resizeMode="cover" />
           </View>
         </View>
+      </View>
       </View>
 
       <View style={styles.footerSection}>
@@ -542,13 +544,21 @@ const styles = StyleSheet.create({
   },
   content: {
     width: "100%",
-    paddingHorizontal: spacing.lg,
-    paddingVertical: SECTION_PAD_Y_MOBILE,
+    paddingTop: SECTION_PAD_Y_MOBILE,
+    paddingBottom: 0,
     gap: SECTION_GAP,
   },
   contentDesktop: {
-    paddingVertical: SECTION_PAD_Y_DESKTOP,
+    paddingTop: SECTION_PAD_Y_DESKTOP,
+    paddingBottom: 0,
     gap: SECTION_GAP,
+  },
+  mainContent: {
+    width: "100%",
+    paddingHorizontal: spacing.lg,
+  },
+  mainContentDesktop: {
+    paddingHorizontal: spacing.lg,
   },
   section: {
     width: "100%",
@@ -1167,22 +1177,21 @@ const styles = StyleSheet.create({
   footerSection: {
     width: "100%",
     backgroundColor: "#21325E",
-    alignSelf: "stretch",
-    marginHorizontal: -spacing.lg,
     marginTop: spacing.lg,
     marginBottom: 0,
+    paddingBottom: 32,
   },
   footerContent: {
     width: "100%",
     maxWidth: 1100,
     marginHorizontal: "auto",
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: 24,
     paddingVertical: 28,
     flexDirection: "column",
     gap: spacing.lg,
   },
   footerContentDesktop: {
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: 24,
     paddingVertical: 36,
     flexDirection: "row",
     justifyContent: "space-between",
