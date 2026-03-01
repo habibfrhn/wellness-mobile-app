@@ -13,7 +13,6 @@ type LandingScreenProps = {
 type SectionKey =
   | "beranda"
   | "hero"
-  | "untuk-siapa"
   | "cara-kerja"
   | "manfaat"
   | "trust"
@@ -22,9 +21,6 @@ type SectionKey =
 
 const MOBILE_BREAKPOINT = 640;
 const HERO_IMAGE = require("../../assets/image/landing-page/1.jpg");
-const EMPATHY_IMAGE_ONE = require("../../assets/image/landing-page/2.jpg");
-const EMPATHY_IMAGE_TWO = require("../../assets/image/landing-page/3.jpg");
-const EMPATHY_IMAGE_THREE = require("../../assets/image/landing-page/6.jpg");
 const EMPATHY_IMAGE_FOUR = require("../../assets/image/landing-page/4.jpg");
 const BENEFITS_IMAGE = require("../../assets/image/landing-page/8.jpg");
 const TRUST_IMAGE = require("../../assets/image/landing-page/9.jpg");
@@ -52,10 +48,9 @@ const SECTION_TITLE_STYLE_DESKTOP = {
 };
 const DESKTOP_TWO_COLUMN_GAP = 56;
 const SECTION_GAP = 0;
-const TRACKED_SECTIONS: SectionKey[] = ["beranda", "untuk-siapa", "cara-kerja", "manfaat", "faq"];
+const TRACKED_SECTIONS: SectionKey[] = ["beranda", "cara-kerja", "manfaat", "faq"];
 const HEADER_NAV_ITEMS: Array<{ key: SectionKey; label: string }> = [
   { key: "beranda", label: "Beranda" },
-  { key: "untuk-siapa", label: "Untuk Siapa" },
   { key: "manfaat", label: "Manfaat" },
   { key: "faq", label: "FAQ" },
 ];
@@ -70,7 +65,6 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
   const sectionOffsets = useRef<Record<SectionKey, number>>({
     beranda: 0,
     hero: 0,
-    "untuk-siapa": 0,
     "cara-kerja": 0,
     manfaat: 0,
     trust: 0,
@@ -212,51 +206,6 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
 
           <View style={[styles.heroImageCard, isDesktop && styles.heroImageCardDesktop]}>
             <Image source={HERO_IMAGE} style={styles.heroImage} resizeMode="cover" />
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.empathySectionOuter}>
-        <View
-          nativeID="untuk-siapa"
-          onLayout={(event) => {
-            sectionOffsets.current["untuk-siapa"] = event.nativeEvent.layout.y;
-          }}
-          style={[styles.empathySectionInner, isDesktop && styles.empathySectionInnerDesktop]}
-        >
-          <Text
-            style={[
-              styles.sectionTitle,
-              isDesktop && styles.sectionTitleDesktop,
-              styles.sectionTitleCentered,
-              styles.sectionTitleToContentGap,
-              isDesktop && styles.sectionTitleToContentGapDesktop,
-            ]}
-          >
-            Malam seharusnya jadi waktu beristirahat
-          </Text>
-
-          <View style={[styles.calmCardsRow, !isDesktop && styles.calmCardsColumn]}>
-            <View style={styles.calmCard}>
-              <Image source={EMPATHY_IMAGE_ONE} style={styles.calmCardImage} resizeMode="cover" />
-              <View style={styles.calmCardBody}>
-                <Text style={[styles.calmCardText, styles.empathyCardText]}>Seolah hari belum benar-benar berakhir.</Text>
-              </View>
-            </View>
-            <View style={styles.calmCard}>
-              <Image source={EMPATHY_IMAGE_TWO} style={styles.calmCardImage} resizeMode="cover" />
-              <View style={styles.calmCardBody}>
-                <Text style={[styles.calmCardText, styles.empathyCardText]}>
-                  Pikiran terus mengulang percakapan dan keputusan yang sudah lewat.
-                </Text>
-              </View>
-            </View>
-            <View style={styles.calmCard}>
-              <Image source={EMPATHY_IMAGE_THREE} style={styles.calmCardImage} resizeMode="cover" />
-              <View style={styles.calmCardBody}>
-                <Text style={[styles.calmCardText, styles.empathyCardText]}>Kamu ingin tenang, tapi tidak tahu mulai dari mana.</Text>
-              </View>
-            </View>
           </View>
         </View>
       </View>
@@ -403,9 +352,6 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
             <Text style={styles.footerHeading}>Navigasi</Text>
             <Pressable onPress={() => goToSection("beranda")} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
               <Text style={styles.footerLinkText}>Beranda</Text>
-            </Pressable>
-            <Pressable onPress={() => goToSection("untuk-siapa")} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
-              <Text style={styles.footerLinkText}>Untuk Siapa</Text>
             </Pressable>
             <Pressable onPress={() => goToSection("manfaat")} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
               <Text style={styles.footerLinkText}>Manfaat</Text>
@@ -689,56 +635,6 @@ const styles = StyleSheet.create({
   heroImage: {
     width: "100%",
     height: "100%",
-  },
-
-  empathySectionOuter: {
-    width: "100%",
-    backgroundColor: colors.white,
-  },
-  empathySectionInner: {
-    width: "100%",
-    maxWidth: 1100,
-    marginHorizontal: "auto",
-    paddingHorizontal: 24,
-    paddingVertical: SECTION_PAD_Y_MOBILE,
-    gap: 0,
-  },
-  empathySectionInnerDesktop: {
-    paddingVertical: SECTION_PAD_Y_DESKTOP,
-  },
-  empathyCardText: {
-    color: "#1C1C1C",
-  },
-  calmCardsRow: {
-    flexDirection: "row",
-    gap: spacing.md,
-  },
-  calmCardsColumn: {
-    flexDirection: "column",
-  },
-  calmCard: {
-    flex: 1,
-    borderRadius: 14,
-    backgroundColor: "#FFFFFF",
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 4,
-  },
-  calmCardImage: {
-    width: "100%",
-    height: 156,
-  },
-  calmCardBody: {
-    padding: 20,
-  },
-  calmCardText: {
-    fontSize: typography.body,
-    lineHeight: 24,
-    color: colors.text,
-    textAlign: "center",
   },
 
   processLayout: {
