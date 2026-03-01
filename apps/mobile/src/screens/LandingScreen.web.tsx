@@ -359,7 +359,17 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         }}
         style={[styles.section, isDesktop && styles.sectionDesktop]}
       >
-        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.sectionTitleToContentGap, isDesktop && styles.sectionTitleToContentGapDesktop]}>FAQ</Text>
+        <Text
+          style={[
+            styles.sectionTitle,
+            isDesktop && styles.sectionTitleDesktop,
+            styles.sectionTitleToContentGap,
+            isDesktop && styles.sectionTitleToContentGapDesktop,
+            styles.faqSectionTitle,
+          ]}
+        >
+          FAQ
+        </Text>
 
         <View style={styles.faqList}>
           <View style={styles.faqItem}>
@@ -856,6 +866,9 @@ const styles = StyleSheet.create({
   },
   sectionTitleToContentGapDesktop: {
     marginBottom: GAP_TITLE_TO_CONTENT_DESKTOP,
+  },
+  faqSectionTitle: {
+    color: "#000000",
   },
   sectionBody: {
     fontSize: typography.body,
