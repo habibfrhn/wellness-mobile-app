@@ -314,6 +314,10 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         style={[styles.section, isDesktop && styles.sectionDesktop]}
       >
         <View style={[styles.trustLayout, isDesktop ? styles.trustLayoutDesktop : styles.trustLayoutMobile]}>
+          <View style={[styles.trustImageCard, isDesktop && styles.trustImageCardDesktop]}>
+            <Image source={TRUST_IMAGE} style={styles.heroImage} resizeMode="cover" />
+          </View>
+
           <View style={[styles.trustTextColumn, isDesktop && styles.trustTextColumnDesktop]}>
             <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.trustTitle, styles.sectionTitleToContentGap, isDesktop && styles.sectionTitleToContentGapDesktop]}>
               Dibuat dari Pengalaman Nyata
@@ -321,10 +325,6 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
             <Text style={styles.trustBody}>
               Aplikasi ini lahir dari seseorang yang juga sering merasa sulit mematikan pikiran di malam hari. Bukan tentang menjadi lebih produktif, tapi tentang memberi diri sendiri ruang untuk berhenti.
             </Text>
-          </View>
-
-          <View style={[styles.trustImageCard, isDesktop && styles.trustImageCardDesktop]}>
-            <Image source={TRUST_IMAGE} style={styles.heroImage} resizeMode="cover" />
           </View>
         </View>
       </View>
@@ -890,7 +890,7 @@ const styles = StyleSheet.create({
   },
   trustImageCard: {
     width: "100%",
-    aspectRatio: 16 / 9,
+    aspectRatio: HERO_IMAGE_RATIO,
     borderRadius: radius.md,
     overflow: "hidden",
     backgroundColor: colors.white,
