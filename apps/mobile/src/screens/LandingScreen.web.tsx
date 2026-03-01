@@ -340,39 +340,50 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
 
       </View>
 
-      <View style={styles.footerSection}>
-        <View style={[styles.footerContent, isDesktop && styles.footerContentDesktop]}>
-          <View style={styles.footerColumn}>
+      <View style={styles.footerOuter}>
+        <View style={styles.footerInner}>
+          <View style={[styles.footerTopRow, isDesktop && styles.footerTopRowDesktop]}>
+            <View style={styles.footerColumn}>
             <Text style={styles.footerBrandTitle}>Lumepo</Text>
             <Text style={styles.footerDescription}>Ruang tenang untuk menutup hari dengan sadar.</Text>
             <Text style={styles.footerCopyright}>© 2025 Lumepo. Semua hak dilindungi.</Text>
-          </View>
+            </View>
 
-          <View style={styles.footerColumn}>
-            <Text style={styles.footerHeading}>Navigasi</Text>
-            <Pressable onPress={() => goToSection("beranda")} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
-              <Text style={styles.footerLinkText}>Beranda</Text>
-            </Pressable>
-            <Pressable onPress={() => goToSection("manfaat")} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
-              <Text style={styles.footerLinkText}>Manfaat</Text>
-            </Pressable>
-            <Pressable onPress={() => goToSection("faq")} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
-              <Text style={styles.footerLinkText}>FAQ</Text>
-            </Pressable>
-          </View>
+            <View style={styles.footerColumn}>
+              <Text style={styles.footerHeading}>Navigasi</Text>
+              <Pressable onPress={() => goToSection("beranda")} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
+                <Text style={styles.footerLinkText}>Beranda</Text>
+              </Pressable>
+              <Pressable onPress={() => goToSection("manfaat")} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
+                <Text style={styles.footerLinkText}>Manfaat</Text>
+              </Pressable>
+              <Pressable onPress={() => goToSection("faq")} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
+                <Text style={styles.footerLinkText}>FAQ</Text>
+              </Pressable>
+            </View>
 
-          <View style={styles.footerColumn}>
-            <Text style={styles.footerHeading}>Informasi</Text>
-            <Pressable onPress={() => {}} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
-              <Text style={styles.footerLinkText}>Kebijakan Privasi</Text>
-            </Pressable>
-            <Pressable onPress={() => {}} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
-              <Text style={styles.footerLinkText}>Syarat & Ketentuan</Text>
-            </Pressable>
-            <Pressable onPress={() => {}} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
-              <Text style={styles.footerLinkText}>Kontak</Text>
-            </Pressable>
-            <Text style={styles.footerContact}>hello@lumepo.id</Text>
+            <View style={styles.footerColumn}>
+              <Text style={styles.footerHeading}>Informasi</Text>
+              <Pressable onPress={() => {}} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
+                <Text style={styles.footerLinkText}>Kebijakan Privasi</Text>
+              </Pressable>
+              <Pressable onPress={() => {}} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
+                <Text style={styles.footerLinkText}>Syarat & Ketentuan</Text>
+              </Pressable>
+              <Pressable onPress={() => {}} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
+                <Text style={styles.footerLinkText}>Kontak</Text>
+              </Pressable>
+              <Text style={styles.footerContact}>hello@lumepo.id</Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.footerDivider} />
+
+        <View style={styles.footerInner}>
+          <View style={[styles.footerBottomRow, isDesktop && styles.footerBottomRowDesktop]}>
+            <Text style={styles.footerCopyright}>© 2025 Lumepo. Semua hak dilindungi.</Text>
+            <View />
           </View>
         </View>
       </View>
@@ -890,33 +901,50 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
 
-  footerSection: {
+  footerOuter: {
     width: "100%",
     backgroundColor: "#21325E",
     marginTop: spacing.lg,
     marginBottom: 0,
-    paddingBottom: 32,
   },
-  footerContent: {
+  footerInner: {
     width: "100%",
     maxWidth: 1100,
     marginHorizontal: "auto",
     paddingHorizontal: 24,
-    paddingVertical: 28,
-    flexDirection: "column",
-    gap: spacing.lg,
   },
-  footerContentDesktop: {
-    paddingHorizontal: 24,
-    paddingVertical: 36,
+  footerTopRow: {
+    flexDirection: "column",
+    gap: spacing.md,
+    paddingVertical: 30,
+  },
+  footerTopRowDesktop: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    gap: 40,
+    gap: 64,
   },
   footerColumn: {
     flex: 1,
     gap: spacing.xs,
+  },
+  footerDivider: {
+    width: "100%",
+    maxWidth: 1100,
+    marginHorizontal: "auto",
+    height: 1,
+    backgroundColor: "rgba(255,255,255,0.12)",
+  },
+  footerBottomRow: {
+    flexDirection: "column",
+    gap: spacing.sm,
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    paddingVertical: 16,
+  },
+  footerBottomRowDesktop: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   footerBrandTitle: {
     fontSize: typography.title,
