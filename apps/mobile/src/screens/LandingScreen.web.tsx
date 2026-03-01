@@ -281,7 +281,10 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
             <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.sectionTitleToContentGap, isDesktop && styles.sectionTitleToContentGapDesktop, styles.processTitleAlignment]}>
               Langkah kecil sebelum tidur
             </Text>
-            <Text style={styles.processSupportText}>Pilih. Ikuti. Tidur.</Text>
+            <Text style={styles.processSupportText}>
+              Cukup pilih mode yang kamu butuhkan, lalu biarkan langkahnya memandu kamu. Tanpa banyak
+              pilihan, tanpa distraksi.
+            </Text>
           </View>
         </View>
       </View>
@@ -807,8 +810,9 @@ const styles = StyleSheet.create({
   },
   processSupportText: {
     fontSize: typography.body,
-    lineHeight: 24,
+    lineHeight: 28,
     color: colors.mutedText,
+    textAlign: "left",
   },
 
 
@@ -853,18 +857,18 @@ const styles = StyleSheet.create({
 
   processImageCard: {
     width: "100%",
+    aspectRatio: HERO_IMAGE_RATIO,
     borderRadius: radius.md,
     overflow: "hidden",
     backgroundColor: colors.white,
   },
   processImageCardMobile: {
-    aspectRatio: 16 / 9,
+    width: "100%",
   },
   processImageCardDesktop: {
     flex: 1.2,
     flexBasis: "55%",
     width: "100%",
-    height: 340,
     maxWidth: 640,
   },
 
