@@ -330,6 +330,29 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
       </View>
 
       <View
+        nativeID="closing-cta"
+        onLayout={(event) => {
+          sectionOffsets.current["closing-cta"] = event.nativeEvent.layout.y;
+        }}
+        style={[styles.section, isDesktop && styles.sectionDesktop, styles.closingCtaSection]}
+      >
+        <View style={[styles.closingCtaLayout, isDesktop ? styles.closingCtaLayoutDesktop : styles.closingCtaLayoutMobile]}>
+          <View style={[styles.closingCtaTextColumn, isDesktop && styles.closingCtaTextColumnDesktop]}>
+            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.sectionTitleToContentGap, isDesktop && styles.sectionTitleToContentGapDesktop]}>Malam Ini, Kamu Bisa Memulainya</Text>
+            <Text style={styles.closingCtaSubtext}>Cukup 15 menit sebelum tidur.</Text>
+            <Pressable onPress={goToAuth} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.closingCtaButton]}>
+              <Text style={styles.landingButtonPrimaryText}>Mulai Gratis</Text>
+            </Pressable>
+            <Text style={styles.closingCtaMicrocopy}>Tanpa kartu kredit.</Text>
+          </View>
+
+          <View style={[styles.closingCtaImageCard, isDesktop && styles.closingCtaImageCardDesktop]}>
+            <Image source={CLOSING_CTA_IMAGE} style={styles.heroImage} resizeMode="cover" />
+          </View>
+        </View>
+      </View>
+
+      <View
         nativeID="faq"
         onLayout={(event) => {
           sectionOffsets.current.faq = event.nativeEvent.layout.y;
@@ -356,28 +379,6 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         </View>
       </View>
 
-      <View
-        nativeID="closing-cta"
-        onLayout={(event) => {
-          sectionOffsets.current["closing-cta"] = event.nativeEvent.layout.y;
-        }}
-        style={[styles.section, isDesktop && styles.sectionDesktop, styles.closingCtaSection]}
-      >
-        <View style={[styles.closingCtaLayout, isDesktop ? styles.closingCtaLayoutDesktop : styles.closingCtaLayoutMobile]}>
-          <View style={[styles.closingCtaTextColumn, isDesktop && styles.closingCtaTextColumnDesktop]}>
-            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.sectionTitleToContentGap, isDesktop && styles.sectionTitleToContentGapDesktop]}>Malam Ini, Kamu Bisa Memulainya</Text>
-            <Text style={styles.closingCtaSubtext}>Cukup 15 menit sebelum tidur.</Text>
-            <Pressable onPress={goToAuth} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.closingCtaButton]}>
-              <Text style={styles.landingButtonPrimaryText}>Mulai Gratis</Text>
-            </Pressable>
-            <Text style={styles.closingCtaMicrocopy}>Tanpa kartu kredit.</Text>
-          </View>
-
-          <View style={[styles.closingCtaImageCard, isDesktop && styles.closingCtaImageCardDesktop]}>
-            <Image source={CLOSING_CTA_IMAGE} style={styles.heroImage} resizeMode="cover" />
-          </View>
-        </View>
-      </View>
       </View>
 
       <View style={styles.footerSection}>
