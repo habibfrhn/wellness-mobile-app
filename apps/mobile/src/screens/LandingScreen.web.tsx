@@ -16,7 +16,6 @@ type SectionKey =
   | "untuk-siapa"
   | "cara-kerja"
   | "manfaat"
-  | "diferensiasi"
   | "trust"
   | "faq"
   | "closing-cta";
@@ -28,8 +27,6 @@ const EMPATHY_IMAGE_TWO = require("../../assets/image/landing-page/3.jpg");
 const EMPATHY_IMAGE_THREE = require("../../assets/image/landing-page/6.jpg");
 const EMPATHY_IMAGE_FOUR = require("../../assets/image/landing-page/4.jpg");
 const BENEFITS_IMAGE = require("../../assets/image/landing-page/8.jpg");
-const RITUAL_IMAGE_ONE = require("../../assets/image/landing-page/11.jpg");
-const RITUAL_IMAGE_TWO = require("../../assets/image/landing-page/7.jpg");
 const TRUST_IMAGE = require("../../assets/image/landing-page/9.jpg");
 const CLOSING_CTA_IMAGE = require("../../assets/image/landing-page/10.jpg");
 const HERO_GAP = 20;
@@ -76,7 +73,6 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
     "untuk-siapa": 0,
     "cara-kerja": 0,
     manfaat: 0,
-    diferensiasi: 0,
     trust: 0,
     faq: 0,
     "closing-cta": 0,
@@ -306,57 +302,6 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
 
           <View style={[styles.benefitsImageCard, isDesktop && styles.benefitsImageCardDesktop]}>
             <Image source={BENEFITS_IMAGE} style={styles.heroImage} resizeMode="cover" />
-          </View>
-        </View>
-      </View>
-
-      <View
-        nativeID="diferensiasi"
-        onLayout={(event) => {
-          sectionOffsets.current.diferensiasi = event.nativeEvent.layout.y;
-        }}
-        style={[styles.section, isDesktop && styles.sectionDesktop]}
-      >
-        <View>
-          <Text
-            style={[
-              styles.sectionTitle,
-              isDesktop && styles.sectionTitleDesktop,
-              styles.ritualSectionTitle,
-              isDesktop && styles.ritualSectionTitleDesktop,
-              styles.sectionTitleToContentGap,
-              isDesktop && styles.sectionTitleToContentGapDesktop,
-            ]}
-          >
-            Bukan konten. Sebuah kebiasaan.
-          </Text>
-        </View>
-
-        <View style={styles.ritualGrid}>
-          <View style={[styles.ritualCard, isDesktop && styles.ritualGridCardDesktop]}>
-            <Text style={styles.ritualCardTitle}>Yang sering terjadi</Text>
-            <View style={styles.ritualCardLines}>
-              <Text style={styles.ritualCardItem}>Kebanyakan pilihan</Text>
-              <Text style={styles.ritualCardItem}>Mudah terdistraksi</Text>
-              <Text style={styles.ritualCardItem}>Akhirnya tetap scrolling</Text>
-            </View>
-          </View>
-
-          <View style={[styles.ritualImageCard, isDesktop && styles.ritualGridCardDesktop]}>
-            <Image source={RITUAL_IMAGE_ONE} style={styles.ritualImage} resizeMode="cover" />
-          </View>
-
-          <View style={[styles.ritualImageCard, isDesktop && styles.ritualGridCardDesktop]}>
-            <Image source={RITUAL_IMAGE_TWO} style={styles.ritualImage} resizeMode="cover" />
-          </View>
-
-          <View style={[styles.ritualCard, isDesktop && styles.ritualGridCardDesktop]}>
-            <Text style={styles.ritualCardTitle}>Dengan Lumepo</Text>
-            <View style={styles.ritualCardLines}>
-              <Text style={styles.ritualCardItem}>Mulai dengan satu tombol</Text>
-              <Text style={styles.ritualCardItem}>Tinggal ikuti langkahnya</Text>
-              <Text style={styles.ritualCardItem}>Punya ruang untuk tenang</Text>
-            </View>
           </View>
         </View>
       </View>
@@ -872,71 +817,6 @@ const styles = StyleSheet.create({
     maxWidth: 640,
   },
 
-  ritualSectionTitle: {
-    textAlign: "left",
-  },
-  ritualSectionTitleDesktop: {
-    fontSize: 32,
-    lineHeight: 40,
-  },
-  ritualGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing.sm,
-  },
-  ritualCard: {
-    width: "100%",
-    aspectRatio: 16 / 9,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: `${colors.mutedText}2E`,
-    backgroundColor: colors.white,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 4,
-    justifyContent: "center",
-    gap: 0,
-  },
-  ritualGridCardDesktop: {
-    flexBasis: "49%",
-    maxWidth: "49%",
-  },
-  ritualImageCard: {
-    width: "100%",
-    aspectRatio: 16 / 9,
-    padding: 0,
-    borderRadius: radius.sm,
-    overflow: "hidden",
-    backgroundColor: colors.white,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 4,
-  },
-  ritualImage: {
-    width: "100%",
-    height: "100%",
-  },
-  ritualCardTitle: {
-    fontSize: typography.body,
-    fontWeight: "600",
-    color: colors.text,
-    marginBottom: 10,
-  },
-  ritualCardLines: {
-    gap: 4,
-  },
-  ritualCardItem: {
-    fontSize: 16,
-    color: "rgba(0,0,0,0.7)",
-    lineHeight: 21,
-    fontWeight: "400",
-  },
   faqList: {
     gap: spacing.sm,
   },
