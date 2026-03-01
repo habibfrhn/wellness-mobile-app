@@ -272,35 +272,16 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
         }}
         style={[styles.section, isDesktop && styles.sectionDesktop]}
       >
-        <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.processTitleSpacing, styles.sectionTitleToContentGap, isDesktop && styles.sectionTitleToContentGapDesktop]}>
-          Alur malam yang menenangkan
-        </Text>
-
         <View style={[styles.processLayout, isDesktop ? styles.processLayoutDesktop : styles.processLayoutMobile]}>
           <View style={[styles.processImageCard, !isDesktop && styles.processImageCardMobile, isDesktop && styles.processImageCardDesktop]}>
             <Image source={EMPATHY_IMAGE_FOUR} style={styles.heroImage} resizeMode="cover" />
           </View>
 
           <View style={[styles.processContentColumn, isDesktop && styles.processContentColumnDesktop]}>
-            <View style={styles.processStepsStack}>
-              <View style={[styles.stepCard, isDesktop && styles.stepCardDesktop]}>
-                <Text style={styles.stepTitle}>1) Pilih Mode Malam Ini</Text>
-                <Text style={styles.stepBody}>Tenangkan pikiran atau lepaskan beban hari.</Text>
-              </View>
-
-              <View style={[styles.stepCard, isDesktop && styles.stepCardDesktop]}>
-                <Text style={styles.stepTitle}>2) Ikuti Alur Terpandu</Text>
-                <Text style={styles.stepBody}>Tanpa perlu memilih lagi. Tanpa perlu berpikir lagi.</Text>
-              </View>
-
-              <View style={styles.stepCardWithNote}>
-                <View style={[styles.stepCard, isDesktop && styles.stepCardDesktop]}>
-                  <Text style={styles.stepTitle}>3) Biarkan Malam Bekerja</Text>
-                  <Text style={styles.stepBody}>Masuk tidur dengan lebih pelan dan stabil.</Text>
-                </View>
-                <Text style={styles.stepNote}>Total waktu sekitar 15 menit.</Text>
-              </View>
-            </View>
+            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.sectionTitleToContentGap, isDesktop && styles.sectionTitleToContentGapDesktop, styles.processTitleAlignment]}>
+              Langkah kecil sebelum tidur
+            </Text>
+            <Text style={styles.processSupportText}>Pilih. Ikuti. Tidur.</Text>
           </View>
         </View>
       </View>
@@ -821,55 +802,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     flexBasis: "45%",
   },
-  processTitleSpacing: {
+  processTitleAlignment: {
     textAlign: "left",
   },
-  processStepsStack: {
-    display: "flex",
-    flexDirection: "column",
-    gap: spacing.sm,
-  },
-  stepCardWithNote: {
-    gap: 6,
-  },
-
-  stepsRow: {
-    flexDirection: "row",
-    gap: spacing.sm,
-  },
-  stepsColumn: {
-    flexDirection: "column",
-  },
-  stepCard: {
-    justifyContent: "center",
-    paddingVertical: 11,
-    paddingHorizontal: 15,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: `${colors.mutedText}2E`,
-    backgroundColor: colors.white,
-    boxShadow: `0px 4px 16px ${colors.text}12`,
-    gap: 6,
-  },
-  stepTitle: {
-    fontSize: typography.body,
-    fontWeight: "700",
-    color: colors.text,
-  },
-  stepCardDesktop: {
-    minHeight: 80,
-  },
-  stepBody: {
+  processSupportText: {
     fontSize: typography.body,
     lineHeight: 24,
     color: colors.mutedText,
   },
-  stepNote: {
-    alignSelf: "flex-end",
-    fontSize: typography.small,
-    color: colors.mutedText,
-    fontWeight: "500",
-  },
+
 
   benefitsLayout: {
     width: "100%",
