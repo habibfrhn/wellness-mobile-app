@@ -930,8 +930,6 @@ const styles = StyleSheet.create({
   },
   footerDivider: {
     width: "100%",
-    maxWidth: 1100,
-    marginHorizontal: "auto",
     height: 1,
     backgroundColor: "rgba(255,255,255,0.12)",
   },
