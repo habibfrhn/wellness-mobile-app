@@ -223,7 +223,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
           </View>
 
           <View style={[styles.processContentColumn, isDesktop && styles.processContentColumnDesktop]}>
-            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.sectionTitleToContentGap, isDesktop && styles.sectionTitleToContentGapDesktop, styles.processTitleAlignment]}>
+            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.sectionTitleToContentGap, isDesktop && styles.sectionTitleToContentGapDesktop]}>
               Langkah kecil sebelum tidur
             </Text>
             <Text style={styles.processSupportText}>
@@ -667,9 +667,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     flexBasis: "45%",
-  },
-  processTitleAlignment: {
-    textAlign: "left",
   },
   processSupportText: {
     fontSize: typography.body,
