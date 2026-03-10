@@ -729,10 +729,9 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   processImageCardDesktop: {
-    flex: 1.2,
-    flexBasis: "55%",
+    flex: 1,
     width: "100%",
-    maxWidth: 640,
+    maxWidth: 460,
   },
 
   faqList: {
