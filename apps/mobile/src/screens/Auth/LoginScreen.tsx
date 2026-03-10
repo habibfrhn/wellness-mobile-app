@@ -1,5 +1,14 @@
 import React, { useMemo, useState } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  StyleSheet,
+  Alert,
+  Platform,
+  useWindowDimensions,
+} from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AuthStackParamList } from "../../navigation/types";
@@ -15,6 +24,8 @@ function isValidEmail(email: string) {
 }
 
 export default function LoginScreen({ navigation, route }: Props) {
+  const { width } = useWindowDimensions();
+  const isDesktopWeb = Platform.OS === "web" && width >= 900;
   const [email, setEmail] = useState(route.params?.initialEmail ?? "");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -36,7 +47,7 @@ export default function LoginScreen({ navigation, route }: Props) {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: e,
-        password
+        password,
       });
 
       if (error) {
@@ -57,12 +68,12 @@ export default function LoginScreen({ navigation, route }: Props) {
     }
   }
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{id.login.title}</Text>
-      <Text style={styles.subtitle}>{id.login.subtitle}</Text>
+  const content = (
+    <>
+      <Text style={[styles.title, isDesktopWeb && styles.titleDesktop]}>{id.login.title}</Text>
+      <Text style={[styles.subtitle, isDesktopWeb && styles.subtitleDesktop]}>{id.login.subtitle}</Text>
 
-      <View style={{ marginTop: spacing.lg, gap: spacing.sm }}>
+      <View style={[styles.formStack, isDesktopWeb && styles.formStackDesktop]}>
         <View>
           <Text style={styles.label}>{id.login.emailLabel}</Text>
           <TextInput
@@ -73,7 +84,7 @@ export default function LoginScreen({ navigation, route }: Props) {
             keyboardType="email-address"
             placeholder={id.login.emailPlaceholder}
             placeholderTextColor={colors.mutedText}
-            style={styles.input}
+            style={[styles.input, isDesktopWeb && styles.inputDesktop]}
           />
         </View>
 
@@ -88,7 +99,7 @@ export default function LoginScreen({ navigation, route }: Props) {
               secureTextEntry={!showPassword}
               placeholder={id.login.passwordPlaceholder}
               placeholderTextColor={colors.mutedText}
-              style={styles.input}
+              style={[styles.input, isDesktopWeb && styles.inputDesktop]}
             />
             <PasswordToggle
               visible={showPassword}
@@ -104,8 +115,9 @@ export default function LoginScreen({ navigation, route }: Props) {
           disabled={!canSubmit}
           style={({ pressed }) => [
             styles.primaryButton,
+            isDesktopWeb && styles.buttonDesktop,
             (!canSubmit || busy) && styles.disabled,
-            pressed && canSubmit && styles.pressed
+            pressed && canSubmit && styles.pressed,
           ]}
         >
           <Text style={styles.primaryButtonText}>{busy ? id.login.busyCta : id.login.primaryCta}</Text>
@@ -113,31 +125,65 @@ export default function LoginScreen({ navigation, route }: Props) {
 
         <Pressable
           onPress={() => navigation.navigate("ForgotPassword", { initialEmail: email.trim() })}
-          style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+          style={({ pressed }) => [styles.secondaryButton, isDesktopWeb && styles.buttonDesktop, pressed && styles.pressed]}
         >
           <Text style={styles.secondaryButtonText}>{id.login.forgot}</Text>
         </Pressable>
 
         <Pressable
           onPress={() => navigation.replace("SignUp", { initialEmail: email.trim() })}
-          style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+          style={({ pressed }) => [styles.secondaryButton, isDesktopWeb && styles.buttonDesktop, pressed && styles.pressed]}
         >
           <Text style={styles.secondaryButtonText}>{id.login.create}</Text>
         </Pressable>
       </View>
-    </View>
+    </>
   );
+
+  if (isDesktopWeb) {
+    return (
+      <View style={styles.webOuter}>
+        <View style={styles.webPanel}>{content}</View>
+      </View>
+    );
+  }
+
+  return <View style={styles.container}>{content}</View>;
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: spacing.lg, backgroundColor: colors.bg },
+  webOuter: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: spacing.xl,
+    backgroundColor: colors.bg,
+  },
+  webPanel: {
+    width: "100%",
+    maxWidth: 520,
+    padding: spacing.xl,
+    borderRadius: radius.md,
+    backgroundColor: colors.card,
+  },
   title: { fontSize: typography.h2, color: colors.text, fontWeight: "700" },
+  titleDesktop: {
+    fontSize: typography.h1,
+    textAlign: "center",
+  },
   subtitle: {
     marginTop: spacing.xs,
     fontSize: typography.body,
     color: colors.mutedText,
     lineHeight: lineHeights.relaxed,
   },
+  subtitleDesktop: {
+    marginTop: spacing.sm,
+    textAlign: "center",
+  },
+  formStack: { marginTop: spacing.lg, gap: spacing.sm },
+  formStackDesktop: { marginTop: spacing.xl, gap: spacing.md },
   label: { fontSize: typography.small, color: colors.text, fontWeight: "700", marginBottom: spacing.xs },
   inputWrap: { position: "relative" },
   input: {
@@ -147,19 +193,32 @@ const styles = StyleSheet.create({
     paddingRight: spacing.xl,
     fontSize: typography.body,
     color: colors.text,
-    backgroundColor: colors.card
+    backgroundColor: colors.card,
+  },
+  inputDesktop: {
+    minHeight: 52,
   },
   toggle: {
     position: "absolute",
     right: spacing.sm,
     top: 0,
     bottom: 0,
-    justifyContent: "center"
+    justifyContent: "center",
   },
-  primaryButton: { marginTop: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.primary },
+  primaryButton: {
+    marginTop: spacing.sm,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.sm,
+    backgroundColor: colors.primary,
+  },
+  buttonDesktop: {
+    minHeight: 52,
+    justifyContent: "center",
+  },
   primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
   secondaryButton: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.secondary },
   secondaryButtonText: { color: colors.secondaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
   disabled: { opacity: 0.6 },
-  pressed: { opacity: 0.85 }
+  pressed: { opacity: 0.85 },
 });
