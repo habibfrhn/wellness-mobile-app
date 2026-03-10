@@ -19,6 +19,10 @@ import PasswordToggle from "../../components/PasswordToggle";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
+type LayoutProps = {
+  children: React.ReactNode;
+};
+
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim().toLowerCase());
 }
@@ -147,14 +151,22 @@ export default function LoginScreen({ navigation, route }: Props) {
   );
 
   if (isDesktopWeb) {
-    return (
-      <View style={styles.webOuter}>
-        <View style={styles.webPanel}>{content}</View>
-      </View>
-    );
+    return <DesktopLayout>{content}</DesktopLayout>;
   }
 
-  return <View style={styles.mobileOuter}>{content}</View>;
+  return <MobileLayout>{content}</MobileLayout>;
+}
+
+function MobileLayout({ children }: LayoutProps) {
+  return <View style={styles.mobileOuter}>{children}</View>;
+}
+
+function DesktopLayout({ children }: LayoutProps) {
+  return (
+    <View style={styles.webOuter}>
+      <View style={styles.webPanel}>{children}</View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
