@@ -69,11 +69,13 @@ export default function LoginScreen({ navigation, route }: Props) {
   }
 
   const content = (
-    <>
-      <Text style={[styles.title, isDesktopWeb && styles.titleDesktop]}>{id.login.title}</Text>
-      <Text style={[styles.subtitle, isDesktopWeb && styles.subtitleDesktop]}>{id.login.subtitle}</Text>
+    <View style={[styles.content, isDesktopWeb && styles.contentDesktop]}>
+      <View style={styles.headerStack}>
+        <Text style={styles.title}>{id.login.title}</Text>
+        <Text style={styles.subtitle}>{id.login.subtitle}</Text>
+      </View>
 
-      <View style={[styles.formStack, isDesktopWeb && styles.formStackDesktop]}>
+      <View style={styles.formFields}>
         <View>
           <Text style={styles.label}>{id.login.emailLabel}</Text>
           <TextInput
@@ -109,7 +111,9 @@ export default function LoginScreen({ navigation, route }: Props) {
             />
           </View>
         </View>
+      </View>
 
+      <View style={styles.actionsStack}>
         <Pressable
           onPress={onSubmit}
           disabled={!canSubmit}
@@ -123,21 +127,23 @@ export default function LoginScreen({ navigation, route }: Props) {
           <Text style={styles.primaryButtonText}>{busy ? id.login.busyCta : id.login.primaryCta}</Text>
         </Pressable>
 
-        <Pressable
-          onPress={() => navigation.navigate("ForgotPassword", { initialEmail: email.trim() })}
-          style={({ pressed }) => [styles.secondaryButton, isDesktopWeb && styles.buttonDesktop, pressed && styles.pressed]}
-        >
-          <Text style={styles.secondaryButtonText}>{id.login.forgot}</Text>
-        </Pressable>
+        <View style={styles.linksGroup}>
+          <Pressable
+            onPress={() => navigation.navigate("ForgotPassword", { initialEmail: email.trim() })}
+            style={({ pressed }) => [styles.linkPressable, pressed && styles.pressed]}
+          >
+            <Text style={styles.linkText}>{id.login.forgot}</Text>
+          </Pressable>
 
-        <Pressable
-          onPress={() => navigation.replace("SignUp", { initialEmail: email.trim() })}
-          style={({ pressed }) => [styles.secondaryButton, isDesktopWeb && styles.buttonDesktop, pressed && styles.pressed]}
-        >
-          <Text style={styles.secondaryButtonText}>{id.login.create}</Text>
-        </Pressable>
+          <Pressable
+            onPress={() => navigation.replace("SignUp", { initialEmail: email.trim() })}
+            style={({ pressed }) => [styles.linkPressable, pressed && styles.pressed]}
+          >
+            <Text style={styles.linkText}>{id.login.create}</Text>
+          </Pressable>
+        </View>
       </View>
-    </>
+    </View>
   );
 
   if (isDesktopWeb) {
@@ -148,45 +154,66 @@ export default function LoginScreen({ navigation, route }: Props) {
     );
   }
 
-  return <View style={styles.container}>{content}</View>;
+  return <View style={styles.mobileOuter}>{content}</View>;
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: spacing.lg, backgroundColor: colors.bg },
+  mobileOuter: {
+    flex: 1,
+    backgroundColor: colors.white,
+    paddingHorizontal: spacing.lg,
+    paddingTop: 60,
+  },
   webOuter: {
     flex: 1,
+    backgroundColor: colors.white,
     alignItems: "center",
     justifyContent: "center",
     padding: spacing.xl,
-    backgroundColor: colors.bg,
   },
   webPanel: {
     width: "100%",
-    maxWidth: 520,
-    padding: spacing.xl,
-    borderRadius: radius.md,
-    backgroundColor: colors.card,
+    maxWidth: 440,
+    padding: 36,
+    borderRadius: 16,
+    backgroundColor: colors.white,
+    boxShadow: "0px 8px 28px rgba(33,50,94,0.12)",
   },
-  title: { fontSize: typography.h2, color: colors.text, fontWeight: "700" },
-  titleDesktop: {
+  content: {
+    width: "100%",
+  },
+  contentDesktop: {
+    width: "100%",
+  },
+  headerStack: {
+    alignItems: "center",
+    gap: spacing.xs,
+  },
+  title: {
     fontSize: typography.h1,
+    color: colors.text,
+    fontWeight: "700",
     textAlign: "center",
   },
   subtitle: {
-    marginTop: spacing.xs,
-    fontSize: typography.body,
+    fontSize: typography.small,
     color: colors.mutedText,
     lineHeight: lineHeights.relaxed,
-  },
-  subtitleDesktop: {
-    marginTop: spacing.sm,
     textAlign: "center",
   },
-  formStack: { marginTop: spacing.lg, gap: spacing.sm },
-  formStackDesktop: { marginTop: spacing.xl, gap: spacing.md },
-  label: { fontSize: typography.small, color: colors.text, fontWeight: "700", marginBottom: spacing.xs },
-  inputWrap: { position: "relative" },
+  formFields: {
+    marginTop: spacing.xl,
+    gap: spacing.sm,
+  },
+  label: {
+    fontSize: typography.small,
+    color: colors.text,
+    fontWeight: "700",
+    marginBottom: spacing.xs,
+  },
+  inputWrap: { position: "relative", width: "100%" },
   input: {
+    width: "100%",
     borderRadius: radius.sm,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
@@ -205,20 +232,41 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: "center",
   },
+  actionsStack: {
+    marginTop: 24,
+    gap: 12,
+  },
   primaryButton: {
-    marginTop: spacing.sm,
+    width: "100%",
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     borderRadius: radius.sm,
     backgroundColor: colors.primary,
+    justifyContent: "center",
   },
   buttonDesktop: {
     minHeight: 52,
-    justifyContent: "center",
   },
-  primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
-  secondaryButton: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.secondary },
-  secondaryButtonText: { color: colors.secondaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
+  primaryButtonText: {
+    color: colors.primaryText,
+    fontSize: typography.body,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+  linksGroup: {
+    alignItems: "center",
+    gap: spacing.xs,
+  },
+  linkPressable: {
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+  },
+  linkText: {
+    color: colors.primary,
+    fontSize: typography.body,
+    fontWeight: "600",
+    textAlign: "center",
+  },
   disabled: { opacity: 0.6 },
   pressed: { opacity: 0.85 },
 });
