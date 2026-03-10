@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, Pressable, StyleSheet, Alert, Platform } from "react-native";
 import * as Linking from "expo-linking";
-import * as IntentLauncher from "expo-intent-launcher";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AuthStackParamList } from "../../navigation/types";
@@ -9,10 +8,10 @@ import { colors, spacing, radius, typography, lineHeights } from "../../theme/to
 import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
 
-type Props = NativeStackScreenProps<AuthStackParamList, "VerifyEmail">;
-
 // Android Intent flags
-const FLAG_ACTIVITY_NEW_TASK = 0x10000000; // 268435456 :contentReference[oaicite:2]{index=2}
+const FLAG_ACTIVITY_NEW_TASK = 0x10000000;
+
+type Props = NativeStackScreenProps<AuthStackParamList, "VerifyEmail">;
 
 export default function VerifyEmailScreen({ route, navigation }: Props) {
   const email = route.params.email;
@@ -32,9 +31,10 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
       if (Platform.OS === "android") {
         // Open the user's email app as its own task (outside our task),
         // so our app remains running and the user can return normally.
+        const IntentLauncher = await import("expo-intent-launcher");
         await IntentLauncher.startActivityAsync("android.intent.action.MAIN", {
           category: "android.intent.category.APP_EMAIL",
-          flags: FLAG_ACTIVITY_NEW_TASK, // supported by expo-intent-launcher :contentReference[oaicite:3]{index=3}
+          flags: FLAG_ACTIVITY_NEW_TASK,
         });
         return;
       }
