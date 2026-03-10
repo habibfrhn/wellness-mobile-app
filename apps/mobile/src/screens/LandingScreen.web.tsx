@@ -1,14 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { NavigationProp, ParamListBase } from "@react-navigation/native";
+import { NavigationProp, ParamListBase, useNavigation } from "@react-navigation/native";
 import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { colors, radius, spacing, typography } from "../theme/tokens";
 import useViewportWidth from "../hooks/useViewportWidth";
 import WebResponsiveFrame from "../components/WebResponsiveFrame";
 
-type LandingScreenProps = {
-  navigation: NavigationProp<ParamListBase>;
-};
 
 type SectionKey =
   | "beranda"
@@ -55,7 +52,8 @@ const HEADER_NAV_ITEMS: Array<{ key: SectionKey; label: string }> = [
   { key: "faq", label: "FAQ" },
 ];
 
-export default function LandingScreen({ navigation }: LandingScreenProps) {
+export default function LandingScreen() {
+  const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const scrollRef = useRef<ScrollView | null>(null);
   const [isFoundingOpen, setIsFoundingOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -74,8 +72,12 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
 
   const isDesktop = viewportWidth > MOBILE_BREAKPOINT;
 
-  const goToAuth = () => {
-    navigation.navigate("Auth");
+  const goToLogin = () => {
+    navigation.navigate("Login");
+  };
+
+  const goToSignUp = () => {
+    navigation.navigate("SignUp");
   };
 
   const goToSection = (key: SectionKey) => {
@@ -174,11 +176,11 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
 
         <View style={styles.headerActions}>
           {isDesktop ? (
-            <Pressable onPress={goToAuth} style={[styles.textButton, styles.headerTextButton]}>
+            <Pressable onPress={goToLogin} style={[styles.textButton, styles.headerTextButton]}>
               <Text style={styles.textButtonLabel}>Masuk</Text>
             </Pressable>
           ) : null}
-          <Pressable onPress={goToAuth} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, isDesktop && styles.headerPrimaryButtonCompact]}>
+          <Pressable onPress={goToSignUp} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, isDesktop && styles.headerPrimaryButtonCompact]}>
             <Text style={styles.landingButtonPrimaryText}>Buat akun</Text>
           </Pressable>
         </View>
@@ -195,7 +197,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
           <View style={[styles.heroTextColumn, isDesktop && styles.heroTextColumnDesktop]}>
             <Text style={[styles.heroTitle, isDesktop && styles.heroTitleDesktop]}>Tutup hari dengan lebih tenang</Text>
             <View style={[styles.heroCtaRow, styles.heroCtaRowBreathing, isDesktop && styles.heroCtaRowDesktop]}>
-              <Pressable onPress={goToAuth} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.heroCtaButton]}>
+              <Pressable onPress={goToSignUp} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.heroCtaButton]}>
                 <Text style={styles.landingButtonPrimaryText}>Mulai gratis</Text>
               </Pressable>
               <Pressable onPress={() => setIsFoundingOpen(true)} style={[styles.landingButtonBase, styles.landingButtonSecondary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.heroCtaButton]}>
@@ -289,7 +291,7 @@ export default function LandingScreen({ navigation }: LandingScreenProps) {
           <View style={[styles.closingCtaTextColumn, isDesktop && styles.closingCtaTextColumnDesktop]}>
             <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.sectionTitleToContentGap, isDesktop && styles.sectionTitleToContentGapDesktop]}>Malam Ini, Kamu Bisa Memulainya</Text>
             <Text style={styles.closingCtaSubtext}>Cukup 15 menit sebelum tidur.</Text>
-            <Pressable onPress={goToAuth} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.closingCtaButton]}>
+            <Pressable onPress={goToSignUp} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.closingCtaButton]}>
               <Text style={styles.landingButtonPrimaryText}>Mulai Gratis</Text>
             </Pressable>
             <Text style={styles.closingCtaMicrocopy}>Tanpa kartu kredit.</Text>
