@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, Pressable, Alert } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AuthStackParamList } from "../../navigation/types";
-import { colors, spacing, radius, typography, lineHeights } from "../../theme/tokens";
+import { colors } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase, AUTH_RESET } from "../../services/supabase";
+import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "ForgotPassword">;
 
@@ -29,7 +30,7 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
     setBusy(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(e, {
-        redirectTo: AUTH_RESET
+        redirectTo: AUTH_RESET,
       });
 
       if (error) {
@@ -38,7 +39,7 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
       }
 
       Alert.alert(id.forgot.successTitle, id.forgot.successBody, [
-        { text: id.common.ok, onPress: () => navigation.replace("Login", { initialEmail: e }) }
+        { text: id.common.ok, onPress: () => navigation.replace("Login", { initialEmail: e }) },
       ]);
     } finally {
       setBusy(false);
@@ -46,13 +47,10 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{id.forgot.title}</Text>
-      <Text style={styles.subtitle}>{id.forgot.subtitle}</Text>
-
-      <View style={{ marginTop: spacing.lg, gap: spacing.sm }}>
+    <AuthScreenLayout title={id.forgot.title} subtitle={id.forgot.subtitle}>
+      <View style={authSharedStyles.formFields}>
         <View>
-          <Text style={styles.label}>{id.forgot.emailLabel}</Text>
+          <Text style={authSharedStyles.label}>{id.forgot.emailLabel}</Text>
           <TextInput
             value={email}
             onChangeText={setEmail}
@@ -61,55 +59,31 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
             keyboardType="email-address"
             placeholder={id.forgot.emailPlaceholder}
             placeholderTextColor={colors.mutedText}
-            style={styles.input}
+            style={authSharedStyles.input}
           />
         </View>
 
-        <Pressable
-          onPress={onSubmit}
-          disabled={!canSubmit}
-          style={({ pressed }) => [
-            styles.primaryButton,
-            (!canSubmit || busy) && styles.disabled,
-            pressed && canSubmit && styles.pressed
-          ]}
-        >
-          <Text style={styles.primaryButtonText}>{busy ? id.forgot.sending : id.forgot.send}</Text>
-        </Pressable>
+        <View style={authSharedStyles.actionsStack}>
+          <Pressable
+            onPress={onSubmit}
+            disabled={!canSubmit}
+            style={({ pressed }) => [
+              authSharedStyles.primaryButton,
+              (!canSubmit || busy) && authSharedStyles.disabled,
+              pressed && canSubmit && authSharedStyles.pressed,
+            ]}
+          >
+            <Text style={authSharedStyles.primaryButtonText}>{busy ? id.forgot.sending : id.forgot.send}</Text>
+          </Pressable>
 
-        <Pressable
-          onPress={() => navigation.replace("Login", { initialEmail: email.trim() })}
-          style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
-        >
-          <Text style={styles.secondaryButtonText}>{id.forgot.backToLogin}</Text>
-        </Pressable>
+          <Pressable
+            onPress={() => navigation.replace("Login", { initialEmail: email.trim() })}
+            style={({ pressed }) => [authSharedStyles.secondaryButton, pressed && authSharedStyles.pressed]}
+          >
+            <Text style={authSharedStyles.secondaryButtonText}>{id.forgot.backToLogin}</Text>
+          </Pressable>
+        </View>
       </View>
-    </View>
+    </AuthScreenLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: spacing.lg, backgroundColor: colors.bg },
-  title: { fontSize: typography.h2, color: colors.text, fontWeight: "700" },
-  subtitle: {
-    marginTop: spacing.xs,
-    fontSize: typography.body,
-    color: colors.mutedText,
-    lineHeight: lineHeights.relaxed,
-  },
-  label: { fontSize: typography.small, color: colors.text, fontWeight: "700", marginBottom: spacing.xs },
-  input: {
-    borderRadius: radius.sm,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    fontSize: typography.body,
-    color: colors.text,
-    backgroundColor: colors.card
-  },
-  primaryButton: { marginTop: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.primary },
-  primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
-  secondaryButton: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.secondary },
-  secondaryButtonText: { color: colors.secondaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
-  disabled: { opacity: 0.6 },
-  pressed: { opacity: 0.85 }
-});

@@ -3,10 +3,11 @@ import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-nativ
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AuthStackParamList } from "../../navigation/types";
-import { colors, spacing, radius, typography, lineHeights } from "../../theme/tokens";
+import { colors, spacing, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase, AUTH_CALLBACK } from "../../services/supabase";
 import PasswordToggle from "../../components/PasswordToggle";
+import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "SignUp">;
 
@@ -39,10 +40,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
   async function onSubmit() {
     const issues = validate();
     if (issues.length > 0) {
-      Alert.alert(
-        "Periksa kembali",
-        issues.map((x) => `• ${x}`).join("\n")
-      );
+      Alert.alert("Periksa kembali", issues.map((x) => `• ${x}`).join("\n"));
       return;
     }
 
@@ -53,7 +51,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
       const { error } = await supabase.auth.signUp({
         email: e,
         password,
-        options: { emailRedirectTo: AUTH_CALLBACK }
+        options: { emailRedirectTo: AUTH_CALLBACK },
       });
 
       if (error) {
@@ -68,13 +66,10 @@ export default function SignUpScreen({ navigation, route }: Props) {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{id.signup.title}</Text>
-      <Text style={styles.subtitle}>{id.signup.subtitle}</Text>
-
-      <View style={{ marginTop: spacing.lg, gap: spacing.sm }}>
+    <AuthScreenLayout title={id.signup.title} subtitle={id.signup.subtitle}>
+      <View style={authSharedStyles.formFields}>
         <View>
-          <Text style={styles.label}>{id.signup.emailLabel}</Text>
+          <Text style={authSharedStyles.label}>{id.signup.emailLabel}</Text>
           <TextInput
             value={email}
             onChangeText={setEmail}
@@ -83,13 +78,13 @@ export default function SignUpScreen({ navigation, route }: Props) {
             keyboardType="email-address"
             placeholder={id.signup.emailPlaceholder}
             placeholderTextColor={colors.mutedText}
-            style={styles.input}
+            style={authSharedStyles.input}
           />
         </View>
 
         <View>
-          <Text style={styles.label}>{id.signup.passwordLabel}</Text>
-          <View style={styles.inputWrap}>
+          <Text style={authSharedStyles.label}>{id.signup.passwordLabel}</Text>
+          <View style={authSharedStyles.inputWrap}>
             <TextInput
               value={password}
               onChangeText={setPassword}
@@ -98,7 +93,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
               secureTextEntry={!showPassword}
               placeholder={id.signup.passwordPlaceholder}
               placeholderTextColor={colors.mutedText}
-              style={styles.input}
+              style={authSharedStyles.input}
             />
             <PasswordToggle
               visible={showPassword}
@@ -110,8 +105,8 @@ export default function SignUpScreen({ navigation, route }: Props) {
         </View>
 
         <View>
-          <Text style={styles.label}>{id.signup.confirmPasswordLabel}</Text>
-          <View style={styles.inputWrap}>
+          <Text style={authSharedStyles.label}>{id.signup.confirmPasswordLabel}</Text>
+          <View style={authSharedStyles.inputWrap}>
             <TextInput
               value={confirm}
               onChangeText={setConfirm}
@@ -120,7 +115,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
               secureTextEntry={!showConfirm}
               placeholder={id.signup.confirmPasswordPlaceholder}
               placeholderTextColor={colors.mutedText}
-              style={styles.input}
+              style={authSharedStyles.input}
             />
             <PasswordToggle
               visible={showConfirm}
@@ -131,82 +126,45 @@ export default function SignUpScreen({ navigation, route }: Props) {
           </View>
         </View>
 
-        <Pressable
-          onPress={onSubmit}
-          disabled={!canPress}
-          style={({ pressed }) => [
-            styles.primaryButton,
-            !canPress && styles.disabled,
-            pressed && canPress && styles.pressed
-          ]}
-        >
-          <Text style={styles.primaryButtonText}>
-            {busy ? id.signup.busyCta : id.signup.primaryCta}
-          </Text>
-        </Pressable>
+        <View style={authSharedStyles.actionsStack}>
+          <Pressable
+            onPress={onSubmit}
+            disabled={!canPress}
+            style={({ pressed }) => [
+              authSharedStyles.primaryButton,
+              !canPress && authSharedStyles.disabled,
+              pressed && canPress && authSharedStyles.pressed,
+            ]}
+          >
+            <Text style={authSharedStyles.primaryButtonText}>{busy ? id.signup.busyCta : id.signup.primaryCta}</Text>
+          </Pressable>
 
-        <Pressable
-          onPress={() => navigation.replace("Login", { initialEmail: email.trim() })}
-          style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
-        >
-          <Text style={styles.secondaryButtonText}>{id.signup.secondaryCta}</Text>
-        </Pressable>
+          <Pressable
+            onPress={() => navigation.replace("Login", { initialEmail: email.trim() })}
+            style={({ pressed }) => [authSharedStyles.secondaryButton, pressed && authSharedStyles.pressed]}
+          >
+            <Text style={authSharedStyles.secondaryButtonText}>{id.signup.secondaryCta}</Text>
+          </Pressable>
+        </View>
 
         <Text style={styles.finePrint}>{id.signup.finePrint}</Text>
       </View>
-    </View>
+    </AuthScreenLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: spacing.lg, backgroundColor: colors.bg },
-  title: { fontSize: typography.h2, color: colors.text, fontWeight: "700" },
-  subtitle: {
-    marginTop: spacing.xs,
-    fontSize: typography.body,
-    color: colors.mutedText,
-    lineHeight: lineHeights.relaxed,
-  },
-
-  label: { fontSize: typography.small, color: colors.text, fontWeight: "700", marginBottom: spacing.xs },
-  inputWrap: { position: "relative" },
-  input: {
-    borderRadius: radius.sm,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    paddingRight: spacing.xl,
-    fontSize: typography.body,
-    color: colors.text,
-    backgroundColor: colors.card
-  },
-
   toggle: {
     position: "absolute",
     right: spacing.sm,
     top: 0,
     bottom: 0,
-    justifyContent: "center"
+    justifyContent: "center",
   },
-
-  primaryButton: {
-    marginTop: spacing.sm,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.sm,
-    backgroundColor: colors.primary
+  finePrint: {
+    color: colors.mutedText,
+    fontSize: typography.caption,
+    textAlign: "center",
+    marginTop: spacing.xs,
   },
-  primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
-
-  secondaryButton: {
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.sm,
-    backgroundColor: colors.secondary
-  },
-  secondaryButtonText: { color: colors.secondaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
-
-  finePrint: { marginTop: spacing.sm, fontSize: typography.small, color: colors.mutedText, textAlign: "center" },
-
-  disabled: { opacity: 0.6 },
-  pressed: { opacity: 0.85 }
 });

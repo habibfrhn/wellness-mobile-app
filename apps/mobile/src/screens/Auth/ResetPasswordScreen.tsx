@@ -3,10 +3,11 @@ import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-nativ
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AuthStackParamList } from "../../navigation/types";
-import { colors, spacing, radius, typography, lineHeights } from "../../theme/tokens";
+import { colors, spacing } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
 import PasswordToggle from "../../components/PasswordToggle";
+import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "ResetPassword">;
 
@@ -40,7 +41,6 @@ export default function ResetPasswordScreen({ navigation }: Props) {
         return;
       }
 
-      // Security: sign out after password change, force re-login
       await supabase.auth.signOut();
       navigation.replace("Login");
     } finally {
@@ -49,14 +49,11 @@ export default function ResetPasswordScreen({ navigation }: Props) {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{id.reset.title}</Text>
-      <Text style={styles.subtitle}>{id.reset.subtitle}</Text>
-
-      <View style={{ marginTop: spacing.lg, gap: spacing.sm }}>
+    <AuthScreenLayout title={id.reset.title} subtitle={id.reset.subtitle}>
+      <View style={authSharedStyles.formFields}>
         <View>
-          <Text style={styles.label}>{id.reset.newPassword}</Text>
-          <View style={styles.inputWrap}>
+          <Text style={authSharedStyles.label}>{id.reset.newPassword}</Text>
+          <View style={authSharedStyles.inputWrap}>
             <TextInput
               value={password}
               onChangeText={setPassword}
@@ -65,7 +62,7 @@ export default function ResetPasswordScreen({ navigation }: Props) {
               secureTextEntry={!showPassword}
               placeholder={id.reset.placeholderNew}
               placeholderTextColor={colors.mutedText}
-              style={styles.input}
+              style={authSharedStyles.input}
             />
             <PasswordToggle
               visible={showPassword}
@@ -77,8 +74,8 @@ export default function ResetPasswordScreen({ navigation }: Props) {
         </View>
 
         <View>
-          <Text style={styles.label}>{id.reset.confirmPassword}</Text>
-          <View style={styles.inputWrap}>
+          <Text style={authSharedStyles.label}>{id.reset.confirmPassword}</Text>
+          <View style={authSharedStyles.inputWrap}>
             <TextInput
               value={confirm}
               onChangeText={setConfirm}
@@ -87,7 +84,7 @@ export default function ResetPasswordScreen({ navigation }: Props) {
               secureTextEntry={!showConfirm}
               placeholder={id.reset.placeholderConfirm}
               placeholderTextColor={colors.mutedText}
-              style={styles.input}
+              style={authSharedStyles.input}
             />
             <PasswordToggle
               visible={showConfirm}
@@ -98,60 +95,37 @@ export default function ResetPasswordScreen({ navigation }: Props) {
           </View>
         </View>
 
-        <Pressable
-          onPress={onSubmit}
-          disabled={!canSubmit}
-          style={({ pressed }) => [
-            styles.primaryButton,
-            (!canSubmit || busy) && styles.disabled,
-            pressed && canSubmit && styles.pressed
-          ]}
-        >
-          <Text style={styles.primaryButtonText}>{busy ? id.reset.saving : id.reset.set}</Text>
-        </Pressable>
+        <View style={authSharedStyles.actionsStack}>
+          <Pressable
+            onPress={onSubmit}
+            disabled={!canSubmit}
+            style={({ pressed }) => [
+              authSharedStyles.primaryButton,
+              (!canSubmit || busy) && authSharedStyles.disabled,
+              pressed && canSubmit && authSharedStyles.pressed,
+            ]}
+          >
+            <Text style={authSharedStyles.primaryButtonText}>{busy ? id.reset.saving : id.reset.set}</Text>
+          </Pressable>
 
-        <Pressable
-          onPress={() => navigation.replace("Login")}
-          style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
-        >
-          <Text style={styles.secondaryButtonText}>{id.reset.backToLogin}</Text>
-        </Pressable>
+          <Pressable
+            onPress={() => navigation.replace("Login")}
+            style={({ pressed }) => [authSharedStyles.secondaryButton, pressed && authSharedStyles.pressed]}
+          >
+            <Text style={authSharedStyles.secondaryButtonText}>{id.reset.backToLogin}</Text>
+          </Pressable>
+        </View>
       </View>
-    </View>
+    </AuthScreenLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: spacing.lg, backgroundColor: colors.bg },
-  title: { fontSize: typography.h2, color: colors.text, fontWeight: "700" },
-  subtitle: {
-    marginTop: spacing.xs,
-    fontSize: typography.body,
-    color: colors.mutedText,
-    lineHeight: lineHeights.relaxed,
-  },
-  label: { fontSize: typography.small, color: colors.text, fontWeight: "700", marginBottom: spacing.xs },
-  inputWrap: { position: "relative" },
-  input: {
-    borderRadius: radius.sm,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    paddingRight: spacing.xl,
-    fontSize: typography.body,
-    color: colors.text,
-    backgroundColor: colors.card
-  },
   toggle: {
     position: "absolute",
     right: spacing.sm,
     top: 0,
     bottom: 0,
-    justifyContent: "center"
+    justifyContent: "center",
   },
-  primaryButton: { marginTop: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.primary },
-  primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
-  secondaryButton: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.sm, backgroundColor: colors.secondary },
-  secondaryButtonText: { color: colors.secondaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
-  disabled: { opacity: 0.6 },
-  pressed: { opacity: 0.85 }
 });
