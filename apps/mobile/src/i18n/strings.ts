@@ -59,6 +59,9 @@ export const id = {
   login: {
     title: "Masuk",
     subtitle: "Jika email Anda belum terverifikasi, kami akan mengarahkan Anda ke halaman verifikasi.",
+    welcomeTitle: "Selamat datang",
+    welcomeSubtitle: "Masuk untuk mengakses Lumepo",
+    brandSupport: "Ruang tenang untuk menutup hari.",
     emailLabel: "Email",
     passwordLabel: "Kata sandi",
     emailPlaceholder: "anda@email.com",
@@ -67,6 +70,7 @@ export const id = {
     busyCta: "Memproses...",
     forgot: "Lupa kata sandi",
     create: "Buat akun",
+    noAccountPrefix: "Tidak punya akun?",
   },
 
   verify: {

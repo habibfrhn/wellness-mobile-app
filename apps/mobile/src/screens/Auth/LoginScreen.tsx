@@ -8,7 +8,6 @@ import {
   Alert,
   Platform,
   useWindowDimensions,
-  Image,
 } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -17,6 +16,8 @@ import { colors, spacing, radius, typography, lineHeights } from "../../theme/to
 import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
 import PasswordToggle from "../../components/PasswordToggle";
+import LoginBrandPanel from "../../components/auth/LoginBrandPanel";
+import LoginSignUpPrompt from "../../components/auth/LoginSignUpPrompt";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
@@ -24,7 +25,6 @@ type LayoutProps = {
   children: React.ReactNode;
 };
 
-const LOGIN_SIDE_IMAGE = require("../../../assets/image/landing-page/1.jpg");
 
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim().toLowerCase());
@@ -76,8 +76,8 @@ export default function LoginScreen({ navigation, route }: Props) {
   const content = (
     <View style={[styles.content, isDesktopWeb && styles.contentDesktop]}>
       <View style={styles.headerStack}>
-        <Text style={styles.title}>Selamat datang</Text>
-        <Text style={styles.subtitle}>Masuk untuk mengakses Lumepo</Text>
+        <Text style={styles.title}>{id.login.welcomeTitle}</Text>
+        <Text style={styles.subtitle}>{id.login.welcomeSubtitle}</Text>
       </View>
 
       <View style={styles.formFields}>
@@ -145,12 +145,7 @@ export default function LoginScreen({ navigation, route }: Props) {
           <Text style={styles.primaryButtonText}>{busy ? id.login.busyCta : id.login.primaryCta}</Text>
         </Pressable>
 
-        <Pressable
-          onPress={() => navigation.replace("SignUp", { initialEmail: email.trim() })}
-          style={({ pressed }) => [styles.linkPressable, pressed && styles.pressed]}
-        >
-          <Text style={styles.linkText}>Tidak punya akun? Buat akun</Text>
-        </Pressable>
+        <LoginSignUpPrompt onPressSignUp={() => navigation.replace("SignUp", { initialEmail: email.trim() })} />
       </View>
     </View>
   );
@@ -172,13 +167,7 @@ function DesktopLayout({ children }: LayoutProps) {
       <View style={styles.webSplitLayout}>
         <View style={styles.webLeftColumn}>
           <View style={styles.webLeftContent}>
-            <View style={styles.leftImageCard}>
-              <Image source={LOGIN_SIDE_IMAGE} style={styles.leftImage} resizeMode="cover" />
-            </View>
-            <Text style={styles.brandTitle}>Tempat untuk kamu beristirahat</Text>
-            <Text style={styles.brandDescription}>
-              Lumepo membantu kamu memperlambat ritme malam, menenangkan pikiran, dan menutup hari dengan damai.
-            </Text>
+            <LoginBrandPanel />
           </View>
         </View>
 
@@ -219,28 +208,8 @@ const styles = StyleSheet.create({
   webLeftContent: {
     width: "100%",
     maxWidth: 460,
-    gap: spacing.md,
-  },
-  leftImageCard: {
-    width: "100%",
-    aspectRatio: 4 / 3,
-    borderRadius: radius.md,
-    overflow: "hidden",
-    backgroundColor: colors.card,
-  },
-  leftImage: {
-    width: "100%",
-    height: "100%",
-  },
-  brandTitle: {
-    fontSize: typography.h1,
-    color: colors.text,
-    fontWeight: "700",
-  },
-  brandDescription: {
-    fontSize: typography.body,
-    color: colors.mutedText,
-    lineHeight: lineHeights.relaxed,
+    alignItems: "center",
+    justifyContent: "center",
   },
   webRightColumn: {
     flex: 1,
@@ -263,20 +232,20 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   headerStack: {
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: spacing.xs,
   },
   title: {
     fontSize: typography.h1,
     color: colors.text,
     fontWeight: "700",
-    textAlign: "center",
+    textAlign: "left",
   },
   subtitle: {
     fontSize: typography.small,
     color: colors.mutedText,
     lineHeight: lineHeights.relaxed,
-    textAlign: "center",
+    textAlign: "left",
   },
   formFields: {
     marginTop: spacing.xl,
@@ -298,6 +267,8 @@ const styles = StyleSheet.create({
     fontSize: typography.body,
     color: colors.text,
     backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.mutedText,
   },
   inputDesktop: {
     minHeight: 52,
@@ -368,17 +339,6 @@ const styles = StyleSheet.create({
     color: colors.primaryText,
     fontSize: typography.body,
     fontWeight: "700",
-    textAlign: "center",
-  },
-  linkPressable: {
-    alignSelf: "center",
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
-  },
-  linkText: {
-    color: colors.primary,
-    fontSize: typography.body,
-    fontWeight: "600",
     textAlign: "center",
   },
   disabled: { opacity: 0.6 },
