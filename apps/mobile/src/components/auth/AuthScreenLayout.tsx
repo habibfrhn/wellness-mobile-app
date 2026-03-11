@@ -1,5 +1,6 @@
-import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useLayoutEffect } from "react";
+import { ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 import { colors, lineHeights, radius, spacing, typography } from "../../theme/tokens";
 
@@ -7,9 +8,37 @@ type Props = {
   title: string;
   subtitle?: string;
   children: React.ReactNode;
+  showCloseButton?: boolean;
 };
 
-export default function AuthScreenLayout({ title, subtitle, children }: Props) {
+export default function AuthScreenLayout({ title, subtitle, children, showCloseButton = true }: Props) {
+  const navigation = useNavigation();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: "",
+      headerShadowVisible: false,
+      headerLeft: showCloseButton
+        ? () => (
+            <Pressable
+              onPress={() => {
+                const parent = navigation.getParent();
+                if (parent) {
+                  parent.navigate("Landing" as never);
+                  return;
+                }
+                navigation.navigate("Welcome" as never);
+              }}
+              style={({ pressed }) => [styles.closeButton, pressed && authSharedStyles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel="Tutup"
+            >
+              <Text style={styles.closeText}>✕</Text>
+            </Pressable>
+          )
+        : undefined,
+    });
+  }, [navigation, showCloseButton]);
   return (
     <ScrollView
       style={styles.screen}
@@ -116,6 +145,17 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     backgroundColor: colors.white,
     boxShadow: "0px 8px 28px rgba(33,50,94,0.12)",
+  },
+  closeButton: {
+    width: 36,
+    height: 36,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  closeText: {
+    fontSize: typography.title,
+    color: colors.text,
+    fontWeight: "700",
   },
   headerStack: {
     alignItems: "flex-start",

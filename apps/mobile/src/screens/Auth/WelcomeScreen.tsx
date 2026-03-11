@@ -9,7 +9,7 @@ type Props = NativeStackScreenProps<AuthStackParamList, "Welcome">;
 
 export default function WelcomeScreen({ navigation }: Props) {
   return (
-    <AuthScreenLayout title={id.welcome.title} subtitle={id.welcome.subtitle}>
+    <AuthScreenLayout title={id.welcome.title} subtitle={id.welcome.subtitle} showCloseButton={false}>
       <View style={authSharedStyles.actionsStack}>
         <Pressable
           onPress={() => navigation.navigate("SignUp")}

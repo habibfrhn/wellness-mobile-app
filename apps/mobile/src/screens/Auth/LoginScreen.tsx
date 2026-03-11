@@ -42,7 +42,14 @@ export default function LoginScreen({ navigation, route }: Props) {
       headerShadowVisible: false,
       headerLeft: () => (
         <Pressable
-          onPress={() => navigation.replace("Welcome")}
+          onPress={() => {
+            const parent = navigation.getParent();
+            if (parent) {
+              parent.navigate("Landing" as never);
+              return;
+            }
+            navigation.navigate("Welcome");
+          }}
           style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]}
           accessibilityRole="button"
           accessibilityLabel={id.login.closeLabel}

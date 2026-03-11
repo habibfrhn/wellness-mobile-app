@@ -11,13 +11,13 @@ import ResetPasswordScreen from "../screens/Auth/ResetPasswordScreen";
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
-export default function AuthStack(props: { initialRouteName?: keyof AuthStackParamList }) {
+export default function AuthStack(props: { initialRouteName?: keyof AuthStackParamList; includeWelcome?: boolean }) {
   return (
     <Stack.Navigator
-      initialRouteName={props.initialRouteName ?? "Welcome"}
+      initialRouteName={props.initialRouteName ?? (props.includeWelcome === false ? "Login" : "Welcome")}
       screenOptions={{ headerTitleAlign: "center" }}
     >
-      <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ title: "" }} />
+      {props.includeWelcome === false ? null : <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ title: "" }} />}
       <Stack.Screen name="SignUp" component={SignUpScreen} options={{ title: "Daftar" }} />
       <Stack.Screen name="Login" component={LoginScreen} options={{ title: "" }} />
       <Stack.Screen name="VerifyEmail" component={VerifyEmailScreen} options={{ title: "Verifikasi email" }} />

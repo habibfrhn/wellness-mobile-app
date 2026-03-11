@@ -241,9 +241,17 @@ export default function App() {
                     const resolvedInitialRoute =
                       requestedRoute === "Login" || requestedRoute === "SignUp"
                         ? requestedRoute
-                        : initialAuthRoute;
+                        : initialAuthRoute === "ResetPassword"
+                          ? "ResetPassword"
+                          : "Login";
 
-                    return <AuthStack key={`auth-${resolvedInitialRoute}`} initialRouteName={resolvedInitialRoute} />;
+                    return (
+                      <AuthStack
+                        key={`auth-${resolvedInitialRoute}`}
+                        initialRouteName={resolvedInitialRoute}
+                        includeWelcome={false}
+                      />
+                    );
                   }}
                 </RootStack.Screen>
                 <RootStack.Screen name="App" component={AppStack} />
