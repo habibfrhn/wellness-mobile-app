@@ -219,7 +219,13 @@ export default function App() {
 
   const shouldShowAuth = forceReset || !session || !isVerified;
   const initialAuthRoute =
-    authStartRoute === "Login" ? "Login" : forceReset ? "ResetPassword" : authStartRoute;
+    authStartRoute === "Login"
+      ? "Login"
+      : authStartRoute === "SignUp"
+        ? "SignUp"
+        : forceReset
+          ? "ResetPassword"
+          : authStartRoute;
 
   return (
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>

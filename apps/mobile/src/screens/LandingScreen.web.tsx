@@ -1,16 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
-import { NavigationProp, NavigatorScreenParams, useNavigation } from "@react-navigation/native";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { colors, radius, spacing, typography } from "../theme/tokens";
-import type { AuthStackParamList } from "../navigation/types";
+import { setNextAuthRoute } from "../services/authStart";
 import useViewportWidth from "../hooks/useViewportWidth";
 import WebResponsiveFrame from "../components/WebResponsiveFrame";
 
 
 type RootStackParamList = {
   Landing: undefined;
-  Auth: NavigatorScreenParams<AuthStackParamList> | undefined;
+  Auth: undefined;
   App: undefined;
 };
 
@@ -80,20 +80,16 @@ export default function LandingScreen() {
 
   const isDesktop = viewportWidth > MOBILE_BREAKPOINT;
 
-  const goToLogin = () => {
-    console.log("Masuk clicked");
-    navigation.navigate("Auth", { screen: "Login" });
+  const goToLogin = async () => {
+    await setNextAuthRoute("Login");
+    navigation.navigate("Auth");
   };
 
-  const goToSignUp = () => {
-    console.log("Buat akun clicked");
-    navigation.navigate("Auth", { screen: "SignUp" });
+  const goToSignUp = async () => {
+    await setNextAuthRoute("SignUp");
+    navigation.navigate("Auth");
   };
 
-  const goToTryFree = () => {
-    console.log("Coba gratis clicked");
-    navigation.navigate("Auth", { screen: "SignUp" });
-  };
 
   const goToSection = (key: SectionKey) => {
     scrollRef.current?.scrollTo({ y: sectionOffsets.current[key], animated: true });
@@ -212,7 +208,7 @@ export default function LandingScreen() {
           <View style={[styles.heroTextColumn, isDesktop && styles.heroTextColumnDesktop]}>
             <Text style={[styles.heroTitle, isDesktop && styles.heroTitleDesktop]}>Tutup hari dengan lebih tenang</Text>
             <View style={[styles.heroCtaRow, styles.heroCtaRowBreathing, isDesktop && styles.heroCtaRowDesktop]}>
-              <Pressable onPress={goToTryFree} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.heroCtaButton]}>
+              <Pressable onPress={goToLogin} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.heroCtaButton]}>
                 <Text style={styles.landingButtonPrimaryText}>Mulai gratis</Text>
               </Pressable>
               <Pressable onPress={() => setIsFoundingOpen(true)} style={[styles.landingButtonBase, styles.landingButtonSecondary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.heroCtaButton]}>
