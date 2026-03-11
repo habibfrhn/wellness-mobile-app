@@ -164,7 +164,18 @@ function MobileLayout({ children }: LayoutProps) {
 function DesktopLayout({ children }: LayoutProps) {
   return (
     <View style={styles.webOuter}>
-      <View style={styles.webPanel}>{children}</View>
+      <View style={styles.webSplitLayout}>
+        <View style={styles.webLeftColumn}>
+          <View style={styles.webLeftContent}>
+            <Text style={styles.brandTitle}>Lumepo</Text>
+            <Text style={styles.brandDescription}>{id.welcome.subtitle}</Text>
+          </View>
+        </View>
+
+        <View style={styles.webRightColumn}>
+          <View style={styles.webPanel}>{children}</View>
+        </View>
+      </View>
     </View>
   );
 }
@@ -182,6 +193,39 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: spacing.xl,
+  },
+  webSplitLayout: {
+    width: "100%",
+    maxWidth: 1200,
+    flexDirection: "row",
+    alignItems: "stretch",
+    minHeight: 560,
+  },
+  webLeftColumn: {
+    flex: 1,
+    justifyContent: "center",
+    paddingHorizontal: spacing.xl,
+  },
+  webLeftContent: {
+    width: "100%",
+    maxWidth: 420,
+    gap: spacing.sm,
+  },
+  brandTitle: {
+    fontSize: typography.h1,
+    color: colors.text,
+    fontWeight: "700",
+  },
+  brandDescription: {
+    fontSize: typography.body,
+    color: colors.mutedText,
+    lineHeight: lineHeights.relaxed,
+  },
+  webRightColumn: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: spacing.lg,
   },
   webPanel: {
     width: "100%",
