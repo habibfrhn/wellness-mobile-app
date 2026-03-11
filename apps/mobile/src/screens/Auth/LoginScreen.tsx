@@ -8,6 +8,7 @@ import {
   Alert,
   Platform,
   useWindowDimensions,
+  Image,
 } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -23,6 +24,8 @@ type LayoutProps = {
   children: React.ReactNode;
 };
 
+const LOGIN_SIDE_IMAGE = require("../../../assets/image/landing-page/1.jpg");
+
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim().toLowerCase());
 }
@@ -34,6 +37,7 @@ export default function LoginScreen({ navigation, route }: Props) {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const canSubmit = useMemo(() => {
     return isValidEmail(email) && password.length > 0 && !busy;
@@ -59,14 +63,11 @@ export default function LoginScreen({ navigation, route }: Props) {
         return;
       }
 
-      // If not verified, keep user in auth flow
       const verified = Boolean(data.user?.email_confirmed_at);
       if (!verified) {
         navigation.replace("VerifyEmail", { email: e });
         return;
       }
-
-      // App.tsx will route verified users to AppStack automatically.
     } finally {
       setBusy(false);
     }
@@ -75,8 +76,8 @@ export default function LoginScreen({ navigation, route }: Props) {
   const content = (
     <View style={[styles.content, isDesktopWeb && styles.contentDesktop]}>
       <View style={styles.headerStack}>
-        <Text style={styles.title}>{id.login.title}</Text>
-        <Text style={styles.subtitle}>{id.login.subtitle}</Text>
+        <Text style={styles.title}>Selamat datang</Text>
+        <Text style={styles.subtitle}>Masuk untuk mengakses Lumepo</Text>
       </View>
 
       <View style={styles.formFields}>
@@ -117,6 +118,19 @@ export default function LoginScreen({ navigation, route }: Props) {
         </View>
       </View>
 
+      <View style={styles.metaRow}>
+        <Pressable onPress={() => setRememberMe((v) => !v)} style={styles.rememberWrap}>
+          <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
+            {rememberMe ? <View style={styles.checkboxInner} /> : null}
+          </View>
+          <Text style={styles.metaText}>Ingat saya</Text>
+        </Pressable>
+
+        <Pressable onPress={() => navigation.navigate("ForgotPassword", { initialEmail: email.trim() })}>
+          <Text style={styles.metaLink}>Lupa password?</Text>
+        </Pressable>
+      </View>
+
       <View style={styles.actionsStack}>
         <Pressable
           onPress={onSubmit}
@@ -131,21 +145,12 @@ export default function LoginScreen({ navigation, route }: Props) {
           <Text style={styles.primaryButtonText}>{busy ? id.login.busyCta : id.login.primaryCta}</Text>
         </Pressable>
 
-        <View style={styles.linksGroup}>
-          <Pressable
-            onPress={() => navigation.navigate("ForgotPassword", { initialEmail: email.trim() })}
-            style={({ pressed }) => [styles.linkPressable, pressed && styles.pressed]}
-          >
-            <Text style={styles.linkText}>{id.login.forgot}</Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => navigation.replace("SignUp", { initialEmail: email.trim() })}
-            style={({ pressed }) => [styles.linkPressable, pressed && styles.pressed]}
-          >
-            <Text style={styles.linkText}>{id.login.create}</Text>
-          </Pressable>
-        </View>
+        <Pressable
+          onPress={() => navigation.replace("SignUp", { initialEmail: email.trim() })}
+          style={({ pressed }) => [styles.linkPressable, pressed && styles.pressed]}
+        >
+          <Text style={styles.linkText}>Tidak punya akun? Buat akun</Text>
+        </Pressable>
       </View>
     </View>
   );
@@ -167,8 +172,13 @@ function DesktopLayout({ children }: LayoutProps) {
       <View style={styles.webSplitLayout}>
         <View style={styles.webLeftColumn}>
           <View style={styles.webLeftContent}>
-            <Text style={styles.brandTitle}>Lumepo</Text>
-            <Text style={styles.brandDescription}>{id.welcome.subtitle}</Text>
+            <View style={styles.leftImageCard}>
+              <Image source={LOGIN_SIDE_IMAGE} style={styles.leftImage} resizeMode="cover" />
+            </View>
+            <Text style={styles.brandTitle}>Tempat untuk kamu beristirahat</Text>
+            <Text style={styles.brandDescription}>
+              Lumepo membantu kamu memperlambat ritme malam, menenangkan pikiran, dan menutup hari dengan damai.
+            </Text>
           </View>
         </View>
 
@@ -208,8 +218,19 @@ const styles = StyleSheet.create({
   },
   webLeftContent: {
     width: "100%",
-    maxWidth: 420,
-    gap: spacing.sm,
+    maxWidth: 460,
+    gap: spacing.md,
+  },
+  leftImageCard: {
+    width: "100%",
+    aspectRatio: 4 / 3,
+    borderRadius: radius.md,
+    overflow: "hidden",
+    backgroundColor: colors.card,
+  },
+  leftImage: {
+    width: "100%",
+    height: "100%",
   },
   brandTitle: {
     fontSize: typography.h1,
@@ -288,9 +309,49 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: "center",
   },
+  metaRow: {
+    marginTop: spacing.sm,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  rememberWrap: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+  },
+  checkbox: {
+    width: 18,
+    height: 18,
+    borderRadius: radius.xs,
+    borderWidth: 1,
+    borderColor: colors.mutedText,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colors.white,
+  },
+  checkboxChecked: {
+    borderColor: colors.primary,
+  },
+  checkboxInner: {
+    width: 10,
+    height: 10,
+    borderRadius: radius.xs,
+    backgroundColor: colors.primary,
+  },
+  metaText: {
+    fontSize: typography.small,
+    color: colors.text,
+  },
+  metaLink: {
+    fontSize: typography.small,
+    color: colors.primary,
+    fontWeight: "600",
+  },
   actionsStack: {
-    marginTop: 24,
-    gap: 12,
+    marginTop: spacing.md,
+    gap: spacing.sm,
   },
   primaryButton: {
     width: "100%",
@@ -309,11 +370,8 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     textAlign: "center",
   },
-  linksGroup: {
-    alignItems: "center",
-    gap: spacing.xs,
-  },
   linkPressable: {
+    alignSelf: "center",
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.sm,
   },
