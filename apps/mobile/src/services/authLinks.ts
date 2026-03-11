@@ -1,12 +1,33 @@
 import * as Linking from "expo-linking";
 import { supabase } from "./supabase";
 
+type AuthLinkType = "signup" | "recovery" | "magiclink" | "email_change" | "unknown";
+
+function resolveAuthPath(url: URL, parsedPath: string | null): "auth/callback" | "auth/reset" | null {
+  const cleanParsedPath = (parsedPath ?? "").replace(/^\/+/, "").toLowerCase();
+  const cleanUrlPath = url.pathname.replace(/^\/+/, "").toLowerCase();
+  const flowParam = url.searchParams.get("auth_flow")?.toLowerCase();
+
+  if (cleanParsedPath === "auth/callback" || cleanUrlPath === "auth/callback" || flowParam === "callback") {
+    return "auth/callback";
+  }
+
+  if (cleanParsedPath === "auth/reset" || cleanUrlPath === "auth/reset" || flowParam === "reset") {
+    return "auth/reset";
+  }
+
+  return null;
+}
+
+function mapLinkType(type: string | null): AuthLinkType {
+  if (type === "signup" || type === "recovery" || type === "magiclink" || type === "email_change") {
+    return type;
+  }
+  return "unknown";
+}
+
 /**
- * Handles Supabase auth links such as:
- * - wellnessapp://auth/callback?code=...
- * - wellnessapp://auth/reset?code=...
- *
- * Supabase uses a code exchange flow in mobile (PKCE).
+ * Handles Supabase auth links for web and native.
  */
 export async function handleAuthLink(url: string) {
   const parsed = Linking.parse(url);
@@ -18,12 +39,11 @@ export async function handleAuthLink(url: string) {
     if (fromSearch) return fromSearch;
     const fromHash = hashParams.get(key);
     if (fromHash) return fromHash;
-    const fromParsed =
-      typeof parsed.queryParams?.[key] === "string" ? (parsed.queryParams?.[key] as string) : null;
+    const fromParsed = typeof parsed.queryParams?.[key] === "string" ? (parsed.queryParams?.[key] as string) : null;
     return fromParsed ?? null;
   };
 
-  const path = (parsed.path ?? "").toLowerCase();
+  const path = resolveAuthPath(parsedUrl, parsed.path ?? null);
   const code = getParam("code");
   const tokenHash = getParam("token_hash");
   const token = getParam("token");
@@ -31,9 +51,9 @@ export async function handleAuthLink(url: string) {
   const email = getParam("email");
   const accessToken = getParam("access_token");
   const refreshToken = getParam("refresh_token");
+  const linkType = mapLinkType(type);
 
-  const isAuthPath = path === "auth/callback" || path === "auth/reset";
-  if (!isAuthPath) return { handled: false as const };
+  if (!path) return { handled: false as const };
 
   if (code) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
@@ -43,7 +63,8 @@ export async function handleAuthLink(url: string) {
         handled: true as const,
         ok: false as const,
         path,
-        error: error.message
+        linkType,
+        error: error.message,
       };
     }
 
@@ -51,7 +72,8 @@ export async function handleAuthLink(url: string) {
       handled: true as const,
       ok: true as const,
       path,
-      session: data.session
+      linkType,
+      session: data.session,
     };
   }
 
@@ -66,17 +88,19 @@ export async function handleAuthLink(url: string) {
         handled: true as const,
         ok: false as const,
         path,
-        error: error.message
+        linkType,
+        error: error.message,
       };
     }
 
-    const resolvedPath = type === "recovery" ? "auth/reset" : path;
+    const resolvedPath = linkType === "recovery" ? "auth/reset" : path;
 
     return {
       handled: true as const,
       ok: true as const,
       path: resolvedPath,
-      session: data.session
+      linkType,
+      session: data.session,
     };
   }
 
@@ -92,19 +116,27 @@ export async function handleAuthLink(url: string) {
         handled: true as const,
         ok: false as const,
         path,
-        error: error.message
+        linkType,
+        error: error.message,
       };
     }
 
-    const resolvedPath = type === "recovery" ? "auth/reset" : path;
+    const resolvedPath = linkType === "recovery" ? "auth/reset" : path;
 
     return {
       handled: true as const,
       ok: true as const,
       path: resolvedPath,
-      session: data.session
+      linkType,
+      session: data.session,
     };
   }
 
-  return { handled: false as const };
+  return {
+    handled: true as const,
+    ok: false as const,
+    path,
+    linkType,
+    error: "tautan-tidak-valid",
+  };
 }

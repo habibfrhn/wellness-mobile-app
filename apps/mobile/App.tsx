@@ -15,7 +15,7 @@ import LandingScreen from "./src/screens/LandingScreen";
 import { id } from "./src/i18n/strings";
 import { hideSplashScreen, preventAutoHideSplashScreen } from "./src/services/splashScreen";
 import { setPendingUpdate } from "./src/services/updatesState";
-import { clearNextAuthRoute, getNextAuthRoute } from "./src/services/authStart";
+import { clearNextAuthRoute, getNextAuthRoute, setNextAuthRoute } from "./src/services/authStart";
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
 
@@ -80,10 +80,58 @@ export default function App() {
     let linkSubscription: { remove: () => void } | undefined;
     let authSubscription: { unsubscribe: () => void } | undefined;
 
+    function getAuthLinkErrorCopy(error?: string) {
+      const normalized = (error ?? "").toLowerCase();
+
+      if (normalized.includes("expired") || normalized.includes("otp_expired") || normalized.includes("flow_state_expired")) {
+        return { title: id.common.linkExpiredTitle, body: id.common.linkExpiredBody };
+      }
+
+      if (normalized.includes("already") || normalized.includes("verified")) {
+        return { title: id.common.linkAlreadyUsedTitle, body: id.common.linkAlreadyUsedBody };
+      }
+
+      return { title: id.common.linkInvalidTitle, body: id.common.linkInvalidBody };
+    }
+
+    function cleanupWebAuthUrl() {
+      if (Platform.OS !== "web" || typeof window === "undefined") {
+        return;
+      }
+
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+
     async function processUrl(url: string) {
       const res = await handleAuthLink(url);
-      if (res.handled && res.ok && res.path === "auth/reset") {
+      if (!res.handled) {
+        return;
+      }
+
+      cleanupWebAuthUrl();
+
+      if (!res.ok) {
+        const copy = getAuthLinkErrorCopy(res.error);
+        Alert.alert(copy.title, copy.body);
+        await setNextAuthRoute("Login");
+        setAuthStartRoute("Login");
+        setForceReset(false);
+        return;
+      }
+
+      if (res.path === "auth/reset") {
         setForceReset(true);
+        await setNextAuthRoute("ResetPassword");
+        setAuthStartRoute("ResetPassword");
+        return;
+      }
+
+      const isEmailVerificationLink = res.linkType === "signup" || res.linkType === "email_change";
+      if (isEmailVerificationLink) {
+        await supabase.auth.signOut();
+        await setNextAuthRoute("Login");
+        setAuthStartRoute("Login");
+        setForceReset(false);
       }
     }
 

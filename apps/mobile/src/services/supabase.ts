@@ -1,5 +1,6 @@
 import "react-native-url-polyfill/auto";
 import { AppState, Platform } from "react-native";
+import * as Linking from "expo-linking";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient, processLock, type SupabaseClient } from "@supabase/supabase-js";
 
@@ -43,6 +44,24 @@ if (!globalRef.__wellnessSupabaseClient) {
   globalRef.__wellnessSupabaseClient = supabase;
 }
 
+
+function getWebBaseUrl() {
+  if (typeof window !== "undefined" && window.location?.origin) {
+    return window.location.origin;
+  }
+
+  const fallback = Linking.createURL("/");
+  return fallback.endsWith("/") ? fallback.slice(0, -1) : fallback;
+}
+
+function buildAuthRedirectPath(flow: "callback" | "reset") {
+  if (Platform.OS === "web") {
+    return `${getWebBaseUrl()}/?auth_flow=${flow}`;
+  }
+
+  return `wellnessapp://auth/${flow}`;
+}
+
 if (Platform.OS !== "web") {
   AppState.addEventListener("change", (state) => {
     if (state === "active") supabase.auth.startAutoRefresh();
@@ -50,5 +69,5 @@ if (Platform.OS !== "web") {
   });
 }
 
-export const AUTH_CALLBACK = "wellnessapp://auth/callback";
-export const AUTH_RESET = "wellnessapp://auth/reset";
+export const AUTH_CALLBACK = buildAuthRedirectPath("callback");
+export const AUTH_RESET = buildAuthRedirectPath("reset");
