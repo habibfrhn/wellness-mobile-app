@@ -39,6 +39,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: typography.body,
     fontWeight: "600",
+    textDecorationLine: "underline",
   },
   pressed: { opacity: 0.85 },
 });

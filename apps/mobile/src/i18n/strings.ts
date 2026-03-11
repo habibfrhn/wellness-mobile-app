@@ -60,8 +60,7 @@ export const id = {
     title: "Masuk",
     subtitle: "Jika email Anda belum terverifikasi, kami akan mengarahkan Anda ke halaman verifikasi.",
     welcomeTitle: "Selamat datang",
-    welcomeSubtitle: "Masuk untuk mengakses Lumepo",
-    brandSupport: "Ruang tenang untuk menutup hari.",
+    formSubtitle: "Gunakan email dan kata sandi untuk mengakses Lumepo",
     emailLabel: "Email",
     passwordLabel: "Kata sandi",
     emailPlaceholder: "anda@email.com",
@@ -71,6 +70,11 @@ export const id = {
     forgot: "Lupa kata sandi",
     create: "Buat akun",
     noAccountPrefix: "Tidak punya akun?",
+    closeLabel: "Tutup dan kembali ke landing",
+    errorBothRequired: "Silakan isi email dan kata sandi",
+    errorEmailRequired: "Email belum diisi",
+    errorPasswordRequired: "Kata sandi belum diisi",
+    errorInvalidCredentials: "Email atau kata sandi salah",
   },
 
   verify: {

@@ -19,7 +19,7 @@ export default function AuthStack(props: { initialRouteName?: keyof AuthStackPar
     >
       <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ title: "" }} />
       <Stack.Screen name="SignUp" component={SignUpScreen} options={{ title: "Daftar" }} />
-      <Stack.Screen name="Login" component={LoginScreen} options={{ title: "Masuk" }} />
+      <Stack.Screen name="Login" component={LoginScreen} options={{ title: "" }} />
       <Stack.Screen name="VerifyEmail" component={VerifyEmailScreen} options={{ title: "Verifikasi email" }} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ title: "Lupa kata sandi" }} />
       <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} options={{ title: "Atur ulang kata sandi" }} />
