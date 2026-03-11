@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Alert, LogBox, Platform, View } from "react-native";
 import * as Linking from "expo-linking";
 import * as Updates from "expo-updates";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, NavigatorScreenParams } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -21,7 +21,7 @@ type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"][
 
 type RootStackParamList = {
   Landing: undefined;
-  Auth: undefined;
+  Auth: NavigatorScreenParams<AuthStackParamList> | undefined;
   App: undefined;
 };
 
@@ -236,7 +236,15 @@ export default function App() {
               <RootStack.Navigator initialRouteName="Landing" screenOptions={{ headerShown: false }}>
                 <RootStack.Screen name="Landing" component={LandingScreen} />
                 <RootStack.Screen name="Auth">
-                  {() => <AuthStack key={`auth-${initialAuthRoute}`} initialRouteName={initialAuthRoute} />}
+                  {({ route }) => {
+                    const requestedRoute = route.params?.screen;
+                    const resolvedInitialRoute =
+                      requestedRoute === "Login" || requestedRoute === "SignUp"
+                        ? requestedRoute
+                        : initialAuthRoute;
+
+                    return <AuthStack key={`auth-${resolvedInitialRoute}`} initialRouteName={resolvedInitialRoute} />;
+                  }}
                 </RootStack.Screen>
                 <RootStack.Screen name="App" component={AppStack} />
               </RootStack.Navigator>
