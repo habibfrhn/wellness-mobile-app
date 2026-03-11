@@ -6,6 +6,7 @@ import {
   Pressable,
   StyleSheet,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -107,7 +108,12 @@ export default function LoginScreen({ navigation, route }: Props) {
   }
 
   return (
-    <View style={styles.screen}>
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={styles.screenContent}
+      keyboardShouldPersistTaps="handled"
+      contentInsetAdjustmentBehavior="automatic"
+    >
       <View style={styles.panel}>
         <View style={styles.headerStack}>
           <Text style={styles.title}>{id.login.welcomeTitle}</Text>
@@ -196,7 +202,7 @@ export default function LoginScreen({ navigation, route }: Props) {
           <LoginSignUpPrompt onPressSignUp={() => navigation.replace("SignUp", { initialEmail: email.trim() })} />
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -204,9 +210,13 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.white,
+  },
+  screenContent: {
+    flexGrow: 1,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
   },
   panel: {
     width: "100%",
