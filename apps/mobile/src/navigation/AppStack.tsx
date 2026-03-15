@@ -23,9 +23,12 @@ import { id } from "../i18n/strings";
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
+const WEB_BREAKPOINT = 640;
+const DESKTOP_PAGE_PADDING = spacing.lg;
+
 export default function AppStack() {
   const viewportWidth = useViewportWidth();
-  const isDesktopWeb = Platform.OS === "web" && viewportWidth > 640;
+  const isDesktopWeb = Platform.OS === "web" && viewportWidth > WEB_BREAKPOINT;
 
   return (
     <Stack.Navigator
@@ -35,8 +38,8 @@ export default function AppStack() {
         headerShadowVisible: false,
         ...(isDesktopWeb
           ? {
-              headerLeftContainerStyle: { paddingLeft: spacing.lg - spacing.xs },
-              headerRightContainerStyle: { paddingRight: spacing.lg - spacing.xs },
+              headerLeftContainerStyle: { paddingLeft: DESKTOP_PAGE_PADDING - spacing.xs },
+              headerRightContainerStyle: { paddingRight: DESKTOP_PAGE_PADDING - spacing.xs },
             }
           : {}),
       }}

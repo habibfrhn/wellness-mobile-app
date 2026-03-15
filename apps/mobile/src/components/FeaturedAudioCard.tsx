@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, StyleSheet, Pressable, Image, useWindowDimensions } from "react-native";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, Pressable, Image, useWindowDimensions, type LayoutChangeEvent } from "react-native";
 import { colors, spacing, radius, typography, lineHeights } from "../theme/tokens";
 import type { AudioTrack } from "../content/audioCatalog";
 
@@ -16,15 +16,20 @@ type FeaturedAudioCardProps = {
 };
 
 export default function FeaturedAudioCard({ track, onPress }: FeaturedAudioCardProps) {
-  const { width } = useWindowDimensions();
+  const { width: viewportWidth } = useWindowDimensions();
+  const [containerWidth, setContainerWidth] = useState<number | null>(null);
   const horizontalPadding = spacing.sm;
   const cardPadding = spacing.sm;
-  const standardCardWidth = Math.max(130, Math.round((width - horizontalPadding * 2 - spacing.sm * 2) / 2.25));
-  const thumbnailSize = standardCardWidth - cardPadding * 2;
-  const cardWidth = Math.round(width - horizontalPadding * 2);
+  const measuredWidth = containerWidth ?? viewportWidth - horizontalPadding * 2;
+  const cardWidth = Math.max(240, Math.round(measuredWidth - horizontalPadding * 2));
+  const thumbnailSize = Math.max(96, Math.min(180, cardWidth - cardPadding * 2));
+
+  const onContainerLayout = (event: LayoutChangeEvent) => {
+    setContainerWidth(event.nativeEvent.layout.width);
+  };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} onLayout={onContainerLayout}>
       <Pressable
         onPress={() => onPress(track)}
         style={({ pressed }) => [styles.card, { width: cardWidth }, pressed && styles.pressed]}
@@ -60,7 +65,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderRadius: radius.md,
     padding: spacing.sm,
-    alignSelf: "center",
+    alignSelf: "stretch",
     position: "relative",
   },
   content: {

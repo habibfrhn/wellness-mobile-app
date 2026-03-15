@@ -18,6 +18,7 @@ import { colors, spacing } from "../../theme/tokens";
 type Props = NativeStackScreenProps<AppStackParamList, "Home">;
 
 const WEB_BREAKPOINT = 640;
+const DESKTOP_PAGE_MAX_WIDTH = 1100;
 
 export default function HomeScreen({ navigation, route }: Props) {
   const insets = useSafeAreaInsets();
@@ -193,7 +194,7 @@ const styles = StyleSheet.create({
     maxWidth: 480,
   },
   contentWrapDesktop: {
-    maxWidth: "100%",
+    maxWidth: DESKTOP_PAGE_MAX_WIDTH,
   },
   desktopTopRow: {
     flexDirection: "row",
