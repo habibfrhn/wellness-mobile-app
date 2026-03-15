@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: "100%",
-    maxWidth: 480,
+    maxWidth: 1100,
     marginHorizontal: "auto",
     padding: spacing.xl,
     backgroundColor: colors.card,

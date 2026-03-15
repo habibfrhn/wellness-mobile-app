@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
   },
   panel: {
     width: "100%",
-    maxWidth: 440,
+    maxWidth: 560,
     padding: 36,
     borderRadius: radius.md,
     backgroundColor: colors.white,
