@@ -236,6 +236,8 @@ const styles = StyleSheet.create({
   closeButton: {
     width: 36,
     height: 36,
+    marginLeft: spacing.sm,
+    marginTop: spacing.xs,
     alignItems: "center",
     justifyContent: "center",
   },

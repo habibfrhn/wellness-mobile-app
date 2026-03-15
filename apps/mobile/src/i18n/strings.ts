@@ -59,6 +59,8 @@ export const id = {
     primaryCta: "Buat akun",
     busyCta: "Membuat akun...",
     secondaryCta: "Sudah punya akun? Masuk",
+    hasAccountPrefix: "Sudah punya akun?",
+    loginLink: "Masuk",
     finePrint: "Dengan melanjutkan, Anda menyetujui S&K dan Kebijakan Privasi.",
   },
 

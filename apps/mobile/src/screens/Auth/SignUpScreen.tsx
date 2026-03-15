@@ -8,6 +8,7 @@ import { id } from "../../i18n/strings";
 import { supabase, AUTH_CALLBACK } from "../../services/supabase";
 import PasswordToggle from "../../components/PasswordToggle";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
+import SignUpLoginPrompt from "../../components/auth/SignUpLoginPrompt";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "SignUp">;
 
@@ -139,12 +140,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
             <Text style={authSharedStyles.primaryButtonText}>{busy ? id.signup.busyCta : id.signup.primaryCta}</Text>
           </Pressable>
 
-          <Pressable
-            onPress={() => navigation.replace("Login", { initialEmail: email.trim() })}
-            style={({ pressed }) => [authSharedStyles.secondaryButton, pressed && authSharedStyles.pressed]}
-          >
-            <Text style={authSharedStyles.secondaryButtonText}>{id.signup.secondaryCta}</Text>
-          </Pressable>
+          <SignUpLoginPrompt onPressLogin={() => navigation.replace("Login", { initialEmail: email.trim() })} />
         </View>
 
         <Text style={styles.finePrint}>{id.signup.finePrint}</Text>
