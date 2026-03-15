@@ -27,6 +27,28 @@ type RootStackParamList = {
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 
+const WEB_RESET_FLOW_KEY = "wellness.webResetFlow";
+
+function isWebResetFlowActive() {
+  if (Platform.OS !== "web" || typeof window === "undefined") {
+    return false;
+  }
+
+  return window.localStorage.getItem(WEB_RESET_FLOW_KEY) === "1";
+}
+
+function setWebResetFlowActive(active: boolean) {
+  if (Platform.OS !== "web" || typeof window === "undefined") {
+    return;
+  }
+
+  if (active) {
+    window.localStorage.setItem(WEB_RESET_FLOW_KEY, "1");
+    return;
+  }
+
+  window.localStorage.removeItem(WEB_RESET_FLOW_KEY);
+}
 
 LogBox.ignoreLogs(["props.pointerEvents is deprecated. Use style.pointerEvents"]);
 
@@ -80,18 +102,36 @@ export default function App() {
     let linkSubscription: { remove: () => void } | undefined;
     let authSubscription: { unsubscribe: () => void } | undefined;
 
-    function getAuthLinkErrorCopy(error?: string) {
+    function getAuthLinkErrorCopy(error?: string, linkType?: string) {
       const normalized = (error ?? "").toLowerCase();
+      const isRecovery = linkType === "recovery";
 
-      if (normalized.includes("expired") || normalized.includes("otp_expired") || normalized.includes("flow_state_expired")) {
-        return { title: id.common.linkExpiredTitle, body: id.common.linkExpiredBody };
+      if (
+        normalized.includes("expired") ||
+        normalized.includes("otp_expired") ||
+        normalized.includes("flow_state_expired") ||
+        normalized.includes("flow state has expired")
+      ) {
+        return isRecovery
+          ? { title: id.reset.linkExpiredTitle, body: id.reset.linkExpiredBody }
+          : { title: id.common.linkExpiredTitle, body: id.common.linkExpiredBody };
       }
 
-      if (normalized.includes("already") || normalized.includes("verified")) {
-        return { title: id.common.linkAlreadyUsedTitle, body: id.common.linkAlreadyUsedBody };
+      if (
+        normalized.includes("already") ||
+        normalized.includes("used") ||
+        normalized.includes("flow state not found") ||
+        normalized.includes("flow_state_not_found") ||
+        normalized.includes("verified")
+      ) {
+        return isRecovery
+          ? { title: id.reset.linkUsedTitle, body: id.reset.linkUsedBody }
+          : { title: id.common.linkAlreadyUsedTitle, body: id.common.linkAlreadyUsedBody };
       }
 
-      return { title: id.common.linkInvalidTitle, body: id.common.linkInvalidBody };
+      return isRecovery
+        ? { title: id.reset.linkInvalidTitle, body: id.reset.linkInvalidBody }
+        : { title: id.common.linkInvalidTitle, body: id.common.linkInvalidBody };
     }
 
     function cleanupWebAuthUrl() {
@@ -111,16 +151,18 @@ export default function App() {
       cleanupWebAuthUrl();
 
       if (!res.ok) {
-        const copy = getAuthLinkErrorCopy(res.error);
+        const copy = getAuthLinkErrorCopy(res.error, res.linkType);
         Alert.alert(copy.title, copy.body);
         await setNextAuthRoute("Login");
         setAuthStartRoute("Login");
         setForceReset(false);
+        setWebResetFlowActive(false);
         return;
       }
 
       if (res.path === "auth/reset") {
         setForceReset(true);
+        setWebResetFlowActive(true);
         await setNextAuthRoute("ResetPassword");
         setAuthStartRoute("ResetPassword");
         return;
@@ -132,10 +174,16 @@ export default function App() {
         await setNextAuthRoute("Login");
         setAuthStartRoute("Login");
         setForceReset(false);
+        setWebResetFlowActive(false);
       }
     }
 
     async function init() {
+      if (isWebResetFlowActive()) {
+        setForceReset(true);
+        setAuthStartRoute("ResetPassword");
+      }
+
       const initialUrl = await Linking.getInitialURL();
       if (initialUrl) await processUrl(initialUrl);
 
@@ -146,8 +194,23 @@ export default function App() {
       const { data } = await supabase.auth.getSession();
       setSession(data.session);
 
-      const { data: authListener } = supabase.auth.onAuthStateChange((_event, sess) => {
+      const hasResetHint =
+        typeof initialUrl === "string" &&
+        (initialUrl.toLowerCase().includes("auth_flow=reset") ||
+          initialUrl.toLowerCase().includes("type=recovery") ||
+          initialUrl.toLowerCase().includes("auth/reset"));
+
+      if (!data.session && !hasResetHint) {
+        setForceReset(false);
+        setWebResetFlowActive(false);
+      }
+
+      const { data: authListener } = supabase.auth.onAuthStateChange((event, sess) => {
         setSession(sess);
+        if (event === "SIGNED_OUT") {
+          setForceReset(false);
+          setWebResetFlowActive(false);
+        }
       });
       authSubscription = authListener?.subscription;
 
@@ -177,31 +240,29 @@ export default function App() {
     Alert.alert(id.common.errorTitle, missingSupabaseEnvMessage);
   }, []);
 
-  // Clear reset override once user signs out (we sign out after reset success)
-  useEffect(() => {
-    if (!session) setForceReset(false);
-  }, [session]);
-
   useEffect(() => {
     let mounted = true;
 
-    if (!session) {
-      setAuthStartResolved(false);
-      (async () => {
-        const nextRoute = await getNextAuthRoute();
-        if (!mounted) return;
-        if (nextRoute) {
-          setAuthStartRoute(nextRoute);
-          await clearNextAuthRoute();
-          if (nextRoute === "Login") setForceReset(false);
-        } else {
-          setAuthStartRoute("Welcome");
+    setAuthStartResolved(false);
+    (async () => {
+      const nextRoute = await getNextAuthRoute();
+      if (!mounted) return;
+
+      if (nextRoute) {
+        setAuthStartRoute(nextRoute);
+        if (nextRoute === "ResetPassword") {
+          setForceReset(true);
         }
-        setAuthStartResolved(true);
-      })();
-    } else {
+        if (nextRoute === "Login") {
+          setForceReset(false);
+        }
+        await clearNextAuthRoute();
+      } else if (!session) {
+        setAuthStartRoute("Welcome");
+      }
+
       setAuthStartResolved(true);
-    }
+    })();
 
     return () => {
       mounted = false;
@@ -275,13 +336,20 @@ export default function App() {
           ? "ResetPassword"
           : authStartRoute;
 
+  const shouldAutoOpenWebAuth =
+    forceReset || authStartRoute === "Login" || authStartRoute === "SignUp" || authStartRoute === "ResetPassword";
+
   return (
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <SafeAreaProvider>
         <NavigationContainer>
           {Platform.OS === "web" ? (
             shouldShowAuth ? (
-              <RootStack.Navigator initialRouteName="Landing" screenOptions={{ headerShown: false }}>
+              <RootStack.Navigator
+                key={`web-root-${shouldAutoOpenWebAuth ? "auth" : "landing"}`}
+                initialRouteName={shouldAutoOpenWebAuth ? "Auth" : "Landing"}
+                screenOptions={{ headerShown: false }}
+              >
                 <RootStack.Screen name="Landing" component={LandingScreen} />
                 <RootStack.Screen name="Auth">
                   {({ route }) => {

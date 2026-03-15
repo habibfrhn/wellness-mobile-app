@@ -52,8 +52,10 @@ export async function handleAuthLink(url: string) {
   const accessToken = getParam("access_token");
   const refreshToken = getParam("refresh_token");
   const linkType = mapLinkType(type);
+  const inferredPath =
+    path ?? (linkType === "recovery" ? "auth/reset" : linkType !== "unknown" ? "auth/callback" : null);
 
-  if (!path) return { handled: false as const };
+  if (!inferredPath) return { handled: false as const };
 
   if (code) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
@@ -62,7 +64,7 @@ export async function handleAuthLink(url: string) {
       return {
         handled: true as const,
         ok: false as const,
-        path,
+        path: inferredPath,
         linkType,
         error: error.message,
       };
@@ -71,7 +73,7 @@ export async function handleAuthLink(url: string) {
     return {
       handled: true as const,
       ok: true as const,
-      path,
+      path: inferredPath,
       linkType,
       session: data.session,
     };
@@ -87,13 +89,13 @@ export async function handleAuthLink(url: string) {
       return {
         handled: true as const,
         ok: false as const,
-        path,
+        path: inferredPath,
         linkType,
         error: error.message,
       };
     }
 
-    const resolvedPath = linkType === "recovery" ? "auth/reset" : path;
+    const resolvedPath = linkType === "recovery" ? "auth/reset" : inferredPath;
 
     return {
       handled: true as const,
@@ -115,13 +117,13 @@ export async function handleAuthLink(url: string) {
       return {
         handled: true as const,
         ok: false as const,
-        path,
+        path: inferredPath,
         linkType,
         error: error.message,
       };
     }
 
-    const resolvedPath = linkType === "recovery" ? "auth/reset" : path;
+    const resolvedPath = linkType === "recovery" ? "auth/reset" : inferredPath;
 
     return {
       handled: true as const,
@@ -135,7 +137,7 @@ export async function handleAuthLink(url: string) {
   return {
     handled: true as const,
     ok: false as const,
-    path,
+    path: inferredPath,
     linkType,
     error: "tautan-tidak-valid",
   };

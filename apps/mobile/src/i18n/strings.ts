@@ -121,6 +121,12 @@ export const id = {
     backToLogin: "Kembali ke masuk",
     successTitle: "Berhasil",
     successBody: "Kata sandi berhasil diperbarui. Silakan masuk kembali.",
+    linkExpiredTitle: "Tautan reset kedaluwarsa",
+    linkExpiredBody: "Tautan reset sudah kedaluwarsa. Silakan minta tautan baru dari menu lupa kata sandi.",
+    linkInvalidTitle: "Tautan reset tidak valid",
+    linkInvalidBody: "Tautan reset tidak valid. Silakan minta tautan reset baru.",
+    linkUsedTitle: "Tautan reset sudah digunakan",
+    linkUsedBody: "Tautan reset ini sudah pernah digunakan. Silakan minta tautan reset baru.",
   },
 
   home: {
