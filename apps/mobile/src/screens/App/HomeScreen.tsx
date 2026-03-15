@@ -9,7 +9,6 @@ import FeaturedAudioCard from "../../components/FeaturedAudioCard";
 import HomeCarouselSection from "../../components/HomeCarouselSection";
 import HomeGreetingTitle from "../../components/HomeGreetingTitle";
 import HomeNightSummary from "../../components/HomeNightSummary";
-import WebResponsiveFrame from "../../components/WebResponsiveFrame";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { id } from "../../i18n/strings";
 import type { AppStackParamList } from "../../navigation/types";
@@ -75,7 +74,7 @@ export default function HomeScreen({ navigation, route }: Props) {
 
   const content = (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, isDesktopWeb && styles.containerDesktop]}
       contentContainerStyle={[
         styles.listContent,
         isDesktopWeb ? styles.desktopListContent : styles.mobileListContent,
@@ -163,21 +162,16 @@ export default function HomeScreen({ navigation, route }: Props) {
     </ScrollView>
   );
 
-  if (!isDesktopWeb) {
-    return content;
-  }
-
-  return (
-    <WebResponsiveFrame contentStyle={styles.desktopFrameContent}>
-      <View style={styles.desktopFrameInner}>{content}</View>
-    </WebResponsiveFrame>
-  );
+  return content;
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.bg,
+  },
+  containerDesktop: {
+    backgroundColor: colors.white,
   },
   listContent: {
     paddingTop: 0,
@@ -187,8 +181,8 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   desktopListContent: {
-    paddingHorizontal: 0,
-    paddingVertical: 0,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
   },
   contentWrap: {
     width: "100%",
@@ -199,15 +193,7 @@ const styles = StyleSheet.create({
     maxWidth: 480,
   },
   contentWrapDesktop: {
-    maxWidth: 960,
-  },
-  desktopFrameContent: {
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.xl,
-  },
-  desktopFrameInner: {
-    flex: 1,
-    width: "100%",
+    maxWidth: "100%",
   },
   desktopTopRow: {
     flexDirection: "row",

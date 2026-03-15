@@ -1,4 +1,5 @@
 import React from "react";
+import { Platform } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import HomeScreen from "../screens/App/HomeScreen";
@@ -16,18 +17,28 @@ import ReminderSettingsScreen from "../screens/App/ReminderSettingsScreen";
 import HomeHeaderLogo from "../components/HomeHeaderLogo";
 import HomeHeaderMenu from "../components/HomeHeaderMenu";
 import type { AppStackParamList } from "./types";
-import { colors } from "../theme/tokens";
+import { colors, spacing } from "../theme/tokens";
+import useViewportWidth from "../hooks/useViewportWidth";
 import { id } from "../i18n/strings";
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
 export default function AppStack() {
+  const viewportWidth = useViewportWidth();
+  const isDesktopWeb = Platform.OS === "web" && viewportWidth > 640;
+
   return (
     <Stack.Navigator
       screenOptions={{
         headerTitleAlign: "center",
-        headerStyle: { backgroundColor: colors.bg, height: 32 },
+        headerStyle: { backgroundColor: isDesktopWeb ? colors.white : colors.bg, height: 32 },
         headerShadowVisible: false,
+        ...(isDesktopWeb
+          ? {
+              headerLeftContainerStyle: { paddingLeft: spacing.lg - spacing.xs },
+              headerRightContainerStyle: { paddingRight: spacing.lg - spacing.xs },
+            }
+          : {}),
       }}
     >
       <Stack.Screen
