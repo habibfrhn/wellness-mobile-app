@@ -17,14 +17,13 @@ import ReminderSettingsScreen from "../screens/App/ReminderSettingsScreen";
 import HomeHeaderLogo from "../components/HomeHeaderLogo";
 import HomeHeaderMenu from "../components/HomeHeaderMenu";
 import type { AppStackParamList } from "./types";
-import { colors, spacing } from "../theme/tokens";
+import { colors } from "../theme/tokens";
 import useViewportWidth from "../hooks/useViewportWidth";
 import { id } from "../i18n/strings";
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
 const WEB_BREAKPOINT = 640;
-const DESKTOP_PAGE_PADDING = spacing.lg;
 
 export default function AppStack() {
   const viewportWidth = useViewportWidth();
@@ -36,18 +35,13 @@ export default function AppStack() {
         headerTitleAlign: "center",
         headerStyle: { backgroundColor: isDesktopWeb ? colors.white : colors.bg, height: 32 },
         headerShadowVisible: false,
-        ...(isDesktopWeb
-          ? {
-              headerLeftContainerStyle: { paddingLeft: DESKTOP_PAGE_PADDING - spacing.xs },
-              headerRightContainerStyle: { paddingRight: DESKTOP_PAGE_PADDING - spacing.xs },
-            }
-          : {}),
       }}
     >
       <Stack.Screen
         name="Home"
         options={({ navigation }) => ({
           headerTitle: "",
+          headerShown: !isDesktopWeb,
           headerLeft: () => <HomeHeaderLogo />,
           headerRight: () => <HomeHeaderMenu navigation={navigation} />,
         })}

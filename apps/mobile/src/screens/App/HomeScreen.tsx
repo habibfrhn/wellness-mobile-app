@@ -8,6 +8,8 @@ import AudioTrackListSection from "../../components/AudioTrackListSection";
 import FeaturedAudioCard from "../../components/FeaturedAudioCard";
 import HomeCarouselSection from "../../components/HomeCarouselSection";
 import HomeGreetingTitle from "../../components/HomeGreetingTitle";
+import HomeHeaderLogo from "../../components/HomeHeaderLogo";
+import HomeHeaderMenu from "../../components/HomeHeaderMenu";
 import HomeNightSummary from "../../components/HomeNightSummary";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { id } from "../../i18n/strings";
@@ -73,7 +75,7 @@ export default function HomeScreen({ navigation, route }: Props) {
   const afirmasiTracks = AUDIO_TRACKS.filter((track) => track.contentType === "afirmasi");
   const soundscapeTracks = AUDIO_TRACKS.filter((track) => track.contentType === "soundscape");
 
-  const content = (
+  return (
     <ScrollView
       style={[styles.container, isDesktopWeb && styles.containerDesktop]}
       contentContainerStyle={[
@@ -85,31 +87,18 @@ export default function HomeScreen({ navigation, route }: Props) {
     >
       <View style={[styles.contentWrap, isDesktopWeb ? styles.contentWrapDesktop : styles.contentWrapMobile]}>
         {isDesktopWeb ? (
-          <View style={styles.desktopTopRow}>
-            <View style={styles.desktopSummaryColumn}>
-              <HomeGreetingTitle />
-              <HomeNightSummary
-                streakCount={streakCount}
-                lastNightStressDelta={lastNightStressDelta}
-                onPressPrimary={() => navigation.navigate("NightMode")}
-                onPressSecondary={() => {
-                  // placeholder action
-                }}
-              />
-            </View>
-
-            {featuredTrack ? (
-              <View style={styles.desktopFeaturedColumn}>
-                <FeaturedAudioCard
-                  track={featuredTrack}
-                  onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
-                />
-              </View>
-            ) : null}
+          <View style={styles.desktopHeaderRow}>
+            <HomeHeaderLogo />
+            <HomeHeaderMenu navigation={navigation} />
           </View>
-        ) : (
-          <>
+        ) : null}
+
+        <View style={styles.sectionStack}>
+          <View style={styles.sectionBlock}>
             <HomeGreetingTitle />
+          </View>
+
+          <View style={styles.sectionBlock}>
             <HomeNightSummary
               streakCount={streakCount}
               lastNightStressDelta={lastNightStressDelta}
@@ -124,46 +113,27 @@ export default function HomeScreen({ navigation, route }: Props) {
                 onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
               />
             ) : null}
-          </>
-        )}
-
-        {isDesktopWeb ? (
-          <View style={styles.desktopBottomRow}>
-            <View style={styles.desktopBottomColumn}>
-              <AudioTrackListSection
-                title={id.home.afirmasiCarouselTitle}
-                tracks={afirmasiTracks}
-                onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
-              />
-            </View>
-
-            <View style={styles.desktopBottomColumn}>
-              <HomeCarouselSection
-                title={id.home.soundscapeCarouselTitle}
-                tracks={soundscapeTracks}
-                onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
-              />
-            </View>
           </View>
-        ) : (
-          <>
+
+          <View style={styles.sectionBlock}>
             <AudioTrackListSection
               title={id.home.afirmasiCarouselTitle}
               tracks={afirmasiTracks}
               onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
             />
+          </View>
+
+          <View style={styles.sectionBlock}>
             <HomeCarouselSection
               title={id.home.soundscapeCarouselTitle}
               tracks={soundscapeTracks}
               onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
             />
-          </>
-        )}
+          </View>
+        </View>
       </View>
     </ScrollView>
   );
-
-  return content;
 }
 
 const styles = StyleSheet.create({
@@ -188,7 +158,6 @@ const styles = StyleSheet.create({
   contentWrap: {
     width: "100%",
     alignSelf: "center",
-    gap: spacing.md,
   },
   contentWrapMobile: {
     maxWidth: 480,
@@ -196,26 +165,17 @@ const styles = StyleSheet.create({
   contentWrapDesktop: {
     maxWidth: DESKTOP_PAGE_MAX_WIDTH,
   },
-  desktopTopRow: {
+  desktopHeaderRow: {
+    width: "100%",
     flexDirection: "row",
-    gap: spacing.md,
-    alignItems: "flex-start",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: spacing.lg,
   },
-  desktopSummaryColumn: {
-    flex: 1,
-    minWidth: 0,
+  sectionStack: {
+    gap: spacing.lg,
   },
-  desktopFeaturedColumn: {
-    flex: 1,
-    minWidth: 0,
-  },
-  desktopBottomRow: {
-    flexDirection: "row",
-    gap: spacing.md,
-    alignItems: "flex-start",
-  },
-  desktopBottomColumn: {
-    flex: 1,
-    minWidth: 0,
+  sectionBlock: {
+    width: "100%",
   },
 });
