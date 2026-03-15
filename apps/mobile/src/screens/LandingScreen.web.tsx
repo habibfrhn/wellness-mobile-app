@@ -158,9 +158,10 @@ export default function LandingScreen() {
         ref={scrollRef}
         style={styles.page}
         contentContainerStyle={[styles.content, isDesktop && styles.contentDesktop]}
+        keyboardShouldPersistTaps="handled"
         scrollEnabled={!isFoundingOpen}
       >
-      <View style={[styles.mainContent, isDesktop && styles.mainContentDesktop]}>
+      <View style={[styles.mainContent, isDesktop && styles.mainContentDesktop, !isDesktop && styles.mainContentMobile]}>
       <View
         nativeID="beranda"
         onLayout={(event) => {
@@ -183,7 +184,7 @@ export default function LandingScreen() {
           <View />
         )}
 
-        <View style={styles.headerActions}>
+        <View style={[styles.headerActions, !isDesktop && styles.headerActionsMobile]}>
           {isDesktop ? (
             <Pressable onPress={goToLogin} style={[styles.textButton, styles.headerTextButton]}>
               <Text style={styles.textButtonLabel}>Masuk</Text>
@@ -352,7 +353,7 @@ export default function LandingScreen() {
       </View>
 
       <View style={styles.footerOuter}>
-        <View style={styles.footerInner}>
+        <View style={[styles.footerInner, !isDesktop && styles.footerInnerMobile]}>
           <View style={[styles.footerTopRow, isDesktop && styles.footerTopRowDesktop]}>
             <View style={styles.footerColumn}>
             <Text style={styles.footerBrandTitle}>Lumepo</Text>
@@ -391,7 +392,7 @@ export default function LandingScreen() {
 
         <View style={styles.footerDivider} />
 
-        <View style={styles.footerInner}>
+        <View style={[styles.footerInner, !isDesktop && styles.footerInnerMobile]}>
           <View style={[styles.footerBottomRow, isDesktop && styles.footerBottomRowDesktop]}>
             <Text style={styles.footerCopyright}>© 2025 Lumepo. Semua hak dilindungi.</Text>
             <View />
@@ -403,7 +404,7 @@ export default function LandingScreen() {
       {isFoundingOpen ? (
         <View style={styles.modalOverlay}>
           <Pressable style={styles.modalBackdrop} onPress={closeFoundingModal} />
-          <View style={styles.modalCard}>
+          <View style={[styles.modalCard, !isDesktop && styles.modalCardMobile]}>
             <Pressable onPress={closeFoundingModal} style={styles.modalCloseButton}>
               <Text style={styles.modalCloseText}>×</Text>
             </Pressable>
@@ -474,16 +475,19 @@ const styles = StyleSheet.create({
   },
   mainContent: {
     width: "100%",
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.md,
   },
   mainContentDesktop: {
     paddingHorizontal: spacing.lg,
+  },
+  mainContentMobile: {
+    paddingHorizontal: 0,
   },
   section: {
     width: "100%",
     maxWidth: 1100,
     marginHorizontal: "auto",
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.md,
     paddingVertical: SECTION_PAD_Y_MOBILE,
     gap: spacing.md,
     backgroundColor: colors.white,
@@ -539,6 +543,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.sm,
+  },
+  headerActionsMobile: {
+    gap: spacing.xs,
   },
   textButton: {
     paddingHorizontal: spacing.sm,
@@ -864,6 +871,7 @@ const styles = StyleSheet.create({
     borderRadius: BUTTON_BORDER_RADIUS,
     alignItems: "center",
     justifyContent: "center",
+    minHeight: 44,
   },
   landingButtonSizeDesktop: {
     paddingVertical: BUTTON_PADDING_VERTICAL_DESKTOP,
@@ -903,6 +911,9 @@ const styles = StyleSheet.create({
     maxWidth: 1100,
     marginHorizontal: "auto",
     paddingHorizontal: 24,
+  },
+  footerInnerMobile: {
+    paddingHorizontal: spacing.md,
   },
   footerTopRow: {
     flexDirection: "column",
@@ -993,6 +1004,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     padding: spacing.xl,
     gap: spacing.md,
+  },
+  modalCardMobile: {
+    padding: spacing.md,
   },
   modalCloseButton: {
     position: "absolute",
