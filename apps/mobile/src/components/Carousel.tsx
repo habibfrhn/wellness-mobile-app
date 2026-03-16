@@ -32,6 +32,7 @@ export default function Carousel({ title, tracks, onPress }: CarouselProps) {
   const standardCardWidth = Math.max(130, Math.round((width - horizontalPadding * 2 - spacing.sm * 2) / 2.25));
   const cardWidth = standardCardWidth;
   const thumbnailSize = standardCardWidth - cardPadding * 2;
+  const soundscapeThumbnailHeight = Math.round(thumbnailSize * 0.62);
 
   return (
     <View style={styles.container}>
@@ -51,6 +52,7 @@ export default function Carousel({ title, tracks, onPress }: CarouselProps) {
               onPress={() => onPress(item)}
               style={({ pressed }) => [
                 styles.card,
+                styles.cardShadow,
                 { width: cardWidth },
                 pressed && styles.pressed,
               ]}
@@ -59,7 +61,11 @@ export default function Carousel({ title, tracks, onPress }: CarouselProps) {
               <View style={styles.cardContent}>
                 <Image
                   source={item.thumbnail}
-                  style={[styles.thumbnail, styles.soundscapeThumbnail, { height: thumbnailSize }]}
+                  style={[
+                    styles.thumbnail,
+                    styles.soundscapeThumbnail,
+                    { height: isSoundscape ? soundscapeThumbnailHeight : thumbnailSize },
+                  ]}
                   resizeMode="cover"
                 />
                 <Text style={styles.cardTitle} numberOfLines={2}>
@@ -96,6 +102,13 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
     justifyContent: "flex-start",
     overflow: "hidden",
+  },
+  cardShadow: {
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 2,
   },
   cardContent: {
     gap: 0,

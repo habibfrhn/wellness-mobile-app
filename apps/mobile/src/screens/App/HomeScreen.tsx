@@ -91,16 +91,18 @@ export default function HomeScreen({ navigation, route }: Props) {
         ) : null}
 
         <View style={styles.sectionStack}>
-          <View style={[styles.sectionBlock, styles.primaryActionCard]}>
+          <View style={styles.sectionBlock}>
             <HomeGreetingTitle />
-            <HomeNightSummary
-              streakCount={streakCount}
-              lastNightStressDelta={lastNightStressDelta}
-              onPressPrimary={() => navigation.navigate("NightMode")}
-              onPressSecondary={() => {
-                // placeholder action
-              }}
-            />
+            <View style={styles.primaryActionCard}>
+              <HomeNightSummary
+                streakCount={streakCount}
+                lastNightStressDelta={lastNightStressDelta}
+                onPressPrimary={() => navigation.navigate("NightMode")}
+                onPressSecondary={() => {
+                  // placeholder action
+                }}
+              />
+            </View>
           </View>
 
           <View style={styles.sectionBlock}>
@@ -108,6 +110,7 @@ export default function HomeScreen({ navigation, route }: Props) {
               title={id.home.pickWhatYouNeedTitle}
               tracks={nonSoundscapeTracks}
               onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
+              columns={isDesktopWeb ? 2 : 1}
             />
           </View>
 
@@ -138,7 +141,8 @@ const styles = StyleSheet.create({
   },
   desktopListContent: {
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
+    paddingBottom: spacing.lg,
+    paddingTop: spacing.xl,
   },
   contentWrap: {
     width: "100%",
@@ -156,6 +160,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: spacing.lg,
+    marginTop: spacing.sm,
   },
   sectionStack: {
     gap: spacing.lg,
@@ -164,6 +169,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   primaryActionCard: {
+    marginTop: spacing.sm,
     backgroundColor: colors.card,
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
