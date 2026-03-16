@@ -119,6 +119,7 @@ export default function HomeScreen({ navigation, route }: Props) {
                 <AudioTrackListSection
                   title={id.home.soundscapeShortTitle}
                   tracks={soundscapeTracks}
+                  showDuration={false}
                   onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
                 />
               </View>
@@ -133,6 +134,7 @@ export default function HomeScreen({ navigation, route }: Props) {
               <AudioTrackListSection
                 title={id.home.soundscapeShortTitle}
                 tracks={soundscapeTracks}
+                showDuration={false}
                 onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
               />
             </View>

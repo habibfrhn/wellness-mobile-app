@@ -10,9 +10,16 @@ type AudioTrackListSectionProps = {
   tracks: AudioTrack[];
   onPress: (track: AudioTrack) => void;
   columns?: 1 | 2;
+  showDuration?: boolean;
 };
 
-export default function AudioTrackListSection({ title, tracks, onPress, columns = 1 }: AudioTrackListSectionProps) {
+export default function AudioTrackListSection({
+  title,
+  tracks,
+  onPress,
+  columns = 1,
+  showDuration = true,
+}: AudioTrackListSectionProps) {
   return (
     <View style={styles.container}>
       <SectionTitle title={title} />
@@ -22,7 +29,7 @@ export default function AudioTrackListSection({ title, tracks, onPress, columns 
             key={track.id}
             style={[styles.item, columns === 2 ? styles.itemDesktopTwoColumn : styles.itemSingleColumn]}
           >
-            <AudioTrackCard track={track} onPress={() => onPress(track)} />
+            <AudioTrackCard track={track} onPress={() => onPress(track)} showDuration={showDuration} />
           </View>
         ))}
       </View>

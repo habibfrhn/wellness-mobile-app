@@ -13,6 +13,7 @@ function formatTime(sec: number) {
 type AudioTrackCardProps = {
   track: AudioTrack;
   onPress: () => void;
+  showDuration?: boolean;
 };
 
 function shortenTitle(title: string, maxLength = 15) {
@@ -23,7 +24,7 @@ function shortenTitle(title: string, maxLength = 15) {
   return `${title.slice(0, maxLength - 1)}…`;
 }
 
-export default function AudioTrackCard({ track, onPress }: AudioTrackCardProps) {
+export default function AudioTrackCard({ track, onPress, showDuration = true }: AudioTrackCardProps) {
   return (
     <Pressable
       onPress={onPress}
@@ -37,7 +38,7 @@ export default function AudioTrackCard({ track, onPress }: AudioTrackCardProps) 
           <Text style={styles.cardMeta} numberOfLines={1}>
             {track.creator}
           </Text>
-          <Text style={styles.cardDuration}>{formatTime(track.durationSec)}</Text>
+          {showDuration ? <Text style={styles.cardDuration}>{formatTime(track.durationSec)}</Text> : null}
         </View>
       </View>
     </Pressable>
