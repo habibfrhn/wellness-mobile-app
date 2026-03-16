@@ -78,5 +78,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 12,
     textDecorationLine: "underline",
+    textDecorationColor: colors.text,
+    textDecorationStyle: "solid",
   },
 });
