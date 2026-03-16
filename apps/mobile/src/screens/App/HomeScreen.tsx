@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Animated, Platform, ScrollView, StyleSheet, View } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { Platform, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -8,7 +8,7 @@ import AudioTrackListSection from "../../components/AudioTrackListSection";
 import HomeGreetingTitle from "../../components/HomeGreetingTitle";
 import HomeHeaderLogo from "../../components/HomeHeaderLogo";
 import HomeHeaderSettingsButton from "../../components/HomeHeaderSettingsButton";
-import HomeNightSummary from "../../components/HomeNightSummary";
+import HomeNightSummary, { type HomeStartOption } from "../../components/HomeNightSummary";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { id } from "../../i18n/strings";
 import type { AppStackParamList } from "../../navigation/types";
@@ -26,7 +26,6 @@ export default function HomeScreen({ navigation, route }: Props) {
   const [lastNightStressDelta, setLastNightStressDelta] = useState<number | null>(null);
   const viewportWidth = useViewportWidth();
   const isDesktopWeb = Platform.OS === "web" && viewportWidth > WEB_BREAKPOINT;
-  const listFade = useRef(new Animated.Value(0)).current;
 
 
   const completionPayload = useMemo(() => {
@@ -71,16 +70,22 @@ export default function HomeScreen({ navigation, route }: Props) {
   }, [completionPayload, navigation]);
 
 
-  useEffect(() => {
-    Animated.timing(listFade, {
-      toValue: 1,
-      duration: 320,
-      useNativeDriver: true,
-    }).start();
-  }, [listFade, isDesktopWeb]);
-
   const nonSoundscapeTracks = AUDIO_TRACKS.filter((track) => track.contentType !== "soundscape");
   const soundscapeTracks = AUDIO_TRACKS.filter((track) => track.contentType === "soundscape");
+
+  const handlePrimaryStart = (option: HomeStartOption) => {
+    if (option === "calm_mind") {
+      navigation.navigate("NightCheckIn", { mode: "calm_mind" });
+      return;
+    }
+
+    if (option === "soundscape") {
+      navigation.navigate("Player", { audioId: "lapisan-sunyi" });
+      return;
+    }
+
+    navigation.navigate("Player", { audioId: "bersiap-tidur" });
+  };
 
   return (
     <ScrollView
@@ -108,14 +113,14 @@ export default function HomeScreen({ navigation, route }: Props) {
                 <HomeNightSummary
                   streakCount={streakCount}
                   lastNightStressDelta={lastNightStressDelta}
-                  onPressPrimary={() => navigation.navigate("NightMode")}
+                  onPressPrimary={(option) => handlePrimaryStart(option)}
                 />
               </View>
             </View>
           </View>
 
           {isDesktopWeb ? (
-            <Animated.View style={[styles.sectionBlock, styles.desktopTwoColumnSection, styles.fadeInList, { opacity: listFade }]}>
+            <View style={[styles.sectionBlock, styles.desktopTwoColumnSection]}>
               <View style={styles.desktopColumn}>
                 <AudioTrackListSection
                   title={id.home.pickWhatYouNeedTitle}
@@ -131,9 +136,9 @@ export default function HomeScreen({ navigation, route }: Props) {
                   onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
                 />
               </View>
-            </Animated.View>
+            </View>
           ) : (
-            <Animated.View style={[styles.sectionBlock, styles.fadeInList, { opacity: listFade }]}>
+            <View style={styles.sectionBlock}>
               <AudioTrackListSection
                 title={id.home.pickWhatYouNeedTitle}
                 tracks={nonSoundscapeTracks}
@@ -145,7 +150,7 @@ export default function HomeScreen({ navigation, route }: Props) {
                 showDuration={false}
                 onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
               />
-            </Animated.View>
+            </View>
           )}
         </View>
       </View>
@@ -194,9 +199,6 @@ const styles = StyleSheet.create({
   },
   sectionBlock: {
     width: "100%",
-  },
-  fadeInList: {
-    transform: [{ translateY: 0 }],
   },
   desktopTwoColumnSection: {
     flexDirection: "row",
