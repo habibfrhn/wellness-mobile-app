@@ -138,8 +138,8 @@ const styles = StyleSheet.create({
     paddingTop: 0,
   },
   mobileListContent: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
   },
   desktopListContent: {
     paddingHorizontal: spacing.lg,
@@ -177,8 +177,8 @@ const styles = StyleSheet.create({
   primaryActionCard: {
     backgroundColor: colors.card,
     borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
     gap: spacing.sm,
     shadowColor: colors.text,
     shadowOffset: { width: 0, height: 4 },

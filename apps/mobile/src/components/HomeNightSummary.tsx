@@ -54,7 +54,7 @@ function formatStressDelta(delta: number): string {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
     gap: spacing.xs,
   },
   streak: {
@@ -62,12 +62,11 @@ const styles = StyleSheet.create({
   },
   lastNight: {
     color: colors.mutedText,
-    marginBottom: spacing.xs,
   },
   primaryButton: {
     backgroundColor: colors.text,
     borderRadius: radius.sm,
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.xs,
     alignItems: "center",
   },
   primaryButtonText: {

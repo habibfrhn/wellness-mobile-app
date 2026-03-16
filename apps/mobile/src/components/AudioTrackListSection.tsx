@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: spacing.sm,
+    gap: spacing.xs,
   },
   item: {
     minWidth: 0,

@@ -13,7 +13,7 @@ type HomeCarouselSectionProps = {
 };
 
 const WEB_BREAKPOINT = 640;
-const MOBILE_VISIBLE_CARDS = 1.35;
+const MOBILE_VISIBLE_CARDS = 1.5;
 
 function shortenTitle(title: string, maxLength = 24) {
   if (title.length <= maxLength) {
@@ -32,10 +32,10 @@ export default function HomeCarouselSection({ title, tracks, onPress }: HomeCaro
 
   const cardWidth = useMemo(() => {
     if (isDesktopLike) {
-      return Math.max(180, Math.floor((effectiveWidth - spacing.sm * 2) / 3));
+      return Math.max(160, Math.min(280, Math.floor((effectiveWidth - spacing.sm * 2) / 3.35)));
     }
 
-    return Math.max(200, Math.floor((effectiveWidth - spacing.sm) / MOBILE_VISIBLE_CARDS));
+    return Math.max(180, Math.min(240, Math.floor((effectiveWidth - spacing.sm) / MOBILE_VISIBLE_CARDS)));
   }, [effectiveWidth, isDesktopLike]);
 
   const onContainerLayout = (event: LayoutChangeEvent) => {
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: spacing.sm,
-    gap: spacing.sm,
+    gap: spacing.md,
     paddingBottom: spacing.xs,
   },
   card: {
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
   },
   cardBody: {
     paddingHorizontal: spacing.sm,
-    paddingTop: spacing.sm,
+    paddingTop: spacing.xs,
     paddingBottom: spacing.sm,
   },
   cardTitle: {
