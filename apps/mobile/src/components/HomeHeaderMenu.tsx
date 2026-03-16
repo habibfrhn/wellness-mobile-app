@@ -10,9 +10,10 @@ import type { AppStackParamList } from "../navigation/types";
 
 type Props = {
   navigation: NativeStackNavigationProp<AppStackParamList>;
+  withWhiteCircle?: boolean;
 };
 
-export default function HomeHeaderMenu({ navigation }: Props) {
+export default function HomeHeaderMenu({ navigation, withWhiteCircle = false }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const insets = useSafeAreaInsets();
 
@@ -30,6 +31,7 @@ export default function HomeHeaderMenu({ navigation }: Props) {
         hitSlop={8}
         style={({ pressed }) => [
           styles.menuButton,
+          withWhiteCircle && styles.menuButtonWhiteCircle,
           isOpen && styles.menuButtonActive,
           pressed && styles.pressed,
         ]}
@@ -82,6 +84,9 @@ const styles = StyleSheet.create({
     borderRadius: spacing.xl / 2,
     alignItems: "center",
     justifyContent: "center",
+  },
+  menuButtonWhiteCircle: {
+    backgroundColor: colors.white,
   },
   menuButtonActive: {
     backgroundColor: colors.mutedText,

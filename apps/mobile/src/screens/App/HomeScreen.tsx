@@ -85,7 +85,7 @@ export default function HomeScreen({ navigation, route }: Props) {
         {isDesktopWeb ? (
           <View style={styles.desktopHeaderRow}>
             <HomeHeaderLogo />
-            <HomeHeaderMenu navigation={navigation} />
+            <HomeHeaderMenu navigation={navigation} withWhiteCircle />
           </View>
         ) : null}
 
@@ -174,10 +174,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: colors.white,
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
     marginBottom: spacing.lg,
     marginTop: 0,
   },
