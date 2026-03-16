@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Platform, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -8,11 +8,11 @@ import AudioTrackListSection from "../../components/AudioTrackListSection";
 import HomeGreetingTitle from "../../components/HomeGreetingTitle";
 import HomeHeaderLogo from "../../components/HomeHeaderLogo";
 import HomeHeaderSettingsButton from "../../components/HomeHeaderSettingsButton";
-import HomeNightSummary, { type HomeStartOption } from "../../components/HomeNightSummary";
+import HomeNightSummary from "../../components/HomeNightSummary";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { id } from "../../i18n/strings";
 import type { AppStackParamList } from "../../navigation/types";
-import { getNightStreakState, registerNightCompletion } from "../../services/nightStreak";
+import { registerNightCompletion } from "../../services/nightStreak";
 import { colors, radius, spacing } from "../../theme/tokens";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Home">;
@@ -22,8 +22,6 @@ const DESKTOP_PAGE_MAX_WIDTH = 1100;
 
 export default function HomeScreen({ navigation, route }: Props) {
   const insets = useSafeAreaInsets();
-  const [streakCount, setStreakCount] = useState(0);
-  const [lastNightStressDelta, setLastNightStressDelta] = useState<number | null>(null);
   const viewportWidth = useViewportWidth();
   const isDesktopWeb = Platform.OS === "web" && viewportWidth > WEB_BREAKPOINT;
 
@@ -39,30 +37,21 @@ export default function HomeScreen({ navigation, route }: Props) {
   useEffect(() => {
     let mounted = true;
 
-    const syncNightSummary = async () => {
-      if (completionPayload) {
-        const next = await registerNightCompletion();
-
-        if (!mounted) {
-          return;
-        }
-
-        setStreakCount(next.streakCount);
-        setLastNightStressDelta(completionPayload.stressBefore - completionPayload.stressAfter);
-
-        navigation.setParams(undefined);
+    const syncNightCompletion = async () => {
+      if (!completionPayload) {
         return;
       }
 
-      const saved = await getNightStreakState();
+      await registerNightCompletion();
+
       if (!mounted) {
         return;
       }
 
-      setStreakCount(saved.streakCount);
+      navigation.setParams(undefined);
     };
 
-    syncNightSummary();
+    void syncNightCompletion();
 
     return () => {
       mounted = false;
@@ -73,19 +62,6 @@ export default function HomeScreen({ navigation, route }: Props) {
   const nonSoundscapeTracks = AUDIO_TRACKS.filter((track) => track.contentType !== "soundscape");
   const soundscapeTracks = AUDIO_TRACKS.filter((track) => track.contentType === "soundscape");
 
-  const handlePrimaryStart = (option: HomeStartOption) => {
-    if (option === "calm_mind") {
-      navigation.navigate("NightCheckIn", { mode: "calm_mind" });
-      return;
-    }
-
-    if (option === "soundscape") {
-      navigation.navigate("Player", { audioId: "lapisan-sunyi" });
-      return;
-    }
-
-    navigation.navigate("Player", { audioId: "bersiap-tidur" });
-  };
 
   return (
     <ScrollView
@@ -110,11 +86,7 @@ export default function HomeScreen({ navigation, route }: Props) {
             <HomeGreetingTitle />
             <View style={styles.primaryActionCardWrap}>
               <View style={styles.primaryActionCard}>
-                <HomeNightSummary
-                  streakCount={streakCount}
-                  lastNightStressDelta={lastNightStressDelta}
-                  onPressPrimary={(option) => handlePrimaryStart(option)}
-                />
+                <HomeNightSummary onPressPrimary={() => navigation.navigate("NightMode")} />
               </View>
             </View>
           </View>
@@ -195,7 +167,7 @@ const styles = StyleSheet.create({
   },
   sectionStack: {
     gap: spacing.lg,
-    marginTop: spacing.xl,
+    marginTop: spacing.sm,
   },
   sectionBlock: {
     width: "100%",

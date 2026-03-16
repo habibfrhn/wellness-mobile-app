@@ -83,9 +83,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: "#E5E7EB",
-    borderRadius: 999,
-    paddingHorizontal: spacing.xs,
-    paddingVertical: spacing.xs / 2,
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
   },
   actionText: {
     color: colors.text,
