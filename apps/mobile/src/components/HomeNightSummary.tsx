@@ -77,5 +77,6 @@ const styles = StyleSheet.create({
     color: colors.text,
     textAlign: "center",
     fontSize: 12,
+    textDecorationLine: "underline",
   },
 });
