@@ -134,7 +134,7 @@ export const id = {
     subtitle: "Pilihan sesi singkat untuk menutup hari dengan lebih tenang.",
     durationBadge: "5 menit",
     noteNoAutoplay: "Audio tidak diputar otomatis. Anda yang memulai saat sudah siap.",
-    greetingWithName: "Selamat malam, {name}",
+    greetingWithName: "Selamat malam,",
     greetingNoName: "Selamat malam,",
     streakPlaceholder: "0 malam berturut-turut",
     streakWithCount: "{count} malam berturut-turut",

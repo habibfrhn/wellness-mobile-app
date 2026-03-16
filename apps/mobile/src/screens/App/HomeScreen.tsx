@@ -121,7 +121,6 @@ export default function HomeScreen({ navigation, route }: Props) {
               title={id.home.soundscapeCarouselTitle}
               tracks={soundscapeTracks}
               onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
-              columns={isDesktopWeb ? 2 : 1}
             />
           </View>
         </View>
