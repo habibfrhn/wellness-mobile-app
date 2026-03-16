@@ -30,7 +30,7 @@ export default function AudioTrackCard({ track, onPress }: AudioTrackCardProps) 
       style={({ pressed }) => [styles.card, styles.cardShadow, pressed && styles.pressed]}
       hitSlop={6}
     >
-      <Image source={track.thumbnail} style={styles.thumbnail} />
+      <Image source={track.thumbnail} style={styles.thumbnail} resizeMode="cover" />
       <View style={styles.cardBody}>
         <Text style={styles.cardTitle}>{shortenTitle(track.title)}</Text>
         <View style={styles.cardMetaRow}>
@@ -47,11 +47,10 @@ export default function AudioTrackCard({ track, onPress }: AudioTrackCardProps) 
 const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
+    alignItems: "stretch",
     backgroundColor: colors.card,
     borderRadius: radius.sm,
-    padding: spacing.sm,
+    overflow: "hidden",
   },
   cardShadow: {
     shadowColor: colors.text,
@@ -62,12 +61,16 @@ const styles = StyleSheet.create({
     ...(Platform.OS === "web" ? { boxShadow: `0px 4px 12px ${colors.text}14` } : {}),
   },
   thumbnail: {
-    width: 48,
-    height: 48,
-    borderRadius: radius.xs,
+    width: 72,
+    aspectRatio: 1,
+    borderTopLeftRadius: radius.sm,
+    borderBottomLeftRadius: radius.sm,
   },
   cardBody: {
     flex: 1,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+    justifyContent: "center",
   },
   cardTitle: {
     fontSize: typography.caption,

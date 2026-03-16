@@ -5,7 +5,6 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { AUDIO_TRACKS } from "../../content/audioCatalog";
 import AudioTrackListSection from "../../components/AudioTrackListSection";
-import HomeCarouselSection from "../../components/HomeCarouselSection";
 import HomeGreetingTitle from "../../components/HomeGreetingTitle";
 import HomeHeaderLogo from "../../components/HomeHeaderLogo";
 import HomeHeaderMenu from "../../components/HomeHeaderMenu";
@@ -107,22 +106,37 @@ export default function HomeScreen({ navigation, route }: Props) {
             </View>
           </View>
 
-          <View style={styles.sectionBlock}>
-            <AudioTrackListSection
-              title={id.home.pickWhatYouNeedTitle}
-              tracks={nonSoundscapeTracks}
-              onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
-              columns={isDesktopWeb ? 2 : 1}
-            />
-          </View>
-
-          <View style={styles.sectionBlock}>
-            <HomeCarouselSection
-              title={id.home.soundscapeCarouselTitle}
-              tracks={soundscapeTracks}
-              onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
-            />
-          </View>
+          {isDesktopWeb ? (
+            <View style={[styles.sectionBlock, styles.desktopTwoColumnSection]}>
+              <View style={styles.desktopColumn}>
+                <AudioTrackListSection
+                  title={id.home.pickWhatYouNeedTitle}
+                  tracks={nonSoundscapeTracks}
+                  onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
+                />
+              </View>
+              <View style={styles.desktopColumn}>
+                <AudioTrackListSection
+                  title={id.home.soundscapeShortTitle}
+                  tracks={soundscapeTracks}
+                  onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
+                />
+              </View>
+            </View>
+          ) : (
+            <View style={styles.sectionBlock}>
+              <AudioTrackListSection
+                title={id.home.pickWhatYouNeedTitle}
+                tracks={nonSoundscapeTracks}
+                onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
+              />
+              <AudioTrackListSection
+                title={id.home.soundscapeShortTitle}
+                tracks={soundscapeTracks}
+                onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
+              />
+            </View>
+          )}
         </View>
       </View>
     </ScrollView>
@@ -144,7 +158,7 @@ const styles = StyleSheet.create({
   desktopListContent: {
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.lg,
-    paddingTop: spacing.xl,
+    paddingTop: spacing.lg,
   },
   contentWrap: {
     width: "100%",
@@ -162,7 +176,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: spacing.lg,
-    marginTop: spacing.sm,
+    marginTop: 0,
   },
   sectionStack: {
     gap: spacing.lg,
@@ -170,8 +184,17 @@ const styles = StyleSheet.create({
   sectionBlock: {
     width: "100%",
   },
+  desktopTwoColumnSection: {
+    flexDirection: "row",
+    gap: spacing.md,
+    alignItems: "flex-start",
+  },
+  desktopColumn: {
+    flex: 1,
+    minWidth: 0,
+  },
   primaryActionCardWrap: {
-    marginTop: spacing.sm,
+    marginTop: 0,
     paddingHorizontal: spacing.sm,
   },
   primaryActionCard: {

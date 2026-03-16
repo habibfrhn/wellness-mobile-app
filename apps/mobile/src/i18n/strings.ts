@@ -166,6 +166,7 @@ export const id = {
     afirmasiCarouselTitle: "Afirmasi sebelum tidur",
     pickWhatYouNeedTitle: "Pilih yang kamu butuh",
     soundscapeCarouselTitle: "Soundscape untuk tidur",
+    soundscapeShortTitle: "Soundscape",
   },
 
   player: {
