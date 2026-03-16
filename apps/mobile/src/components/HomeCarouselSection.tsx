@@ -61,7 +61,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     backgroundColor: colors.card,
     borderRadius: radius.sm,
-    padding: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
   },
   cardShadow: {
     shadowColor: colors.text,
@@ -71,8 +72,8 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   thumbnail: {
-    width: 48,
-    height: 48,
+    width: 40,
+    height: 40,
     borderRadius: radius.xs,
   },
   cardBody: {
