@@ -1,8 +1,41 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { id } from "../i18n/strings";
 import { colors, radius, spacing, typography } from "../theme/tokens";
+
+const DAILY_QUOTES = [
+  "Tidak apa-apa jika hari ini terasa berat. Malam ini waktunya beristirahat.",
+  "Tubuhmu tahu kapan harus berhenti. Dengarkan pelan-pelan.",
+  "Malam adalah tempat untuk melepas, bukan memikirkan ulang.",
+  "Biarkan hari ini selesai di sini.",
+  "Pikiran bisa menunggu. Istirahat tidak.",
+  "Tidak semua harus selesai hari ini.",
+  "Tarik napas, perlambat langkahmu.",
+  "Kamu sudah melakukan cukup hari ini.",
+  "Dunia bisa berjalan tanpa kamu semalaman.",
+  "Tidur bukan kemewahan, tapi kebutuhan.",
+  "Hening malam membantu yang lelah pulih.",
+  "Lepaskan sedikit demi sedikit.",
+  "Tidak perlu kuat sepanjang waktu.",
+  "Malam memberi ruang untuk kembali utuh.",
+  "Tenang bukan berarti lemah.",
+  "Istirahat adalah bagian dari bergerak maju.",
+  "Tubuhmu bekerja keras hari ini.",
+  "Tidak apa jika kamu berhenti sebentar.",
+  "Gelap bukan menakutkan, hanya lebih sunyi.",
+  "Biarkan pikiran melambat bersama malam.",
+  "Kamu tidak harus memikirkan semuanya sekarang.",
+  "Ada hari baru setelah ini.",
+  "Pelan bukan berarti tertinggal.",
+  "Tidur adalah bentuk kepercayaan.",
+  "Malam membantu kita memulai ulang.",
+  "Tidak semua hal perlu jawaban malam ini.",
+  "Keheningan juga bisa menenangkan.",
+  "Biarkan tubuhmu memimpin sekarang.",
+  "Kamu sudah cukup hari ini.",
+  "Waktu istirahat juga bagian dari hidup.",
+] as const;
 
 type Props = {
   streakCount: number;
@@ -10,25 +43,33 @@ type Props = {
   onPressPrimary: () => void;
 };
 
+function getDailyQuote(): string {
+  const now = new Date();
+  const dateKey = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+  const hash = dateKey.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  return DAILY_QUOTES[hash % DAILY_QUOTES.length];
+}
+
 export default function HomeNightSummary({
   streakCount,
   lastNightStressDelta = null,
   onPressPrimary,
 }: Props) {
   const streakText = id.home.streakRoutine.replace("{count}", String(streakCount));
+  const dailyQuote = useMemo(() => getDailyQuote(), []);
 
-  const deltaText =
+  const stressText =
     typeof lastNightStressDelta === "number"
       ? id.home.lastNightStressDelta.replace("{delta}", formatStressDelta(lastNightStressDelta))
-      : id.home.lastNightPlaceholder;
+      : null;
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{id.home.primaryCardTitle}</Text>
-      <Text style={styles.subtitle}>{id.home.primaryCardSubtitle}</Text>
+      <Text style={styles.subtitle}>{dailyQuote}</Text>
 
       {streakCount >= 1 ? <Text style={styles.streak}>{streakText}</Text> : null}
-      <Text style={styles.lastNight}>{deltaText}</Text>
+      {stressText ? <Text style={styles.lastNight}>{stressText}</Text> : null}
 
       <Pressable onPress={onPressPrimary} style={styles.primaryButton}>
         <Text style={styles.primaryButtonText}>{id.home.primarySleepCta}</Text>

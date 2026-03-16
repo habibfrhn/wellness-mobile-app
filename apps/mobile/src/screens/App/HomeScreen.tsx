@@ -96,7 +96,7 @@ export default function HomeScreen({ navigation, route }: Props) {
         {isDesktopWeb ? (
           <View style={styles.desktopHeaderRow}>
             <HomeHeaderLogo />
-            <HomeHeaderSettingsButton navigation={navigation} withWhiteCircle />
+            <HomeHeaderSettingsButton navigation={navigation} />
           </View>
         ) : null}
 
@@ -190,6 +190,7 @@ const styles = StyleSheet.create({
   },
   sectionStack: {
     gap: spacing.lg,
+    marginTop: spacing.xl,
   },
   sectionBlock: {
     width: "100%",
@@ -207,7 +208,7 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   primaryActionCardWrap: {
-    marginTop: 0,
+    marginTop: spacing.lg,
     paddingHorizontal: spacing.sm,
   },
   primaryActionCard: {
