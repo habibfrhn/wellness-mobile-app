@@ -98,9 +98,6 @@ export default function HomeScreen({ navigation, route }: Props) {
                   streakCount={streakCount}
                   lastNightStressDelta={lastNightStressDelta}
                   onPressPrimary={() => navigation.navigate("NightMode")}
-                  onPressSecondary={() => {
-                    // placeholder action
-                  }}
                 />
               </View>
             </View>

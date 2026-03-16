@@ -8,14 +8,12 @@ type Props = {
   streakCount: number;
   lastNightStressDelta?: number | null;
   onPressPrimary: () => void;
-  onPressSecondary: () => void;
 };
 
 export default function HomeNightSummary({
   streakCount,
   lastNightStressDelta = null,
   onPressPrimary,
-  onPressSecondary,
 }: Props) {
   const streakText = id.home.streakWithCount.replace("{count}", String(streakCount));
 
@@ -32,9 +30,6 @@ export default function HomeNightSummary({
         <Text style={styles.primaryButtonText}>{id.home.primarySleepCta}</Text>
       </Pressable>
 
-      <Pressable onPress={onPressSecondary}>
-        <Text style={styles.secondaryButtonText}>{id.home.secondaryModeCta}</Text>
-      </Pressable>
     </View>
   );
 }
@@ -72,13 +67,5 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: colors.white,
     fontWeight: "600",
-  },
-  secondaryButtonText: {
-    color: colors.text,
-    textAlign: "center",
-    fontSize: 12,
-    textDecorationLine: "underline",
-    textDecorationColor: colors.text,
-    textDecorationStyle: "solid",
   },
 });
