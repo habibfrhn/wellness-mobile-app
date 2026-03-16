@@ -15,7 +15,7 @@ import ResetPasswordScreen from "../screens/App/ResetPasswordScreen";
 import SettingsScreen from "../screens/App/SettingsScreen";
 import ReminderSettingsScreen from "../screens/App/ReminderSettingsScreen";
 import HomeHeaderLogo from "../components/HomeHeaderLogo";
-import HomeHeaderMenu from "../components/HomeHeaderMenu";
+import HomeHeaderSettingsButton from "../components/HomeHeaderSettingsButton";
 import type { AppStackParamList } from "./types";
 import { colors } from "../theme/tokens";
 import useViewportWidth from "../hooks/useViewportWidth";
@@ -43,7 +43,7 @@ export default function AppStack() {
           headerTitle: "",
           headerShown: !isDesktopWeb,
           headerLeft: () => <HomeHeaderLogo />,
-          headerRight: () => <HomeHeaderMenu navigation={navigation} />,
+          headerRight: () => <HomeHeaderSettingsButton navigation={navigation} />,
         })}
       >
         {(props) => <HomeScreen {...props} />}

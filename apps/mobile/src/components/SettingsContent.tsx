@@ -334,6 +334,35 @@ export default function SettingsContent({ navigation }: Props) {
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
       <View style={styles.card}>
+        <Text style={styles.cardTitle}>{id.account.settingsTitle}</Text>
+
+        <Pressable
+          onPress={() => navigation.navigate("Account")}
+          style={({ pressed }) => [styles.secondaryActionButton, pressed && styles.pressed]}
+        >
+          <Text style={styles.secondaryActionButtonText}>{id.account.profileMenu}</Text>
+        </Pressable>
+
+        <View style={styles.secondaryActionButton}>
+          <Text style={styles.secondaryActionButtonText}>{id.account.settingsTitle}</Text>
+        </View>
+
+        <Pressable
+          onPress={() => navigation.navigate("ReminderSettings")}
+          style={({ pressed }) => [styles.secondaryActionButton, pressed && styles.pressed]}
+        >
+          <Text style={styles.secondaryActionButtonText}>{id.account.reminderTitle}</Text>
+        </Pressable>
+
+        <Pressable
+          onPress={onLogout}
+          style={({ pressed }) => [styles.secondaryActionButton, pressed && styles.pressed]}
+        >
+          <Text style={styles.secondaryActionButtonText}>{id.account.logout}</Text>
+        </Pressable>
+      </View>
+
+      <View style={styles.card}>
         <Text style={styles.cardTitle}>{id.account.updatesTitle}</Text>
 
         <Pressable

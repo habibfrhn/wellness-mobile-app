@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Platform, ScrollView, StyleSheet, View } from "react-native";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Animated, Platform, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -7,7 +7,7 @@ import { AUDIO_TRACKS } from "../../content/audioCatalog";
 import AudioTrackListSection from "../../components/AudioTrackListSection";
 import HomeGreetingTitle from "../../components/HomeGreetingTitle";
 import HomeHeaderLogo from "../../components/HomeHeaderLogo";
-import HomeHeaderMenu from "../../components/HomeHeaderMenu";
+import HomeHeaderSettingsButton from "../../components/HomeHeaderSettingsButton";
 import HomeNightSummary from "../../components/HomeNightSummary";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { id } from "../../i18n/strings";
@@ -26,6 +26,8 @@ export default function HomeScreen({ navigation, route }: Props) {
   const [lastNightStressDelta, setLastNightStressDelta] = useState<number | null>(null);
   const viewportWidth = useViewportWidth();
   const isDesktopWeb = Platform.OS === "web" && viewportWidth > WEB_BREAKPOINT;
+  const listFade = useRef(new Animated.Value(0)).current;
+
 
   const completionPayload = useMemo(() => {
     if (!route.params || route.params.completed !== true) {
@@ -68,6 +70,15 @@ export default function HomeScreen({ navigation, route }: Props) {
     };
   }, [completionPayload, navigation]);
 
+
+  useEffect(() => {
+    Animated.timing(listFade, {
+      toValue: 1,
+      duration: 320,
+      useNativeDriver: true,
+    }).start();
+  }, [listFade, isDesktopWeb]);
+
   const nonSoundscapeTracks = AUDIO_TRACKS.filter((track) => track.contentType !== "soundscape");
   const soundscapeTracks = AUDIO_TRACKS.filter((track) => track.contentType === "soundscape");
 
@@ -85,7 +96,7 @@ export default function HomeScreen({ navigation, route }: Props) {
         {isDesktopWeb ? (
           <View style={styles.desktopHeaderRow}>
             <HomeHeaderLogo />
-            <HomeHeaderMenu navigation={navigation} withWhiteCircle />
+            <HomeHeaderSettingsButton navigation={navigation} withWhiteCircle />
           </View>
         ) : null}
 
@@ -104,7 +115,7 @@ export default function HomeScreen({ navigation, route }: Props) {
           </View>
 
           {isDesktopWeb ? (
-            <View style={[styles.sectionBlock, styles.desktopTwoColumnSection]}>
+            <Animated.View style={[styles.sectionBlock, styles.desktopTwoColumnSection, styles.fadeInList, { opacity: listFade }]}>
               <View style={styles.desktopColumn}>
                 <AudioTrackListSection
                   title={id.home.pickWhatYouNeedTitle}
@@ -120,9 +131,9 @@ export default function HomeScreen({ navigation, route }: Props) {
                   onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
                 />
               </View>
-            </View>
+            </Animated.View>
           ) : (
-            <View style={styles.sectionBlock}>
+            <Animated.View style={[styles.sectionBlock, styles.fadeInList, { opacity: listFade }]}>
               <AudioTrackListSection
                 title={id.home.pickWhatYouNeedTitle}
                 tracks={nonSoundscapeTracks}
@@ -134,7 +145,7 @@ export default function HomeScreen({ navigation, route }: Props) {
                 showDuration={false}
                 onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
               />
-            </View>
+            </Animated.View>
           )}
         </View>
       </View>
@@ -157,7 +168,7 @@ const styles = StyleSheet.create({
   desktopListContent: {
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.lg,
-    paddingTop: spacing.lg,
+    paddingTop: spacing.lg * 0.8,
   },
   contentWrap: {
     width: "100%",
@@ -183,6 +194,9 @@ const styles = StyleSheet.create({
   sectionBlock: {
     width: "100%",
   },
+  fadeInList: {
+    transform: [{ translateY: 0 }],
+  },
   desktopTwoColumnSection: {
     flexDirection: "row",
     gap: spacing.md,
@@ -204,8 +218,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     shadowColor: colors.text,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 2,
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 3,
   },
 });

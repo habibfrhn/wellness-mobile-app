@@ -25,7 +25,7 @@ export const AUDIO_TRACKS = [
   {
     id: "bersiap-tidur",
     order: 1,
-    title: "Bersiap tidur",
+    title: "Tenangkan pikiran",
     subtitle: "Ritual santai sebelum lelap",
     durationSec: 600,
     asset: require("../../assets/audio/sleep-guide/01-bersiap-tidur-10m.m4a"),
@@ -39,7 +39,7 @@ export const AUDIO_TRACKS = [
   {
     id: "lapisan-sunyi",
     order: 2,
-    title: "Sunyi lembut",
+    title: "Malam hening",
     subtitle: "Nada tenang untuk hening",
     durationSec: 300,
     asset: require("../../assets/audio/soundscape/01-lapisan-sunyi-5m.m4a"),
@@ -53,7 +53,7 @@ export const AUDIO_TRACKS = [
   {
     id: "dibawah-hujan",
     order: 3,
-    title: "Di bawah hujan",
+    title: "Rintik hujan",
     subtitle: "Desau lembut menemani",
     durationSec: 300,
     asset: require("../../assets/audio/soundscape/02-dibawah-hujan-5m.m4a"),
@@ -67,7 +67,7 @@ export const AUDIO_TRACKS = [
   {
     id: "larut-perlahan",
     order: 4,
-    title: "Larut perlahan",
+    title: "Suara ombak",
     subtitle: "Hening bertahap untuk tidur",
     durationSec: 300,
     asset: require("../../assets/audio/soundscape/03-larut-perlahan-5m.m4a"),
@@ -81,7 +81,7 @@ export const AUDIO_TRACKS = [
   {
     id: "menerima-diri",
     order: 5,
-    title: "Menerima diri",
+    title: "Lepaskan beban hari ini",
     subtitle: "Afirmasi lembut untuk diri",
     durationSec: 166,
     asset: require("../../assets/audio/afirmasi/01-menerima-diri-2m46s.m4a"),
@@ -95,7 +95,7 @@ export const AUDIO_TRACKS = [
   {
     id: "rasa-syukur",
     order: 6,
-    title: "Rasa syukur",
+    title: "Akhiri hari dengan rasa cukup",
     subtitle: "Afirmasi lembut untuk diri",
     durationSec: 166,
     asset: require("../../assets/audio/afirmasi/02-rasa-syukur-2m46s.m4a"),
