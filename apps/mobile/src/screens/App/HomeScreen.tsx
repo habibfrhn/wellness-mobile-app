@@ -6,6 +6,8 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AUDIO_TRACKS } from "../../content/audioCatalog";
 import AudioTrackListSection from "../../components/AudioTrackListSection";
 import HomeGreetingTitle from "../../components/HomeGreetingTitle";
+import HomeHeaderLogo from "../../components/HomeHeaderLogo";
+import HomeHeaderMenu from "../../components/HomeHeaderMenu";
 import HomeNightSummary from "../../components/HomeNightSummary";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { id } from "../../i18n/strings";
@@ -80,6 +82,13 @@ export default function HomeScreen({ navigation, route }: Props) {
       showsVerticalScrollIndicator={false}
     >
       <View style={[styles.contentWrap, isDesktopWeb ? styles.contentWrapDesktop : styles.contentWrapMobile]}>
+        {isDesktopWeb ? (
+          <View style={styles.desktopHeaderRow}>
+            <HomeHeaderLogo />
+            <HomeHeaderMenu navigation={navigation} />
+          </View>
+        ) : null}
+
         <View style={styles.sectionStack}>
           <View style={styles.sectionBlock}>
             <HomeGreetingTitle />
@@ -160,6 +169,14 @@ const styles = StyleSheet.create({
   },
   contentWrapDesktop: {
     maxWidth: DESKTOP_PAGE_MAX_WIDTH,
+  },
+  desktopHeaderRow: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: spacing.lg,
+    marginTop: 0,
   },
   sectionStack: {
     gap: spacing.lg,
