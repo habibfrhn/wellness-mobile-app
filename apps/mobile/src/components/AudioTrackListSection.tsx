@@ -9,17 +9,16 @@ type AudioTrackListSectionProps = {
   title: string;
   tracks: AudioTrack[];
   onPress: (track: AudioTrack) => void;
-  columns?: 1 | 2;
 };
 
-export default function AudioTrackListSection({ title, tracks, onPress, columns = 1 }: AudioTrackListSectionProps) {
+export default function AudioTrackListSection({ title, tracks, onPress }: AudioTrackListSectionProps) {
   return (
     <View style={styles.container}>
       <SectionTitle title={title} />
       <View style={styles.list}>
         {tracks.map((track) => (
-          <View key={track.id} style={[styles.item, columns === 2 ? styles.itemTwoColumns : styles.itemSingleColumn]}>
-            <AudioTrackCard track={track} onPress={() => onPress(track)} layout={columns === 2 ? "tile" : "row"} />
+          <View key={track.id} style={styles.item}>
+            <AudioTrackCard track={track} onPress={() => onPress(track)} />
           </View>
         ))}
       </View>
@@ -33,17 +32,9 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingHorizontal: spacing.sm,
-    flexDirection: "row",
-    flexWrap: "wrap",
     gap: spacing.sm,
   },
   item: {
-    minWidth: 0,
-  },
-  itemSingleColumn: {
     width: "100%",
-  },
-  itemTwoColumns: {
-    width: "48%",
   },
 });

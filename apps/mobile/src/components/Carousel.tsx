@@ -32,7 +32,8 @@ export default function Carousel({ title, tracks, onPress }: CarouselProps) {
   const standardCardWidth = Math.max(130, Math.round((width - horizontalPadding * 2 - spacing.sm * 2) / 2.25));
   const cardWidth = standardCardWidth;
   const thumbnailSize = standardCardWidth - cardPadding * 2;
-  const soundscapeThumbnailHeight = Math.round(thumbnailSize * 0.62);
+  const soundscapeThumbnailHeight = Math.round(thumbnailSize * 0.45);
+  const soundscapeCardWidth = Math.round(cardWidth * 0.86);
 
   return (
     <View style={styles.container}>
@@ -53,7 +54,7 @@ export default function Carousel({ title, tracks, onPress }: CarouselProps) {
               style={({ pressed }) => [
                 styles.card,
                 styles.cardShadow,
-                { width: cardWidth },
+                { width: isSoundscape ? soundscapeCardWidth : cardWidth },
                 pressed && styles.pressed,
               ]}
               hitSlop={6}

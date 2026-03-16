@@ -13,7 +13,6 @@ function formatTime(sec: number) {
 type AudioTrackCardProps = {
   track: AudioTrack;
   onPress: () => void;
-  layout?: "row" | "tile";
 };
 
 function shortenTitle(title: string, maxLength = 15) {
@@ -24,21 +23,16 @@ function shortenTitle(title: string, maxLength = 15) {
   return `${title.slice(0, maxLength - 1)}…`;
 }
 
-export default function AudioTrackCard({ track, onPress, layout = "row" }: AudioTrackCardProps) {
+export default function AudioTrackCard({ track, onPress }: AudioTrackCardProps) {
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.card,
-        styles.cardShadow,
-        layout === "tile" && styles.cardTile,
-        pressed && styles.pressed,
-      ]}
+      style={({ pressed }) => [styles.card, styles.cardShadow, pressed && styles.pressed]}
       hitSlop={6}
     >
-      <Image source={track.thumbnail} style={[styles.thumbnail, layout === "tile" && styles.thumbnailTile]} />
-      <View style={[styles.cardBody, layout === "tile" && styles.cardBodyTile]}>
-        <Text style={styles.cardTitle}>{shortenTitle(track.title, layout === "tile" ? 24 : 15)}</Text>
+      <Image source={track.thumbnail} style={styles.thumbnail} />
+      <View style={styles.cardBody}>
+        <Text style={styles.cardTitle}>{shortenTitle(track.title)}</Text>
         <View style={styles.cardMetaRow}>
           <Text style={styles.cardMeta} numberOfLines={1}>
             {track.creator}
@@ -59,12 +53,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     padding: spacing.sm,
   },
-  cardTile: {
-    minHeight: 192,
-    flexDirection: "column",
-    alignItems: "stretch",
-    gap: spacing.xs,
-  },
   cardShadow: {
     shadowColor: colors.text,
     shadowOffset: { width: 0, height: 4 },
@@ -78,16 +66,8 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: radius.xs,
   },
-  thumbnailTile: {
-    width: "100%",
-    height: 108,
-    borderRadius: radius.sm,
-  },
   cardBody: {
     flex: 1,
-  },
-  cardBodyTile: {
-    justifyContent: "space-between",
   },
   cardTitle: {
     fontSize: typography.caption,

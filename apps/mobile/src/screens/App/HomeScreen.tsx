@@ -93,7 +93,8 @@ export default function HomeScreen({ navigation, route }: Props) {
         <View style={styles.sectionStack}>
           <View style={styles.sectionBlock}>
             <HomeGreetingTitle />
-            <View style={styles.primaryActionCard}>
+            <View style={styles.primaryActionCardWrap}>
+              <View style={styles.primaryActionCard}>
               <HomeNightSummary
                 streakCount={streakCount}
                 lastNightStressDelta={lastNightStressDelta}
@@ -102,6 +103,7 @@ export default function HomeScreen({ navigation, route }: Props) {
                   // placeholder action
                 }}
               />
+              </View>
             </View>
           </View>
 
@@ -110,7 +112,6 @@ export default function HomeScreen({ navigation, route }: Props) {
               title={id.home.pickWhatYouNeedTitle}
               tracks={nonSoundscapeTracks}
               onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
-              columns={isDesktopWeb ? 2 : 1}
             />
           </View>
 
@@ -168,8 +169,11 @@ const styles = StyleSheet.create({
   sectionBlock: {
     width: "100%",
   },
-  primaryActionCard: {
+  primaryActionCardWrap: {
     marginTop: spacing.sm,
+    paddingHorizontal: spacing.sm,
+  },
+  primaryActionCard: {
     backgroundColor: colors.card,
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
