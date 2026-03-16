@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
   },
   primaryButton: {
-    backgroundColor: colors.text,
+    backgroundColor: colors.primary,
     borderRadius: radius.sm,
     paddingVertical: spacing.xs,
     alignItems: "center",
