@@ -95,14 +95,14 @@ export default function HomeScreen({ navigation, route }: Props) {
             <HomeGreetingTitle />
             <View style={styles.primaryActionCardWrap}>
               <View style={styles.primaryActionCard}>
-              <HomeNightSummary
-                streakCount={streakCount}
-                lastNightStressDelta={lastNightStressDelta}
-                onPressPrimary={() => navigation.navigate("NightMode")}
-                onPressSecondary={() => {
-                  // placeholder action
-                }}
-              />
+                <HomeNightSummary
+                  streakCount={streakCount}
+                  lastNightStressDelta={lastNightStressDelta}
+                  onPressPrimary={() => navigation.navigate("NightMode")}
+                  onPressSecondary={() => {
+                    // placeholder action
+                  }}
+                />
               </View>
             </View>
           </View>
@@ -112,6 +112,7 @@ export default function HomeScreen({ navigation, route }: Props) {
               title={id.home.pickWhatYouNeedTitle}
               tracks={nonSoundscapeTracks}
               onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
+              columns={isDesktopWeb ? 2 : 1}
             />
           </View>
 
@@ -120,6 +121,7 @@ export default function HomeScreen({ navigation, route }: Props) {
               title={id.home.soundscapeCarouselTitle}
               tracks={soundscapeTracks}
               onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
+              columns={isDesktopWeb ? 2 : 1}
             />
           </View>
         </View>

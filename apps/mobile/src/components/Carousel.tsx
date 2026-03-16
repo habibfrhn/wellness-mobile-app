@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, FlatList, Pressable, Image, useWindowDimensions } from "react-native";
+import { View, Text, StyleSheet, Pressable, Image } from "react-native";
 import { colors, spacing, radius, typography, lineHeights } from "../theme/tokens";
 import type { AudioTrack } from "../content/audioCatalog";
 import SectionTitle from "./SectionTitle";
@@ -15,6 +15,7 @@ type CarouselProps = {
   title: string;
   tracks: AudioTrack[];
   onPress: (track: AudioTrack) => void;
+  columns?: 1 | 2;
 };
 
 function shortenTitle(title: string, maxLength = 15) {
@@ -25,64 +26,45 @@ function shortenTitle(title: string, maxLength = 15) {
   return `${title.slice(0, maxLength - 1)}…`;
 }
 
-export default function Carousel({ title, tracks, onPress }: CarouselProps) {
-  const { width } = useWindowDimensions();
-  const horizontalPadding = spacing.sm;
-  const cardPadding = spacing.sm;
-  const standardCardWidth = Math.max(130, Math.round((width - horizontalPadding * 2 - spacing.sm * 2) / 2.25));
-  const cardWidth = standardCardWidth;
-  const thumbnailSize = standardCardWidth - cardPadding * 2;
-  const soundscapeThumbnailHeight = Math.round(thumbnailSize * 0.45);
-  const soundscapeCardWidth = Math.round(cardWidth * 0.86);
-
+export default function Carousel({ title, tracks, onPress, columns = 1 }: CarouselProps) {
   return (
     <View style={styles.container}>
       <SectionTitle title={title} />
-      <FlatList
-        data={tracks}
-        keyExtractor={(item) => item.id}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-        ItemSeparatorComponent={() => <View style={{ width: spacing.sm }} />}
-        renderItem={({ item }) => {
+      <View style={styles.grid}>
+        {tracks.map((item) => {
           const isSoundscape = item.contentType === "soundscape";
 
           return (
-            <Pressable
-              onPress={() => onPress(item)}
-              style={({ pressed }) => [
-                styles.card,
-                styles.cardShadow,
-                { width: isSoundscape ? soundscapeCardWidth : cardWidth },
-                pressed && styles.pressed,
-              ]}
-              hitSlop={6}
-            >
-              <View style={styles.cardContent}>
-                <Image
-                  source={item.thumbnail}
-                  style={[
-                    styles.thumbnail,
-                    styles.soundscapeThumbnail,
-                    { height: isSoundscape ? soundscapeThumbnailHeight : thumbnailSize },
-                  ]}
-                  resizeMode="cover"
-                />
-                <Text style={styles.cardTitle} numberOfLines={2}>
-                  {shortenTitle(item.title)}
-                </Text>
-                <View style={styles.metaRow}>
-                  <Text style={styles.cardMeta} numberOfLines={1}>
-                    {item.creator}
+            <View key={item.id} style={[styles.item, columns === 2 ? styles.itemTwoColumns : styles.itemSingleColumn]}>
+              <Pressable
+                onPress={() => onPress(item)}
+                style={({ pressed }) => [styles.card, styles.cardShadow, pressed && styles.pressed]}
+                hitSlop={6}
+              >
+                <View style={styles.cardContent}>
+                  <Image
+                    source={item.thumbnail}
+                    style={[
+                      styles.thumbnail,
+                      { height: columns === 2 ? spacing.xl + spacing.md : spacing.xl * 2 },
+                    ]}
+                    resizeMode="cover"
+                  />
+                  <Text style={styles.cardTitle} numberOfLines={2}>
+                    {shortenTitle(item.title)}
                   </Text>
-                  {isSoundscape ? null : <Text style={styles.cardDuration}>{formatTime(item.durationSec)}</Text>}
+                  <View style={styles.metaRow}>
+                    <Text style={styles.cardMeta} numberOfLines={1}>
+                      {item.creator}
+                    </Text>
+                    {isSoundscape ? null : <Text style={styles.cardDuration}>{formatTime(item.durationSec)}</Text>}
+                  </View>
                 </View>
-              </View>
-            </Pressable>
+              </Pressable>
+            </View>
           );
-        }}
-      />
+        })}
+      </View>
     </View>
   );
 }
@@ -91,11 +73,20 @@ const styles = StyleSheet.create({
   container: {
     paddingBottom: spacing.md,
   },
-  listContent: {
-    paddingTop: 0,
-    paddingBottom: spacing.sm,
-    paddingLeft: spacing.sm,
-    paddingRight: spacing.sm,
+  grid: {
+    paddingHorizontal: spacing.sm,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+  },
+  item: {
+    minWidth: 0,
+  },
+  itemSingleColumn: {
+    width: "100%",
+  },
+  itemTwoColumns: {
+    width: "48%",
   },
   card: {
     backgroundColor: colors.card,
@@ -116,10 +107,6 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   thumbnail: {
-    width: "100%",
-    borderRadius: radius.md,
-  },
-  soundscapeThumbnail: {
     width: "100%",
     borderRadius: radius.md,
   },
