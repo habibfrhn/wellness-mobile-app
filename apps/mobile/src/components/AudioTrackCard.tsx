@@ -47,7 +47,7 @@ export default function AudioTrackCard({ track, onPress }: AudioTrackCardProps) 
 const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
-    alignItems: "stretch",
+    alignItems: "center",
     backgroundColor: colors.card,
     borderRadius: radius.sm,
     overflow: "hidden",
@@ -62,6 +62,7 @@ const styles = StyleSheet.create({
   },
   thumbnail: {
     width: 72,
+    height: 72,
     aspectRatio: 1,
     borderTopLeftRadius: radius.sm,
     borderBottomLeftRadius: radius.sm,

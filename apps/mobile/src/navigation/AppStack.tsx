@@ -41,7 +41,7 @@ export default function AppStack() {
         name="Home"
         options={({ navigation }) => ({
           headerTitle: "",
-          headerShown: !isDesktopWeb,
+          headerShown: true,
           headerLeft: () => <HomeHeaderLogo />,
           headerRight: () => <HomeHeaderMenu navigation={navigation} />,
         })}
