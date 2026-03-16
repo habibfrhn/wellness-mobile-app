@@ -164,6 +164,7 @@ export const id = {
     nightCheckOutBetter: "Kamu berhasil menurunkan ketegangan malam ini.",
     nightCheckOutRetry: "Terima kasih sudah hadir malam ini. Kita coba lagi besok.",
     afirmasiCarouselTitle: "Afirmasi sebelum tidur",
+    pickWhatYouNeedTitle: "Pilih yang kamu butuh",
     soundscapeCarouselTitle: "Soundscape untuk tidur",
   },
 

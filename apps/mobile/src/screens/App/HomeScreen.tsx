@@ -5,7 +5,6 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { AUDIO_TRACKS } from "../../content/audioCatalog";
 import AudioTrackListSection from "../../components/AudioTrackListSection";
-import FeaturedAudioCard from "../../components/FeaturedAudioCard";
 import HomeCarouselSection from "../../components/HomeCarouselSection";
 import HomeGreetingTitle from "../../components/HomeGreetingTitle";
 import HomeHeaderLogo from "../../components/HomeHeaderLogo";
@@ -15,7 +14,7 @@ import useViewportWidth from "../../hooks/useViewportWidth";
 import { id } from "../../i18n/strings";
 import type { AppStackParamList } from "../../navigation/types";
 import { getNightStreakState, registerNightCompletion } from "../../services/nightStreak";
-import { colors, spacing } from "../../theme/tokens";
+import { colors, radius, spacing } from "../../theme/tokens";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Home">;
 
@@ -70,14 +69,12 @@ export default function HomeScreen({ navigation, route }: Props) {
     };
   }, [completionPayload, navigation]);
 
-  const guidedSleepTracks = AUDIO_TRACKS.filter((track) => track.contentType === "guided-sleep");
-  const featuredTrack = guidedSleepTracks[0];
-  const afirmasiTracks = AUDIO_TRACKS.filter((track) => track.contentType === "afirmasi");
+  const nonSoundscapeTracks = AUDIO_TRACKS.filter((track) => track.contentType !== "soundscape");
   const soundscapeTracks = AUDIO_TRACKS.filter((track) => track.contentType === "soundscape");
 
   return (
     <ScrollView
-      style={[styles.container, isDesktopWeb && styles.containerDesktop]}
+      style={styles.container}
       contentContainerStyle={[
         styles.listContent,
         isDesktopWeb ? styles.desktopListContent : styles.mobileListContent,
@@ -94,11 +91,8 @@ export default function HomeScreen({ navigation, route }: Props) {
         ) : null}
 
         <View style={styles.sectionStack}>
-          <View style={styles.sectionBlock}>
+          <View style={[styles.sectionBlock, styles.primaryActionCard]}>
             <HomeGreetingTitle />
-          </View>
-
-          <View style={styles.sectionBlock}>
             <HomeNightSummary
               streakCount={streakCount}
               lastNightStressDelta={lastNightStressDelta}
@@ -107,18 +101,12 @@ export default function HomeScreen({ navigation, route }: Props) {
                 // placeholder action
               }}
             />
-            {featuredTrack ? (
-              <FeaturedAudioCard
-                track={featuredTrack}
-                onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
-              />
-            ) : null}
           </View>
 
           <View style={styles.sectionBlock}>
             <AudioTrackListSection
-              title={id.home.afirmasiCarouselTitle}
-              tracks={afirmasiTracks}
+              title={id.home.pickWhatYouNeedTitle}
+              tracks={nonSoundscapeTracks}
               onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
             />
           </View>
@@ -140,9 +128,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.bg,
-  },
-  containerDesktop: {
-    backgroundColor: colors.white,
   },
   listContent: {
     paddingTop: 0,
@@ -177,5 +162,17 @@ const styles = StyleSheet.create({
   },
   sectionBlock: {
     width: "100%",
+  },
+  primaryActionCard: {
+    backgroundColor: colors.card,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    gap: spacing.sm,
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 2,
   },
 });
