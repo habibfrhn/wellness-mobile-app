@@ -58,15 +58,15 @@ export default function HomeCarouselSection({ title, tracks, onPress }: HomeCaro
               style={({ pressed }) => [styles.card, styles.cardShadow, { width: cardWidth }, pressed && styles.pressed]}
               hitSlop={6}
             >
-              <View style={styles.imageWrap}>
-                <Image source={track.thumbnail} style={styles.thumbnail} resizeMode="contain" />
+              <Image source={track.thumbnail} style={styles.thumbnail} resizeMode="cover" />
+              <View style={styles.cardBody}>
+                <Text style={styles.cardTitle} numberOfLines={2}>
+                  {shortenTitle(track.title)}
+                </Text>
+                <Text style={styles.cardMeta} numberOfLines={1}>
+                  {track.creator}
+                </Text>
               </View>
-              <Text style={styles.cardTitle} numberOfLines={2}>
-                {shortenTitle(track.title)}
-              </Text>
-              <Text style={styles.cardMeta} numberOfLines={1}>
-                {track.creator}
-              </Text>
             </Pressable>
           ))}
         </ScrollView>
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.card,
     borderRadius: radius.md,
-    padding: spacing.sm,
+    overflow: "hidden",
   },
   cardShadow: {
     shadowColor: colors.text,
@@ -99,22 +99,18 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 2,
   },
-  imageWrap: {
-    width: "100%",
-    height: 128,
-    borderRadius: radius.sm,
-    backgroundColor: colors.bg,
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-  },
   thumbnail: {
     width: "100%",
-    height: "100%",
-    borderRadius: radius.sm,
+    aspectRatio: 1,
+    borderTopLeftRadius: radius.md,
+    borderTopRightRadius: radius.md,
+  },
+  cardBody: {
+    paddingHorizontal: spacing.sm,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.sm,
   },
   cardTitle: {
-    marginTop: spacing.sm,
     fontSize: typography.caption,
     fontWeight: "700",
     color: colors.text,
