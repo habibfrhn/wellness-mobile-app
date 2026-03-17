@@ -15,14 +15,6 @@ type HomeCarouselSectionProps = {
 const WEB_BREAKPOINT = 640;
 const MOBILE_VISIBLE_CARDS = 1.5;
 
-function shortenTitle(title: string, maxLength = 24) {
-  if (title.length <= maxLength) {
-    return title;
-  }
-
-  return `${title.slice(0, maxLength - 1)}…`;
-}
-
 export default function HomeCarouselSection({ title, tracks, onPress }: HomeCarouselSectionProps) {
   const viewportWidth = useViewportWidth();
   const [containerWidth, setContainerWidth] = useState<number | null>(null);
@@ -60,8 +52,8 @@ export default function HomeCarouselSection({ title, tracks, onPress }: HomeCaro
             >
               <Image source={track.thumbnail} style={styles.thumbnail} resizeMode="cover" />
               <View style={styles.cardBody}>
-                <Text style={styles.cardTitle} numberOfLines={2}>
-                  {shortenTitle(track.title)}
+                <Text style={styles.cardTitle} numberOfLines={1}>
+                  {track.title}
                 </Text>
                 <Text style={styles.cardMeta} numberOfLines={1}>
                   {track.creator}

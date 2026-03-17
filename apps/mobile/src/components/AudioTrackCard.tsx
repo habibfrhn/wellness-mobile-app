@@ -16,14 +16,6 @@ type AudioTrackCardProps = {
   showDuration?: boolean;
 };
 
-function shortenTitle(title: string, maxLength = 15) {
-  if (title.length <= maxLength) {
-    return title;
-  }
-
-  return `${title.slice(0, maxLength - 1)}…`;
-}
-
 export default function AudioTrackCard({ track, onPress, showDuration = true }: AudioTrackCardProps) {
   return (
     <Pressable
@@ -33,7 +25,7 @@ export default function AudioTrackCard({ track, onPress, showDuration = true }: 
     >
       <Image source={track.thumbnail} style={styles.thumbnail} resizeMode="cover" />
       <View style={styles.cardBody}>
-        <Text style={styles.cardTitle}>{shortenTitle(track.title)}</Text>
+        <Text style={styles.cardTitle} numberOfLines={1}>{track.title}</Text>
         <View style={styles.cardMetaRow}>
           <Text style={styles.cardMeta} numberOfLines={1}>
             {track.creator}

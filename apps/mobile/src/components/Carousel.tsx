@@ -18,14 +18,6 @@ type CarouselProps = {
   columns?: 1 | 2;
 };
 
-function shortenTitle(title: string, maxLength = 15) {
-  if (title.length <= maxLength) {
-    return title;
-  }
-
-  return `${title.slice(0, maxLength - 1)}…`;
-}
-
 export default function Carousel({ title, tracks, onPress, columns = 1 }: CarouselProps) {
   return (
     <View style={styles.container}>
@@ -50,8 +42,8 @@ export default function Carousel({ title, tracks, onPress, columns = 1 }: Carous
                     ]}
                     resizeMode="cover"
                   />
-                  <Text style={styles.cardTitle} numberOfLines={2}>
-                    {shortenTitle(item.title)}
+                  <Text style={styles.cardTitle} numberOfLines={1}>
+                    {item.title}
                   </Text>
                   <View style={styles.metaRow}>
                     <Text style={styles.cardMeta} numberOfLines={1}>
