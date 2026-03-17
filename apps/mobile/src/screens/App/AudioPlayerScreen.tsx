@@ -375,8 +375,12 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   };
 
   const handleConfirmExitSession = () => {
-    setIsExitModalVisible(false);
+    pauseAll();
     resetPlayers();
+    setAutoPlayNextTrack(false);
+    setHasSessionStarted(false);
+    setPlaylistIndex(0);
+    setIsExitModalVisible(false);
     navigation.goBack();
   };
 
