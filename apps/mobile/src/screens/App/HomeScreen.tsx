@@ -75,7 +75,7 @@ export default function HomeScreen({ navigation, route }: Props) {
         ? (["afirmasi_tidur", "bersiap_tidur", "dibawah-hujan"] as const)
         : (["meditasi_tidur", "bersiap_tidur", "larut-perlahan"] as const);
 
-    navigation.navigate("Player", { audioId: playlistIds[0], playlistIds: [...playlistIds] });
+    navigation.navigate("Player", { audioId: playlistIds[0], playlistIds: [...playlistIds], sleepMode: option });
   };
 
   return (

@@ -32,7 +32,7 @@ const TIMER_OPTIONS = [
 
 export default function AudioPlayerScreen({ route, navigation }: Props) {
   const insets = useSafeAreaInsets();
-  const { audioId, playlistIds } = route.params;
+  const { audioId, playlistIds, sleepMode } = route.params;
   const normalizedPlaylistIds = useMemo(() => {
     const sourceIds = playlistIds && playlistIds.length > 0 ? playlistIds : [audioId];
     return sourceIds.filter((value, index, arr) => arr.indexOf(value) === index);
@@ -49,6 +49,15 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   const isPlaylistSession = normalizedPlaylistIds.length > 1;
   const isSoundscape = track.contentType === "soundscape";
   const showSoundscapeControls = isSoundscape && !isPlaylistSession;
+  const playlistTracks = useMemo(() => normalizedPlaylistIds.map((id) => getTrackById(id)), [normalizedPlaylistIds]);
+  const elapsedBeforeCurrent = useMemo(
+    () => playlistTracks.slice(0, playlistIndex).reduce((sum, item) => sum + item.durationSec, 0),
+    [playlistIndex, playlistTracks],
+  );
+  const sessionDuration = useMemo(
+    () => playlistTracks.reduce((sum, item) => sum + item.durationSec, 0),
+    [playlistTracks],
+  );
 
   // No autoplay: do not call play() on mount.
   const primaryPlayer = useAudioPlayer(track.asset, { updateInterval: 250 });
@@ -80,6 +89,19 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   const progressHandleLeft = progressWidth
     ? Math.min(Math.max(progressRatio * progressWidth - progressHandleSize / 2, 0), progressWidth - progressHandleSize)
     : 0;
+
+  const sessionCurrent = Math.min(sessionDuration, elapsedBeforeCurrent + current);
+  const sessionProgressRatio = sessionDuration > 0 ? Math.min(Math.max(sessionCurrent / sessionDuration, 0), 1) : 0;
+  const sleepSessionTitle =
+    sleepMode === "release_accept" ? id.player.sleepSessionTitleReleaseAccept : id.player.sleepSessionTitleCalmMind;
+  const sleepSessionPhase =
+    playlistIndex === 0
+      ? id.player.sleepSessionPhaseMind
+      : playlistIndex === 1
+        ? id.player.sleepSessionPhaseBody
+        : id.player.sleepSessionPhaseSoundscape;
+  const soundscapeControlsOpacity =
+    isPlaylistSession && isSoundscape ? Math.max(0.35, 1 - progressRatio * 0.65) : 1;
 
   const setPlayerVolume = useCallback((player: any, volume: number) => {
     try {
@@ -369,8 +391,8 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
         </View>
         <View style={styles.titleRow}>
           <View style={styles.titleTextWrap}>
-            <Text style={styles.title}>{track.title}</Text>
-            <Text style={styles.creator}>{track.creator}</Text>
+            <Text style={styles.title}>{isPlaylistSession ? sleepSessionTitle : track.title}</Text>
+            <Text style={styles.creator}>{isPlaylistSession ? sleepSessionPhase : track.creator}</Text>
           </View>
         </View>
 
@@ -426,7 +448,27 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
           </View>
         ) : null}
 
-        {showSoundscapeControls ? null : (
+        {showSoundscapeControls ? null : isPlaylistSession ? (
+          <>
+            <View
+              style={styles.progressWrap}
+              onLayout={(event) => setProgressWidth(event.nativeEvent.layout.width)}
+            >
+              <View style={styles.progressTrack}>
+                <View
+                  style={[
+                    styles.progressFill,
+                    { width: progressWidth ? `${sessionProgressRatio * 100}%` : "0%" }
+                  ]}
+                />
+              </View>
+            </View>
+            <View style={styles.timeRow}>
+              <Text style={styles.timeText}>{formatTime(sessionCurrent)}</Text>
+              <Text style={styles.timeText}>{formatTime(sessionDuration)}</Text>
+            </View>
+          </>
+        ) : (
           <>
             <Pressable
               style={styles.progressWrap}
@@ -450,18 +492,24 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
           </>
         )}
 
-        <View style={styles.controlsRow}>
+        <View style={[styles.controlsRow, { opacity: soundscapeControlsOpacity }]}>
           {showSoundscapeControls ? (
             <Pressable onPress={handleStop} style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}>
               <Text style={styles.secondaryText}>Stop</Text>
             </Pressable>
-          ) : (
+          ) : isPlaylistSession ? null : (
             <Pressable onPress={onRestart} style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}>
               <Text style={styles.secondaryText}>{id.player.restart}</Text>
             </Pressable>
           )}
 
-          <Pressable onPress={onTogglePlay} style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}>
+          <Pressable
+            onPress={onTogglePlay}
+            style={({ pressed }) => [
+              isPlaylistSession ? styles.primaryBtnSingle : styles.primaryBtn,
+              pressed && styles.pressed,
+            ]}
+          >
             <Text style={styles.primaryText}>{activeStatus.playing ? id.player.pause : id.player.start}</Text>
           </Pressable>
         </View>
@@ -623,6 +671,14 @@ const styles = StyleSheet.create({
   },
   primaryBtn: {
     flex: 1,
+    backgroundColor: colors.primary,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.sm,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  primaryBtnSingle: {
+    width: "100%",
     backgroundColor: colors.primary,
     paddingVertical: spacing.sm,
     borderRadius: radius.sm,

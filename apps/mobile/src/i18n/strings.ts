@@ -188,6 +188,11 @@ export const id = {
     timerOff: "Off",
     timerEnd: "Akhiri saat audio selesai",
     noteNoAutoplay: "Tidak ada autoplay. Tekan Mulai jika Anda ingin memutar audio.",
+    sleepSessionTitleCalmMind: "Tenangkan pikiran",
+    sleepSessionTitleReleaseAccept: "Lepaskan & terima",
+    sleepSessionPhaseMind: "Menenangkan pikiran",
+    sleepSessionPhaseBody: "Merilekskan tubuh",
+    sleepSessionPhaseSoundscape: "Menjaga suasana tidur",
   },
 
   account: {
