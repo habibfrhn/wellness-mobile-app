@@ -45,9 +45,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: `${colors.text}66`,
     justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: spacing.md,
   },
   modalCard: {
+    width: "100%",
+    maxWidth: 360,
     backgroundColor: colors.bg,
     borderRadius: radius.md,
     padding: spacing.md,
