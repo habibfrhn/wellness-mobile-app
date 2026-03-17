@@ -23,7 +23,7 @@ export type AppStackParamList = {
   NightStep2: { mode: "calm_mind" | "release_accept"; stressBefore: number };
   NightStep3: { mode: "calm_mind" | "release_accept"; stressBefore: number };
   NightCheckOut: { mode: "calm_mind" | "release_accept"; stressBefore: number };
-  Player: { audioId: AudioId };
+  Player: { audioId: AudioId; playlistIds?: AudioId[] };
   Account: undefined;
   Settings: undefined;
   ReminderSettings: undefined;

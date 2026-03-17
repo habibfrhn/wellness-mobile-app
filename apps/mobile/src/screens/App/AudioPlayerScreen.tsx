@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { getTrackById, isFavorite, toggleFavorite } from "../../content/audioCatalog";
+import type { AudioId } from "../../content/audioCatalog";
 import { colors, spacing, radius, typography, controlSizes } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 
@@ -31,9 +32,23 @@ const TIMER_OPTIONS = [
 
 export default function AudioPlayerScreen({ route, navigation }: Props) {
   const insets = useSafeAreaInsets();
-  const { audioId } = route.params;
-  const track = useMemo(() => getTrackById(audioId), [audioId]);
+  const { audioId, playlistIds } = route.params;
+  const normalizedPlaylistIds = useMemo(() => {
+    const sourceIds = playlistIds && playlistIds.length > 0 ? playlistIds : [audioId];
+    return sourceIds.filter((value, index, arr) => arr.indexOf(value) === index);
+  }, [audioId, playlistIds]);
+  const [playlistIndex, setPlaylistIndex] = useState(() => {
+    const startIndex = normalizedPlaylistIds.indexOf(audioId);
+    return startIndex >= 0 ? startIndex : 0;
+  });
+  const [autoPlayNextTrack, setAutoPlayNextTrack] = useState(false);
+  const [hasSessionStarted, setHasSessionStarted] = useState(false);
+
+  const currentAudioId: AudioId = normalizedPlaylistIds[playlistIndex] ?? audioId;
+  const track = useMemo(() => getTrackById(currentAudioId), [currentAudioId]);
+  const isPlaylistSession = normalizedPlaylistIds.length > 1;
   const isSoundscape = track.contentType === "soundscape";
+  const showSoundscapeControls = isSoundscape && !isPlaylistSession;
 
   // No autoplay: do not call play() on mount.
   const primaryPlayer = useAudioPlayer(track.asset, { updateInterval: 250 });
@@ -59,7 +74,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   const duration = activeStatus.duration || track.durationSec;
   const current = Math.min(activeStatus.currentTime || 0, duration);
   const atEnd = duration > 0 && current >= duration - 0.25;
-  const isSessionActive = isSoundscape && (activeStatus.playing || (current > 0 && !atEnd));
+  const isSessionActive = showSoundscapeControls && (activeStatus.playing || (current > 0 && !atEnd));
   const progressRatio = duration > 0 ? Math.min(Math.max(current / duration, 0), 1) : 0;
   const progressHandleSize = spacing.xs;
   const progressHandleLeft = progressWidth
@@ -115,6 +130,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
       }
       if (atEnd) activePlayer.seekTo(0);
       activePlayer.play();
+      setHasSessionStarted(true);
     } catch {}
   };
 
@@ -122,6 +138,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     try {
       resetPlayers();
       primaryPlayer.play();
+      setHasSessionStarted(true);
     } catch {}
   };
 
@@ -160,7 +177,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   }, [navigation]);
 
   useEffect(() => {
-    if (isSoundscape) {
+    if (showSoundscapeControls) {
       setTimerSeconds(TIMER_OPTIONS[0].seconds);
       setTimerRemaining(TIMER_OPTIONS[0].seconds);
     } else {
@@ -168,18 +185,17 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
       setTimerRemaining(null);
     }
     resetPlayers();
-  }, [isSoundscape, resetPlayers, track.id]);
+  }, [resetPlayers, showSoundscapeControls, track.id]);
 
   useEffect(() => {
-    if (!isSoundscape) {
+    if (!showSoundscapeControls) {
       setTimerSeconds(null);
       setTimerRemaining(null);
-      resetPlayers();
     }
-  }, [isSoundscape, resetPlayers]);
+  }, [showSoundscapeControls]);
 
   useEffect(() => {
-    if (!isSoundscape) return;
+    if (!showSoundscapeControls) return;
     if (!activeStatus.playing) return;
     if (!duration) return;
 
@@ -218,12 +234,12 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     duration,
     inactivePlayer,
     inactiveStatus.playing,
-    isSoundscape,
+    showSoundscapeControls,
     setPlayerVolume,
   ]);
 
   useEffect(() => {
-    if (!isSoundscape || !timerSeconds || timerSeconds <= 0) return;
+    if (!showSoundscapeControls || !timerSeconds || timerSeconds <= 0) return;
     if (!activeStatus.playing) return;
 
     const interval = setInterval(() => {
@@ -237,7 +253,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [activeStatus.playing, isSoundscape, timerSeconds]);
+  }, [activeStatus.playing, showSoundscapeControls, timerSeconds]);
 
   useEffect(() => {
     if (activeStatus.playing) return;
@@ -274,12 +290,47 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   ]);
 
   useEffect(() => {
-    if (!isSoundscape) return;
+    if (!showSoundscapeControls) return;
     if (timerRemaining === null) return;
     if (timerRemaining > 0) return;
     fadeOutAndStop();
     setTimerRemaining(timerSeconds);
-  }, [fadeOutAndStop, isSoundscape, timerRemaining, timerSeconds]);
+  }, [fadeOutAndStop, showSoundscapeControls, timerRemaining, timerSeconds]);
+
+
+  useEffect(() => {
+    if (!autoPlayNextTrack) return;
+    try {
+      primaryPlayer.play();
+      setHasSessionStarted(true);
+    } catch {
+      // no-op
+    } finally {
+      setAutoPlayNextTrack(false);
+    }
+  }, [autoPlayNextTrack, primaryPlayer, track.id]);
+
+  useEffect(() => {
+    if (!isPlaylistSession || !hasSessionStarted) return;
+    if (activeStatus.playing || !atEnd) return;
+
+    if (playlistIndex < normalizedPlaylistIds.length - 1) {
+      setPlaylistIndex((prev) => prev + 1);
+      setAutoPlayNextTrack(true);
+      return;
+    }
+
+    resetPlayers();
+    setHasSessionStarted(false);
+  }, [
+    activeStatus.playing,
+    atEnd,
+    hasSessionStarted,
+    isPlaylistSession,
+    normalizedPlaylistIds.length,
+    playlistIndex,
+    resetPlayers,
+  ]);
 
   const handleTimerSelect = (seconds: number) => {
     setTimerSeconds(seconds);
@@ -323,7 +374,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
           </View>
         </View>
 
-        {isSoundscape ? (
+        {showSoundscapeControls ? (
           <View style={styles.soundscapeOptions}>
             <View style={styles.optionBlock}>
               <View style={styles.optionHeader}>
@@ -375,7 +426,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
           </View>
         ) : null}
 
-        {isSoundscape ? null : (
+        {showSoundscapeControls ? null : (
           <>
             <Pressable
               style={styles.progressWrap}
@@ -400,7 +451,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
         )}
 
         <View style={styles.controlsRow}>
-          {isSoundscape ? (
+          {showSoundscapeControls ? (
             <Pressable onPress={handleStop} style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}>
               <Text style={styles.secondaryText}>Stop</Text>
             </Pressable>
