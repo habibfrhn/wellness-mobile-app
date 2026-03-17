@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { View, Text, StyleSheet, Image, Pressable, ScrollView } from "react-native";
+import { Animated, View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -73,7 +73,12 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   const [timerRemaining, setTimerRemaining] = useState<number | null>(null);
   const [showTimerInfo, setShowTimerInfo] = useState(false);
   const fadeOutIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const controlsHideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isExitingSessionRef = useRef(false);
+  const artworkOpacity = useRef(new Animated.Value(1)).current;
+  const phaseToneOpacity = useRef(new Animated.Value(0.14)).current;
+  const startTransitionOpacity = useRef(new Animated.Value(0)).current;
+  const [areControlsRevealed, setAreControlsRevealed] = useState(false);
 
   useEffect(() => {
     setFavorite(isFavorite(track.id));
@@ -105,7 +110,67 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
         : id.player.sleepSessionPhaseSoundscape;
   const soundscapeControlsOpacity =
     isPlaylistSession && isSoundscape ? Math.max(0.35, 1 - progressRatio * 0.65) : 1;
+  const isSoundscapeImmersion = isPlaylistSession && isSoundscape && hasSessionStarted;
+  const controlsOpacity = isSoundscapeImmersion
+    ? areControlsRevealed
+      ? 0.9
+      : 0.22
+    : soundscapeControlsOpacity;
+  const phaseToneColor =
+    playlistIndex === 0 ? "#0B1C2D" : playlistIndex === 1 ? "#14243A" : "#070B14";
 
+
+  useEffect(() => {
+    if (!isPlaylistSession) return;
+    artworkOpacity.setValue(0);
+    Animated.timing(artworkOpacity, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }, [artworkOpacity, isPlaylistSession, track.id]);
+
+  useEffect(() => {
+    if (!isPlaylistSession) return;
+    const targetOpacity = playlistIndex === 0 ? 0.12 : playlistIndex === 1 ? 0.2 : 0.34;
+    Animated.timing(phaseToneOpacity, {
+      toValue: targetOpacity,
+      duration: 700,
+      useNativeDriver: true,
+    }).start();
+  }, [isPlaylistSession, phaseToneOpacity, playlistIndex]);
+
+  useEffect(() => {
+    if (!isPlaylistSession || !hasSessionStarted) return;
+    startTransitionOpacity.setValue(0.2);
+    Animated.timing(startTransitionOpacity, {
+      toValue: 0,
+      duration: 700,
+      useNativeDriver: true,
+    }).start();
+  }, [hasSessionStarted, isPlaylistSession, startTransitionOpacity]);
+
+  useEffect(() => {
+    return () => {
+      if (controlsHideTimeoutRef.current) {
+        clearTimeout(controlsHideTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const revealControlsTemporarily = () => {
+    if (!isSoundscapeImmersion) {
+      return;
+    }
+
+    setAreControlsRevealed(true);
+    if (controlsHideTimeoutRef.current) {
+      clearTimeout(controlsHideTimeoutRef.current);
+    }
+    controlsHideTimeoutRef.current = setTimeout(() => {
+      setAreControlsRevealed(false);
+    }, 2200);
+  };
   const setPlayerVolume = useCallback((player: any, volume: number) => {
     try {
       if (typeof player.setVolume === "function") {
@@ -406,10 +471,11 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
           { paddingBottom: spacing.xl + insets.bottom }
         ]}
         showsVerticalScrollIndicator={false}
+        onTouchStart={revealControlsTemporarily}
       >
         <View style={styles.coverWrap}>
           <View style={styles.coverFrame}>
-            <Image source={track.cover} style={styles.cover} resizeMode="cover" />
+            <Animated.Image source={track.cover} style={[styles.cover, isPlaylistSession ? { opacity: artworkOpacity } : null]} resizeMode="cover" />
             <Pressable
               style={styles.favoriteButton}
               hitSlop={6}
@@ -423,6 +489,20 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
             </Pressable>
           </View>
         </View>
+
+        {isPlaylistSession ? (
+          <Animated.View
+            pointerEvents="none"
+            style={[styles.phaseToneOverlay, { backgroundColor: phaseToneColor, opacity: phaseToneOpacity }]}
+          />
+        ) : null}
+        {isPlaylistSession ? (
+          <Animated.View
+            pointerEvents="none"
+            style={[styles.startTransitionOverlay, { opacity: startTransitionOpacity }]}
+          />
+        ) : null}
+
         <View style={styles.titleRow}>
           <View style={styles.titleTextWrap}>
             <Text style={styles.title}>{isPlaylistSession ? sleepSessionTitle : track.title}</Text>
@@ -488,18 +568,18 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
               style={styles.progressWrap}
               onLayout={(event) => setProgressWidth(event.nativeEvent.layout.width)}
             >
-              <View style={styles.progressTrack}>
+              <View style={isPlaylistSession ? styles.sessionProgressTrack : styles.progressTrack}>
                 <View
                   style={[
-                    styles.progressFill,
+                    styles.sessionProgressFill,
                     { width: progressWidth ? `${sessionProgressRatio * 100}%` : "0%" }
                   ]}
                 />
               </View>
             </View>
             <View style={styles.timeRow}>
-              <Text style={styles.timeText}>{formatTime(sessionCurrent)}</Text>
-              <Text style={styles.timeText}>{formatTime(sessionDuration)}</Text>
+              <Text style={[styles.timeText, styles.sessionTimeText]}>{formatTime(sessionCurrent)}</Text>
+              <Text style={[styles.timeText, styles.sessionTimeText]}>{formatTime(sessionDuration)}</Text>
             </View>
           </>
         ) : (
@@ -509,7 +589,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
               onLayout={(event) => setProgressWidth(event.nativeEvent.layout.width)}
               onPress={(event) => onSeekBarPress(event.nativeEvent.locationX)}
             >
-              <View style={styles.progressTrack}>
+              <View style={isPlaylistSession ? styles.sessionProgressTrack : styles.progressTrack}>
                 <View
                   style={[
                     styles.progressFill,
@@ -527,8 +607,9 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
         )}
 
 
-        <View style={[styles.controlsRow, { opacity: soundscapeControlsOpacity }]}>
-          {showSoundscapeControls ? (
+        <Pressable style={styles.controlsTapArea} onPress={revealControlsTemporarily}>
+          <View style={[styles.controlsRow, { opacity: controlsOpacity }]}>
+          {isSoundscapeImmersion ? null : showSoundscapeControls ? (
             <Pressable onPress={handleStop} style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}>
               <Text style={styles.secondaryText}>Stop</Text>
             </Pressable>
@@ -547,7 +628,8 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
           >
             <Text style={styles.primaryText}>{activeStatus.playing ? id.player.pause : isPlaylistSession ? id.player.sleepSessionStartCta : id.player.start}</Text>
           </Pressable>
-        </View>
+          </View>
+        </Pressable>
       </ScrollView>
 
       <SleepSessionExitModal
@@ -738,5 +820,30 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   secondaryText: { color: colors.text, fontSize: typography.caption, fontWeight: "700", textAlign: "center" },
+
+  controlsTapArea: {
+    marginTop: spacing.md,
+  },
+  phaseToneOverlay: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  startTransitionOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.card,
+  },
+  sessionProgressTrack: {
+    height: controlSizes.progressHeight,
+    borderRadius: radius.full,
+    backgroundColor: `${colors.white}A6`,
+    overflow: "hidden",
+  },
+  sessionProgressFill: {
+    height: "100%",
+    borderRadius: radius.full,
+    backgroundColor: `${colors.primary}B3`,
+  },
+  sessionTimeText: {
+    opacity: 0.72,
+  },
   pressed: { opacity: 0.85 },
 });
