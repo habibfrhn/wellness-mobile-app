@@ -1,10 +1,11 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Platform, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { AUDIO_TRACKS } from "../../content/audioCatalog";
 import AudioTrackListSection from "../../components/AudioTrackListSection";
+import SleepOptionModal from "../../components/SleepOptionModal";
 import HomeGreetingTitle from "../../components/HomeGreetingTitle";
 import HomeHeaderLogo from "../../components/HomeHeaderLogo";
 import HomeHeaderSettingsButton from "../../components/HomeHeaderSettingsButton";
@@ -63,6 +64,15 @@ export default function HomeScreen({ navigation, route }: Props) {
   const soundscapeTracks = AUDIO_TRACKS.filter((track) => track.contentType === "soundscape");
 
 
+
+  const [isSleepOptionModalVisible, setIsSleepOptionModalVisible] = useState(false);
+
+  const handleSelectSleepOption = (option: "calm_mind" | "release_accept") => {
+    setIsSleepOptionModalVisible(false);
+    const audioId = option === "calm_mind" ? "bersiap-tidur" : "menerima-diri";
+    navigation.navigate("Player", { audioId });
+  };
+
   return (
     <ScrollView
       style={styles.container}
@@ -86,7 +96,7 @@ export default function HomeScreen({ navigation, route }: Props) {
             <HomeGreetingTitle />
             <View style={styles.primaryActionCardWrap}>
               <View style={styles.primaryActionCard}>
-                <HomeNightSummary onPressPrimary={() => navigation.navigate("NightMode")} />
+                <HomeNightSummary onPressPrimary={() => setIsSleepOptionModalVisible(true)} />
               </View>
             </View>
           </View>
@@ -126,6 +136,12 @@ export default function HomeScreen({ navigation, route }: Props) {
           )}
         </View>
       </View>
+
+      <SleepOptionModal
+        visible={isSleepOptionModalVisible}
+        onClose={() => setIsSleepOptionModalVisible(false)}
+        onSelect={handleSelectSleepOption}
+      />
     </ScrollView>
   );
 }
