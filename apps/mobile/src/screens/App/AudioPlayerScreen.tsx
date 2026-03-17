@@ -156,8 +156,8 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
 
       if (isPlaylistSession && !hasSessionStarted) {
         resetPlayers();
-        primaryPlayer.play();
         setHasSessionStarted(true);
+        setAutoPlayNextTrack(true);
         return;
       }
 
