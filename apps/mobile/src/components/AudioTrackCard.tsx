@@ -25,9 +25,7 @@ export default function AudioTrackCard({ track, onPress, showDuration = true }: 
     >
       <Image source={track.thumbnail} style={styles.thumbnail} resizeMode="cover" />
       <View style={styles.cardBody}>
-        <Text style={styles.cardTitle} numberOfLines={2} ellipsizeMode="clip">
-          {track.title}
-        </Text>
+        <Text style={styles.cardTitle} numberOfLines={1}>{track.title}</Text>
         <View style={styles.cardMetaRow}>
           <Text style={styles.cardMeta} numberOfLines={1}>
             {track.creator}
@@ -56,21 +54,19 @@ const styles = StyleSheet.create({
     ...(Platform.OS === "web" ? { boxShadow: `0px 4px 12px ${colors.text}14` } : {}),
   },
   thumbnail: {
-    width: 48,
-    height: 48,
+    width: 72,
+    height: 72,
     aspectRatio: 1,
     borderTopLeftRadius: radius.sm,
     borderBottomLeftRadius: radius.sm,
   },
   cardBody: {
     flex: 1,
-    minWidth: 0,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.sm,
     justifyContent: "center",
   },
   cardTitle: {
-    flexShrink: 0,
     fontSize: typography.caption,
     fontWeight: "700",
     color: colors.text,
@@ -89,7 +85,6 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
   },
   cardDuration: {
-    minWidth: 40,
     fontSize: typography.micro,
     color: colors.mutedText,
   },
