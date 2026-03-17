@@ -12,7 +12,7 @@ type Props = NativeStackScreenProps<AppStackParamList, "NightStep2">;
 
 export default function NightStep2Screen({ navigation, route }: Props) {
   const { mode, stressBefore } = route.params;
-  const track = useMemo(() => getTrackById("bersiap-tidur"), []);
+  const track = useMemo(() => getTrackById("bersiap_tidur"), []);
   const player = useAudioPlayer(track.asset, { updateInterval: 250 });
   const status = useAudioPlayerStatus(player);
   const hasNavigatedRef = useRef(false);

@@ -18,6 +18,7 @@ export default function SleepOptionModal({ visible, onClose, onSelect }: SleepOp
       <Pressable style={styles.overlay} onPress={onClose}>
         <Pressable style={styles.modalCard} onPress={(event) => event.stopPropagation()}>
           <Text style={styles.question}>{id.home.nightModeQuestion}</Text>
+          <Text style={styles.subtitle}>{id.home.nightModeSubtitle}</Text>
 
           <Pressable
             onPress={() => onSelect("calm_mind")}
@@ -60,6 +61,10 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: typography.title,
     fontWeight: "700",
+  },
+  subtitle: {
+    color: colors.mutedText,
+    fontSize: typography.small,
     marginBottom: spacing.xs,
   },
   optionCard: {

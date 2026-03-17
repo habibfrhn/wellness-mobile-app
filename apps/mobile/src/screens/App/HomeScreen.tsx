@@ -69,7 +69,7 @@ export default function HomeScreen({ navigation, route }: Props) {
 
   const handleSelectSleepOption = (option: "calm_mind" | "release_accept") => {
     setIsSleepOptionModalVisible(false);
-    const audioId = option === "calm_mind" ? "bersiap-tidur" : "menerima-diri";
+    const audioId = option === "calm_mind" ? "bersiap_tidur" : "afirmasi_tidur";
     navigation.navigate("Player", { audioId });
   };
 

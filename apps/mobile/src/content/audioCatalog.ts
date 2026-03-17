@@ -1,10 +1,10 @@
 export type AudioId =
-  | "bersiap-tidur"
+  | "bersiap_tidur"
   | "lapisan-sunyi"
   | "dibawah-hujan"
   | "larut-perlahan"
-  | "menerima-diri"
-  | "rasa-syukur";
+  | "afirmasi_tidur"
+  | "meditasi_tidur";
 
 export type AudioTrack = {
   id: AudioId;
@@ -23,9 +23,9 @@ export type AudioTrack = {
 
 export const AUDIO_TRACKS = [
   {
-    id: "bersiap-tidur",
+    id: "bersiap_tidur",
     order: 1,
-    title: "Tenangkan Pikiran",
+    title: "Rilekskan Tubuh",
     subtitle: "Ritual santai sebelum lelap",
     durationSec: 600,
     asset: require("../../assets/audio/sleep-guide/01-bersiap-tidur-10m.m4a"),
@@ -79,9 +79,9 @@ export const AUDIO_TRACKS = [
     isPremium: false,
   },
   {
-    id: "menerima-diri",
+    id: "afirmasi_tidur",
     order: 5,
-    title: "Lepaskan Hari",
+    title: "Terima Diri",
     subtitle: "Afirmasi lembut untuk diri",
     durationSec: 166,
     asset: require("../../assets/audio/afirmasi/01-menerima-diri-2m46s.m4a"),
@@ -93,9 +93,9 @@ export const AUDIO_TRACKS = [
     isPremium: false,
   },
   {
-    id: "rasa-syukur",
+    id: "meditasi_tidur",
     order: 6,
-    title: "Akhiri Hari",
+    title: "Syukuri Hari",
     subtitle: "Afirmasi lembut untuk diri",
     durationSec: 166,
     asset: require("../../assets/audio/afirmasi/02-rasa-syukur-2m46s.m4a"),
