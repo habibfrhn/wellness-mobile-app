@@ -16,14 +16,6 @@ type AudioTrackCardProps = {
   showDuration?: boolean;
 };
 
-function shortenTitle(title: string, maxLength = 15) {
-  if (title.length <= maxLength) {
-    return title;
-  }
-
-  return `${title.slice(0, maxLength - 1)}…`;
-}
-
 export default function AudioTrackCard({ track, onPress, showDuration = true }: AudioTrackCardProps) {
   return (
     <Pressable
@@ -33,7 +25,9 @@ export default function AudioTrackCard({ track, onPress, showDuration = true }: 
     >
       <Image source={track.thumbnail} style={styles.thumbnail} resizeMode="cover" />
       <View style={styles.cardBody}>
-        <Text style={styles.cardTitle}>{shortenTitle(track.title)}</Text>
+        <Text style={styles.cardTitle} numberOfLines={2}>
+          {track.title}
+        </Text>
         <View style={styles.cardMetaRow}>
           <Text style={styles.cardMeta} numberOfLines={1}>
             {track.creator}
@@ -62,19 +56,23 @@ const styles = StyleSheet.create({
     ...(Platform.OS === "web" ? { boxShadow: `0px 4px 12px ${colors.text}14` } : {}),
   },
   thumbnail: {
-    width: 72,
-    height: 72,
+    width: 48,
+    height: 48,
     aspectRatio: 1,
     borderTopLeftRadius: radius.sm,
     borderBottomLeftRadius: radius.sm,
   },
   cardBody: {
     flex: 1,
-    paddingHorizontal: spacing.sm,
+    minWidth: 0,
+    paddingLeft: 14,
+    paddingRight: spacing.sm,
     paddingVertical: spacing.sm,
     justifyContent: "center",
   },
   cardTitle: {
+    flexGrow: 1,
+    flexShrink: 0,
     fontSize: typography.caption,
     fontWeight: "700",
     color: colors.text,
@@ -93,8 +91,10 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
   },
   cardDuration: {
-    fontSize: typography.micro,
+    minWidth: 40,
+    fontSize: typography.tiny,
     color: colors.mutedText,
+    textAlign: "right",
   },
   pressed: { opacity: 0.85 },
 });
