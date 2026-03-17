@@ -7,6 +7,7 @@ import { getTrackById, isFavorite, toggleFavorite } from "../../content/audioCat
 import type { AudioId } from "../../content/audioCatalog";
 import { colors, spacing, radius, typography, controlSizes } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
+import SleepSessionExitModal from "../../components/SleepSessionExitModal";
 
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AppStackParamList } from "../../navigation/types";
@@ -43,6 +44,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   });
   const [autoPlayNextTrack, setAutoPlayNextTrack] = useState(false);
   const [hasSessionStarted, setHasSessionStarted] = useState(false);
+  const [isExitModalVisible, setIsExitModalVisible] = useState(false);
 
   const currentAudioId: AudioId = normalizedPlaylistIds[playlistIndex] ?? audioId;
   const track = useMemo(() => getTrackById(currentAudioId), [currentAudioId]);
@@ -181,7 +183,15 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
       resetPlayers();
     };
 
-    const unsubBeforeRemove = navigation.addListener("beforeRemove", stopPlayback);
+    const unsubBeforeRemove = navigation.addListener("beforeRemove", (event) => {
+      if (!(isPlaylistSession && hasSessionStarted)) {
+        stopPlayback();
+        return;
+      }
+
+      event.preventDefault();
+      setIsExitModalVisible(true);
+    });
     const unsubBlur = navigation.addListener("blur", stopPlayback);
 
     return () => {
@@ -189,7 +199,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
       unsubBlur();
       stopPlayback();
     };
-  }, [navigation, resetPlayers]);
+  }, [hasSessionStarted, isPlaylistSession, navigation, resetPlayers]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -364,6 +374,12 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     setTimerRemaining(timerSeconds);
   };
 
+  const handleConfirmExitSession = () => {
+    setIsExitModalVisible(false);
+    resetPlayers();
+    navigation.goBack();
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -492,6 +508,8 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
           </>
         )}
 
+        {isPlaylistSession && !hasSessionStarted ? <Text style={styles.sessionReadyText}>{id.player.sleepSessionReady}</Text> : null}
+
         <View style={[styles.controlsRow, { opacity: soundscapeControlsOpacity }]}>
           {showSoundscapeControls ? (
             <Pressable onPress={handleStop} style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}>
@@ -510,10 +528,16 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
               pressed && styles.pressed,
             ]}
           >
-            <Text style={styles.primaryText}>{activeStatus.playing ? id.player.pause : id.player.start}</Text>
+            <Text style={styles.primaryText}>{activeStatus.playing ? id.player.pause : isPlaylistSession ? id.player.sleepSessionStartCta : id.player.start}</Text>
           </Pressable>
         </View>
       </ScrollView>
+
+      <SleepSessionExitModal
+        visible={isExitModalVisible}
+        onCancel={() => setIsExitModalVisible(false)}
+        onConfirmExit={handleConfirmExitSession}
+      />
     </View>
   );
 }
@@ -590,6 +614,13 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   timeText: { fontSize: typography.caption, color: colors.mutedText },
+  sessionReadyText: {
+    marginTop: spacing.sm,
+    color: colors.mutedText,
+    fontSize: typography.small,
+    fontWeight: "600",
+    textAlign: "center",
+  },
   controlsRow: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.md },
   soundscapeOptions: {
     marginTop: spacing.md,
