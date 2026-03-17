@@ -73,6 +73,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   const [timerRemaining, setTimerRemaining] = useState<number | null>(null);
   const [showTimerInfo, setShowTimerInfo] = useState(false);
   const fadeOutIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isExitingSessionRef = useRef(false);
 
   useEffect(() => {
     setFavorite(isFavorite(track.id));
@@ -152,6 +153,14 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
         pauseAll();
         return;
       }
+
+      if (isPlaylistSession && !hasSessionStarted) {
+        resetPlayers();
+        primaryPlayer.play();
+        setHasSessionStarted(true);
+        return;
+      }
+
       if (atEnd) activePlayer.seekTo(0);
       activePlayer.play();
       setHasSessionStarted(true);
@@ -184,6 +193,10 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     };
 
     const unsubBeforeRemove = navigation.addListener("beforeRemove", (event) => {
+      if (isExitingSessionRef.current) {
+        return;
+      }
+
       if (!(isPlaylistSession && hasSessionStarted)) {
         stopPlayback();
         return;
@@ -381,6 +394,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     setHasSessionStarted(false);
     setPlaylistIndex(0);
     setIsExitModalVisible(false);
+    isExitingSessionRef.current = true;
     navigation.goBack();
   };
 
@@ -512,7 +526,6 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
           </>
         )}
 
-        {isPlaylistSession && !hasSessionStarted ? <Text style={styles.sessionReadyText}>{id.player.sleepSessionReady}</Text> : null}
 
         <View style={[styles.controlsRow, { opacity: soundscapeControlsOpacity }]}>
           {showSoundscapeControls ? (
@@ -618,13 +631,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   timeText: { fontSize: typography.caption, color: colors.mutedText },
-  sessionReadyText: {
-    marginTop: spacing.sm,
-    color: colors.mutedText,
-    fontSize: typography.small,
-    fontWeight: "600",
-    textAlign: "center",
-  },
   controlsRow: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.md },
   soundscapeOptions: {
     marginTop: spacing.md,
