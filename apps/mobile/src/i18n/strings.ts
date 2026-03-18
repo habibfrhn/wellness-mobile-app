@@ -196,6 +196,8 @@ export const id = {
     sleepSessionStartCta: "Mulai sesi tidur",
     sleepSessionReady: "Sesi sudah siap",
     sleepSessionExitConfirm: "Yakin ingin mengakhiri sesi tidur?",
+    sleepSessionExitNo: "No",
+    sleepSessionExitYes: "Yes",
   },
 
   account: {

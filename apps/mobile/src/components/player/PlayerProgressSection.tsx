@@ -1,0 +1,90 @@
+import React, { useMemo } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+
+import { colors, controlSizes, radius, spacing, typography } from "../../theme/tokens";
+
+type PlayerProgressSectionProps = {
+  current: number;
+  duration: number;
+  progressRatio: number;
+  onLayoutWidth: (width: number) => void;
+  onSeek: (locationX: number) => void;
+  progressWidth: number;
+};
+
+function formatTime(sec: number) {
+  const s = Math.max(0, Math.floor(sec));
+  const mm = String(Math.floor(s / 60)).padStart(2, "0");
+  const ss = String(s % 60).padStart(2, "0");
+  return `${mm}:${ss}`;
+}
+
+export default function PlayerProgressSection({
+  current,
+  duration,
+  progressRatio,
+  onLayoutWidth,
+  onSeek,
+  progressWidth,
+}: PlayerProgressSectionProps) {
+  const progressHandleSize = spacing.xs;
+  const progressHandleLeft = useMemo(() => {
+    if (!progressWidth) {
+      return 0;
+    }
+    return Math.min(
+      Math.max(progressRatio * progressWidth - progressHandleSize / 2, 0),
+      progressWidth - progressHandleSize,
+    );
+  }, [progressHandleSize, progressRatio, progressWidth]);
+
+  return (
+    <>
+      <Pressable
+        style={styles.progressWrap}
+        onLayout={(event) => onLayoutWidth(event.nativeEvent.layout.width)}
+        onPress={(event) => onSeek(event.nativeEvent.locationX)}
+      >
+        <View style={styles.progressTrack}>
+          <View style={[styles.progressFill, { width: progressWidth ? `${progressRatio * 100}%` : "0%" }]} />
+          <View style={[styles.progressHandle, { left: progressHandleLeft }]} />
+        </View>
+      </Pressable>
+      <View style={styles.timeRow}>
+        <Text style={styles.timeText}>{formatTime(current)}</Text>
+        <Text style={styles.timeText}>{formatTime(duration)}</Text>
+      </View>
+    </>
+  );
+}
+
+const styles = StyleSheet.create({
+  progressWrap: { marginTop: spacing.xl },
+  progressTrack: {
+    height: controlSizes.progressHeight,
+    borderRadius: radius.full,
+    backgroundColor: colors.white,
+    overflow: "hidden",
+  },
+  progressFill: {
+    height: "100%",
+    borderRadius: radius.full,
+    backgroundColor: colors.primary,
+  },
+  progressHandle: {
+    position: "absolute",
+    width: spacing.xs,
+    height: spacing.xs,
+    borderRadius: spacing.xs / 2,
+    backgroundColor: colors.primary,
+    top: "50%",
+    transform: [{ translateY: -(spacing.xs / 2) }],
+  },
+  timeRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: spacing.xs / 2,
+    marginBottom: spacing.xl,
+  },
+  timeText: { fontSize: typography.caption, color: colors.mutedText },
+});

@@ -19,10 +19,10 @@ export default function SleepSessionExitModal({ visible, onConfirmExit, onCancel
 
           <View style={styles.actions}>
             <Pressable style={styles.secondaryBtn} onPress={onCancel}>
-              <Text style={styles.secondaryText}>{id.player.pause}</Text>
+              <Text style={styles.secondaryText}>{id.player.sleepSessionExitNo}</Text>
             </Pressable>
             <Pressable style={styles.primaryBtn} onPress={onConfirmExit}>
-              <Text style={styles.primaryText}>{id.player.stop}</Text>
+              <Text style={styles.primaryText}>{id.player.sleepSessionExitYes}</Text>
             </Pressable>
           </View>
         </Pressable>

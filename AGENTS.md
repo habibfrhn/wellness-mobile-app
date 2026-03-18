@@ -39,3 +39,10 @@
 - If repo-wide checks fail for pre-existing reasons, clearly report that they are unrelated.
 - For visual web UI changes, run the app and capture a screenshot artifact when tooling is available.
 - Commit only the intended files; verify with `git status` and `git diff --staged`.
+
+## Screen size & refactor discipline
+- Keep screen components under **400 lines** (target **300** when practical).
+- Split UI-heavy screens into smaller presentation components plus focused hooks.
+- During refactors, remove unused animation systems, stale state, and dead UI logic.
+- Keep player/session business logic separate from UI rendering components.
+
