@@ -37,6 +37,7 @@ export function useAudioPlayerSession({ audioId, playlistIds }: UseAudioPlayerSe
   const [timerRemaining, setTimerRemaining] = useState<number | null>(null);
 
   const fadeOutIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pendingPlaylistSeekRef = useRef<{ seconds: number; resume: boolean } | null>(null);
 
   const currentAudioId: AudioId = normalizedPlaylistIds[playlistIndex] ?? audioId;
   const track = useMemo(() => getTrackById(currentAudioId), [currentAudioId]);
@@ -165,12 +166,58 @@ export function useAudioPlayerSession({ audioId, playlistIds }: UseAudioPlayerSe
   const onSeek = useCallback(
     (value: number) => {
       try {
+        if (isPlaylistSession) {
+          const boundedValue = Math.min(Math.max(value, 0), sessionDuration);
+          let cumulative = 0;
+          let nextIndex = 0;
+          let nextSeekSeconds = 0;
+
+          for (let index = 0; index < playlistTracks.length; index += 1) {
+            const trackDuration = playlistTracks[index]?.durationSec ?? 0;
+            const trackEnd = cumulative + trackDuration;
+            const isTargetTrack = boundedValue <= trackEnd || index === playlistTracks.length - 1;
+            if (isTargetTrack) {
+              nextIndex = index;
+              nextSeekSeconds = Math.min(Math.max(boundedValue - cumulative, 0), trackDuration);
+              break;
+            }
+            cumulative = trackEnd;
+          }
+
+          const shouldResume = activeStatus.playing;
+          if (nextIndex !== playlistIndex) {
+            pendingPlaylistSeekRef.current = { seconds: nextSeekSeconds, resume: shouldResume };
+            pauseAll();
+            resetPlayers();
+            setPlaylistIndex(nextIndex);
+            setAutoPlayNextTrack(false);
+            setHasSessionStarted(true);
+            return;
+          }
+
+          activePlayer.seekTo(nextSeekSeconds);
+          if (shouldResume) {
+            activePlayer.play();
+          }
+          setHasSessionStarted(true);
+          return;
+        }
+
         activePlayer.seekTo(value);
       } catch {
         // no-op
       }
     },
-    [activePlayer],
+    [
+      activePlayer,
+      activeStatus.playing,
+      isPlaylistSession,
+      pauseAll,
+      playlistIndex,
+      playlistTracks,
+      resetPlayers,
+      sessionDuration,
+    ],
   );
 
   const handleTimerSelect = useCallback((seconds: number) => {
@@ -332,6 +379,24 @@ export function useAudioPlayerSession({ audioId, playlistIds }: UseAudioPlayerSe
       setAutoPlayNextTrack(false);
     }
   }, [autoPlayNextTrack, primaryPlayer, track.id]);
+
+  useEffect(() => {
+    if (!isPlaylistSession || !pendingPlaylistSeekRef.current) {
+      return;
+    }
+
+    const pendingSeek = pendingPlaylistSeekRef.current;
+    pendingPlaylistSeekRef.current = null;
+
+    try {
+      primaryPlayer.seekTo(pendingSeek.seconds);
+      if (pendingSeek.resume) {
+        primaryPlayer.play();
+      }
+    } catch {
+      // no-op
+    }
+  }, [isPlaylistSession, playlistIndex, primaryPlayer, track.id]);
 
   useEffect(() => {
     if (!isPlaylistSession || !hasSessionStarted || activeStatus.playing || !atEnd) {

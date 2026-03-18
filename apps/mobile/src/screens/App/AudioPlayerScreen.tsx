@@ -6,7 +6,6 @@ import PlayerArtworkSection from "../../components/player/PlayerArtworkSection";
 import PlayerControlsSection from "../../components/player/PlayerControlsSection";
 import PlayerProgressSection from "../../components/player/PlayerProgressSection";
 import SleepSessionProgressHeader from "../../components/player/SleepSessionProgressHeader";
-import SleepSessionProgressSection from "../../components/player/SleepSessionProgressSection";
 import SoundscapeTimerSection from "../../components/player/SoundscapeTimerSection";
 import SleepSessionExitModal from "../../components/SleepSessionExitModal";
 import { isFavorite, toggleFavorite } from "../../content/audioCatalog";
@@ -75,15 +74,19 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     };
   }, [isPlaylistSession, sleepMode]);
 
+  const seekDuration = isPlaylistSession ? sessionDuration : duration;
+  const seekCurrent = isPlaylistSession ? sessionCurrent : current;
+  const seekProgressRatio = isPlaylistSession ? sessionProgressRatio : progressRatio;
+
   const onSeekBarPress = useCallback(
     (locationX: number) => {
-      if (!duration || !progressWidth) {
+      if (!seekDuration || !progressWidth) {
         return;
       }
       const ratio = Math.min(Math.max(locationX / progressWidth, 0), 1);
-      onSeek(ratio * duration);
+      onSeek(ratio * seekDuration);
     },
-    [duration, onSeek, progressWidth],
+    [onSeek, progressWidth, seekDuration],
   );
 
   const handleClose = useCallback(() => {
@@ -190,19 +193,11 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
               isSessionActive={isSessionActive}
               onSelectTimer={handleTimerSelect}
             />
-          ) : isPlaylistSession ? (
-            <SleepSessionProgressSection
-              sessionCurrent={sessionCurrent}
-              sessionDuration={sessionDuration}
-              sessionProgressRatio={sessionProgressRatio}
-              onLayoutWidth={setProgressWidth}
-              progressWidth={progressWidth}
-            />
           ) : (
             <PlayerProgressSection
-              current={current}
-              duration={duration}
-              progressRatio={progressRatio}
+              current={seekCurrent}
+              duration={seekDuration}
+              progressRatio={seekProgressRatio}
               onLayoutWidth={setProgressWidth}
               onSeek={onSeekBarPress}
               progressWidth={progressWidth}
@@ -211,7 +206,6 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
 
           <PlayerControlsSection
             isPlaying={activeStatus.playing}
-            isPlaylistSession={isPlaylistSession}
             showSoundscapeControls={showSoundscapeControls}
             onStop={handleStop}
             onRestart={onRestart}

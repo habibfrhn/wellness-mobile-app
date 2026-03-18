@@ -6,7 +6,6 @@ import { colors, radius, spacing, typography } from "../../theme/tokens";
 
 type PlayerControlsSectionProps = {
   isPlaying: boolean;
-  isPlaylistSession: boolean;
   showSoundscapeControls: boolean;
   onStop: () => void;
   onRestart: () => void;
@@ -15,7 +14,6 @@ type PlayerControlsSectionProps = {
 
 export default function PlayerControlsSection({
   isPlaying,
-  isPlaylistSession,
   showSoundscapeControls,
   onStop,
   onRestart,
@@ -28,7 +26,7 @@ export default function PlayerControlsSection({
           <Pressable onPress={onStop} style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}>
             <Text style={styles.secondaryText}>{id.player.stop}</Text>
           </Pressable>
-        ) : isPlaylistSession ? null : (
+        ) : (
           <Pressable onPress={onRestart} style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}>
             <Text style={styles.secondaryText}>{id.player.restart}</Text>
           </Pressable>
@@ -36,14 +34,9 @@ export default function PlayerControlsSection({
 
         <Pressable
           onPress={onTogglePlay}
-          style={({ pressed }) => [
-            isPlaylistSession ? styles.primaryBtnSingle : styles.primaryBtn,
-            pressed && styles.pressed,
-          ]}
+          style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
         >
-          <Text style={styles.primaryText}>
-            {isPlaying ? id.player.pause : isPlaylistSession ? id.player.sleepSessionStartCta : id.player.start}
-          </Text>
+          <Text style={styles.primaryText}>{isPlaying ? id.player.pause : id.player.start}</Text>
         </Pressable>
       </View>
     </View>
@@ -57,14 +50,6 @@ const styles = StyleSheet.create({
   controlsRow: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.md },
   primaryBtn: {
     flex: 1,
-    backgroundColor: colors.primary,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.sm,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  primaryBtnSingle: {
-    width: "100%",
     backgroundColor: colors.primary,
     paddingVertical: spacing.sm,
     borderRadius: radius.sm,

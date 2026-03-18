@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import React, { useCallback, useMemo } from "react";
+import { StyleSheet, Text, View } from "react-native";
 
 import { colors, controlSizes, radius, spacing, typography } from "../../theme/tokens";
 
@@ -37,19 +37,28 @@ export default function PlayerProgressSection({
       progressWidth - progressHandleSize,
     );
   }, [progressHandleSize, progressRatio, progressWidth]);
+  const handleSeekGesture = useCallback(
+    (locationX: number) => {
+      onSeek(locationX);
+    },
+    [onSeek],
+  );
 
   return (
     <>
-      <Pressable
+      <View
         style={styles.progressWrap}
         onLayout={(event) => onLayoutWidth(event.nativeEvent.layout.width)}
-        onPress={(event) => onSeek(event.nativeEvent.locationX)}
+        onStartShouldSetResponder={() => true}
+        onMoveShouldSetResponder={() => true}
+        onResponderGrant={(event) => handleSeekGesture(event.nativeEvent.locationX)}
+        onResponderMove={(event) => handleSeekGesture(event.nativeEvent.locationX)}
       >
         <View style={styles.progressTrack}>
           <View style={[styles.progressFill, { width: progressWidth ? `${progressRatio * 100}%` : "0%" }]} />
           <View style={[styles.progressHandle, { left: progressHandleLeft }]} />
         </View>
-      </Pressable>
+      </View>
       <View style={styles.timeRow}>
         <Text style={styles.timeText}>{formatTime(current)}</Text>
         <Text style={styles.timeText}>{formatTime(duration)}</Text>
