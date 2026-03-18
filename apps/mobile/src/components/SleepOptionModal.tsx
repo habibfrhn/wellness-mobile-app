@@ -72,6 +72,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     padding: spacing.md,
     gap: spacing.xs,
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 2,
   },
   optionTitle: {
     color: colors.text,

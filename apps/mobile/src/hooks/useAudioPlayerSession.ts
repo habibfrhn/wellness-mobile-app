@@ -127,8 +127,9 @@ export function useAudioPlayerSession({ audioId, playlistIds }: UseAudioPlayerSe
 
       if (isPlaylistSession && !hasSessionStarted) {
         resetPlayers();
+        primaryPlayer.seekTo(0);
+        primaryPlayer.play();
         setHasSessionStarted(true);
-        setAutoPlayNextTrack(true);
         return;
       }
 
@@ -140,7 +141,16 @@ export function useAudioPlayerSession({ audioId, playlistIds }: UseAudioPlayerSe
     } catch {
       // no-op
     }
-  }, [activePlayer, activeStatus.playing, atEnd, hasSessionStarted, isPlaylistSession, pauseAll, resetPlayers]);
+  }, [
+    activePlayer,
+    activeStatus.playing,
+    atEnd,
+    hasSessionStarted,
+    isPlaylistSession,
+    pauseAll,
+    primaryPlayer,
+    resetPlayers,
+  ]);
 
   const onRestart = useCallback(() => {
     try {

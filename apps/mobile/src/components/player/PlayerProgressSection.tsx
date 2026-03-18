@@ -27,7 +27,7 @@ export default function PlayerProgressSection({
   onSeek,
   progressWidth,
 }: PlayerProgressSectionProps) {
-  const progressHandleSize = spacing.xs;
+  const progressHandleSize = spacing.sm;
   const progressHandleLeft = useMemo(() => {
     if (!progressWidth) {
       return 0;
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   progressTrack: {
     height: controlSizes.progressHeight,
     borderRadius: radius.full,
-    backgroundColor: colors.white,
+    backgroundColor: colors.bg,
     overflow: "hidden",
   },
   progressFill: {
@@ -73,12 +73,12 @@ const styles = StyleSheet.create({
   },
   progressHandle: {
     position: "absolute",
-    width: spacing.xs,
-    height: spacing.xs,
-    borderRadius: spacing.xs / 2,
+    width: spacing.sm,
+    height: spacing.sm,
+    borderRadius: spacing.sm / 2,
     backgroundColor: colors.primary,
     top: "50%",
-    transform: [{ translateY: -(spacing.xs / 2) }],
+    transform: [{ translateY: -(spacing.sm / 2) }],
   },
   timeRow: {
     flexDirection: "row",

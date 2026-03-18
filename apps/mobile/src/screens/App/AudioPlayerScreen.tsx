@@ -1,6 +1,5 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import PlayerArtworkSection from "../../components/player/PlayerArtworkSection";
@@ -58,6 +57,23 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   }, [track.id]);
 
   const shouldConfirmExit = isPlaylistSession && hasSessionStarted;
+  const sessionArtwork = useMemo(() => {
+    if (!isPlaylistSession) {
+      return null;
+    }
+
+    if (sleepMode === "release_accept") {
+      return {
+        cover: require("../../../assets/image/cover/08-master-cover.jpg"),
+        thumbnail: require("../../../assets/image/thumbnail/08-master-thumbnail.jpg"),
+      };
+    }
+
+    return {
+      cover: require("../../../assets/image/cover/07-master-cover.jpg"),
+      thumbnail: require("../../../assets/image/thumbnail/07-master-thumbnail.jpg"),
+    };
+  }, [isPlaylistSession, sleepMode]);
 
   const onSeekBarPress = useCallback(
     (locationX: number) => {
@@ -119,7 +135,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
           accessibilityRole="button"
           accessibilityLabel={id.login.closeLabel}
         >
-          <FontAwesome name="close" size={typography.iconMd} color={colors.text} />
+          <Text style={styles.closeText}>✕</Text>
         </Pressable>
       ),
     });
@@ -155,51 +171,53 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
         showsVerticalScrollIndicator={false}
       >
         <PlayerArtworkSection
-          cover={track.cover}
+          cover={sessionArtwork?.cover ?? track.cover}
           isFavorite={favorite}
           onToggleFavorite={() => setFavorite(toggleFavorite(track.id))}
         />
 
-        <SleepSessionProgressHeader
-          title={isPlaylistSession ? sleepSessionTitle : track.title}
-          subtitle={isPlaylistSession ? sleepSessionPhase : track.creator}
-        />
+        <View style={styles.sectionsAlignedWithArtwork}>
+          <SleepSessionProgressHeader
+            title={isPlaylistSession ? sleepSessionTitle : track.title}
+            subtitle={isPlaylistSession ? sleepSessionPhase : track.creator}
+          />
 
-        {showSoundscapeControls ? (
-          <SoundscapeTimerSection
-            timerOptions={TIMER_OPTIONS}
-            timerSeconds={timerSeconds}
-            timerRemaining={timerRemaining}
-            isSessionActive={isSessionActive}
-            onSelectTimer={handleTimerSelect}
-          />
-        ) : isPlaylistSession ? (
-          <SleepSessionProgressSection
-            sessionCurrent={sessionCurrent}
-            sessionDuration={sessionDuration}
-            sessionProgressRatio={sessionProgressRatio}
-            onLayoutWidth={setProgressWidth}
-            progressWidth={progressWidth}
-          />
-        ) : (
-          <PlayerProgressSection
-            current={current}
-            duration={duration}
-            progressRatio={progressRatio}
-            onLayoutWidth={setProgressWidth}
-            onSeek={onSeekBarPress}
-            progressWidth={progressWidth}
-          />
-        )}
+          {showSoundscapeControls ? (
+            <SoundscapeTimerSection
+              timerOptions={TIMER_OPTIONS}
+              timerSeconds={timerSeconds}
+              timerRemaining={timerRemaining}
+              isSessionActive={isSessionActive}
+              onSelectTimer={handleTimerSelect}
+            />
+          ) : isPlaylistSession ? (
+            <SleepSessionProgressSection
+              sessionCurrent={sessionCurrent}
+              sessionDuration={sessionDuration}
+              sessionProgressRatio={sessionProgressRatio}
+              onLayoutWidth={setProgressWidth}
+              progressWidth={progressWidth}
+            />
+          ) : (
+            <PlayerProgressSection
+              current={current}
+              duration={duration}
+              progressRatio={progressRatio}
+              onLayoutWidth={setProgressWidth}
+              onSeek={onSeekBarPress}
+              progressWidth={progressWidth}
+            />
+          )}
 
-        <PlayerControlsSection
-          isPlaying={activeStatus.playing}
-          isPlaylistSession={isPlaylistSession}
-          showSoundscapeControls={showSoundscapeControls}
-          onStop={handleStop}
-          onRestart={onRestart}
-          onTogglePlay={onTogglePlay}
-        />
+          <PlayerControlsSection
+            isPlaying={activeStatus.playing}
+            isPlaylistSession={isPlaylistSession}
+            showSoundscapeControls={showSoundscapeControls}
+            onStop={handleStop}
+            onRestart={onRestart}
+            onTogglePlay={onTogglePlay}
+          />
+        </View>
       </ScrollView>
 
       <SleepSessionExitModal
@@ -219,8 +237,20 @@ const styles = StyleSheet.create({
   closeButton: {
     width: 36,
     height: 36,
+    marginLeft: spacing.sm,
+    marginTop: spacing.xs,
     alignItems: "center",
     justifyContent: "center",
+  },
+  closeText: {
+    fontSize: typography.title,
+    color: colors.text,
+    fontWeight: "700",
+  },
+  sectionsAlignedWithArtwork: {
+    width: "100%",
+    maxWidth: 320,
+    alignSelf: "center",
   },
   pressed: { opacity: 0.85 },
 });
