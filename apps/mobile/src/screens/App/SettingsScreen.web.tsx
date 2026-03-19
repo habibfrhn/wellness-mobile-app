@@ -5,6 +5,7 @@ import SettingsContent from "../../components/SettingsContent";
 import HeaderCloseButton from "../../components/navigation/HeaderCloseButton";
 import WebResponsiveFrame from "../../components/WebResponsiveFrame";
 import type { AppStackParamList } from "../../navigation/types";
+import { colors } from "../../theme/tokens";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Settings">;
 
@@ -14,6 +15,7 @@ export default function SettingsScreen({ navigation }: Props) {
       title: "",
       headerBackVisible: false,
       headerLeft: () => <HeaderCloseButton onPress={() => navigation.goBack()} />,
+      headerStyle: { backgroundColor: colors.bg },
     });
   }, [navigation]);
 
