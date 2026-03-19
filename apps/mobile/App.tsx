@@ -16,6 +16,7 @@ import { id } from "./src/i18n/strings";
 import { hideSplashScreen, preventAutoHideSplashScreen } from "./src/services/splashScreen";
 import { setPendingUpdate } from "./src/services/updatesState";
 import { clearNextAuthRoute, getNextAuthRoute, setNextAuthRoute } from "./src/services/authStart";
+import { clearPendingProfileName, getPendingProfileName } from "./src/services/pendingProfileName";
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
 
@@ -224,6 +225,41 @@ export default function App() {
       authSubscription?.unsubscribe?.();
     };
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const applyPendingProfileName = async () => {
+      if (!session?.user?.id) {
+        return;
+      }
+
+      const pendingProfileName = await getPendingProfileName();
+      if (!pendingProfileName) {
+        return;
+      }
+
+      const currentProfileName = (session.user.user_metadata?.full_name as string | undefined)?.trim() ?? "";
+      if (currentProfileName) {
+        await clearPendingProfileName();
+        return;
+      }
+
+      const { error } = await supabase.auth.updateUser({
+        data: { full_name: pendingProfileName },
+      });
+
+      if (!cancelled && !error) {
+        await clearPendingProfileName();
+      }
+    };
+
+    void applyPendingProfileName();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session?.user?.id, session?.user?.user_metadata]);
 
   const onLayoutRootView = async () => {
     if (!ready) return;

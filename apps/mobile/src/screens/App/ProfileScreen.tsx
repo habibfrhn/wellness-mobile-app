@@ -3,6 +3,7 @@ import { Alert, Platform } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { id } from "../../i18n/strings";
+import { signOutToLogin } from "../../services/authSession";
 import { supabase } from "../../services/supabase";
 import ProfileContent from "../../components/ProfileContent";
 import type { AppStackParamList } from "../../navigation/types";
@@ -72,7 +73,7 @@ export default function ProfileScreen({}: Props) {
 
   async function onLogout() {
     const logoutAction = async () => {
-      const { error } = await supabase.auth.signOut();
+      const { error } = await signOutToLogin();
       if (error) Alert.alert(id.common.errorTitle, error.message);
     };
 

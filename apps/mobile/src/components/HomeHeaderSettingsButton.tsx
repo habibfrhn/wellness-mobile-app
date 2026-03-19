@@ -5,7 +5,7 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { colors, spacing, typography } from "../theme/tokens";
 import { id } from "../i18n/strings";
-import { supabase } from "../services/supabase";
+import { signOutToLogin } from "../services/authSession";
 import type { AppStackParamList } from "../navigation/types";
 
 type Props = {
@@ -23,7 +23,7 @@ function confirmOnWeb(title: string, message: string) {
 export default function HomeHeaderSettingsButton({ navigation }: Props) {
   const onLogout = async () => {
     const logoutAction = async () => {
-      const { error } = await supabase.auth.signOut();
+      const { error } = await signOutToLogin();
       if (error) {
         Alert.alert(id.common.errorTitle, error.message);
       }

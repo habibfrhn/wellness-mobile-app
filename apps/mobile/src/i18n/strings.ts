@@ -21,6 +21,11 @@ export const id = {
     hidePassword: "Sembunyikan",
   },
 
+  auth: {
+    continueWithGoogle: "Lanjutkan dengan Google",
+    googleBusy: "Mengarahkan ke Google...",
+  },
+
   welcome: {
     title: "Selamat datang",
     subtitle: "Verifikasi sekali. Setelah itu, Anda bisa mulai sesi kapan pun.",

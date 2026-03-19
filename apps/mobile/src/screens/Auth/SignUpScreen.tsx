@@ -5,7 +5,10 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../../navigation/types";
 import { colors, spacing, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
+import GoogleAuthButton from "../../components/auth/GoogleAuthButton";
 import { supabase, AUTH_CALLBACK } from "../../services/supabase";
+import { continueWithGoogle } from "../../services/authOAuth";
+import { setPendingProfileName } from "../../services/pendingProfileName";
 import PasswordToggle from "../../components/PasswordToggle";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
 import AuthTextField from "../../components/auth/AuthTextField";
@@ -25,6 +28,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [busyGoogle, setBusyGoogle] = useState(false);
 
   const canPress = useMemo(() => !busy, [busy]);
 
@@ -69,6 +73,21 @@ export default function SignUpScreen({ navigation, route }: Props) {
       navigation.replace("VerifyEmail", { email: e });
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function onContinueWithGoogle() {
+    if (busy || busyGoogle) {
+      return;
+    }
+
+    setBusyGoogle(true);
+    try {
+      await setPendingProfileName(name);
+      await continueWithGoogle({ nextRoute: "SignUp" });
+    } catch (error) {
+      Alert.alert(id.common.errorTitle, error instanceof Error ? error.message : id.common.tryAgain);
+      setBusyGoogle(false);
     }
   }
 
@@ -133,15 +152,17 @@ export default function SignUpScreen({ navigation, route }: Props) {
         <View style={authSharedStyles.actionsStack}>
           <Pressable
             onPress={onSubmit}
-            disabled={!canPress}
+            disabled={!canPress || busyGoogle}
             style={({ pressed }) => [
               authSharedStyles.primaryButton,
-              !canPress && authSharedStyles.disabled,
-              pressed && canPress && authSharedStyles.pressed,
+              (!canPress || busyGoogle) && authSharedStyles.disabled,
+              pressed && canPress && !busyGoogle && authSharedStyles.pressed,
             ]}
           >
             <Text style={authSharedStyles.primaryButtonText}>{busy ? id.signup.busyCta : id.signup.primaryCta}</Text>
           </Pressable>
+
+          <GoogleAuthButton busy={busyGoogle} onPress={() => void onContinueWithGoogle()} />
 
           <SignUpLoginPrompt onPressLogin={() => navigation.replace("Login", { initialEmail: email.trim() })} />
         </View>

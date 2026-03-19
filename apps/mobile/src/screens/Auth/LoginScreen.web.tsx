@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   ScrollView,
+  Alert,
 } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -14,7 +15,9 @@ import type { AuthStackParamList } from "../../navigation/types";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { colors, spacing, radius, typography, lineHeights } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
+import GoogleAuthButton from "../../components/auth/GoogleAuthButton";
 import { supabase } from "../../services/supabase";
+import { continueWithGoogle } from "../../services/authOAuth";
 import PasswordToggle from "../../components/PasswordToggle";
 import LoginSignUpPrompt from "../../components/auth/LoginSignUpPrompt";
 
@@ -36,6 +39,7 @@ export default function LoginScreen({ navigation, route }: Props) {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [busyGoogle, setBusyGoogle] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   const viewportWidth = useViewportWidth();
@@ -116,6 +120,20 @@ export default function LoginScreen({ navigation, route }: Props) {
       }
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function onContinueWithGoogle() {
+    if (busy || busyGoogle) {
+      return;
+    }
+
+    setBusyGoogle(true);
+    try {
+      await continueWithGoogle({ nextRoute: "Login" });
+    } catch (error) {
+      Alert.alert(id.common.errorTitle, error instanceof Error ? error.message : id.common.tryAgain);
+      setBusyGoogle(false);
     }
   }
 
@@ -201,8 +219,8 @@ export default function LoginScreen({ navigation, route }: Props) {
         <View style={styles.actionsStack}>
           <Pressable
             onPress={onSubmit}
-            disabled={busy}
-            style={({ pressed }) => [styles.primaryButton, busy && styles.disabled, pressed && !busy && styles.pressed]}
+            disabled={busy || busyGoogle}
+            style={({ pressed }) => [styles.primaryButton, (busy || busyGoogle) && styles.disabled, pressed && !busy && !busyGoogle && styles.pressed]}
           >
             {busy ? (
               <ActivityIndicator color={colors.primaryText} />
@@ -210,6 +228,8 @@ export default function LoginScreen({ navigation, route }: Props) {
               <Text style={styles.primaryButtonText}>{id.login.primaryCta}</Text>
             )}
           </Pressable>
+
+          <GoogleAuthButton busy={busyGoogle} onPress={() => void onContinueWithGoogle()} />
 
           <LoginSignUpPrompt onPressSignUp={() => navigation.replace("SignUp", { initialEmail: email.trim() })} />
         </View>

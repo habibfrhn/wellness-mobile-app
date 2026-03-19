@@ -4,6 +4,7 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { id } from "../i18n/strings";
 import type { AppStackParamList } from "../navigation/types";
+import { signOutToLogin } from "../services/authSession";
 import { supabase } from "../services/supabase";
 import { colors, lineHeights, radius, spacing, typography } from "../theme/tokens";
 import SettingsRow from "./settings/SettingsRow";
@@ -115,38 +116,9 @@ export default function SettingsContent({ navigation }: Props) {
     const deleteAction = async () => {
       setBusyDelete(true);
       try {
-        const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
-        if (sessionErr) {
-          Alert.alert(id.common.errorTitle, sessionErr.message);
-          return;
-        }
-
-        const accessToken = sessionData.session?.access_token;
-        if (!accessToken) {
-          Alert.alert(id.common.errorTitle, id.account.sessionMissing);
-          return;
-        }
-
-        const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
-        const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
-        if (!supabaseUrl || !supabaseAnonKey) {
-          Alert.alert(id.common.errorTitle, "Supabase env belum tersedia.");
-          return;
-        }
-
-        const res = await fetch(`${supabaseUrl}/functions/v1/delete-account`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            apikey: supabaseAnonKey,
-            "x-user-jwt": accessToken,
-          },
-          body: JSON.stringify({}),
-        });
-
-        if (!res.ok) {
-          const msg = await res.text();
-          Alert.alert(id.common.errorTitle, msg || "Gagal menghapus akun.");
+        const { error } = await supabase.functions.invoke<{ ok?: boolean; error?: string }>("delete-account");
+        if (error) {
+          Alert.alert(id.common.errorTitle, error.message);
           return;
         }
 
@@ -154,7 +126,7 @@ export default function SettingsContent({ navigation }: Props) {
           {
             text: id.common.ok,
             onPress: async () => {
-              await supabase.auth.signOut();
+              await signOutToLogin();
             },
           },
         ]);
