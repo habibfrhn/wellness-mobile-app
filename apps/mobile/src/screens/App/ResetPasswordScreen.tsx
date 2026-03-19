@@ -1,12 +1,13 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AppStackParamList } from "../../navigation/types";
 import { colors, spacing, radius, typography, lineHeights } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
+import { canManagePassword } from "../../services/authProviders";
+import { signOutToLogin } from "../../services/authSession";
 import { supabase } from "../../services/supabase";
-import { setNextAuthRoute } from "../../services/authStart";
 import PasswordToggle from "../../components/PasswordToggle";
 
 type Props = NativeStackScreenProps<AppStackParamList, "ResetPassword">;
@@ -19,16 +20,45 @@ export default function ResetPasswordScreen({ navigation }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [passwordManagementReady, setPasswordManagementReady] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+
+    (async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (!mounted) {
+        return;
+      }
+
+      if (error || !canManagePassword(data.user)) {
+        Alert.alert(id.common.errorTitle, id.account.resetUnavailableBody, [
+          {
+            text: id.common.ok,
+            onPress: () => navigation.goBack(),
+          },
+        ]);
+        return;
+      }
+
+      setPasswordManagementReady(true);
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [navigation]);
 
   const canSubmit = useMemo(() => {
     return (
+      passwordManagementReady &&
       currentPassword.trim().length > 0 &&
       password.length >= 8 &&
       confirm.length >= 8 &&
       password === confirm &&
       !busy
     );
-  }, [currentPassword, password, confirm, busy]);
+  }, [passwordManagementReady, currentPassword, password, confirm, busy]);
 
   async function onSubmit() {
     if (!currentPassword.trim()) {
@@ -74,11 +104,14 @@ export default function ResetPasswordScreen({ navigation }: Props) {
         return;
       }
 
-      await setNextAuthRoute("Login");
-      await supabase.auth.signOut();
+      await signOutToLogin();
     } finally {
       setBusy(false);
     }
+  }
+
+  if (!passwordManagementReady) {
+    return <View style={styles.container} />;
   }
 
   return (

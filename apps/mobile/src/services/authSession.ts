@@ -1,7 +1,9 @@
 import { supabase } from "./supabase";
 import { setNextAuthRoute } from "./authStart";
 
-export async function signOutToLogin() {
+type SignOutScope = "global" | "local" | "others";
+
+export async function signOutToLogin(scope: SignOutScope = "global") {
   await setNextAuthRoute("Login");
-  return supabase.auth.signOut();
+  return supabase.auth.signOut({ scope });
 }

@@ -4,6 +4,7 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { id } from "../i18n/strings";
 import type { AppStackParamList } from "../navigation/types";
+import { canManagePassword } from "../services/authProviders";
 import { signOutToLogin } from "../services/authSession";
 import { supabase } from "../services/supabase";
 import { colors, lineHeights, radius, spacing, typography } from "../theme/tokens";
@@ -65,6 +66,7 @@ export default function SettingsContent({ navigation }: Props) {
   const [nameValue, setNameValue] = useState("");
   const [initialName, setInitialName] = useState("");
   const [busyDelete, setBusyDelete] = useState(false);
+  const [showResetPassword, setShowResetPassword] = useState(false);
 
   const appVersion = useMemo(() => readAppVersionFromAppJson(), []);
 
@@ -81,6 +83,7 @@ export default function SettingsContent({ navigation }: Props) {
       setNameValue(userName);
       setInitialName(userName);
       setEmailValue(data.user?.email ?? "-");
+      setShowResetPassword(canManagePassword(data.user));
     })();
 
     return () => {
@@ -126,7 +129,7 @@ export default function SettingsContent({ navigation }: Props) {
           {
             text: id.common.ok,
             onPress: async () => {
-              await signOutToLogin();
+              await signOutToLogin("local");
             },
           },
         ]);
@@ -182,7 +185,9 @@ export default function SettingsContent({ navigation }: Props) {
           }
         />
         <SettingsRow label={id.account.emailLabel} value={emailValue} showDivider={false} />
-        <SettingsRow label={id.account.resetPasswordButton} onPress={() => navigation.navigate("ResetPassword")} showChevron />
+        {showResetPassword ? (
+          <SettingsRow label={id.account.resetPasswordButton} onPress={() => navigation.navigate("ResetPassword")} showChevron />
+        ) : null}
       </SettingsSection>
 
       <SettingsSection title={id.account.supportSectionTitle}>

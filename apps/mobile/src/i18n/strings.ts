@@ -324,5 +324,6 @@ export const id = {
     resetCurrentMissing: "Masukkan kata sandi lama Anda.",
     resetSuccessTitle: "Kata sandi diperbarui",
     resetSuccessBody: "Kata sandi berhasil diperbarui. Silakan masuk kembali.",
+    resetUnavailableBody: "Ubah kata sandi hanya tersedia untuk akun yang masuk dengan email dan kata sandi.",
   },
 };
