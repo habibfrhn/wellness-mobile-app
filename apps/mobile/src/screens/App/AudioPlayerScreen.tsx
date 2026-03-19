@@ -3,10 +3,13 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import PlayerArtworkSection from "../../components/player/PlayerArtworkSection";
-import PlayerControlsSection from "../../components/player/PlayerControlsSection";
+import NormalAudioControls from "../../components/player/NormalAudioControls";
 import PlayerProgressSection from "../../components/player/PlayerProgressSection";
+import SoundscapeControls from "../../components/player/SoundscapeControls";
 import SleepSessionProgressHeader from "../../components/player/SleepSessionProgressHeader";
+import SleepSessionProgressSection from "../../components/player/SleepSessionProgressSection";
 import SoundscapeTimerSection from "../../components/player/SoundscapeTimerSection";
+import TailoredSessionControls from "../../components/player/TailoredSessionControls";
 import SleepSessionExitModal from "../../components/SleepSessionExitModal";
 import { isFavorite, toggleFavorite } from "../../content/audioCatalog";
 import { id } from "../../i18n/strings";
@@ -55,7 +58,16 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     setFavorite(isFavorite(track.id));
   }, [track.id]);
 
-  const shouldConfirmExit = isPlaylistSession && hasSessionStarted;
+  const playbackMode = useMemo(() => {
+    if (playlistIds && playlistIds.length > 1) {
+      return "tailored_session" as const;
+    }
+    if (track.contentType === "soundscape") {
+      return "soundscape" as const;
+    }
+    return "normal_audio" as const;
+  }, [playlistIds, track.contentType]);
+  const shouldConfirmExit = playbackMode === "tailored_session" && hasSessionStarted;
   const sessionArtwork = useMemo(() => {
     if (!isPlaylistSession) {
       return null;
@@ -74,19 +86,15 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     };
   }, [isPlaylistSession, sleepMode]);
 
-  const seekDuration = isPlaylistSession ? sessionDuration : duration;
-  const seekCurrent = isPlaylistSession ? sessionCurrent : current;
-  const seekProgressRatio = isPlaylistSession ? sessionProgressRatio : progressRatio;
-
   const onSeekBarPress = useCallback(
     (locationX: number) => {
-      if (!seekDuration || !progressWidth) {
+      if (!duration || !progressWidth) {
         return;
       }
       const ratio = Math.min(Math.max(locationX / progressWidth, 0), 1);
-      onSeek(ratio * seekDuration);
+      onSeek(ratio * duration);
     },
-    [onSeek, progressWidth, seekDuration],
+    [duration, onSeek, progressWidth],
   );
 
   const handleClose = useCallback(() => {
@@ -193,24 +201,36 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
               isSessionActive={isSessionActive}
               onSelectTimer={handleTimerSelect}
             />
+          ) : playbackMode === "tailored_session" ? (
+            <SleepSessionProgressSection
+              sessionCurrent={sessionCurrent}
+              sessionDuration={sessionDuration}
+              sessionProgressRatio={sessionProgressRatio}
+              onLayoutWidth={setProgressWidth}
+              progressWidth={progressWidth}
+            />
           ) : (
             <PlayerProgressSection
-              current={seekCurrent}
-              duration={seekDuration}
-              progressRatio={seekProgressRatio}
+              current={current}
+              duration={duration}
+              progressRatio={progressRatio}
               onLayoutWidth={setProgressWidth}
               onSeek={onSeekBarPress}
               progressWidth={progressWidth}
             />
           )}
 
-          <PlayerControlsSection
-            isPlaying={activeStatus.playing}
-            showSoundscapeControls={showSoundscapeControls}
-            onStop={handleStop}
-            onRestart={onRestart}
-            onTogglePlay={onTogglePlay}
-          />
+          {playbackMode === "soundscape" ? (
+            <SoundscapeControls isPlaying={activeStatus.playing} onStop={handleStop} onTogglePlay={onTogglePlay} />
+          ) : playbackMode === "tailored_session" ? (
+            <TailoredSessionControls
+              isPlaying={activeStatus.playing}
+              onRestart={onRestart}
+              onTogglePlay={onTogglePlay}
+            />
+          ) : (
+            <NormalAudioControls isPlaying={activeStatus.playing} onRestart={onRestart} onTogglePlay={onTogglePlay} />
+          )}
         </View>
       </ScrollView>
 

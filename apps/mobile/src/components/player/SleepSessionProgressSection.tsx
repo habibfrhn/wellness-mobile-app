@@ -45,13 +45,13 @@ const styles = StyleSheet.create({
   sessionProgressTrack: {
     height: controlSizes.progressHeight,
     borderRadius: radius.full,
-    backgroundColor: `${colors.white}A6`,
+    backgroundColor: colors.bg,
     overflow: "hidden",
   },
   sessionProgressFill: {
     height: "100%",
     borderRadius: radius.full,
-    backgroundColor: `${colors.primary}B3`,
+    backgroundColor: colors.primary,
   },
   timeRow: {
     flexDirection: "row",
@@ -60,7 +60,5 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   timeText: { fontSize: typography.caption, color: colors.mutedText },
-  sessionTimeText: {
-    opacity: 0.72,
-  },
+  sessionTimeText: { color: colors.mutedText },
 });
