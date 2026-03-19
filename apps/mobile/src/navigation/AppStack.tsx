@@ -66,7 +66,7 @@ export default function AppStack() {
       <Stack.Screen
         name="Settings"
         options={{
-          title: id.account.settingsTitle,
+          title: "",
           headerBackTitleVisible: false,
         }}
       >

@@ -43,6 +43,7 @@
 ## Screen size & refactor discipline
 - Keep screen components under **400 lines** (target **300** when practical).
 - Split UI-heavy screens into smaller presentation components plus focused hooks.
+- When a screen needs web-specific responsiveness, add or update a `.web.tsx` screen wrapper and keep native screen behavior unchanged.
 - During refactors, remove unused animation systems, stale state, and dead UI logic.
 - Keep player/session business logic separate from UI rendering components.
 

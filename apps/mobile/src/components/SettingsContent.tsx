@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput } from "react-native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { id } from "../i18n/strings";
 import type { AppStackParamList } from "../navigation/types";
 import { supabase } from "../services/supabase";
 import { colors, lineHeights, radius, spacing, typography } from "../theme/tokens";
+import SettingsRow from "./settings/SettingsRow";
+import SettingsSection from "./settings/SettingsSection";
 
 const PRIVACY_URL =
   "https://sedate-fascinator-c12.notion.site/Kebijakan-Privasi-Privacy-Policy-2ef636185de080219298d7a6a9bcba55?source=copy_link";
@@ -57,50 +59,6 @@ type Props = {
   navigation: NativeStackNavigationProp<AppStackParamList, "Settings">;
 };
 
-type RowProps = {
-  label: string;
-  onPress?: () => void;
-  value?: string;
-  valueColor?: string;
-  destructive?: boolean;
-  showChevron?: boolean;
-  showDivider?: boolean;
-  rightNode?: React.ReactNode;
-};
-
-function SettingsRow({
-  label,
-  onPress,
-  value,
-  valueColor,
-  destructive = false,
-  showChevron = false,
-  showDivider = true,
-  rightNode,
-}: RowProps) {
-  const content = (
-    <>
-      <Text style={[styles.rowLabel, destructive && styles.rowLabelDanger]}>{label}</Text>
-      <View style={styles.rowRight}>
-        {rightNode}
-        {value ? <Text style={[styles.rowValue, valueColor ? { color: valueColor } : null]}>{value}</Text> : null}
-        {showChevron ? <Text style={styles.chevron}>›</Text> : null}
-      </View>
-      {showDivider ? <View style={styles.rowDivider} /> : null}
-    </>
-  );
-
-  if (!onPress) {
-    return <View style={styles.row}>{content}</View>;
-  }
-
-  return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.row, pressed && styles.pressedRow]}>
-      {content}
-    </Pressable>
-  );
-}
-
 export default function SettingsContent({ navigation }: Props) {
   const [emailValue, setEmailValue] = useState("");
   const [nameValue, setNameValue] = useState("");
@@ -151,34 +109,6 @@ export default function SettingsContent({ navigation }: Props) {
     }
 
     setInitialName(trimmedName);
-  }
-
-  async function onLogout() {
-    const logoutAction = async () => {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        Alert.alert(id.common.errorTitle, error.message);
-      }
-    };
-
-    const approvedOnWeb = confirmOnWeb(id.account.confirmLogoutTitle, id.account.confirmLogoutBody);
-    if (approvedOnWeb !== null) {
-      if (approvedOnWeb) {
-        await logoutAction();
-      }
-      return;
-    }
-
-    Alert.alert(id.account.confirmLogoutTitle, id.account.confirmLogoutBody, [
-      { text: id.account.cancel, style: "cancel" },
-      {
-        text: id.account.logout,
-        style: "destructive",
-        onPress: () => {
-          void logoutAction();
-        },
-      },
-    ]);
   }
 
   async function onDeleteAccount() {
@@ -259,95 +189,60 @@ export default function SettingsContent({ navigation }: Props) {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      <View style={styles.sectionWrap}>
-        <Text style={styles.sectionTitle}>Akun</Text>
-        <View style={styles.sectionCard}>
-          <SettingsRow
-            label={id.account.nameLabel}
-            rightNode={
-              <TextInput
-                value={nameValue}
-                onChangeText={setNameValue}
-                onBlur={() => {
-                  void onSaveName();
-                }}
-                onSubmitEditing={() => {
-                  void onSaveName();
-                }}
-                placeholder={id.account.namePlaceholder}
-                placeholderTextColor={colors.mutedText}
-                style={styles.nameInput}
-                returnKeyType="done"
-              />
-            }
-          />
-          <SettingsRow label={id.account.emailLabel} value={emailValue} showDivider={false} />
-          <SettingsRow
-            label={id.account.resetPasswordButton}
-            onPress={() => navigation.navigate("ResetPassword")}
-            showChevron
-          />
-          <SettingsRow label={id.account.logout} onPress={onLogout} destructive showDivider={false} />
-        </View>
-      </View>
+      <SettingsSection title={id.account.title}>
+        <SettingsRow
+          label={id.account.nameLabel}
+          rightNode={
+            <TextInput
+              value={nameValue}
+              onChangeText={setNameValue}
+              onBlur={() => {
+                void onSaveName();
+              }}
+              onSubmitEditing={() => {
+                void onSaveName();
+              }}
+              placeholder={id.account.namePlaceholder}
+              placeholderTextColor={colors.mutedText}
+              style={styles.nameInput}
+              returnKeyType="done"
+            />
+          }
+        />
+        <SettingsRow label={id.account.emailLabel} value={emailValue} showDivider={false} />
+        <SettingsRow label={id.account.resetPasswordButton} onPress={() => navigation.navigate("ResetPassword")} showChevron />
+      </SettingsSection>
 
-      <View style={styles.sectionWrap}>
-        <Text style={styles.sectionTitle}>Tidur</Text>
-        <View style={styles.sectionCard}>
-          <SettingsRow label={id.account.settingsTitle} onPress={() => navigation.navigate("NightMode")} showChevron />
-          <SettingsRow
-            label={id.account.reminderTitle}
-            onPress={() => navigation.navigate("ReminderSettings")}
-            showChevron
-            showDivider={false}
-          />
-        </View>
-      </View>
+      <SettingsSection title={id.account.supportSectionTitle}>
+        <SettingsRow label={id.account.helpTitle} onPress={openHelp} showChevron />
+        <SettingsRow
+          label={id.account.support}
+          value={SUPPORT_EMAIL}
+          onPress={() => {
+            void safeOpenUrl(`mailto:${SUPPORT_EMAIL}`);
+          }}
+          showDivider={false}
+        />
+      </SettingsSection>
 
-      <View style={styles.sectionWrap}>
-        <Text style={styles.sectionTitle}>Dukungan</Text>
-        <View style={styles.sectionCard}>
-          <SettingsRow label={id.account.helpTitle} onPress={openHelp} showChevron />
-          <SettingsRow
-            label={id.account.support}
-            value={SUPPORT_EMAIL}
-            onPress={() => {
-              void safeOpenUrl(`mailto:${SUPPORT_EMAIL}`);
-            }}
-            showDivider={false}
-          />
-        </View>
-      </View>
+      <SettingsSection title={id.account.aboutSectionTitle}>
+        <SettingsRow label={id.account.versionLabel} value={appVersion} />
+        <SettingsRow label={id.account.privacy} onPress={() => void safeOpenUrl(PRIVACY_URL)} showChevron />
+        <SettingsRow label={id.account.terms} onPress={() => void safeOpenUrl(TERMS_URL)} showChevron showDivider={false} />
+      </SettingsSection>
 
-      <View style={styles.sectionWrap}>
-        <Text style={styles.sectionTitle}>Tentang</Text>
-        <View style={styles.sectionCard}>
-          <SettingsRow label={id.account.versionLabel} value={appVersion} />
-          <SettingsRow label={id.account.privacy} onPress={() => void safeOpenUrl(PRIVACY_URL)} showChevron />
-          <SettingsRow
-            label={id.account.terms}
-            onPress={() => void safeOpenUrl(TERMS_URL)}
-            showChevron
-            showDivider={false}
-          />
-        </View>
-      </View>
-
-      <View style={styles.sectionWrap}>
-        <Text style={styles.sectionTitle}>Zona berbahaya</Text>
-        <View style={styles.sectionCard}>
-          <Text style={styles.dangerText}>{id.account.deleteWarning}</Text>
-          <Pressable
-            onPress={() => {
-              void onDeleteAccount();
-            }}
-            disabled={busyDelete}
-            style={({ pressed }) => [styles.dangerButton, busyDelete && styles.disabled, pressed && !busyDelete && styles.pressedRow]}
-          >
-            <Text style={styles.dangerButtonText}>{busyDelete ? id.account.deleting : id.account.deleteFinal}</Text>
-          </Pressable>
-        </View>
-      </View>
+      <SettingsSection title={id.account.dangerSectionTitle}>
+        <Text style={styles.dangerText}>{id.account.deleteWarning}</Text>
+        <Pressable
+          onPress={() => {
+            void onDeleteAccount();
+          }}
+          disabled={busyDelete}
+          style={({ pressed }) => [styles.dangerButton, busyDelete && styles.disabled, pressed && !busyDelete && styles.pressedRow]}
+        >
+          <Text style={styles.dangerButtonText}>{busyDelete ? id.account.deleting : id.account.deleteFinal}</Text>
+        </Pressable>
+      </SettingsSection>
     </ScrollView>
   );
 }
@@ -358,70 +253,19 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   container: {
+    width: "100%",
+    alignSelf: "center",
+    maxWidth: 720,
     paddingHorizontal: spacing.md,
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,
     gap: spacing.lg,
     backgroundColor: colors.white,
   },
-  sectionWrap: {
-    gap: spacing.xs,
-  },
-  sectionTitle: {
-    fontSize: typography.small,
-    fontWeight: "700",
-    color: colors.mutedText,
-    paddingHorizontal: spacing.xs,
-  },
-  sectionCard: {
-    backgroundColor: colors.card,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-  },
-  row: {
-    minHeight: 52,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    position: "relative",
-  },
-  rowLabel: {
-    fontSize: typography.body,
-    color: colors.text,
-    fontWeight: "600",
-  },
-  rowLabelDanger: {
-    color: colors.danger,
-  },
-  rowRight: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xs,
-    marginLeft: spacing.sm,
-    maxWidth: "62%",
-  },
-  rowValue: {
-    fontSize: typography.small,
-    color: colors.mutedText,
-    textAlign: "right",
-  },
-  rowDivider: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 1,
-    backgroundColor: `${colors.mutedText}22`,
-  },
-  chevron: {
-    fontSize: typography.title,
-    color: colors.mutedText,
-    lineHeight: typography.title,
-  },
   nameInput: {
     minWidth: 120,
-    maxWidth: 180,
+    width: "100%",
+    maxWidth: 220,
     fontSize: typography.small,
     color: colors.text,
     textAlign: "right",

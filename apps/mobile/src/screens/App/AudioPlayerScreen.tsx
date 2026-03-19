@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import PlayerArtworkSection from "../../components/player/PlayerArtworkSection";
@@ -13,6 +13,7 @@ import TailoredSessionControls from "../../components/player/TailoredSessionCont
 import SleepSessionExitModal from "../../components/SleepSessionExitModal";
 import { isFavorite, toggleFavorite } from "../../content/audioCatalog";
 import { id } from "../../i18n/strings";
+import HeaderCloseButton from "../../components/navigation/HeaderCloseButton";
 import type { AppStackParamList } from "../../navigation/types";
 import { colors, spacing, typography } from "../../theme/tokens";
 import { TIMER_OPTIONS, useAudioPlayerSession } from "../../hooks/useAudioPlayerSession";
@@ -138,17 +139,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     navigation.setOptions({
       title: "",
       headerRight: () => null,
-      headerLeft: () => (
-        <Pressable
-          onPress={handleClose}
-          style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]}
-          hitSlop={8}
-          accessibilityRole="button"
-          accessibilityLabel={id.login.closeLabel}
-        >
-          <Text style={styles.closeText}>✕</Text>
-        </Pressable>
-      ),
+      headerLeft: () => <HeaderCloseButton onPress={handleClose} />,
     });
   }, [handleClose, navigation]);
 
@@ -247,19 +238,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FFFFFF" },
   content: {
     padding: spacing.md,
-  },
-  closeButton: {
-    width: 36,
-    height: 36,
-    marginLeft: spacing.sm,
-    marginTop: spacing.xs,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  closeText: {
-    fontSize: typography.title,
-    color: colors.text,
-    fontWeight: "700",
   },
   sectionsAlignedWithArtwork: {
     width: "100%",

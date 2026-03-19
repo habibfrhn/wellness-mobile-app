@@ -210,7 +210,6 @@ export const id = {
     nameSavedTitle: "Tersimpan",
     nameSavedBody: "Nama Anda berhasil diperbarui.",
     emailLabel: "Email",
-    settingsTitle: "Preferensi tidur",
     profileMenu: "Profil",
     settingsMenu: "Pengaturan",
 
@@ -250,6 +249,9 @@ export const id = {
 
     updatesFailed: "Gagal memeriksa pembaruan. Silakan coba lagi.",
 
+    supportSectionTitle: "Dukungan",
+    aboutSectionTitle: "Tentang",
+    dangerSectionTitle: "Zona berbahaya",
     legalTitle: "Legal & dukungan",
     privacy: "Kebijakan Privasi",
     terms: "Syarat & Ketentuan",

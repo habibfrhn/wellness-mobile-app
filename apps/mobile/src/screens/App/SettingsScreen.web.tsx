@@ -3,6 +3,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import SettingsContent from "../../components/SettingsContent";
 import HeaderCloseButton from "../../components/navigation/HeaderCloseButton";
+import WebResponsiveFrame from "../../components/WebResponsiveFrame";
 import type { AppStackParamList } from "../../navigation/types";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Settings">;
@@ -16,5 +17,9 @@ export default function SettingsScreen({ navigation }: Props) {
     });
   }, [navigation]);
 
-  return <SettingsContent navigation={navigation} />;
+  return (
+    <WebResponsiveFrame contentStyle={{ maxWidth: 820 }}>
+      <SettingsContent navigation={navigation} />
+    </WebResponsiveFrame>
+  );
 }
