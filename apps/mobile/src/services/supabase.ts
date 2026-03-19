@@ -1,8 +1,8 @@
 import "react-native-url-polyfill/auto";
 import { AppState, Platform } from "react-native";
-import * as Linking from "expo-linking";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient, processLock, type SupabaseClient } from "@supabase/supabase-js";
+import { buildAuthRedirectPath } from "./webAuth";
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
@@ -42,24 +42,6 @@ export const supabase = globalRef.__wellnessSupabaseClient ?? createSupabaseClie
 
 if (!globalRef.__wellnessSupabaseClient) {
   globalRef.__wellnessSupabaseClient = supabase;
-}
-
-
-function getWebBaseUrl() {
-  if (typeof window !== "undefined" && window.location?.origin) {
-    return window.location.origin;
-  }
-
-  const fallback = Linking.createURL("/");
-  return fallback.endsWith("/") ? fallback.slice(0, -1) : fallback;
-}
-
-function buildAuthRedirectPath(flow: "callback" | "reset") {
-  if (Platform.OS === "web") {
-    return `${getWebBaseUrl()}/?auth_flow=${flow}`;
-  }
-
-  return `wellnessapp://auth/${flow}`;
 }
 
 if (Platform.OS !== "web") {

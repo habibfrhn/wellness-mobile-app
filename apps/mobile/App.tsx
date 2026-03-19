@@ -17,6 +17,8 @@ import { hideSplashScreen, preventAutoHideSplashScreen } from "./src/services/sp
 import { setPendingUpdate } from "./src/services/updatesState";
 import { clearNextAuthRoute, getNextAuthRoute, setNextAuthRoute } from "./src/services/authStart";
 import { clearPendingProfileName, getPendingProfileName } from "./src/services/pendingProfileName";
+import WebAuthStatusScreen from "./src/components/auth/WebAuthStatusScreen";
+import { getWebAuthPath, replaceWebUrl } from "./src/services/webAuth";
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
 
@@ -90,6 +92,7 @@ export default function App() {
   // If user comes from reset link, force AuthStack to start at ResetPassword.
   const [forceReset, setForceReset] = useState(false);
   const [authStartRoute, setAuthStartRoute] = useState<keyof AuthStackParamList>("Welcome");
+  const [webAuthStatus, setWebAuthStatus] = useState<"idle" | "loading" | "error" | "missing">("idle");
 
   const didCheckUpdatesRef = useRef(false);
 
@@ -135,25 +138,20 @@ export default function App() {
         : { title: id.common.linkInvalidTitle, body: id.common.linkInvalidBody };
     }
 
-    function cleanupWebAuthUrl() {
-      if (Platform.OS !== "web" || typeof window === "undefined") {
-        return;
-      }
-
-      window.history.replaceState({}, "", window.location.pathname);
-    }
-
     async function processUrl(url: string) {
       const res = await handleAuthLink(url);
       if (!res.handled) {
+        setWebAuthStatus("missing");
         return;
       }
 
-      cleanupWebAuthUrl();
-
       if (!res.ok) {
         const copy = getAuthLinkErrorCopy(res.error, res.linkType);
-        Alert.alert(copy.title, copy.body);
+        if (Platform.OS === "web" && getWebAuthPath(typeof window !== "undefined" ? window.location.pathname : null)) {
+          setWebAuthStatus("error");
+        } else {
+          Alert.alert(copy.title, copy.body);
+        }
         await setNextAuthRoute("Login");
         setAuthStartRoute("Login");
         setForceReset(false);
@@ -166,6 +164,8 @@ export default function App() {
         setWebResetFlowActive(true);
         await setNextAuthRoute("ResetPassword");
         setAuthStartRoute("ResetPassword");
+        replaceWebUrl("/");
+        setWebAuthStatus("idle");
         return;
       }
 
@@ -176,7 +176,18 @@ export default function App() {
         setAuthStartRoute("Login");
         setForceReset(false);
         setWebResetFlowActive(false);
+        replaceWebUrl("/");
+        setWebAuthStatus("idle");
+        return;
       }
+
+      if (!res.session) {
+        setWebAuthStatus("missing");
+        return;
+      }
+
+      replaceWebUrl("/");
+      setWebAuthStatus("idle");
     }
 
     async function init() {
@@ -186,9 +197,21 @@ export default function App() {
       }
 
       const initialUrl = await Linking.getInitialURL();
-      if (initialUrl) await processUrl(initialUrl);
+      const initialWebAuthPath = Platform.OS === "web" && typeof window !== "undefined" ? getWebAuthPath(window.location.pathname) : null;
+      if (initialWebAuthPath) {
+        setWebAuthStatus("loading");
+      }
+
+      if (initialUrl) {
+        await processUrl(initialUrl);
+      } else if (initialWebAuthPath) {
+        setWebAuthStatus("missing");
+      }
 
       linkSubscription = Linking.addEventListener("url", async ({ url }) => {
+        if (Platform.OS === "web") {
+          setWebAuthStatus("loading");
+        }
         await processUrl(url);
       });
 
@@ -359,6 +382,45 @@ export default function App() {
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
         <ActivityIndicator />
       </View>
+    );
+  }
+
+  if (Platform.OS === "web" && webAuthStatus !== "idle") {
+    const onReturnToLogin = () => {
+      replaceWebUrl("/");
+      setWebAuthStatus("idle");
+      void setNextAuthRoute("Login");
+      setAuthStartRoute("Login");
+    };
+
+    if (webAuthStatus === "loading") {
+      return (
+        <WebAuthStatusScreen
+          title={id.auth.callbackLoadingTitle}
+          body={id.auth.callbackLoadingBody}
+          busy
+        />
+      );
+    }
+
+    if (webAuthStatus === "missing") {
+      return (
+        <WebAuthStatusScreen
+          title={id.auth.callbackMissingTitle}
+          body={id.auth.callbackMissingBody}
+          actionLabel={id.auth.callbackAction}
+          onAction={onReturnToLogin}
+        />
+      );
+    }
+
+    return (
+      <WebAuthStatusScreen
+        title={id.auth.callbackErrorTitle}
+        body={id.auth.callbackErrorBody}
+        actionLabel={id.auth.callbackAction}
+        onAction={onReturnToLogin}
+      />
     );
   }
 

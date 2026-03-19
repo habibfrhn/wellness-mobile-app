@@ -24,6 +24,13 @@ export const id = {
   auth: {
     continueWithGoogle: "Lanjutkan dengan Google",
     googleBusy: "Mengarahkan ke Google...",
+    callbackLoadingTitle: "Menyelesaikan login",
+    callbackLoadingBody: "Mohon tunggu sebentar, kami sedang menghubungkan akun Anda.",
+    callbackErrorTitle: "Login Google gagal",
+    callbackErrorBody: "Kami tidak bisa menyelesaikan login Google. Silakan coba lagi dari halaman masuk.",
+    callbackMissingTitle: "Sesi tidak ditemukan",
+    callbackMissingBody: "Login selesai tetapi sesi belum tersedia. Silakan coba masuk lagi.",
+    callbackAction: "Kembali ke masuk",
   },
 
   welcome: {
