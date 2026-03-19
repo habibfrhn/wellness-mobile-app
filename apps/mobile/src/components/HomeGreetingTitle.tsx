@@ -1,13 +1,17 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
+import HomeGreetingPrompt from "./HomeGreetingPrompt";
 import { id } from "../i18n/strings";
+import type { AppStackParamList } from "../navigation/types";
 import { colors, spacing, typography } from "../theme/tokens";
 import { supabase } from "../services/supabase";
 
 export default function HomeGreetingTitle() {
   const [name, setName] = useState("");
+  const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
 
   const loadGreetingName = useCallback(async () => {
     const { data, error } = await supabase.auth.getUser();
@@ -41,6 +45,7 @@ export default function HomeGreetingTitle() {
     <View style={styles.container}>
       <Text style={styles.title}>{greetingText}</Text>
       <Text style={styles.subtitle}>{id.home.greetingSubtitle}</Text>
+      {name ? null : <HomeGreetingPrompt label={id.home.addNamePrompt} onPress={() => navigation.navigate("Settings")} />}
     </View>
   );
 }
