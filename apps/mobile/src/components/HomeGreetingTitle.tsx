@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 
 import { id } from "../i18n/strings";
 import { colors, spacing, typography } from "../theme/tokens";
@@ -8,23 +9,25 @@ import { supabase } from "../services/supabase";
 export default function HomeGreetingTitle() {
   const [name, setName] = useState("");
 
-  useEffect(() => {
-    let mounted = true;
+  const loadGreetingName = useCallback(async () => {
+    const { data, error } = await supabase.auth.getUser();
+    if (error) {
+      return;
+    }
 
-    (async () => {
-      const { data, error } = await supabase.auth.getUser();
-      if (!mounted || error) {
-        return;
-      }
-
-      const fullName = (data.user?.user_metadata?.full_name as string | undefined)?.trim() ?? "";
-      setName(fullName);
-    })();
-
-    return () => {
-      mounted = false;
-    };
+    const fullName = (data.user?.user_metadata?.full_name as string | undefined)?.trim() ?? "";
+    setName(fullName);
   }, []);
+
+  useEffect(() => {
+    void loadGreetingName();
+  }, [loadGreetingName]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void loadGreetingName();
+    }, [loadGreetingName]),
+  );
 
   const greetingText = useMemo(() => {
     if (!name) {
