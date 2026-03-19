@@ -1,94 +1,34 @@
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  Alert,
-  TextInput,
-  ScrollView,
-  Linking,
-  Platform,
-} from "react-native";
-import * as Updates from "expo-updates";
+import { Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
-import { colors, spacing, radius, typography, lineHeights } from "../theme/tokens";
 import { id } from "../i18n/strings";
-import { supabase } from "../services/supabase";
-import { getPendingUpdate, setPendingUpdate } from "../services/updatesState";
 import type { AppStackParamList } from "../navigation/types";
+import { supabase } from "../services/supabase";
+import { colors, lineHeights, radius, spacing, typography } from "../theme/tokens";
 
-const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
-
-// Read version from apps/mobile/app.json without expo-constants.
-// Safe fallback if bundler cannot resolve for some reason.
-function readAppVersionFromAppJson(): string {
-  try {
-    // SettingsContent.tsx is at apps/mobile/src/components/SettingsContent.tsx
-    // "../../app.json" -> apps/mobile/app.json
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const cfg = require("../../app.json") as any;
-    const v = cfg?.expo?.version;
-    if (typeof v === "string" && v.trim().length > 0) return v.trim();
-    return "1.0.0";
-  } catch {
-    return "1.0.0";
-  }
-}
-
-const APP_VERSION = readAppVersionFromAppJson();
-
-// Replace with real hosted URLs when ready (recommended for store compliance).
 const PRIVACY_URL =
   "https://sedate-fascinator-c12.notion.site/Kebijakan-Privasi-Privacy-Policy-2ef636185de080219298d7a6a9bcba55?source=copy_link";
 const TERMS_URL =
   "https://sedate-fascinator-c12.notion.site/Ketentuan-Syarat-Terms-Conditions-2ef636185de080edb67ce5f6be718a7e?source=copy_link";
-
-// Updated support email (your requested address)
 const SUPPORT_EMAIL = "habibfrhn@gmail.com";
 
-async function callDeleteAccount(accessToken: string) {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    throw new Error("Missing Supabase env (EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_ANON_KEY).");
-  }
-
-  const endpoint = `${SUPABASE_URL}/functions/v1/delete-account`;
-
-  const res = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: SUPABASE_ANON_KEY,
-      "x-user-jwt": accessToken,
-    },
-    body: JSON.stringify({}),
-  });
-
-  const text = await res.text();
-  let parsed: any = null;
+function readAppVersionFromAppJson(): string {
   try {
-    parsed = text ? JSON.parse(text) : null;
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const cfg = require("../../app.json") as any;
+    const v = cfg?.expo?.version;
+    if (typeof v === "string" && v.trim().length > 0) {
+      return v.trim();
+    }
+    return "1.0.0";
   } catch {
-    // ignore
+    return "1.0.0";
   }
-
-  if (!res.ok) {
-    const msg = parsed?.error || parsed?.message || text || `Edge function failed with status ${res.status}`;
-    throw new Error(msg);
-  }
-
-  return parsed ?? { ok: true };
 }
 
 async function safeOpenUrl(url: string) {
   try {
-    if (!url) {
-      Alert.alert(id.account.comingSoonTitle, id.account.comingSoonBody);
-      return;
-    }
-
     if (typeof window !== "undefined") {
       await Linking.openURL(url);
       return;
@@ -105,12 +45,6 @@ async function safeOpenUrl(url: string) {
   }
 }
 
-async function safeOpenEmail(email: string) {
-  const mailto = `mailto:${email}`;
-  await safeOpenUrl(mailto);
-}
-
-
 function confirmOnWeb(title: string, message: string) {
   if (Platform.OS === "web" && typeof window !== "undefined") {
     return window.confirm(`${title}\n\n${message}`);
@@ -120,30 +54,74 @@ function confirmOnWeb(title: string, message: string) {
 }
 
 type Props = {
-  navigation: NativeStackNavigationProp<AppStackParamList>;
+  navigation: NativeStackNavigationProp<AppStackParamList, "Settings">;
 };
 
+type RowProps = {
+  label: string;
+  onPress?: () => void;
+  value?: string;
+  valueColor?: string;
+  destructive?: boolean;
+  showChevron?: boolean;
+  showDivider?: boolean;
+  rightNode?: React.ReactNode;
+};
+
+function SettingsRow({
+  label,
+  onPress,
+  value,
+  valueColor,
+  destructive = false,
+  showChevron = false,
+  showDivider = true,
+  rightNode,
+}: RowProps) {
+  const content = (
+    <>
+      <Text style={[styles.rowLabel, destructive && styles.rowLabelDanger]}>{label}</Text>
+      <View style={styles.rowRight}>
+        {rightNode}
+        {value ? <Text style={[styles.rowValue, valueColor ? { color: valueColor } : null]}>{value}</Text> : null}
+        {showChevron ? <Text style={styles.chevron}>›</Text> : null}
+      </View>
+      {showDivider ? <View style={styles.rowDivider} /> : null}
+    </>
+  );
+
+  if (!onPress) {
+    return <View style={styles.row}>{content}</View>;
+  }
+
+  return (
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.row, pressed && styles.pressedRow]}>
+      {content}
+    </Pressable>
+  );
+}
+
 export default function SettingsContent({ navigation }: Props) {
-  const [confirmText, setConfirmText] = useState("");
+  const [emailValue, setEmailValue] = useState("");
+  const [nameValue, setNameValue] = useState("");
+  const [initialName, setInitialName] = useState("");
   const [busyDelete, setBusyDelete] = useState(false);
 
-  const [busyUpdateCheck, setBusyUpdateCheck] = useState(false);
-  const [busyUpdateDownload, setBusyUpdateDownload] = useState(false);
-  const [hasPendingUpdate, setHasPendingUpdate] = useState(false);
-
-  const appMeta = useMemo(
-    () => ({
-      version: APP_VERSION,
-    }),
-    []
-  );
+  const appVersion = useMemo(() => readAppVersionFromAppJson(), []);
 
   useEffect(() => {
     let mounted = true;
 
     (async () => {
-      const pending = await getPendingUpdate();
-      if (mounted) setHasPendingUpdate(pending);
+      const { data } = await supabase.auth.getUser();
+      if (!mounted) {
+        return;
+      }
+
+      const userName = (data.user?.user_metadata?.full_name as string | undefined) ?? "";
+      setNameValue(userName);
+      setInitialName(userName);
+      setEmailValue(data.user?.email ?? "-");
     })();
 
     return () => {
@@ -151,157 +129,29 @@ export default function SettingsContent({ navigation }: Props) {
     };
   }, []);
 
-  const canDelete = useMemo(
-    () => confirmText.trim().toUpperCase() === "HAPUS" && !busyDelete,
-    [confirmText, busyDelete]
-  );
+  const trimmedName = nameValue.trim();
 
-  async function onDeleteAccount() {
-    const deleteAction = async () => {
-      if (!canDelete) {
-        Alert.alert(id.account.deleteConfirmTitle, id.account.deleteConfirmBody);
-        return;
-      }
-
-      setBusyDelete(true);
-      try {
-        const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
-        if (sessionErr) {
-          Alert.alert(id.common.errorTitle, sessionErr.message);
-          return;
-        }
-
-        const accessToken = sessionData.session?.access_token;
-        if (!accessToken) {
-          Alert.alert(id.common.errorTitle, id.account.sessionMissing);
-          return;
-        }
-
-        await callDeleteAccount(accessToken);
-
-        Alert.alert(id.account.deletedTitle, id.account.deletedBody, [
-          {
-            text: id.common.ok,
-            onPress: async () => {
-              await supabase.auth.signOut();
-            },
-          },
-        ]);
-      } catch (e: any) {
-        Alert.alert(id.common.errorTitle, String(e?.message ?? e));
-      } finally {
-        setBusyDelete(false);
-      }
-    };
-
-    const approvedOnWeb = confirmOnWeb(id.account.deleteTitle, id.account.deleteWarning);
-    if (approvedOnWeb !== null) {
-      if (approvedOnWeb) {
-        await deleteAction();
-      }
+  async function onSaveName() {
+    if (!trimmedName || trimmedName === initialName.trim()) {
       return;
     }
 
-    Alert.alert(id.account.deleteTitle, id.account.deleteWarning, [
-      { text: id.account.cancel, style: "cancel" },
-      {
-        text: id.account.deleteContinue,
-        style: "destructive",
-        onPress: () => {
-          void deleteAction();
-        },
-      },
-    ]);
-  }
-
-  async function downloadAndReload() {
-    if (busyUpdateDownload) return;
-
-    // Updates may be disabled in Expo Go / dev environments.
-    if (!Updates.isEnabled) {
-      Alert.alert(id.account.updatesDisabledTitle, id.account.updatesDisabledBody);
+    if (trimmedName.length > 15) {
+      Alert.alert(id.common.errorTitle, id.account.nameMaxLength);
       return;
     }
 
-    setBusyUpdateDownload(true);
-    try {
-      const update = await Updates.checkForUpdateAsync();
-      if (!update.isAvailable) {
-        await setPendingUpdate(false);
-        setHasPendingUpdate(false);
-        Alert.alert(id.account.updatesUpToDateTitle, id.account.updatesUpToDateBody);
-        return;
-      }
+    const { error } = await supabase.auth.updateUser({
+      data: { full_name: trimmedName },
+    });
 
-      await Updates.fetchUpdateAsync();
-      await setPendingUpdate(false);
-      setHasPendingUpdate(false);
-      await Updates.reloadAsync();
-    } catch {
-      await setPendingUpdate(true);
-      setHasPendingUpdate(true);
-      Alert.alert(id.common.errorTitle, id.account.updatesFailed);
-    } finally {
-      setBusyUpdateDownload(false);
-    }
-  }
-
-  async function onCheckUpdates() {
-    if (busyUpdateCheck) return;
-
-    // Updates may be disabled in Expo Go / dev environments.
-    if (!Updates.isEnabled) {
-      Alert.alert(id.account.updatesDisabledTitle, id.account.updatesDisabledBody);
+    if (error) {
+      Alert.alert(id.common.errorTitle, error.message);
       return;
     }
 
-    setBusyUpdateCheck(true);
-    try {
-      const update = await Updates.checkForUpdateAsync();
-      if (!update.isAvailable) {
-        await setPendingUpdate(false);
-        setHasPendingUpdate(false);
-        Alert.alert(id.account.updatesUpToDateTitle, id.account.updatesUpToDateBody);
-        return;
-      }
-
-      // Update available: ask permission to download now
-      const approvedOnWeb = confirmOnWeb(id.account.updatesAvailableTitle, id.account.updatesAvailableBody);
-      if (approvedOnWeb !== null) {
-        if (approvedOnWeb) {
-          await downloadAndReload();
-        } else {
-          await setPendingUpdate(true);
-          setHasPendingUpdate(true);
-          Alert.alert(id.account.updatesLaterTitle, id.account.updatesLaterBody);
-        }
-        return;
-      }
-
-      Alert.alert(id.account.updatesAvailableTitle, id.account.updatesAvailableBody, [
-        {
-          text: id.account.updatesLater,
-          style: "cancel",
-          onPress: async () => {
-            await setPendingUpdate(true);
-            setHasPendingUpdate(true);
-            Alert.alert(id.account.updatesLaterTitle, id.account.updatesLaterBody);
-          },
-        },
-        {
-          text: id.common.ok,
-          onPress: async () => {
-            await downloadAndReload();
-          },
-        },
-      ]);
-    } catch {
-      Alert.alert(id.common.errorTitle, id.account.updatesFailed);
-    } finally {
-      setBusyUpdateCheck(false);
-    }
+    setInitialName(trimmedName);
   }
-
 
   async function onLogout() {
     const logoutAction = async () => {
@@ -331,259 +181,279 @@ export default function SettingsContent({ navigation }: Props) {
     ]);
   }
 
+  async function onDeleteAccount() {
+    const deleteAction = async () => {
+      setBusyDelete(true);
+      try {
+        const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
+        if (sessionErr) {
+          Alert.alert(id.common.errorTitle, sessionErr.message);
+          return;
+        }
+
+        const accessToken = sessionData.session?.access_token;
+        if (!accessToken) {
+          Alert.alert(id.common.errorTitle, id.account.sessionMissing);
+          return;
+        }
+
+        const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+        const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+        if (!supabaseUrl || !supabaseAnonKey) {
+          Alert.alert(id.common.errorTitle, "Supabase env belum tersedia.");
+          return;
+        }
+
+        const res = await fetch(`${supabaseUrl}/functions/v1/delete-account`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: supabaseAnonKey,
+            "x-user-jwt": accessToken,
+          },
+          body: JSON.stringify({}),
+        });
+
+        if (!res.ok) {
+          const msg = await res.text();
+          Alert.alert(id.common.errorTitle, msg || "Gagal menghapus akun.");
+          return;
+        }
+
+        Alert.alert(id.account.deletedTitle, id.account.deletedBody, [
+          {
+            text: id.common.ok,
+            onPress: async () => {
+              await supabase.auth.signOut();
+            },
+          },
+        ]);
+      } finally {
+        setBusyDelete(false);
+      }
+    };
+
+    const approvedOnWeb = confirmOnWeb(id.account.deleteTitle, id.account.deleteWarning);
+    if (approvedOnWeb !== null) {
+      if (approvedOnWeb) {
+        await deleteAction();
+      }
+      return;
+    }
+
+    Alert.alert(id.account.deleteTitle, id.account.deleteWarning, [
+      { text: id.account.cancel, style: "cancel" },
+      {
+        text: id.account.deleteContinue,
+        style: "destructive",
+        onPress: () => {
+          void deleteAction();
+        },
+      },
+    ]);
+  }
+
+  function openHelp() {
+    Alert.alert(id.account.helpTitle, `${id.account.helpNoAutoplay}\n\n${id.account.helpPlayback}`);
+  }
+
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>{id.account.settingsTitle}</Text>
-
-        <Pressable
-          onPress={() => navigation.navigate("Account")}
-          style={({ pressed }) => [styles.secondaryActionButton, pressed && styles.pressed]}
-        >
-          <Text style={styles.secondaryActionButtonText}>{id.account.profileMenu}</Text>
-        </Pressable>
-
-        <View style={styles.secondaryActionButton}>
-          <Text style={styles.secondaryActionButtonText}>{id.account.settingsTitle}</Text>
-        </View>
-
-        <Pressable
-          onPress={() => navigation.navigate("ReminderSettings")}
-          style={({ pressed }) => [styles.secondaryActionButton, pressed && styles.pressed]}
-        >
-          <Text style={styles.secondaryActionButtonText}>{id.account.reminderTitle}</Text>
-        </Pressable>
-
-        <Pressable
-          onPress={onLogout}
-          style={({ pressed }) => [styles.secondaryActionButton, pressed && styles.pressed]}
-        >
-          <Text style={styles.secondaryActionButtonText}>{id.account.logout}</Text>
-        </Pressable>
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>{id.account.updatesTitle}</Text>
-
-        <Pressable
-          onPress={onCheckUpdates}
-          disabled={busyUpdateCheck || busyUpdateDownload}
-          style={({ pressed }) => [
-            styles.primaryButton,
-            (busyUpdateCheck || busyUpdateDownload) && styles.disabled,
-            pressed && !(busyUpdateCheck || busyUpdateDownload) && styles.pressed,
-          ]}
-        >
-          <Text style={styles.primaryButtonText}>
-            {busyUpdateCheck ? id.account.updatesChecking : id.account.updatesButton}
-          </Text>
-        </Pressable>
-
-        <Pressable
-          onPress={downloadAndReload}
-          disabled={!hasPendingUpdate || busyUpdateCheck || busyUpdateDownload}
-          style={({ pressed }) => [
-            styles.secondaryActionButton,
-            (!hasPendingUpdate || busyUpdateCheck || busyUpdateDownload) && styles.disabled,
-            pressed && hasPendingUpdate && !(busyUpdateCheck || busyUpdateDownload) && styles.pressed,
-          ]}
-        >
-          <Text style={styles.secondaryActionButtonText}>
-            {busyUpdateDownload ? id.account.updatesDownloading : id.account.updatesDownloadButton}
-          </Text>
-        </Pressable>
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>{id.account.securityTitle}</Text>
-        <Text style={styles.cardBody}>{id.account.securityBody}</Text>
-        <Pressable
-          onPress={() => navigation.navigate("ResetPassword")}
-          style={({ pressed }) => [styles.secondaryActionButton, pressed && styles.pressed]}
-        >
-          <Text style={styles.secondaryActionButtonText}>{id.account.resetPasswordButton}</Text>
-        </Pressable>
-
-        <Pressable
-          onPress={onLogout}
-          style={({ pressed }) => [styles.secondaryActionButton, pressed && styles.pressed]}
-        >
-          <Text style={styles.secondaryActionButtonText}>{id.account.logout}</Text>
-        </Pressable>
-      </View>
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>{id.account.reminderTitle}</Text>
-        <Text style={styles.cardBody}>{id.account.reminderBody}</Text>
-        <Pressable
-          onPress={() => navigation.navigate("ReminderSettings")}
-          style={({ pressed }) => [styles.secondaryActionButton, pressed && styles.pressed]}
-        >
-          <Text style={styles.secondaryActionButtonText}>{id.account.reminderManageButton}</Text>
-        </Pressable>
-      </View>
-
-
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>{id.account.helpTitle}</Text>
-        <Text style={styles.cardBody}>{id.account.helpNoAutoplay}</Text>
-        <Text style={styles.cardBody}>{id.account.helpVerify}</Text>
-        <Text style={styles.cardBody}>{id.account.helpPlayback}</Text>
-        <Text style={styles.cardBody}>{id.account.helpStoreUpdateNote}</Text>
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>{id.account.legalTitle}</Text>
-
-        <Pressable
-          onPress={() => safeOpenUrl(PRIVACY_URL)}
-          style={({ pressed }) => [styles.linkRow, pressed && styles.pressed]}
-          hitSlop={8}
-        >
-          <Text style={styles.linkText}>{id.account.privacy}</Text>
-        </Pressable>
-
-        <Pressable
-          onPress={() => safeOpenUrl(TERMS_URL)}
-          style={({ pressed }) => [styles.linkRow, pressed && styles.pressed]}
-          hitSlop={8}
-        >
-          <Text style={styles.linkText}>{id.account.terms}</Text>
-        </Pressable>
-
-        <Pressable
-          onPress={() => safeOpenEmail(SUPPORT_EMAIL)}
-          style={({ pressed }) => [styles.linkRow, pressed && styles.pressed]}
-          hitSlop={8}
-        >
-          <Text style={styles.linkText}>{id.account.support}</Text>
-          <Text style={styles.linkSub}>{SUPPORT_EMAIL}</Text>
-        </Pressable>
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>{id.account.aboutTitle}</Text>
-
-        <View style={styles.metaRow}>
-          <Text style={styles.metaLabel}>{id.account.versionLabel}</Text>
-          <Text style={styles.metaValue}>{appMeta.version}</Text>
+      <View style={styles.sectionWrap}>
+        <Text style={styles.sectionTitle}>Akun</Text>
+        <View style={styles.sectionCard}>
+          <SettingsRow
+            label={id.account.nameLabel}
+            rightNode={
+              <TextInput
+                value={nameValue}
+                onChangeText={setNameValue}
+                onBlur={() => {
+                  void onSaveName();
+                }}
+                onSubmitEditing={() => {
+                  void onSaveName();
+                }}
+                placeholder={id.account.namePlaceholder}
+                placeholderTextColor={colors.mutedText}
+                style={styles.nameInput}
+                returnKeyType="done"
+              />
+            }
+          />
+          <SettingsRow label={id.account.emailLabel} value={emailValue} showDivider={false} />
+          <SettingsRow
+            label={id.account.resetPasswordButton}
+            onPress={() => navigation.navigate("ResetPassword")}
+            showChevron
+          />
+          <SettingsRow label={id.account.logout} onPress={onLogout} destructive showDivider={false} />
         </View>
       </View>
 
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>{id.account.deleteTitle}</Text>
-        <Text style={styles.cardBody}>{id.account.deleteWarning}</Text>
+      <View style={styles.sectionWrap}>
+        <Text style={styles.sectionTitle}>Tidur</Text>
+        <View style={styles.sectionCard}>
+          <SettingsRow label={id.account.settingsTitle} onPress={() => navigation.navigate("NightMode")} showChevron />
+          <SettingsRow
+            label={id.account.reminderTitle}
+            onPress={() => navigation.navigate("ReminderSettings")}
+            showChevron
+            showDivider={false}
+          />
+        </View>
+      </View>
 
-        <Text style={styles.label}>{id.account.deleteTypeLabel}</Text>
-        <TextInput
-          value={confirmText}
-          onChangeText={setConfirmText}
-          autoCapitalize="characters"
-          autoCorrect={false}
-          placeholder={id.account.deletePlaceholder}
-          placeholderTextColor={colors.mutedText}
-          style={styles.input}
-        />
+      <View style={styles.sectionWrap}>
+        <Text style={styles.sectionTitle}>Dukungan</Text>
+        <View style={styles.sectionCard}>
+          <SettingsRow label={id.account.helpTitle} onPress={openHelp} showChevron />
+          <SettingsRow
+            label={id.account.support}
+            value={SUPPORT_EMAIL}
+            onPress={() => {
+              void safeOpenUrl(`mailto:${SUPPORT_EMAIL}`);
+            }}
+            showDivider={false}
+          />
+        </View>
+      </View>
 
-        <Pressable
-          onPress={onDeleteAccount}
-          disabled={!canDelete}
-          style={({ pressed }) => [
-            styles.dangerButton,
-            !canDelete && styles.disabled,
-            pressed && canDelete && styles.pressed,
-          ]}
-        >
-          <Text style={styles.dangerButtonText}>{busyDelete ? id.account.deleting : id.account.deleteFinal}</Text>
-        </Pressable>
+      <View style={styles.sectionWrap}>
+        <Text style={styles.sectionTitle}>Tentang</Text>
+        <View style={styles.sectionCard}>
+          <SettingsRow label={id.account.versionLabel} value={appVersion} />
+          <SettingsRow label={id.account.privacy} onPress={() => void safeOpenUrl(PRIVACY_URL)} showChevron />
+          <SettingsRow
+            label={id.account.terms}
+            onPress={() => void safeOpenUrl(TERMS_URL)}
+            showChevron
+            showDivider={false}
+          />
+        </View>
+      </View>
+
+      <View style={styles.sectionWrap}>
+        <Text style={styles.sectionTitle}>Zona berbahaya</Text>
+        <View style={styles.sectionCard}>
+          <Text style={styles.dangerText}>{id.account.deleteWarning}</Text>
+          <Pressable
+            onPress={() => {
+              void onDeleteAccount();
+            }}
+            disabled={busyDelete}
+            style={({ pressed }) => [styles.dangerButton, busyDelete && styles.disabled, pressed && !busyDelete && styles.pressedRow]}
+          >
+            <Text style={styles.dangerButtonText}>{busyDelete ? id.account.deleting : id.account.deleteFinal}</Text>
+          </Pressable>
+        </View>
       </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.bg },
+  screen: {
+    flex: 1,
+    backgroundColor: colors.white,
+  },
   container: {
-    padding: spacing.lg,
-    backgroundColor: colors.bg,
-    gap: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.md,
     paddingBottom: spacing.xl,
+    gap: spacing.lg,
+    backgroundColor: colors.white,
   },
-
-  card: {
-    padding: spacing.md,
-    borderRadius: radius.sm,
+  sectionWrap: {
+    gap: spacing.xs,
+  },
+  sectionTitle: {
+    fontSize: typography.small,
+    fontWeight: "700",
+    color: colors.mutedText,
+    paddingHorizontal: spacing.xs,
+  },
+  sectionCard: {
     backgroundColor: colors.card,
-    gap: spacing.sm,
-  },
-  cardTitle: { fontSize: typography.body, color: colors.text, fontWeight: "800" },
-  cardBody: { fontSize: typography.small, color: colors.mutedText, lineHeight: lineHeights.normal },
-
-  metaRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  metaLabel: { fontSize: typography.small, color: colors.mutedText, fontWeight: "700" },
-  metaValue: { fontSize: typography.small, color: colors.text, fontWeight: "800" },
-
-  primaryButton: {
-    backgroundColor: colors.primary,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.sm,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  primaryButtonText: {
-    color: colors.primaryText,
-    fontSize: typography.body,
-    fontWeight: "800",
-    textAlign: "center",
-  },
-
-  secondaryActionButton: {
-    backgroundColor: colors.bg,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.sm,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  secondaryActionButtonText: {
-    color: colors.text,
-    fontSize: typography.body,
-    fontWeight: "800",
-    textAlign: "center",
-  },
-
-  linkRow: {
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    borderRadius: radius.sm,
-    backgroundColor: colors.bg,
-    gap: 4,
-  },
-  linkText: { fontSize: typography.body, color: colors.text, fontWeight: "800" },
-  linkSub: { fontSize: typography.small, color: colors.mutedText },
-
-  label: { fontSize: typography.small, color: colors.text, fontWeight: "700" },
-  input: {
-    borderRadius: radius.sm,
-    paddingVertical: spacing.sm,
+    borderRadius: radius.md,
     paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+  },
+  row: {
+    minHeight: 52,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    position: "relative",
+  },
+  rowLabel: {
     fontSize: typography.body,
     color: colors.text,
-    backgroundColor: colors.card,
+    fontWeight: "600",
   },
-
+  rowLabelDanger: {
+    color: colors.danger,
+  },
+  rowRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    marginLeft: spacing.sm,
+    maxWidth: "62%",
+  },
+  rowValue: {
+    fontSize: typography.small,
+    color: colors.mutedText,
+    textAlign: "right",
+  },
+  rowDivider: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 1,
+    backgroundColor: `${colors.mutedText}22`,
+  },
+  chevron: {
+    fontSize: typography.title,
+    color: colors.mutedText,
+    lineHeight: typography.title,
+  },
+  nameInput: {
+    minWidth: 120,
+    maxWidth: 180,
+    fontSize: typography.small,
+    color: colors.text,
+    textAlign: "right",
+    paddingVertical: spacing.xs / 2,
+    paddingHorizontal: spacing.xs,
+    borderRadius: radius.xs,
+    backgroundColor: colors.bg,
+  },
+  dangerText: {
+    color: colors.mutedText,
+    fontSize: typography.small,
+    lineHeight: lineHeights.normal,
+    marginBottom: spacing.sm,
+  },
   dangerButton: {
-    marginTop: spacing.xs,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.sm,
+    width: "100%",
     backgroundColor: colors.danger,
+    borderRadius: radius.sm,
+    paddingVertical: spacing.sm,
+    alignItems: "center",
+    justifyContent: "center",
   },
   dangerButtonText: {
     color: colors.primaryText,
     fontSize: typography.body,
-    fontWeight: "800",
+    fontWeight: "700",
     textAlign: "center",
   },
-
-  disabled: { opacity: 0.6 },
-  pressed: { opacity: 0.85 },
+  disabled: {
+    opacity: 0.55,
+  },
+  pressedRow: {
+    opacity: 0.82,
+  },
 });
