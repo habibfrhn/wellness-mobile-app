@@ -6,6 +6,7 @@ import type { AuthStackParamList } from "../../navigation/types";
 import { colors, spacing, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import GoogleAuthButton from "../../components/auth/GoogleAuthButton";
+import { clearPendingProfileName } from "../../services/pendingProfileName";
 import { supabase, AUTH_CALLBACK } from "../../services/supabase";
 import { continueWithGoogle } from "../../services/authOAuth";
 import { setPendingProfileName } from "../../services/pendingProfileName";
@@ -56,6 +57,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
 
     setBusy(true);
     try {
+      await clearPendingProfileName();
       const { error } = await supabase.auth.signUp({
         email: e,
         password,

@@ -141,6 +141,7 @@ export default function App() {
     async function processUrl(url: string) {
       const res = await handleAuthLink(url);
       if (!res.handled) {
+        await clearPendingProfileName();
         setWebAuthStatus("missing");
         return;
       }
@@ -156,6 +157,7 @@ export default function App() {
         setAuthStartRoute("Login");
         setForceReset(false);
         setWebResetFlowActive(false);
+        await clearPendingProfileName();
         return;
       }
 
@@ -182,6 +184,7 @@ export default function App() {
       }
 
       if (!res.session) {
+        await clearPendingProfileName();
         setWebAuthStatus("missing");
         return;
       }

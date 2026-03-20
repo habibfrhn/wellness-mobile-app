@@ -16,6 +16,7 @@ import useViewportWidth from "../../hooks/useViewportWidth";
 import { colors, spacing, radius, typography, lineHeights } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import GoogleAuthButton from "../../components/auth/GoogleAuthButton";
+import { clearPendingProfileName } from "../../services/pendingProfileName";
 import { supabase } from "../../services/supabase";
 import { continueWithGoogle } from "../../services/authOAuth";
 import PasswordToggle from "../../components/PasswordToggle";
@@ -130,6 +131,7 @@ export default function LoginScreen({ navigation, route }: Props) {
 
     setBusyGoogle(true);
     try {
+      await clearPendingProfileName();
       await continueWithGoogle({ nextRoute: "Login" });
     } catch (error) {
       Alert.alert(id.common.errorTitle, error instanceof Error ? error.message : id.common.tryAgain);
