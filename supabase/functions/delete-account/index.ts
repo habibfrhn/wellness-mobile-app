@@ -1,5 +1,12 @@
 import { createClient } from "supabase";
 
+type ErrorCode =
+  | "METHOD_NOT_ALLOWED"
+  | "MISSING_USER_TOKEN"
+  | "SERVER_MISCONFIGURATION"
+  | "INVALID_SESSION"
+  | "DELETE_FAILED";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-user-jwt",
@@ -13,14 +20,25 @@ function json(status: number, body: Record<string, unknown>) {
   });
 }
 
+function error(status: number, message: string, code: ErrorCode) {
+  return json(status, { ok: false, error: message, code });
+}
+
+function getAuthorizationToken(req: Request) {
+  const authorization = req.headers.get("Authorization") ?? req.headers.get("authorization") ?? "";
+  if (authorization.startsWith("Bearer ")) {
+    return authorization.slice(7);
+  }
+
+  return req.headers.get("x-user-jwt") ?? "";
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  if (req.method !== "POST") return json(405, { error: "Method not allowed" });
+  if (req.method !== "POST") return error(405, "Method not allowed", "METHOD_NOT_ALLOWED");
 
-  // Since verify_jwt = false, we must authenticate manually.
-  const authorization = req.headers.get("Authorization") ?? req.headers.get("authorization") ?? "";
-  const token = authorization.startsWith("Bearer ") ? authorization.slice(7) : req.headers.get("x-user-jwt") ?? "";
-  if (!token) return json(401, { error: "Missing user token" });
+  const token = getAuthorizationToken(req);
+  if (!token) return error(401, "Missing user token", "MISSING_USER_TOKEN");
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
@@ -28,27 +46,25 @@ Deno.serve(async (req: Request) => {
 
   if (!supabaseUrl || !anonKey || !serviceRoleKey) {
     console.error("delete-account: missing environment variables");
-    return json(500, { error: "Server misconfiguration" });
+    return error(500, "Server misconfiguration", "SERVER_MISCONFIGURATION");
   }
 
-  // Validate user by calling Auth using their JWT
   const userClient = createClient(supabaseUrl, anonKey, {
     global: { headers: { Authorization: `Bearer ${token}` } },
   });
 
   const { data: userData, error: userErr } = await userClient.auth.getUser();
   if (userErr || !userData?.user) {
-    console.error("delete-account: invalid user session");
-    return json(401, { error: "Invalid user session" });
+    console.error("delete-account: invalid user session", userErr);
+    return error(401, "Invalid user session", "INVALID_SESSION");
   }
 
-  // Delete user via admin
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
   const { error: delErr } = await adminClient.auth.admin.deleteUser(userData.user.id);
 
   if (delErr) {
     console.error("delete-account: failed to delete user", delErr);
-    return json(500, { error: delErr.message || "Failed to delete account" });
+    return error(500, delErr.message || "Failed to delete account", "DELETE_FAILED");
   }
 
   return json(200, { ok: true });

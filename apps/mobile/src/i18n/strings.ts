@@ -304,6 +304,9 @@ export const id = {
     deleting: "Menghapus...",
     deletedTitle: "Akun dihapus",
     deletedBody: "Akun Anda berhasil dihapus.",
+    deleteFailed: "Gagal menghapus akun. Silakan coba lagi.",
+    deleteUnavailable:
+      "Layanan hapus akun sedang tidak dapat dihubungi. Pastikan Supabase Edge Function delete-account aktif lalu coba lagi.",
 
     deleteContinue: "Lanjut",
     deleteConfirmTitle: "Konfirmasi belum valid",
