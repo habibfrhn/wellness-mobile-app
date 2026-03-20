@@ -1,6 +1,6 @@
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { AuthError } from "@supabase/supabase-js";
+import { AuthError, FunctionsHttpError, FunctionsRelayError, FunctionsFetchError } from "@supabase/supabase-js";
 
 import { id } from "../i18n/strings";
 import { setNextAuthRoute } from "./authStart";
@@ -60,6 +60,13 @@ function getDeleteAccountFunctionUrl() {
   return `${supabaseUrl.replace(/\/$/, "")}/functions/v1/delete-account`;
 }
 
+async function deleteAccountViaRpc() {
+  const { error } = await supabase.rpc("delete_my_account");
+  if (error) {
+    throw error;
+  }
+}
+
 async function requestDeleteAccount(accessToken: string) {
   const response = await fetch(getDeleteAccountFunctionUrl(), {
     method: "POST",
@@ -83,6 +90,19 @@ async function requestDeleteAccount(accessToken: string) {
   }
 }
 
+function isDeleteAccountTransportError(error: unknown) {
+  if (error instanceof FunctionsFetchError || error instanceof FunctionsRelayError || error instanceof FunctionsHttpError) {
+    return true;
+  }
+
+  const message = error instanceof Error ? error.message : "";
+  return (
+    message.includes("Failed to fetch") ||
+    message.includes("Network request failed") ||
+    message.includes("Edge Function")
+  );
+}
+
 export async function deleteCurrentAccount() {
   const {
     data: { session },
@@ -99,18 +119,17 @@ export async function deleteCurrentAccount() {
   }
 
   try {
-    await requestDeleteAccount(accessToken);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "";
-    const isNetworkFailure =
-      message.includes("Failed to fetch") ||
-      message.includes("Network request failed") ||
-      message.includes("Edge Function");
-    if (isNetworkFailure) {
-      throw new Error(id.account.deleteUnavailable);
-    }
+    await deleteAccountViaRpc();
+  } catch {
+    try {
+      await requestDeleteAccount(accessToken);
+    } catch (fallbackError) {
+      if (isDeleteAccountTransportError(fallbackError)) {
+        throw new Error(id.account.deleteUnavailable);
+      }
 
-    throw error;
+      throw fallbackError;
+    }
   }
 
   await signOutAfterDeletion();
