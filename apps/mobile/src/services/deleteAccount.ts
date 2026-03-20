@@ -12,6 +12,7 @@ type DeleteAccountResponse = {
   code?: string;
 };
 
+const DELETE_ACCOUNT_FUNCTION_NAME = "delete-user-account";
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -52,11 +53,15 @@ async function signOutAfterDeletion() {
   }
 }
 
-async function deleteAccountViaFunction() {
+function getDeleteAccountFunctionUrl() {
   if (!supabaseUrl) {
     throw new Error(id.account.deleteUnavailable);
   }
 
+  return `${supabaseUrl.replace(/\/$/, "")}/functions/v1/${DELETE_ACCOUNT_FUNCTION_NAME}`;
+}
+
+async function deleteAccountViaFunction() {
   const {
     data: { session },
     error: sessionError,
@@ -73,7 +78,7 @@ async function deleteAccountViaFunction() {
 
   let response: Response;
   try {
-    response = await fetch(`${supabaseUrl.replace(/\/$/, "")}/functions/v1/delete-account`, {
+    response = await fetch(getDeleteAccountFunctionUrl(), {
       method: "POST",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -112,12 +117,6 @@ export async function deleteCurrentAccount() {
     throw new Error(id.account.sessionMissing);
   }
 
-  try {
-    await deleteAccountViaFunction();
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "";
-    throw new Error(message || id.account.deleteFailed);
-  }
-
+  await deleteAccountViaFunction();
   await signOutAfterDeletion();
 }

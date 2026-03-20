@@ -45,7 +45,7 @@ Deno.serve(async (req: Request) => {
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
   if (!supabaseUrl || !anonKey || !serviceRoleKey) {
-    console.error("delete-account: missing environment variables");
+    console.error("delete-user-account: missing environment variables");
     return error(500, "Server misconfiguration", "SERVER_MISCONFIGURATION");
   }
 
@@ -55,16 +55,16 @@ Deno.serve(async (req: Request) => {
 
   const { data: userData, error: userErr } = await userClient.auth.getUser();
   if (userErr || !userData?.user) {
-    console.error("delete-account: invalid user session", userErr);
+    console.error("delete-user-account: invalid user session", userErr);
     return error(401, "Invalid user session", "INVALID_SESSION");
   }
 
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
-  const { error: delErr } = await adminClient.auth.admin.deleteUser(userData.user.id);
+  const { error: deleteError } = await adminClient.auth.admin.deleteUser(userData.user.id);
 
-  if (delErr) {
-    console.error("delete-account: failed to delete user", delErr);
-    return error(500, delErr.message || "Failed to delete account", "DELETE_FAILED");
+  if (deleteError) {
+    console.error("delete-user-account: failed to delete user", deleteError);
+    return error(500, deleteError.message || "Failed to delete account", "DELETE_FAILED");
   }
 
   return json(200, { ok: true });
