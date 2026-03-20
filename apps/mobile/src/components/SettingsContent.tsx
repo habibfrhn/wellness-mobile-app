@@ -5,7 +5,7 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { id } from "../i18n/strings";
 import type { AppStackParamList } from "../navigation/types";
 import { canManagePassword } from "../services/authProviders";
-import { signOutToLogin } from "../services/authSession";
+import { deleteCurrentAccount } from "../services/deleteAccount";
 import { supabase } from "../services/supabase";
 import { colors, lineHeights, radius, spacing, typography } from "../theme/tokens";
 import SettingsRow from "./settings/SettingsRow";
@@ -119,20 +119,11 @@ export default function SettingsContent({ navigation }: Props) {
     const deleteAction = async () => {
       setBusyDelete(true);
       try {
-        const { error } = await supabase.functions.invoke<{ ok?: boolean; error?: string }>("delete-account");
-        if (error) {
-          Alert.alert(id.common.errorTitle, error.message);
-          return;
-        }
-
-        Alert.alert(id.account.deletedTitle, id.account.deletedBody, [
-          {
-            text: id.common.ok,
-            onPress: async () => {
-              await signOutToLogin("local");
-            },
-          },
-        ]);
+        await deleteCurrentAccount();
+        Alert.alert(id.account.deletedTitle, id.account.deletedBody);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : id.common.tryAgain;
+        Alert.alert(id.common.errorTitle, message);
       } finally {
         setBusyDelete(false);
       }

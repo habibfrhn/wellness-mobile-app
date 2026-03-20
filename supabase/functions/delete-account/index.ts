@@ -18,7 +18,7 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json(405, { error: "Method not allowed" });
 
   // Since verify_jwt = false, we must authenticate manually.
-  const authorization = req.headers.get("Authorization") ?? "";
+  const authorization = req.headers.get("Authorization") ?? req.headers.get("authorization") ?? "";
   const token = authorization.startsWith("Bearer ") ? authorization.slice(7) : req.headers.get("x-user-jwt") ?? "";
   if (!token) return json(401, { error: "Missing user token" });
 
@@ -47,8 +47,8 @@ Deno.serve(async (req: Request) => {
   const { error: delErr } = await adminClient.auth.admin.deleteUser(userData.user.id);
 
   if (delErr) {
-    console.error("delete-account: failed to delete user");
-    return json(500, { error: "Failed to delete account" });
+    console.error("delete-account: failed to delete user", delErr);
+    return json(500, { error: delErr.message || "Failed to delete account" });
   }
 
   return json(200, { ok: true });
