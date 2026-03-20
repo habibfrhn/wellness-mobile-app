@@ -1,19 +1,15 @@
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { AuthError, FunctionsHttpError, FunctionsRelayError, FunctionsFetchError } from "@supabase/supabase-js";
+import { AuthError } from "@supabase/supabase-js";
 
 import { id } from "../i18n/strings";
 import { setNextAuthRoute } from "./authStart";
 import { supabase } from "./supabase";
 
 type DeleteAccountResponse = {
-  ok?: boolean;
-  error?: string;
   code?: string;
+  message?: string;
 };
-
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
 function isMissingSessionError(error: unknown) {
   return error instanceof AuthError && error.name === "AuthSessionMissingError";
@@ -52,55 +48,20 @@ async function signOutAfterDeletion() {
   }
 }
 
-function getDeleteAccountFunctionUrl() {
-  if (!supabaseUrl) {
-    throw new Error(id.account.deleteUnavailable);
-  }
-
-  return `${supabaseUrl.replace(/\/$/, "")}/functions/v1/delete-account`;
-}
-
 async function deleteAccountViaRpc() {
   const { error } = await supabase.rpc("delete_my_account");
   if (error) {
-    throw error;
+    throw error as DeleteAccountResponse & Error;
   }
 }
 
-async function requestDeleteAccount(accessToken: string) {
-  const response = await fetch(getDeleteAccountFunctionUrl(), {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      ...(supabaseAnonKey ? { apikey: supabaseAnonKey } : {}),
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({}),
-  });
-
-  let payload: DeleteAccountResponse | null = null;
-  try {
-    payload = (await response.json()) as DeleteAccountResponse;
-  } catch {
-    payload = null;
+function isDeleteAccountRpcMissing(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return false;
   }
 
-  if (!response.ok || !payload?.ok) {
-    throw new Error(payload?.error || id.account.deleteFailed);
-  }
-}
-
-function isDeleteAccountTransportError(error: unknown) {
-  if (error instanceof FunctionsFetchError || error instanceof FunctionsRelayError || error instanceof FunctionsHttpError) {
-    return true;
-  }
-
-  const message = error instanceof Error ? error.message : "";
-  return (
-    message.includes("Failed to fetch") ||
-    message.includes("Network request failed") ||
-    message.includes("Edge Function")
-  );
+  const rpcError = error as DeleteAccountResponse;
+  return rpcError.code === "PGRST202" || rpcError.message?.includes("delete_my_account") === true;
 }
 
 export async function deleteCurrentAccount() {
@@ -120,16 +81,13 @@ export async function deleteCurrentAccount() {
 
   try {
     await deleteAccountViaRpc();
-  } catch {
-    try {
-      await requestDeleteAccount(accessToken);
-    } catch (fallbackError) {
-      if (isDeleteAccountTransportError(fallbackError)) {
-        throw new Error(id.account.deleteUnavailable);
-      }
-
-      throw fallbackError;
+  } catch (error) {
+    if (isDeleteAccountRpcMissing(error)) {
+      throw new Error(id.account.deleteSetupRequired);
     }
+
+    const message = error instanceof Error ? error.message : "";
+    throw new Error(message || id.account.deleteFailed);
   }
 
   await signOutAfterDeletion();
