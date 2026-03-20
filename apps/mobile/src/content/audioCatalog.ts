@@ -1,8 +1,8 @@
 export type AudioId =
   | "bersiap_tidur"
-  | "lapisan-sunyi"
-  | "dibawah-hujan"
-  | "larut-perlahan"
+  | "hening"
+  | "rintik-hujan"
+  | "ombak-laut"
   | "afirmasi_tidur"
   | "meditasi_tidur";
 
@@ -37,10 +37,10 @@ export const AUDIO_TRACKS = [
     isPremium: false,
   },
   {
-    id: "lapisan-sunyi",
+    id: "hening",
     order: 2,
-    title: "Malam Hening",
-    subtitle: "Nada tenang untuk hening",
+    title: "Hening",
+    subtitle: "Suara latar lembut",
     durationSec: 300,
     asset: require("../../assets/audio/soundscape/01-lapisan-sunyi-5m.m4a"),
     creator: "Lumepo",
@@ -51,10 +51,10 @@ export const AUDIO_TRACKS = [
     isPremium: false,
   },
   {
-    id: "dibawah-hujan",
+    id: "rintik-hujan",
     order: 3,
-    title: "Hujan Malam",
-    subtitle: "Desau lembut menemani",
+    title: "Rintik Hujan",
+    subtitle: "Rintik pelan menemani",
     durationSec: 300,
     asset: require("../../assets/audio/soundscape/02-dibawah-hujan-5m.m4a"),
     creator: "Lumepo",
@@ -65,10 +65,10 @@ export const AUDIO_TRACKS = [
     isPremium: false,
   },
   {
-    id: "larut-perlahan",
+    id: "ombak-laut",
     order: 4,
-    title: "Ombak Malam",
-    subtitle: "Hening bertahap untuk tidur",
+    title: "Ombak Laut",
+    subtitle: "Irama ombak perlahan",
     durationSec: 300,
     asset: require("../../assets/audio/soundscape/03-larut-perlahan-5m.m4a"),
     creator: "Lumepo",

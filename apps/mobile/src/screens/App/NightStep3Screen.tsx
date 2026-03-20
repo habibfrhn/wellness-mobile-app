@@ -10,13 +10,13 @@ import { colors, radius, spacing, typography } from "../../theme/tokens";
 
 type Props = NativeStackScreenProps<AppStackParamList, "NightStep3">;
 
-type BackgroundTrackId = "lapisan-sunyi" | "dibawah-hujan" | "larut-perlahan";
+type BackgroundTrackId = "hening" | "rintik-hujan" | "ombak-laut";
 
-const BACKGROUND_TRACK_IDS: BackgroundTrackId[] = ["lapisan-sunyi", "dibawah-hujan", "larut-perlahan"];
+const BACKGROUND_TRACK_IDS: BackgroundTrackId[] = ["hening", "rintik-hujan", "ombak-laut"];
 
 export default function NightStep3Screen({ navigation, route }: Props) {
   const { mode, stressBefore } = route.params;
-  const [selectedTrackId, setSelectedTrackId] = useState<BackgroundTrackId>("lapisan-sunyi");
+  const [selectedTrackId, setSelectedTrackId] = useState<BackgroundTrackId>("hening");
 
   const selectedTrack = useMemo(() => getTrackById(selectedTrackId), [selectedTrackId]);
   const player = useAudioPlayer(selectedTrack.asset, { updateInterval: 250 });
