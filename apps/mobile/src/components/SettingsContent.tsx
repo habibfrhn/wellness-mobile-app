@@ -49,6 +49,17 @@ async function safeOpenUrl(url: string) {
   }
 }
 
+function showMessage(title: string, message: string) {
+  if (Platform.OS === "web" && typeof window !== "undefined") {
+    window.alert(`${title}
+
+${message}`);
+    return;
+  }
+
+  Alert.alert(title, message);
+}
+
 function confirmOnWeb(title: string, message: string) {
   if (Platform.OS === "web" && typeof window !== "undefined") {
     return window.confirm(`${title}\n\n${message}`);
@@ -120,10 +131,10 @@ export default function SettingsContent({ navigation }: Props) {
       setBusyDelete(true);
       try {
         await deleteCurrentAccount();
-        Alert.alert(id.account.deletedTitle, id.account.deletedBody);
+        showMessage(id.account.deletedTitle, id.account.deletedBody);
       } catch (error) {
         const message = error instanceof Error ? error.message : id.common.tryAgain;
-        Alert.alert(id.common.errorTitle, message);
+        showMessage(id.common.errorTitle, message);
       } finally {
         setBusyDelete(false);
       }
