@@ -43,8 +43,6 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   const { audioId, playlistIds, sleepMode } = route.params;
   const viewportWidth = useViewportWidth();
   const webViewport = getWebViewport(viewportWidth);
-  const isDesktopWeb = webViewport === "desktop";
-  const isTabletWeb = webViewport === "tablet";
   const sectionGap = getWebSectionSpacing(webViewport);
   const [progressWidth, setProgressWidth] = useState(0);
   const [favorite, setFavorite] = useState(() => isFavorite(audioId));
@@ -208,19 +206,8 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <View
-          style={[
-            styles.playerLayout,
-            { gap: sectionGap },
-            isDesktopWeb && styles.playerLayoutDesktop,
-          ]}
-        >
-          <View
-            style={[
-              styles.artworkColumn,
-              isDesktopWeb && styles.artworkColumnDesktop,
-            ]}
-          >
+        <View style={[styles.playerLayout, { gap: sectionGap }]}>
+          <View style={styles.artworkColumn}>
             <PlayerArtworkSection
               cover={sessionArtwork?.cover ?? track.cover}
               isFavorite={favorite}
@@ -228,13 +215,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
             />
           </View>
 
-          <View
-            style={[
-              styles.sectionsAlignedWithArtwork,
-              isTabletWeb && styles.sectionsTablet,
-              isDesktopWeb && styles.sectionsDesktop,
-            ]}
-          >
+          <View style={styles.sectionsAlignedWithArtwork}>
             <SleepSessionProgressHeader
               title={isPlaylistSession ? sleepSessionTitle : track.title}
               subtitle={isPlaylistSession ? sleepSessionPhase : track.creator}
@@ -315,31 +296,11 @@ const styles = StyleSheet.create({
   artworkColumn: {
     width: "100%",
     maxWidth: 420,
-    flexShrink: 0,
-  },
-  playerLayoutDesktop: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "center",
-    gap: spacing.xl,
-  },
-  artworkColumnDesktop: {
-    width: 420,
   },
   sectionsAlignedWithArtwork: {
     width: "100%",
     maxWidth: 420,
     alignSelf: "center",
-  },
-  sectionsTablet: {
-    maxWidth: 520,
-  },
-  sectionsDesktop: {
-    width: 420,
-    maxWidth: 420,
-    minWidth: 0,
-    flexShrink: 0,
-    alignSelf: "flex-start",
   },
   pressed: { opacity: 0.85 },
 });
