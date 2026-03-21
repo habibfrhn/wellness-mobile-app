@@ -74,7 +74,7 @@ export default function AuthScreenLayout({
         isMobileWeb && styles.screenContentMobile,
         {
           paddingHorizontal: getWebPageHorizontalPadding(viewport),
-          paddingTop: spacing.xl,
+          paddingTop: spacing.lg,
         },
       ]}
       keyboardShouldPersistTaps="handled"
@@ -108,7 +108,7 @@ export default function AuthScreenLayout({
 
 export const authSharedStyles = StyleSheet.create({
   formFields: {
-    marginTop: spacing.xl,
+    marginTop: spacing.lg,
     gap: spacing.sm,
   },
   label: {
@@ -184,31 +184,31 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.md,
   },
   screenContentTablet: {
     paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.md,
   },
   screenContentMobile: {
     justifyContent: "flex-start",
     paddingHorizontal: spacing.md,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.xl,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.lg,
   },
   panel: {
     width: "100%",
     maxWidth: 580,
-    padding: 36,
+    padding: 28,
     borderRadius: radius.md,
     backgroundColor: colors.white,
     boxShadow: "0px 8px 28px rgba(33,50,94,0.12)",
   },
   panelTablet: {
     maxWidth: 640,
-    padding: spacing.xl,
+    padding: spacing.lg,
   },
   panelMobile: {
     maxWidth: "100%",
@@ -217,8 +217,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
   },
   closeButton: {
-    width: 32,
-    height: 32,
+    width: 28,
+    height: 28,
     marginLeft: spacing.xs,
     marginTop: 0,
     alignItems: "center",
@@ -240,10 +240,10 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
   titleTablet: {
-    fontSize: 28,
+    fontSize: typography.title,
   },
   titleMobile: {
-    fontSize: typography.h2,
+    fontSize: typography.title,
   },
   subtitle: {
     fontSize: typography.small,
