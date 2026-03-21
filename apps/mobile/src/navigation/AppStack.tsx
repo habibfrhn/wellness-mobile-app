@@ -29,7 +29,8 @@ const WEB_BREAKPOINT = 640;
 
 export default function AppStack() {
   const viewportWidth = useViewportWidth();
-  const isDesktopWeb = Platform.OS === "web" && viewportWidth > WEB_BREAKPOINT;
+  const isWeb = Platform.OS === "web";
+  const isDesktopWeb = isWeb && viewportWidth > WEB_BREAKPOINT;
 
   return (
     <Stack.Navigator
@@ -43,7 +44,7 @@ export default function AppStack() {
         name="Home"
         options={({ navigation }) => ({
           headerTitle: "",
-          headerShown: !isDesktopWeb,
+          headerShown: !isWeb,
           headerLeft: () => <HomeHeaderLogo />,
           headerRight: () => <HomeHeaderSettingsButton navigation={navigation} />,
         })}
