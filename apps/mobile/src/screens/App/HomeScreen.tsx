@@ -10,7 +10,12 @@ import HomeGreetingTitle from "../../components/HomeGreetingTitle";
 import HomeHeaderLogo from "../../components/HomeHeaderLogo";
 import HomeHeaderSettingsButton from "../../components/HomeHeaderSettingsButton";
 import HomeNightSummary from "../../components/HomeNightSummary";
-import { getWebPageContainerStyle, getWebViewport, WEB_SECTION_CONTENT_INSET } from "../../constants/webLayout";
+import {
+  getWebPageContainerStyle,
+  getWebPageTopSpacing,
+  getWebViewport,
+  WEB_SECTION_CONTENT_INSET,
+} from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { id } from "../../i18n/strings";
 import type { AppStackParamList } from "../../navigation/types";
@@ -84,7 +89,13 @@ export default function HomeScreen({ navigation, route }: Props) {
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={[styles.listContent, { paddingBottom: spacing.sm + insets.bottom }]}
+      contentContainerStyle={[
+        styles.listContent,
+        {
+          paddingTop: getWebPageTopSpacing(webViewport),
+          paddingBottom: spacing.sm + insets.bottom,
+        },
+      ]}
       showsVerticalScrollIndicator={false}
     >
       <View
@@ -181,7 +192,6 @@ const styles = StyleSheet.create({
   },
   sectionStack: {
     gap: spacing.lg,
-    marginTop: spacing.sm,
   },
   sectionBlock: {
     width: "100%",

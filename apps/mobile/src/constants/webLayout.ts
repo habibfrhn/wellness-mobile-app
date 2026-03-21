@@ -36,6 +36,19 @@ export function getWebPageHorizontalPadding(viewport: WebViewport) {
   return spacing.md;
 }
 
+
+export function getWebPageTopSpacing(viewport: WebViewport) {
+  if (viewport === "desktop") {
+    return spacing.xl;
+  }
+
+  if (viewport === "tablet") {
+    return spacing.lg;
+  }
+
+  return spacing.md;
+}
+
 export function getWebPageMaxWidth(viewport: WebViewport, widths: WebPageWidths) {
   if (viewport === "desktop") {
     return widths.desktop;

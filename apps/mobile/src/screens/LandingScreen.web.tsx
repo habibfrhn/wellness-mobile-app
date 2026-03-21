@@ -3,7 +3,7 @@ import { NavigationProp, NavigatorScreenParams, useNavigation } from "@react-nav
 import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { colors, radius, spacing, typography } from "../theme/tokens";
-import { getWebViewport } from "../constants/webLayout";
+import { getWebPageTopSpacing, getWebViewport } from "../constants/webLayout";
 import type { AuthStackParamList } from "../navigation/types";
 import useViewportWidth from "../hooks/useViewportWidth";
 import WebResponsiveFrame from "../components/WebResponsiveFrame";
@@ -159,7 +159,12 @@ export default function LandingScreen() {
       <ScrollView
         ref={scrollRef}
         style={styles.page}
-        contentContainerStyle={[styles.content, isTablet && styles.contentTablet, isDesktop && styles.contentDesktop]}
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop: getWebPageTopSpacing(viewport) },
+          isTablet && styles.contentTablet,
+          isDesktop && styles.contentDesktop,
+        ]}
         keyboardShouldPersistTaps="handled"
         scrollEnabled={!isFoundingOpen}
       >
@@ -514,11 +519,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     gap: spacing.md,
-    paddingTop: 10,
+    paddingTop: 0,
     paddingBottom: 0,
   },
   headerSectionDesktop: {
-    paddingTop: 14,
+    paddingTop: 0,
     paddingBottom: 0,
   },
   brand: {
