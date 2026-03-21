@@ -63,6 +63,8 @@ const styles = StyleSheet.create({
   },
   primaryButtonDesktop: {
     marginTop: spacing.lg,
+    width: 280,
+    alignSelf: "center",
     paddingVertical: spacing.md,
   },
   primaryButtonText: {
