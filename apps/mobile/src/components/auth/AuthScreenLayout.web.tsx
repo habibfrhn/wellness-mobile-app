@@ -79,29 +79,29 @@ export default function AuthScreenLayout({
       keyboardShouldPersistTaps="handled"
       contentInsetAdjustmentBehavior="automatic"
     >
+      {showCloseButton ? (
+        <View style={styles.inlineHeader}>
+          <Pressable
+            onPress={() => {
+              const parent = navigation.getParent();
+              if (parent) {
+                parent.navigate("Landing" as never);
+                return;
+              }
+              navigation.navigate("Welcome" as never);
+            }}
+            style={({ pressed }) => [
+              styles.closeButton,
+              pressed && authSharedStyles.pressed,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel="Tutup"
+          >
+            <Text style={styles.closeText}>✕</Text>
+          </Pressable>
+        </View>
+      ) : null}
       <View style={styles.contentColumn}>
-        {showCloseButton ? (
-          <View style={styles.inlineHeader}>
-            <Pressable
-              onPress={() => {
-                const parent = navigation.getParent();
-                if (parent) {
-                  parent.navigate("Landing" as never);
-                  return;
-                }
-                navigation.navigate("Welcome" as never);
-              }}
-              style={({ pressed }) => [
-                styles.closeButton,
-                pressed && authSharedStyles.pressed,
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel="Tutup"
-            >
-              <Text style={styles.closeText}>✕</Text>
-            </Pressable>
-          </View>
-        ) : null}
         <View
           style={[
             styles.panel,
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   closeButton: {
     width: 24,
     height: 24,
-    marginLeft: spacing.xs,
+    marginLeft: 0,
     marginTop: 0,
     alignItems: "center",
     justifyContent: "center",
@@ -255,9 +255,11 @@ const styles = StyleSheet.create({
   contentColumn: {
     width: "100%",
     maxWidth: 520,
+    alignSelf: "center",
   },
   inlineHeader: {
     width: "100%",
+    alignSelf: "stretch",
     marginBottom: spacing.sm,
     alignItems: "flex-start",
   },
