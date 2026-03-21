@@ -17,7 +17,7 @@ export default function HomeHeaderMenu({ navigation, withWhiteCircle = false }: 
   const [isOpen, setIsOpen] = useState(false);
   const insets = useSafeAreaInsets();
 
-  const handleNavigate = (route: keyof AppStackParamList) => {
+  const handleNavigate = (route: "Account" | "Settings") => {
     setIsOpen(false);
     navigation.navigate(route);
   };

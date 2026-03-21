@@ -328,5 +328,75 @@ export const id = {
     resetSuccessTitle: "Kata sandi diperbarui",
     resetSuccessBody: "Kata sandi berhasil diperbarui. Silakan masuk kembali.",
     resetUnavailableBody: "Ubah kata sandi hanya tersedia untuk akun yang masuk dengan email dan kata sandi.",
+
+
+    privacyPolicyScreenTitle: "Kebijakan Privasi",
+    privacyPolicyUpdatedAtLabel: "Terakhir diperbarui:",
+    privacyPolicyUpdatedAtValue: "21/01/2026",
+    privacyPolicySummaryTitle: "1) Ringkasan",
+    privacyPolicySummaryBody:
+      "Kami menghargai privasi Anda. Kebijakan ini menjelaskan informasi apa yang kami kumpulkan, bagaimana kami menggunakannya, dan hak Anda sebagai pengguna.",
+    privacyPolicyInfoTitle: "2) Informasi yang Kami Kumpulkan",
+    privacyPolicyInfoIntro: "Kami hanya mengumpulkan data yang diperlukan untuk menjalankan layanan:",
+    privacyPolicyAccountTitle: "a) Informasi Akun",
+    privacyPolicyAccountBullets: [
+      "Email (untuk login dan keamanan akun)",
+      "Kata sandi (untuk autentikasi akun saat menggunakan email)",
+      "Nama (opsional, untuk personalisasi pengalaman pengguna)",
+    ],
+    privacyPolicyAccountMethodsIntro: "Pengguna dapat membuat akun dengan:",
+    privacyPolicyAccountMethods: [
+      "Email dan kata sandi",
+      "Atau menggunakan Google OAuth (Sign in with Google)",
+    ],
+    privacyPolicyGoogleIntro: "Jika Anda menggunakan Google OAuth, kami dapat menerima informasi dasar seperti:",
+    privacyPolicyGoogleBullets: ["Nama", "Email", "Foto profil (jika tersedia)"],
+    privacyPolicyUsageTitle: "b) Data Penggunaan Aplikasi",
+    privacyPolicyUsageBullets: [
+      "Data penggunaan dasar seperti durasi sesi, layar yang diakses, dan laporan crash (untuk meningkatkan kualitas aplikasi)",
+    ],
+    privacyPolicyDeviceTitle: "c) Informasi Perangkat",
+    privacyPolicyDeviceBullets: [
+      "Jenis perangkat, versi OS, versi aplikasi, serta identifier tertentu untuk keperluan debugging dan pencegahan penyalahgunaan",
+    ],
+    privacyPolicyUseTitle: "3) Cara Kami Menggunakan Informasi",
+    privacyPolicyUseBullets: [
+      "Mengelola akun Anda",
+      "Menjalankan fitur utama aplikasi",
+      "Personalisasi pengalaman (misalnya sapaan nama)",
+      "Mendukung proses login dan autentikasi, termasuk email dan Google OAuth",
+      "Memperbaiki performa dan stabilitas",
+      "Mengirim pemberitahuan penting (misalnya reset kata sandi)",
+    ],
+    privacyPolicySharingTitle: "4) Berbagi Data",
+    privacyPolicySharingIntro: "Kami tidak menjual data Anda.",
+    privacyPolicySharingBody: "Data hanya dapat dibagikan dengan:",
+    privacyPolicySharingBullets: [
+      "Penyedia layanan (analytics, crash reporting, hosting, dan autentikasi) yang membantu operasional aplikasi",
+      "Pihak berwenang jika diwajibkan oleh hukum",
+    ],
+    privacyPolicySecurityTitle: "5) Penyimpanan & Keamanan",
+    privacyPolicySecurityBody:
+      "Kami menggunakan standar keamanan yang wajar untuk melindungi data Anda. Tidak ada sistem yang sepenuhnya aman, tetapi kami berupaya semaksimal mungkin.",
+    privacyPolicyRightsTitle: "6) Hak Anda",
+    privacyPolicyRightsIntro: "Anda berhak untuk:",
+    privacyPolicyRightsBullets: [
+      "Meminta penghapusan akun",
+      "Mengakses atau memperbarui data Anda",
+      "Menarik persetujuan (jika berlaku)",
+    ],
+    privacyPolicyChildrenTitle: "7) Privasi Anak",
+    privacyPolicyChildrenBody:
+      "Aplikasi ini tidak ditujukan untuk anak di bawah 13 tahun. Kami tidak sengaja mengumpulkan data dari anak di bawah usia tersebut.",
+    privacyPolicyInternationalTitle: "8) Pengguna Internasional",
+    privacyPolicyInternationalBody:
+      "Data Anda dapat diproses di server yang berada di luar negara Anda tergantung penyedia layanan kami.",
+    privacyPolicyChangesTitle: "9) Perubahan Kebijakan",
+    privacyPolicyChangesBody:
+      'Kebijakan ini dapat diperbarui dari waktu ke waktu. Tanggal "Terakhir diperbarui" akan disesuaikan.',
+    privacyPolicyContactTitle: "10) Kontak",
+    privacyPolicyContactBody: "Untuk pertanyaan atau permintaan terkait privasi:",
+    privacyPolicyContactEmailLabel: "Email",
+    privacyPolicyContactEmailValue: "lumepoapp@gmail.com",
   },
 };

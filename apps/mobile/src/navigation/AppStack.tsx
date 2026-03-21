@@ -13,6 +13,7 @@ import AudioPlayerScreen from "../screens/App/AudioPlayerScreen";
 import ProfileScreen from "../screens/App/ProfileScreen";
 import ResetPasswordScreen from "../screens/App/ResetPasswordScreen";
 import SettingsScreen from "../screens/App/SettingsScreen";
+import PrivacyPolicyScreen from "../screens/App/PrivacyPolicyScreen";
 import ReminderSettingsScreen from "../screens/App/ReminderSettingsScreen";
 import HomeHeaderLogo from "../components/HomeHeaderLogo";
 import HomeHeaderSettingsButton from "../components/HomeHeaderSettingsButton";
@@ -73,6 +74,15 @@ export default function AppStack() {
         {(props) => <SettingsScreen {...props} />}
       </Stack.Screen>
 
+      <Stack.Screen
+        name="PrivacyPolicy"
+        options={{
+          title: id.account.privacyPolicyScreenTitle,
+          headerBackTitleVisible: false,
+        }}
+      >
+        {(props) => <PrivacyPolicyScreen {...props} />}
+      </Stack.Screen>
 
       <Stack.Screen
         name="ReminderSettings"

@@ -26,6 +26,7 @@ export type AppStackParamList = {
   Player: { audioId: AudioId; playlistIds?: AudioId[]; sleepMode?: "calm_mind" | "release_accept" };
   Account: undefined;
   Settings: undefined;
+  PrivacyPolicy: undefined;
   ReminderSettings: undefined;
   ResetPassword: undefined;
 };
