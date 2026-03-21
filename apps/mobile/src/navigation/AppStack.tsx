@@ -14,6 +14,7 @@ import ProfileScreen from "../screens/App/ProfileScreen";
 import ResetPasswordScreen from "../screens/App/ResetPasswordScreen";
 import SettingsScreen from "../screens/App/SettingsScreen";
 import PrivacyPolicyScreen from "../screens/App/PrivacyPolicyScreen";
+import TermsConditionsScreen from "../screens/App/TermsConditionsScreen";
 import ReminderSettingsScreen from "../screens/App/ReminderSettingsScreen";
 import HomeHeaderLogo from "../components/HomeHeaderLogo";
 import HomeHeaderSettingsButton from "../components/HomeHeaderSettingsButton";
@@ -82,6 +83,16 @@ export default function AppStack() {
         }}
       >
         {(props) => <PrivacyPolicyScreen {...props} />}
+      </Stack.Screen>
+
+      <Stack.Screen
+        name="TermsConditions"
+        options={{
+          title: id.account.termsScreenTitle,
+          headerBackTitleVisible: false,
+        }}
+      >
+        {(props) => <TermsConditionsScreen {...props} />}
       </Stack.Screen>
 
       <Stack.Screen

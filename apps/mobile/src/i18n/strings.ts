@@ -398,5 +398,48 @@ export const id = {
     privacyPolicyContactBody: "Untuk pertanyaan atau permintaan terkait privasi:",
     privacyPolicyContactEmailLabel: "Email",
     privacyPolicyContactEmailValue: "lumepoapp@gmail.com",
+
+    termsScreenTitle: "Ketentuan & Syarat",
+    termsUpdatedAtLabel: "Terakhir diperbarui:",
+    termsUpdatedAtValue: "21/01/2026",
+    termsGeneralTitle: "1) Ketentuan Umum",
+    termsGeneralBody:
+      'Ketentuan ini mengatur penggunaan Lumepo ("Aplikasi") yang dikembangkan oleh Mitra Pasifik Nusantara ("Pengembang").',
+    termsGeneralBodySecondary:
+      "Dengan mengunduh, memasang, atau menggunakan Aplikasi, Anda setuju terikat dengan Ketentuan ini. Jika tidak setuju, jangan gunakan Aplikasi.",
+    termsDefinitionsTitle: "2) Definisi",
+    termsDefinitionsBullets: [
+      "Pengguna: setiap orang yang menggunakan Aplikasi.",
+      "Konten: teks, gambar, audio, video, atau media lain yang tersedia di Aplikasi.",
+    ],
+    termsLicenseTitle: "3) Lisensi Penggunaan",
+    termsLicenseBody:
+      "Pengembang memberi lisensi terbatas, non-eksklusif, tidak dapat dialihkan, dan dapat dicabut untuk menggunakan Aplikasi hanya untuk keperluan pribadi dan non-komersial.",
+    termsBehaviorTitle: "4) Perilaku Pengguna",
+    termsBehaviorIntro: "Anda setuju tidak:",
+    termsBehaviorBullets: [
+      "Menggunakan Aplikasi untuk tujuan ilegal atau penipuan.",
+      "Menyalin, memodifikasi, atau membuat karya turunan dari Aplikasi atau Konten.",
+      "Mengganggu sistem atau infrastruktur Aplikasi.",
+      "Mencoba mengakses sistem tanpa izin.",
+    ],
+    termsIpTitle: "5) Hak Kekayaan Intelektual",
+    termsIpBody:
+      "Seluruh hak atas Aplikasi dan Kontennya milik Pengembang atau pemberi lisensi. Anda tidak boleh mendistribusikan atau menggandakan tanpa izin tertulis.",
+    termsDisclaimerTitle: "6) Disclaimer (Penyangkalan)",
+    termsDisclaimerBody:
+      'Aplikasi disediakan "sebagaimana adanya" tanpa jaminan apa pun. Pengembang tidak menjamin Aplikasi selalu bebas gangguan atau sepenuhnya aman.',
+    termsLiabilityTitle: "7) Pembatasan Tanggung Jawab",
+    termsLiabilityBody:
+      "Sejauh diizinkan hukum, Pengembang tidak bertanggung jawab atas kerugian tidak langsung, insidental, atau konsekuensial akibat penggunaan Aplikasi.",
+    termsLawTitle: "8) Hukum yang Berlaku",
+    termsLawBody: "Ketentuan ini diatur oleh hukum Indonesia.",
+    termsChangesTitle: "9) Perubahan Ketentuan",
+    termsChangesBody:
+      "Pengembang dapat mengubah Ketentuan ini kapan saja. Penggunaan Aplikasi setelah perubahan berarti Anda menerima versi baru.",
+    termsContactTitle: "10) Kontak",
+    termsContactBody: "Jika ada pertanyaan:",
+    termsContactEmailLabel: "Email",
+    termsContactEmailValue: "lumepoapp@gmail.com",
   },
 };

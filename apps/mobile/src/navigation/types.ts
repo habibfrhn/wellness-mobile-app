@@ -27,6 +27,7 @@ export type AppStackParamList = {
   Account: undefined;
   Settings: undefined;
   PrivacyPolicy: undefined;
+  TermsConditions: undefined;
   ReminderSettings: undefined;
   ResetPassword: undefined;
 };

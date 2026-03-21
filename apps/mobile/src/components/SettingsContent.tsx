@@ -11,8 +11,6 @@ import { colors, lineHeights, radius, spacing, typography } from "../theme/token
 import SettingsRow from "./settings/SettingsRow";
 import SettingsSection from "./settings/SettingsSection";
 
-const TERMS_URL =
-  "https://sedate-fascinator-c12.notion.site/Ketentuan-Syarat-Terms-Conditions-2ef636185de080edb67ce5f6be718a7e?source=copy_link";
 const SUPPORT_EMAIL = "habibfrhn@gmail.com";
 
 function readAppVersionFromAppJson(): string {
@@ -205,7 +203,7 @@ export default function SettingsContent({ navigation }: Props) {
       <SettingsSection title={id.account.aboutSectionTitle}>
         <SettingsRow label={id.account.versionLabel} value={appVersion} />
         <SettingsRow label={id.account.privacy} onPress={() => navigation.navigate("PrivacyPolicy")} showChevron />
-        <SettingsRow label={id.account.terms} onPress={() => void safeOpenUrl(TERMS_URL)} showChevron showDivider={false} />
+        <SettingsRow label={id.account.terms} onPress={() => navigation.navigate("TermsConditions")} showChevron showDivider={false} />
       </SettingsSection>
 
       <SettingsSection title={id.account.dangerSectionTitle}>
