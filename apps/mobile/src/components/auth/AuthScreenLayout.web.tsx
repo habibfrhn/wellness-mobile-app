@@ -38,8 +38,7 @@ export default function AuthScreenLayout({
   useLayoutEffect(() => {
     navigation.setOptions({
       title: "",
-      headerShadowVisible: false,
-      headerStyle: { backgroundColor: colors.bg, height: 52 } as any,
+      headerShown: false,
       headerLeft: showCloseButton
         ? () => (
             <Pressable
@@ -80,27 +79,51 @@ export default function AuthScreenLayout({
       keyboardShouldPersistTaps="handled"
       contentInsetAdjustmentBehavior="automatic"
     >
-      <View
-        style={[
-          styles.panel,
-          isTabletWeb && styles.panelTablet,
-          isMobileWeb && styles.panelMobile,
-        ]}
-      >
-        <View style={styles.headerStack}>
-          <Text
-            style={[
-              styles.title,
-              isTabletWeb && styles.titleTablet,
-              isMobileWeb && styles.titleMobile,
-            ]}
-          >
-            {title}
-          </Text>
-          {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
-        </View>
+      <View style={styles.contentColumn}>
+        {showCloseButton ? (
+          <View style={styles.inlineHeader}>
+            <Pressable
+              onPress={() => {
+                const parent = navigation.getParent();
+                if (parent) {
+                  parent.navigate("Landing" as never);
+                  return;
+                }
+                navigation.navigate("Welcome" as never);
+              }}
+              style={({ pressed }) => [
+                styles.closeButton,
+                pressed && authSharedStyles.pressed,
+              ]}
+              accessibilityRole="button"
+              accessibilityLabel="Tutup"
+            >
+              <Text style={styles.closeText}>✕</Text>
+            </Pressable>
+          </View>
+        ) : null}
+        <View
+          style={[
+            styles.panel,
+            isTabletWeb && styles.panelTablet,
+            isMobileWeb && styles.panelMobile,
+          ]}
+        >
+          <View style={styles.headerStack}>
+            <Text
+              style={[
+                styles.title,
+                isTabletWeb && styles.titleTablet,
+                isMobileWeb && styles.titleMobile,
+              ]}
+            >
+              {title}
+            </Text>
+            {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+          </View>
 
-        {children}
+          {children}
+        </View>
       </View>
     </ScrollView>
   );
@@ -177,7 +200,7 @@ export const authSharedStyles = StyleSheet.create({
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.white,
   },
   screenContent: {
     flexGrow: 1,
@@ -200,14 +223,14 @@ const styles = StyleSheet.create({
   },
   panel: {
     width: "100%",
-    maxWidth: 580,
+    maxWidth: 520,
     padding: 28,
     borderRadius: radius.md,
     backgroundColor: colors.white,
     boxShadow: "0px 8px 28px rgba(33,50,94,0.12)",
   },
   panelTablet: {
-    maxWidth: 640,
+    maxWidth: 560,
     padding: spacing.lg,
   },
   panelMobile: {
@@ -217,8 +240,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
   },
   closeButton: {
-    width: 28,
-    height: 28,
+    width: 24,
+    height: 24,
     marginLeft: spacing.xs,
     marginTop: 0,
     alignItems: "center",
@@ -228,6 +251,15 @@ const styles = StyleSheet.create({
     fontSize: typography.title,
     color: colors.text,
     fontWeight: "700",
+  },
+  contentColumn: {
+    width: "100%",
+    maxWidth: 520,
+  },
+  inlineHeader: {
+    width: "100%",
+    marginBottom: spacing.sm,
+    alignItems: "flex-start",
   },
   headerStack: {
     alignItems: "flex-start",

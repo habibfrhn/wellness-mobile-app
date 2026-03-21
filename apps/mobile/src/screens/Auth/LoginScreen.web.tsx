@@ -60,8 +60,7 @@ export default function LoginScreen({ navigation, route }: Props) {
   useLayoutEffect(() => {
     navigation.setOptions({
       title: "",
-      headerShadowVisible: false,
-      headerStyle: { backgroundColor: colors.bg, height: 52 } as any,
+      headerShown: false,
       headerLeft: () => (
         <Pressable
           onPress={() => {
@@ -172,142 +171,166 @@ export default function LoginScreen({ navigation, route }: Props) {
       keyboardShouldPersistTaps="handled"
       contentInsetAdjustmentBehavior="automatic"
     >
-      <View
-        style={[
-          styles.panel,
-          isTabletWeb && styles.panelTablet,
-          isMobileWeb && styles.panelMobile,
-        ]}
-      >
-        <View style={styles.headerStack}>
-          <Text
-            style={[
-              styles.title,
-              isTabletWeb && styles.titleTablet,
-              isMobileWeb && styles.titleMobile,
+      <View style={styles.contentColumn}>
+        <View style={styles.inlineHeader}>
+          <Pressable
+            onPress={() => {
+              const parent = navigation.getParent();
+              if (parent) {
+                parent.navigate("Landing" as never);
+                return;
+              }
+              navigation.navigate("Welcome");
+            }}
+            style={({ pressed }) => [
+              styles.closeButton,
+              pressed && styles.pressed,
             ]}
+            accessibilityRole="button"
+            accessibilityLabel={id.login.closeLabel}
           >
-            {id.login.welcomeTitle}
-          </Text>
-          <Text style={styles.subtitle}>{id.login.formSubtitle}</Text>
+            <Text style={styles.closeText}>✕</Text>
+          </Pressable>
         </View>
-
-        <View style={styles.formFields}>
-          <View>
-            <Text style={styles.label}>{id.login.emailLabel}</Text>
-            <TextInput
-              value={email}
-              onChangeText={(value) => {
-                setEmail(value);
-                if (errors.email) {
-                  setErrors((prev) => ({ ...prev, email: undefined }));
-                }
-              }}
-              autoCapitalize="none"
-              autoCorrect={false}
-              keyboardType="email-address"
-              placeholder={id.login.emailPlaceholder}
-              placeholderTextColor={colors.mutedText}
-              style={[styles.input, errors.email && styles.inputError]}
-              returnKeyType="next"
-            />
-            {errors.email ? (
-              <Text style={styles.errorText}>{errors.email}</Text>
-            ) : null}
+        <View
+          style={[
+            styles.panel,
+            isTabletWeb && styles.panelTablet,
+            isMobileWeb && styles.panelMobile,
+          ]}
+        >
+          <View style={styles.headerStack}>
+            <Text
+              style={[
+                styles.title,
+                isTabletWeb && styles.titleTablet,
+                isMobileWeb && styles.titleMobile,
+              ]}
+            >
+              {id.login.welcomeTitle}
+            </Text>
+            <Text style={styles.subtitle}>{id.login.formSubtitle}</Text>
           </View>
 
-          <View>
-            <Text style={styles.label}>{id.login.passwordLabel}</Text>
-            <View style={styles.inputWrap}>
+          <View style={styles.formFields}>
+            <View>
+              <Text style={styles.label}>{id.login.emailLabel}</Text>
               <TextInput
-                value={password}
+                value={email}
                 onChangeText={(value) => {
-                  setPassword(value);
-                  if (errors.password) {
-                    setErrors((prev) => ({ ...prev, password: undefined }));
+                  setEmail(value);
+                  if (errors.email) {
+                    setErrors((prev) => ({ ...prev, email: undefined }));
                   }
                 }}
                 autoCapitalize="none"
                 autoCorrect={false}
-                secureTextEntry={!showPassword}
-                placeholder={id.login.passwordPlaceholder}
+                keyboardType="email-address"
+                placeholder={id.login.emailPlaceholder}
                 placeholderTextColor={colors.mutedText}
-                style={[
-                  styles.input,
-                  styles.passwordInput,
-                  errors.password && styles.inputError,
-                ]}
-                onSubmitEditing={onSubmit}
-                returnKeyType="go"
+                style={[styles.input, errors.email && styles.inputError]}
+                returnKeyType="next"
               />
-              <PasswordToggle
-                visible={showPassword}
-                onPress={() => setShowPassword((v) => !v)}
-                accessibilityLabel={
-                  showPassword ? id.common.hidePassword : id.common.showPassword
-                }
-                style={styles.toggle}
-              />
+              {errors.email ? (
+                <Text style={styles.errorText}>{errors.email}</Text>
+              ) : null}
             </View>
-            {errors.password ? (
-              <Text style={styles.errorText}>{errors.password}</Text>
-            ) : null}
+
+            <View>
+              <Text style={styles.label}>{id.login.passwordLabel}</Text>
+              <View style={styles.inputWrap}>
+                <TextInput
+                  value={password}
+                  onChangeText={(value) => {
+                    setPassword(value);
+                    if (errors.password) {
+                      setErrors((prev) => ({ ...prev, password: undefined }));
+                    }
+                  }}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  secureTextEntry={!showPassword}
+                  placeholder={id.login.passwordPlaceholder}
+                  placeholderTextColor={colors.mutedText}
+                  style={[
+                    styles.input,
+                    styles.passwordInput,
+                    errors.password && styles.inputError,
+                  ]}
+                  onSubmitEditing={onSubmit}
+                  returnKeyType="go"
+                />
+                <PasswordToggle
+                  visible={showPassword}
+                  onPress={() => setShowPassword((v) => !v)}
+                  accessibilityLabel={
+                    showPassword
+                      ? id.common.hidePassword
+                      : id.common.showPassword
+                  }
+                  style={styles.toggle}
+                />
+              </View>
+              {errors.password ? (
+                <Text style={styles.errorText}>{errors.password}</Text>
+              ) : null}
+            </View>
           </View>
-        </View>
 
-        <View style={styles.metaRow}>
-          <Pressable
-            onPress={() => setRememberMe((v) => !v)}
-            style={styles.rememberWrap}
-          >
-            <View
-              style={[styles.checkbox, rememberMe && styles.checkboxChecked]}
+          <View style={styles.metaRow}>
+            <Pressable
+              onPress={() => setRememberMe((v) => !v)}
+              style={styles.rememberWrap}
             >
-              {rememberMe ? <View style={styles.checkboxInner} /> : null}
-            </View>
-            <Text style={styles.metaText}>Ingat saya</Text>
-          </Pressable>
+              <View
+                style={[styles.checkbox, rememberMe && styles.checkboxChecked]}
+              >
+                {rememberMe ? <View style={styles.checkboxInner} /> : null}
+              </View>
+              <Text style={styles.metaText}>Ingat saya</Text>
+            </Pressable>
 
-          <Pressable
-            onPress={() =>
-              navigation.navigate("ForgotPassword", {
-                initialEmail: email.trim(),
-              })
-            }
-          >
-            <Text style={styles.metaLink}>Lupa password?</Text>
-          </Pressable>
-        </View>
+            <Pressable
+              onPress={() =>
+                navigation.navigate("ForgotPassword", {
+                  initialEmail: email.trim(),
+                })
+              }
+            >
+              <Text style={styles.metaLink}>Lupa password?</Text>
+            </Pressable>
+          </View>
 
-        <View style={styles.actionsStack}>
-          <Pressable
-            onPress={onSubmit}
-            disabled={busy || busyGoogle}
-            style={({ pressed }) => [
-              styles.primaryButton,
-              (busy || busyGoogle) && styles.disabled,
-              pressed && !busy && !busyGoogle && styles.pressed,
-            ]}
-          >
-            {busy ? (
-              <ActivityIndicator color={colors.primaryText} />
-            ) : (
-              <Text style={styles.primaryButtonText}>
-                {id.login.primaryCta}
-              </Text>
-            )}
-          </Pressable>
+          <View style={styles.actionsStack}>
+            <Pressable
+              onPress={onSubmit}
+              disabled={busy || busyGoogle}
+              style={({ pressed }) => [
+                styles.primaryButton,
+                (busy || busyGoogle) && styles.disabled,
+                pressed && !busy && !busyGoogle && styles.pressed,
+              ]}
+            >
+              {busy ? (
+                <ActivityIndicator color={colors.primaryText} />
+              ) : (
+                <Text style={styles.primaryButtonText}>
+                  {id.login.primaryCta}
+                </Text>
+              )}
+            </Pressable>
 
-          <GoogleAuthButton
-            busy={busyGoogle}
-            onPress={() => void onContinueWithGoogle()}
-          />
+            <GoogleAuthButton
+              busy={busyGoogle}
+              onPress={() => void onContinueWithGoogle()}
+            />
 
-          <LoginSignUpPrompt
-            onPressSignUp={() =>
-              navigation.replace("SignUp", { initialEmail: email.trim() })
-            }
-          />
+            <LoginSignUpPrompt
+              onPressSignUp={() =>
+                navigation.replace("SignUp", { initialEmail: email.trim() })
+              }
+            />
+          </View>
         </View>
       </View>
     </ScrollView>
@@ -317,7 +340,7 @@ export default function LoginScreen({ navigation, route }: Props) {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.white,
   },
   screenContent: {
     flexGrow: 1,
@@ -340,14 +363,14 @@ const styles = StyleSheet.create({
   },
   panel: {
     width: "100%",
-    maxWidth: 580,
+    maxWidth: 520,
     padding: 28,
     borderRadius: radius.md,
     backgroundColor: colors.white,
     boxShadow: "0px 8px 28px rgba(33,50,94,0.12)",
   },
   panelTablet: {
-    maxWidth: 640,
+    maxWidth: 560,
     padding: spacing.lg,
   },
   panelMobile: {
@@ -357,8 +380,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
   },
   closeButton: {
-    width: 28,
-    height: 28,
+    width: 24,
+    height: 24,
     marginLeft: spacing.xs,
     marginTop: 0,
     alignItems: "center",
@@ -368,6 +391,15 @@ const styles = StyleSheet.create({
     fontSize: typography.title,
     color: colors.text,
     fontWeight: "700",
+  },
+  contentColumn: {
+    width: "100%",
+    maxWidth: 520,
+  },
+  inlineHeader: {
+    width: "100%",
+    marginBottom: spacing.sm,
+    alignItems: "flex-start",
   },
   headerStack: {
     alignItems: "flex-start",
