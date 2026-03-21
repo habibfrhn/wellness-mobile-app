@@ -9,7 +9,7 @@ type Props = NativeStackScreenProps<AppStackParamList, "PrivacyPolicy">;
 
 export default function PrivacyPolicyScreen(_props: Props) {
   return (
-    <WebResponsiveFrame contentStyle={{ maxWidth: 980 }}>
+    <WebResponsiveFrame disableFrame>
       <PrivacyPolicyContent />
     </WebResponsiveFrame>
   );
