@@ -106,16 +106,16 @@ export default function HomeScreen({ navigation, route }: Props) {
         ]}
       >
         {showHeaderRow ? (
-          <View style={[styles.headerRow, { marginBottom: sectionGap }]}> 
+          <View style={[styles.headerRow, !isDesktopWeb && styles.headerRowCompact, { marginBottom: sectionGap }]}>
             <HomeHeaderLogo />
             <HomeHeaderSettingsButton navigation={navigation} />
           </View>
         ) : null}
 
-        <View style={[styles.sectionStack, { gap: sectionGap }]}> 
+        <View style={[styles.sectionStack, { gap: sectionGap }]}>
           <View style={styles.sectionBlock}>
             <HomeGreetingTitle />
-            <View style={[styles.primaryActionCardWrap, { marginTop: sectionGap }]}> 
+            <View style={[styles.primaryActionCardWrap, { marginTop: sectionGap }]}>
               <View style={styles.primaryActionCard}>
                 <HomeNightSummary onPressPrimary={() => setIsSleepOptionModalVisible(true)} />
               </View>
@@ -141,7 +141,7 @@ export default function HomeScreen({ navigation, route }: Props) {
               </View>
             </View>
           ) : (
-            <View style={[styles.sectionBlock, styles.audioSectionsStack, { gap: sectionGap }]}> 
+            <View style={[styles.sectionBlock, styles.audioSectionsStack, { gap: sectionGap }]}>
               <AudioTrackListSection
                 title={id.home.pickWhatYouNeedTitle}
                 tracks={nonSoundscapeTracks}
@@ -185,6 +185,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: WEB_SECTION_CONTENT_INSET,
+  },
+  headerRowCompact: {
+    paddingHorizontal: spacing.md,
   },
   sectionStack: {},
   sectionBlock: {
