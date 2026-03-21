@@ -58,7 +58,7 @@ export function useSleepSessionPlayer({
       }
 
       if (!hasSessionStarted) {
-        resetPlayers();
+        pauseAll();
         setAutoPlayNextTrack(false);
         setHasSessionStarted(true);
         primaryPlayer.seekTo(0);
