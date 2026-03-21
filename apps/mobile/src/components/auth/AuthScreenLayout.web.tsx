@@ -2,6 +2,7 @@ import React, { useLayoutEffect } from "react";
 import { ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
+import { getWebViewport } from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { colors, lineHeights, radius, spacing, typography } from "../../theme/tokens";
 
@@ -12,12 +13,12 @@ type Props = {
   showCloseButton?: boolean;
 };
 
-const MOBILE_BREAKPOINT = 640;
-
 export default function AuthScreenLayout({ title, subtitle, children, showCloseButton = true }: Props) {
   const navigation = useNavigation();
   const viewportWidth = useViewportWidth();
-  const isMobileWeb = viewportWidth > 0 && viewportWidth <= MOBILE_BREAKPOINT;
+  const viewport = getWebViewport(viewportWidth);
+  const isMobileWeb = viewport === "mobile";
+  const isTabletWeb = viewport === "tablet";
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -48,13 +49,17 @@ export default function AuthScreenLayout({ title, subtitle, children, showCloseB
   return (
     <ScrollView
       style={styles.screen}
-      contentContainerStyle={[styles.screenContent, isMobileWeb && styles.screenContentMobile]}
+      contentContainerStyle={[
+        styles.screenContent,
+        isTabletWeb && styles.screenContentTablet,
+        isMobileWeb && styles.screenContentMobile,
+      ]}
       keyboardShouldPersistTaps="handled"
       contentInsetAdjustmentBehavior="automatic"
     >
-      <View style={[styles.panel, isMobileWeb && styles.panelMobile]}>
+      <View style={[styles.panel, isTabletWeb && styles.panelTablet, isMobileWeb && styles.panelMobile]}>
         <View style={styles.headerStack}>
-          <Text style={[styles.title, isMobileWeb && styles.titleMobile]}>{title}</Text>
+          <Text style={[styles.title, isTabletWeb && styles.titleTablet, isMobileWeb && styles.titleMobile]}>{title}</Text>
           {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
         </View>
 
@@ -135,7 +140,7 @@ export const authSharedStyles = StyleSheet.create({
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: colors.bg,
   },
   screenContent: {
     flexGrow: 1,
@@ -143,6 +148,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.lg,
+  },
+  screenContentTablet: {
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.xl,
   },
   screenContentMobile: {
     justifyContent: "flex-start",
@@ -152,11 +161,15 @@ const styles = StyleSheet.create({
   },
   panel: {
     width: "100%",
-    maxWidth: 560,
+    maxWidth: 580,
     padding: 36,
     borderRadius: radius.md,
-    backgroundColor: colors.white,
+    backgroundColor: colors.bg,
     boxShadow: "0px 8px 28px rgba(33,50,94,0.12)",
+  },
+  panelTablet: {
+    maxWidth: 640,
+    padding: spacing.xl,
   },
   panelMobile: {
     maxWidth: "100%",
@@ -186,6 +199,9 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: "700",
     textAlign: "left",
+  },
+  titleTablet: {
+    fontSize: 28,
   },
   titleMobile: {
     fontSize: typography.h2,

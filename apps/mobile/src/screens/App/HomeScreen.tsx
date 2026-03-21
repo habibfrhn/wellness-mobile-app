@@ -10,6 +10,7 @@ import HomeGreetingTitle from "../../components/HomeGreetingTitle";
 import HomeHeaderLogo from "../../components/HomeHeaderLogo";
 import HomeHeaderSettingsButton from "../../components/HomeHeaderSettingsButton";
 import HomeNightSummary from "../../components/HomeNightSummary";
+import { getWebViewport } from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { id } from "../../i18n/strings";
 import type { AppStackParamList } from "../../navigation/types";
@@ -18,13 +19,15 @@ import { colors, radius, spacing } from "../../theme/tokens";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Home">;
 
-const WEB_BREAKPOINT = 640;
-const DESKTOP_PAGE_MAX_WIDTH = 1100;
+const DESKTOP_PAGE_MAX_WIDTH = 1120;
+const TABLET_PAGE_MAX_WIDTH = 820;
 
 export default function HomeScreen({ navigation, route }: Props) {
   const insets = useSafeAreaInsets();
   const viewportWidth = useViewportWidth();
-  const isDesktopWeb = Platform.OS === "web" && viewportWidth > WEB_BREAKPOINT;
+  const webViewport = getWebViewport(viewportWidth);
+  const isDesktopWeb = Platform.OS === "web" && webViewport === "desktop";
+  const isTabletWeb = Platform.OS === "web" && webViewport === "tablet";
 
 
   const completionPayload = useMemo(() => {
@@ -83,12 +86,17 @@ export default function HomeScreen({ navigation, route }: Props) {
       style={styles.container}
       contentContainerStyle={[
         styles.listContent,
-        isDesktopWeb ? styles.desktopListContent : styles.mobileListContent,
+        isDesktopWeb ? styles.desktopListContent : isTabletWeb ? styles.tabletListContent : styles.mobileListContent,
         { paddingBottom: spacing.sm + insets.bottom },
       ]}
       showsVerticalScrollIndicator={false}
     >
-      <View style={[styles.contentWrap, isDesktopWeb ? styles.contentWrapDesktop : styles.contentWrapMobile]}>
+      <View
+        style={[
+          styles.contentWrap,
+          isDesktopWeb ? styles.contentWrapDesktop : isTabletWeb ? styles.contentWrapTablet : styles.contentWrapMobile,
+        ]}
+      >
         {isDesktopWeb ? (
           <View style={styles.desktopHeaderRow}>
             <HomeHeaderLogo />
@@ -159,8 +167,12 @@ const styles = StyleSheet.create({
   listContent: {
     paddingTop: 0,
   },
+  tabletListContent: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
   mobileListContent: {
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: 0,
     paddingVertical: spacing.sm,
   },
   desktopListContent: {
@@ -174,6 +186,9 @@ const styles = StyleSheet.create({
   },
   contentWrapMobile: {
     maxWidth: 480,
+  },
+  contentWrapTablet: {
+    maxWidth: TABLET_PAGE_MAX_WIDTH,
   },
   contentWrapDesktop: {
     maxWidth: DESKTOP_PAGE_MAX_WIDTH,
@@ -204,12 +219,12 @@ const styles = StyleSheet.create({
   },
   primaryActionCardWrap: {
     marginTop: spacing.lg,
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: 0,
   },
   primaryActionCard: {
     backgroundColor: colors.card,
     borderRadius: radius.md,
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: 0,
     paddingVertical: spacing.sm,
     gap: spacing.sm,
     shadowColor: colors.text,

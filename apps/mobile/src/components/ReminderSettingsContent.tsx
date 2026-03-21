@@ -117,6 +117,9 @@ function formatTime(hour: number, minute: number): string {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
   container: {
+    width: "100%",
+    maxWidth: 760,
+    alignSelf: "center",
     padding: spacing.lg,
   },
   card: {

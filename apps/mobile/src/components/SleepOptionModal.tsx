@@ -51,10 +51,10 @@ const styles = StyleSheet.create({
   },
   modalCard: {
     width: "100%",
-    maxWidth: 460,
+    maxWidth: 520,
     backgroundColor: colors.bg,
     borderRadius: radius.md,
-    padding: spacing.md,
+    padding: spacing.lg,
     gap: spacing.sm,
   },
   question: {

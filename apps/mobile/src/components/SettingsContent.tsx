@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     alignSelf: "center",
-    maxWidth: 720,
+    maxWidth: 760,
     paddingHorizontal: spacing.md,
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,

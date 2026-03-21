@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   },
   coverFrame: {
     width: "100%",
-    maxWidth: 320,
+    maxWidth: 420,
     aspectRatio: 1,
     borderRadius: radius.md,
     overflow: "hidden",

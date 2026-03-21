@@ -16,6 +16,8 @@ import { id } from "../../i18n/strings";
 import HeaderCloseButton from "../../components/navigation/HeaderCloseButton";
 import type { AppStackParamList } from "../../navigation/types";
 import { colors, spacing, typography } from "../../theme/tokens";
+import { getWebViewport } from "../../constants/webLayout";
+import useViewportWidth from "../../hooks/useViewportWidth";
 import { TIMER_OPTIONS, useAudioPlayerSession } from "../../hooks/useAudioPlayerSession";
 
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -25,6 +27,10 @@ type Props = NativeStackScreenProps<AppStackParamList, "Player">;
 export default function AudioPlayerScreen({ route, navigation }: Props) {
   const insets = useSafeAreaInsets();
   const { audioId, playlistIds, sleepMode } = route.params;
+  const viewportWidth = useViewportWidth();
+  const webViewport = getWebViewport(viewportWidth);
+  const isDesktopWeb = webViewport === "desktop";
+  const isTabletWeb = webViewport === "tablet";
   const [progressWidth, setProgressWidth] = useState(0);
   const [favorite, setFavorite] = useState(() => isFavorite(audioId));
   const [isExitModalVisible, setIsExitModalVisible] = useState(false);
@@ -169,16 +175,21 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   return (
     <View style={styles.container}>
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: spacing.xl + insets.bottom }]}
+        contentContainerStyle={[
+          styles.content,
+          isDesktopWeb ? styles.contentDesktop : isTabletWeb ? styles.contentTablet : styles.contentMobile,
+          { paddingBottom: spacing.xl + insets.bottom },
+        ]}
         showsVerticalScrollIndicator={false}
       >
-        <PlayerArtworkSection
+        <View style={[styles.playerLayout, isDesktopWeb && styles.playerLayoutDesktop]}>
+          <PlayerArtworkSection
           cover={sessionArtwork?.cover ?? track.cover}
           isFavorite={favorite}
           onToggleFavorite={() => setFavorite(toggleFavorite(track.id))}
         />
 
-        <View style={styles.sectionsAlignedWithArtwork}>
+          <View style={[styles.sectionsAlignedWithArtwork, isTabletWeb && styles.sectionsTablet, isDesktopWeb && styles.sectionsDesktop]}>
           <SleepSessionProgressHeader
             title={isPlaylistSession ? sleepSessionTitle : track.title}
             subtitle={isPlaylistSession ? sleepSessionPhase : track.creator}
@@ -222,6 +233,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
           ) : (
             <NormalAudioControls isPlaying={activeStatus.playing} onRestart={onRestart} onTogglePlay={onTogglePlay} />
           )}
+          </View>
         </View>
       </ScrollView>
 
@@ -237,12 +249,46 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FFFFFF" },
   content: {
+    width: "100%",
+    alignSelf: "center",
     padding: spacing.md,
+  },
+  contentMobile: {
+    maxWidth: 520,
+  },
+  contentTablet: {
+    maxWidth: 760,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+  },
+  contentDesktop: {
+    maxWidth: 1120,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.lg,
+  },
+  playerLayout: {
+    width: "100%",
+    alignItems: "center",
+    gap: spacing.lg,
+  },
+  playerLayoutDesktop: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "center",
+    gap: spacing.xl,
   },
   sectionsAlignedWithArtwork: {
     width: "100%",
-    maxWidth: 320,
+    maxWidth: 420,
     alignSelf: "center",
+  },
+  sectionsTablet: {
+    maxWidth: 520,
+  },
+  sectionsDesktop: {
+    flex: 1,
+    maxWidth: 480,
+    alignSelf: "flex-start",
   },
   pressed: { opacity: 0.85 },
 });

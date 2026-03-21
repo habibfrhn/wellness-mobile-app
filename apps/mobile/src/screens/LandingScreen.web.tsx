@@ -3,6 +3,7 @@ import { NavigationProp, NavigatorScreenParams, useNavigation } from "@react-nav
 import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { colors, radius, spacing, typography } from "../theme/tokens";
+import { getWebViewport } from "../constants/webLayout";
 import type { AuthStackParamList } from "../navigation/types";
 import useViewportWidth from "../hooks/useViewportWidth";
 import WebResponsiveFrame from "../components/WebResponsiveFrame";
@@ -24,7 +25,6 @@ type SectionKey =
   | "faq"
   | "closing-cta";
 
-const MOBILE_BREAKPOINT = 640;
 const HERO_IMAGE = require("../../assets/image/landing-page/1.jpg");
 const EMPATHY_IMAGE_FOUR = require("../../assets/image/landing-page/4.jpg");
 const BENEFITS_IMAGE = require("../../assets/image/landing-page/8.jpg");
@@ -78,7 +78,9 @@ export default function LandingScreen() {
     "closing-cta": 0,
   });
 
-  const isDesktop = viewportWidth > MOBILE_BREAKPOINT;
+  const viewport = getWebViewport(viewportWidth);
+  const isDesktop = viewport === "desktop";
+  const isTablet = viewport === "tablet";
 
   const goToLogin = () => {
     navigation.navigate("Auth", { screen: "Login" });
@@ -157,11 +159,11 @@ export default function LandingScreen() {
       <ScrollView
         ref={scrollRef}
         style={styles.page}
-        contentContainerStyle={[styles.content, isDesktop && styles.contentDesktop]}
+        contentContainerStyle={[styles.content, isTablet && styles.contentTablet, isDesktop && styles.contentDesktop]}
         keyboardShouldPersistTaps="handled"
         scrollEnabled={!isFoundingOpen}
       >
-      <View style={[styles.mainContent, isDesktop && styles.mainContentDesktop, !isDesktop && styles.mainContentMobile]}>
+      <View style={[styles.mainContent, isDesktop && styles.mainContentDesktop, isTablet && styles.mainContentTablet, !isDesktop && !isTablet && styles.mainContentMobile]}>
       <View
         nativeID="beranda"
         onLayout={(event) => {
@@ -184,7 +186,7 @@ export default function LandingScreen() {
           <View />
         )}
 
-        <View style={[styles.headerActions, !isDesktop && styles.headerActionsMobile]}>
+        <View style={[styles.headerActions, isTablet && styles.headerActionsTablet, !isDesktop && !isTablet && styles.headerActionsMobile]}>
           {isDesktop ? (
             <Pressable onPress={goToLogin} style={[styles.textButton, styles.headerTextButton]}>
               <Text style={styles.textButtonLabel}>Masuk</Text>
@@ -201,16 +203,16 @@ export default function LandingScreen() {
         onLayout={(event) => {
           sectionOffsets.current.hero = event.nativeEvent.layout.y;
         }}
-        style={[styles.section, isDesktop && styles.sectionDesktop, styles.heroSection, isDesktop && styles.heroSectionDesktop]}
+        style={[styles.section, isTablet && styles.sectionTablet, isDesktop && styles.sectionDesktop, styles.heroSection, isDesktop && styles.heroSectionDesktop]}
       >
         <View style={[styles.heroLayout, isDesktop && styles.heroLayoutDesktop, !isDesktop && styles.heroLayoutMobile]}>
-          <View style={[styles.heroTextColumn, isDesktop && styles.heroTextColumnDesktop]}>
-            <Text style={[styles.heroTitle, isDesktop && styles.heroTitleDesktop]}>Tutup hari dengan lebih tenang</Text>
-            <View style={[styles.heroCtaRow, styles.heroCtaRowBreathing, isDesktop && styles.heroCtaRowDesktop]}>
-              <Pressable onPress={goToSignUp} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.heroCtaButton]}>
+          <View style={[styles.heroTextColumn, isDesktop && styles.heroTextColumnDesktop, isTablet && styles.heroTextColumnTablet]}>
+            <Text style={[styles.heroTitle, isTablet && styles.heroTitleTablet, isDesktop && styles.heroTitleDesktop]}>Tutup hari dengan lebih tenang</Text>
+            <View style={[styles.heroCtaRow, styles.heroCtaRowBreathing, isTablet && styles.heroCtaRowTablet, isDesktop && styles.heroCtaRowDesktop]}>
+              <Pressable onPress={goToSignUp} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop || isTablet ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.heroCtaButton]}>
                 <Text style={styles.landingButtonPrimaryText}>Mulai gratis</Text>
               </Pressable>
-              <Pressable onPress={() => setIsFoundingOpen(true)} style={[styles.landingButtonBase, styles.landingButtonSecondary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.heroCtaButton]}>
+              <Pressable onPress={() => setIsFoundingOpen(true)} style={[styles.landingButtonBase, styles.landingButtonSecondary, isDesktop || isTablet ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.heroCtaButton]}>
                 <Text style={styles.landingButtonSecondaryText}>Jadi founding member</Text>
               </Pressable>
             </View>
@@ -301,7 +303,7 @@ export default function LandingScreen() {
           <View style={[styles.closingCtaTextColumn, isDesktop && styles.closingCtaTextColumnDesktop]}>
             <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.sectionTitleToContentGap, isDesktop && styles.sectionTitleToContentGapDesktop]}>Malam Ini, Kamu Bisa Memulainya</Text>
             <Text style={styles.closingCtaSubtext}>Cukup 15 menit sebelum tidur.</Text>
-            <Pressable onPress={goToSignUp} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.closingCtaButton]}>
+            <Pressable onPress={goToSignUp} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop || isTablet ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.closingCtaButton]}>
               <Text style={styles.landingButtonPrimaryText}>Mulai Gratis</Text>
             </Pressable>
             <Text style={styles.closingCtaMicrocopy}>Tanpa kartu kredit.</Text>
@@ -354,7 +356,7 @@ export default function LandingScreen() {
 
       <View style={styles.footerOuter}>
         <View style={[styles.footerInner, !isDesktop && styles.footerInnerMobile]}>
-          <View style={[styles.footerTopRow, isDesktop && styles.footerTopRowDesktop]}>
+          <View style={[styles.footerTopRow, isTablet && styles.footerTopRowTablet, isDesktop && styles.footerTopRowDesktop]}>
             <View style={styles.footerColumn}>
             <Text style={styles.footerBrandTitle}>Lumepo</Text>
             <Text style={styles.footerDescription}>Ruang tenang untuk menutup hari dengan sadar.</Text>
@@ -393,7 +395,7 @@ export default function LandingScreen() {
         <View style={styles.footerDivider} />
 
         <View style={[styles.footerInner, !isDesktop && styles.footerInnerMobile]}>
-          <View style={[styles.footerBottomRow, isDesktop && styles.footerBottomRowDesktop]}>
+          <View style={[styles.footerBottomRow, isTablet && styles.footerBottomRowTablet, isDesktop && styles.footerBottomRowDesktop]}>
             <Text style={styles.footerCopyright}>© 2025 Lumepo. Semua hak dilindungi.</Text>
             <View />
           </View>
@@ -404,7 +406,7 @@ export default function LandingScreen() {
       {isFoundingOpen ? (
         <View style={styles.modalOverlay}>
           <Pressable style={styles.modalBackdrop} onPress={closeFoundingModal} />
-          <View style={[styles.modalCard, !isDesktop && styles.modalCardMobile]}>
+          <View style={[styles.modalCard, isTablet && styles.modalCardTablet, !isDesktop && !isTablet && styles.modalCardMobile]}>
             <Pressable onPress={closeFoundingModal} style={styles.modalCloseButton}>
               <Text style={styles.modalCloseText}>×</Text>
             </Pressable>
@@ -438,7 +440,7 @@ export default function LandingScreen() {
                   style={[
                     styles.landingButtonBase,
                     styles.landingButtonPrimary,
-                    isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile,
+                    isDesktop || isTablet ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile,
                     styles.modalSubmitButton,
                   ]}
                 >
@@ -467,6 +469,9 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     gap: SECTION_GAP,
   },
+  contentTablet: {
+    gap: SECTION_GAP,
+  },
   contentDesktop: {
     paddingTop: 0,
     marginTop: 0,
@@ -476,6 +481,9 @@ const styles = StyleSheet.create({
   mainContent: {
     width: "100%",
     paddingHorizontal: spacing.md,
+  },
+  mainContentTablet: {
+    paddingHorizontal: spacing.lg,
   },
   mainContentDesktop: {
     paddingHorizontal: spacing.lg,
@@ -491,6 +499,11 @@ const styles = StyleSheet.create({
     paddingVertical: SECTION_PAD_Y_MOBILE,
     gap: spacing.md,
     backgroundColor: colors.white,
+  },
+  sectionTablet: {
+    maxWidth: 900,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: 44,
   },
   sectionDesktop: {
     paddingHorizontal: spacing.lg,
@@ -544,6 +557,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.sm,
   },
+  headerActionsTablet: {
+    flexWrap: "wrap",
+    justifyContent: "flex-end",
+  },
   headerActionsMobile: {
     gap: spacing.xs,
   },
@@ -591,6 +608,10 @@ const styles = StyleSheet.create({
     gap: 0,
     alignItems: "center",
   },
+  heroTextColumnTablet: {
+    maxWidth: 680,
+    alignSelf: "center",
+  },
   heroTextColumnDesktop: {
     flex: 1,
     justifyContent: "center",
@@ -606,6 +627,10 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: colors.text,
     textAlign: "center",
+  },
+  heroTitleTablet: {
+    fontSize: 42,
+    lineHeight: 50,
   },
   heroTitleDesktop: {
     fontSize: 46,
@@ -641,10 +666,16 @@ const styles = StyleSheet.create({
   heroCtaRowBreathing: {
     marginTop: HERO_GAP,
   },
+  heroCtaRowTablet: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+  },
   heroCtaRowDesktop: {
     gap: spacing.sm,
   },
   heroCtaButton: {
+    minWidth: 220,
     width: "100%",
     maxWidth: 300,
     alignSelf: "center",
@@ -920,6 +951,11 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     paddingVertical: 30,
   },
+  footerTopRowTablet: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
   footerTopRowDesktop: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -941,6 +977,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
     paddingVertical: 16,
+  },
+  footerBottomRowTablet: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   footerBottomRowDesktop: {
     flexDirection: "row",
@@ -1004,6 +1044,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     padding: spacing.xl,
     gap: spacing.md,
+  },
+  modalCardTablet: {
+    maxWidth: 560,
   },
   modalCardMobile: {
     padding: spacing.md,
