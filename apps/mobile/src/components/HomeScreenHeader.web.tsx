@@ -15,10 +15,15 @@ type Props = {
 
 export default function HomeScreenHeader({ navigation }: Props) {
   const viewport = getWebViewport(useViewportWidth());
-  const isDesktop = viewport === "desktop";
 
   return (
-    <View style={[styles.row, !isDesktop && styles.rowCompact]}>
+    <View
+      style={[
+        styles.row,
+        viewport === "tablet" && styles.rowTablet,
+        viewport === "mobile" && styles.rowMobile,
+      ]}
+    >
       <HomeHeaderLogo />
       <HomeHeaderSettingsButton navigation={navigation} />
     </View>
@@ -31,12 +36,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingTop: spacing.lg,
     paddingHorizontal: spacing.sm,
     paddingBottom: spacing.sm,
   },
-  rowCompact: {
-    paddingTop: spacing.xl,
+  rowTablet: {
     paddingHorizontal: spacing.md,
+  },
+  rowMobile: {
+    paddingHorizontal: spacing.sm,
+    paddingBottom: spacing.xs,
   },
 });
