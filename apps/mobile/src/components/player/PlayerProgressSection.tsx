@@ -1,7 +1,13 @@
 import React, { useCallback, useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import { colors, controlSizes, radius, spacing, typography } from "../../theme/tokens";
+import {
+  colors,
+  controlSizes,
+  radius,
+  spacing,
+  typography,
+} from "../../theme/tokens";
 
 type PlayerProgressSectionProps = {
   current: number;
@@ -10,6 +16,7 @@ type PlayerProgressSectionProps = {
   onLayoutWidth: (width: number) => void;
   onSeek: (locationX: number) => void;
   progressWidth: number;
+  compact?: boolean;
 };
 
 function formatTime(sec: number) {
@@ -26,6 +33,7 @@ export default function PlayerProgressSection({
   onLayoutWidth,
   onSeek,
   progressWidth,
+  compact = false,
 }: PlayerProgressSectionProps) {
   const progressHandleSize = spacing.sm;
   const progressHandleLeft = useMemo(() => {
@@ -47,21 +55,34 @@ export default function PlayerProgressSection({
   return (
     <>
       <View
-        style={styles.progressWrap}
+        style={[styles.progressWrap, compact && styles.progressWrapCompact]}
         onLayout={(event) => onLayoutWidth(event.nativeEvent.layout.width)}
         onStartShouldSetResponder={() => true}
         onMoveShouldSetResponder={() => true}
-        onResponderGrant={(event) => handleSeekGesture(event.nativeEvent.locationX)}
-        onResponderMove={(event) => handleSeekGesture(event.nativeEvent.locationX)}
+        onResponderGrant={(event) =>
+          handleSeekGesture(event.nativeEvent.locationX)
+        }
+        onResponderMove={(event) =>
+          handleSeekGesture(event.nativeEvent.locationX)
+        }
       >
         <View style={styles.progressTrack}>
-          <View style={[styles.progressFill, { width: progressWidth ? `${progressRatio * 100}%` : "0%" }]} />
+          <View
+            style={[
+              styles.progressFill,
+              { width: progressWidth ? `${progressRatio * 100}%` : "0%" },
+            ]}
+          />
           <View style={[styles.progressHandle, { left: progressHandleLeft }]} />
         </View>
       </View>
-      <View style={styles.timeRow}>
-        <Text style={styles.timeText}>{formatTime(current)}</Text>
-        <Text style={styles.timeText}>{formatTime(duration)}</Text>
+      <View style={[styles.timeRow, compact && styles.timeRowCompact]}>
+        <Text style={[styles.timeText, compact && styles.timeTextCompact]}>
+          {formatTime(current)}
+        </Text>
+        <Text style={[styles.timeText, compact && styles.timeTextCompact]}>
+          {formatTime(duration)}
+        </Text>
       </View>
     </>
   );
@@ -69,6 +90,7 @@ export default function PlayerProgressSection({
 
 const styles = StyleSheet.create({
   progressWrap: { marginTop: spacing.xl },
+  progressWrapCompact: { marginTop: spacing.md },
   progressTrack: {
     height: controlSizes.progressHeight,
     borderRadius: radius.full,
@@ -95,5 +117,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs / 2,
     marginBottom: spacing.xl,
   },
+  timeRowCompact: { marginBottom: spacing.md },
   timeText: { fontSize: typography.caption, color: colors.mutedText },
+  timeTextCompact: { fontSize: typography.small },
 });

@@ -1,7 +1,13 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import { colors, controlSizes, radius, spacing, typography } from "../../theme/tokens";
+import {
+  colors,
+  controlSizes,
+  radius,
+  spacing,
+  typography,
+} from "../../theme/tokens";
 
 type SleepSessionProgressSectionProps = {
   sessionCurrent: number;
@@ -9,6 +15,7 @@ type SleepSessionProgressSectionProps = {
   sessionProgressRatio: number;
   onLayoutWidth: (width: number) => void;
   progressWidth: number;
+  compact?: boolean;
 };
 
 function formatTime(sec: number) {
@@ -24,17 +31,44 @@ export default function SleepSessionProgressSection({
   sessionProgressRatio,
   onLayoutWidth,
   progressWidth,
+  compact = false,
 }: SleepSessionProgressSectionProps) {
   return (
     <>
-      <View style={styles.progressWrap} onLayout={(event) => onLayoutWidth(event.nativeEvent.layout.width)}>
+      <View
+        style={[styles.progressWrap, compact && styles.progressWrapCompact]}
+        onLayout={(event) => onLayoutWidth(event.nativeEvent.layout.width)}
+      >
         <View style={styles.sessionProgressTrack}>
-          <View style={[styles.sessionProgressFill, { width: progressWidth ? `${sessionProgressRatio * 100}%` : "0%" }]} />
+          <View
+            style={[
+              styles.sessionProgressFill,
+              {
+                width: progressWidth ? `${sessionProgressRatio * 100}%` : "0%",
+              },
+            ]}
+          />
         </View>
       </View>
-      <View style={styles.timeRow}>
-        <Text style={[styles.timeText, styles.sessionTimeText]}>{formatTime(sessionCurrent)}</Text>
-        <Text style={[styles.timeText, styles.sessionTimeText]}>{formatTime(sessionDuration)}</Text>
+      <View style={[styles.timeRow, compact && styles.timeRowCompact]}>
+        <Text
+          style={[
+            styles.timeText,
+            styles.sessionTimeText,
+            compact && styles.timeTextCompact,
+          ]}
+        >
+          {formatTime(sessionCurrent)}
+        </Text>
+        <Text
+          style={[
+            styles.timeText,
+            styles.sessionTimeText,
+            compact && styles.timeTextCompact,
+          ]}
+        >
+          {formatTime(sessionDuration)}
+        </Text>
       </View>
     </>
   );
@@ -42,6 +76,7 @@ export default function SleepSessionProgressSection({
 
 const styles = StyleSheet.create({
   progressWrap: { marginTop: spacing.xl },
+  progressWrapCompact: { marginTop: spacing.md },
   sessionProgressTrack: {
     height: controlSizes.progressHeight,
     borderRadius: radius.full,
@@ -59,6 +94,8 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs / 2,
     marginBottom: spacing.xl,
   },
+  timeRowCompact: { marginBottom: spacing.md },
   timeText: { fontSize: typography.caption, color: colors.mutedText },
+  timeTextCompact: { fontSize: typography.small },
   sessionTimeText: { color: colors.mutedText },
 });

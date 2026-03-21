@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Platform, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import PlayerArtworkSection from "../../components/player/PlayerArtworkSection";
@@ -43,7 +43,15 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   const { audioId, playlistIds, sleepMode } = route.params;
   const viewportWidth = useViewportWidth();
   const webViewport = getWebViewport(viewportWidth);
-  const sectionGap = getWebSectionSpacing(webViewport);
+  const isWeb = Platform.OS === "web";
+  const playerContentWidth = isWeb
+    ? webViewport === "desktop"
+      ? 320
+      : webViewport === "tablet"
+        ? 300
+        : 280
+    : 420;
+  const sectionGap = isWeb ? spacing.md : getWebSectionSpacing(webViewport);
   const [progressWidth, setProgressWidth] = useState(0);
   const [favorite, setFavorite] = useState(() => isFavorite(audioId));
   const [isExitModalVisible, setIsExitModalVisible] = useState(false);
@@ -202,23 +210,33 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
             desktop: 1120,
           }),
           styles.contentVerticalPadding,
+          isWeb && styles.contentVerticalPaddingWeb,
           { paddingBottom: spacing.xl + insets.bottom },
         ]}
         showsVerticalScrollIndicator={false}
       >
         <View style={[styles.playerLayout, { gap: sectionGap }]}>
-          <View style={styles.artworkColumn}>
+          <View
+            style={[styles.artworkColumn, { maxWidth: playerContentWidth }]}
+          >
             <PlayerArtworkSection
               cover={sessionArtwork?.cover ?? track.cover}
               isFavorite={favorite}
               onToggleFavorite={() => setFavorite(toggleFavorite(track.id))}
+              compact={isWeb}
             />
           </View>
 
-          <View style={styles.sectionsAlignedWithArtwork}>
+          <View
+            style={[
+              styles.sectionsAlignedWithArtwork,
+              { maxWidth: playerContentWidth },
+            ]}
+          >
             <SleepSessionProgressHeader
               title={isPlaylistSession ? sleepSessionTitle : track.title}
               subtitle={isPlaylistSession ? sleepSessionPhase : track.creator}
+              compact={isWeb}
             />
 
             {showSoundscapeControls ? (
@@ -228,6 +246,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
                 timerRemaining={timerRemaining}
                 isSessionActive={isSessionActive}
                 onSelectTimer={handleTimerSelect}
+                compact={isWeb}
               />
             ) : playbackMode === "tailored_session" ? (
               <SleepSessionProgressSection
@@ -236,6 +255,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
                 sessionProgressRatio={sessionProgressRatio}
                 onLayoutWidth={setProgressWidth}
                 progressWidth={progressWidth}
+                compact={isWeb}
               />
             ) : (
               <PlayerProgressSection
@@ -245,6 +265,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
                 onLayoutWidth={setProgressWidth}
                 onSeek={onSeekBarPress}
                 progressWidth={progressWidth}
+                compact={isWeb}
               />
             )}
 
@@ -253,18 +274,21 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
                 isPlaying={activeStatus.playing}
                 onStop={handleStop}
                 onTogglePlay={onTogglePlay}
+                compact={isWeb}
               />
             ) : playbackMode === "tailored_session" ? (
               <TailoredSessionControls
                 isPlaying={activeStatus.playing}
                 onRestart={onRestart}
                 onTogglePlay={onTogglePlay}
+                compact={isWeb}
               />
             ) : (
               <NormalAudioControls
                 isPlaying={activeStatus.playing}
                 onRestart={onRestart}
                 onTogglePlay={onTogglePlay}
+                compact={isWeb}
               />
             )}
           </View>
@@ -288,6 +312,9 @@ const styles = StyleSheet.create({
   },
   contentVerticalPadding: {
     paddingTop: spacing.lg,
+  },
+  contentVerticalPaddingWeb: {
+    paddingTop: spacing.sm,
   },
   playerLayout: {
     width: "100%",
