@@ -49,7 +49,6 @@ export default function PrivacyPolicyContent() {
     <ScrollView style={styles.screen} contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.documentCard}>
         <View style={styles.header}>
-          <Text style={styles.eyebrow}>{id.account.privacy}</Text>
           <Text style={styles.title}>{id.account.privacyPolicyScreenTitle}</Text>
           <Text style={styles.updatedAt}>
             {id.account.privacyPolicyUpdatedAtLabel} {id.account.privacyPolicyUpdatedAtValue}
@@ -134,17 +133,10 @@ const styles = StyleSheet.create({
   header: {
     gap: spacing.xs,
   },
-  eyebrow: {
-    fontSize: typography.caption,
-    lineHeight: 20,
-    color: colors.secondary,
-    fontWeight: "700",
-    letterSpacing: 0.2,
-  },
   title: {
     fontSize: 32,
     lineHeight: 40,
-    color: colors.text,
+    color: colors.primary,
     fontWeight: "800",
   },
   updatedAt: {
