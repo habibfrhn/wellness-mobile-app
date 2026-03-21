@@ -7,8 +7,7 @@ import { AUDIO_TRACKS } from "../../content/audioCatalog";
 import AudioTrackListSection from "../../components/AudioTrackListSection";
 import SleepOptionModal from "../../components/SleepOptionModal";
 import HomeGreetingTitle from "../../components/HomeGreetingTitle";
-import HomeHeaderLogo from "../../components/HomeHeaderLogo";
-import HomeHeaderSettingsButton from "../../components/HomeHeaderSettingsButton";
+import HomeScreenHeader from "../../components/HomeScreenHeader";
 import HomeNightSummary from "../../components/HomeNightSummary";
 import {
   getWebPageContainerStyle,
@@ -33,8 +32,12 @@ export default function HomeScreen({ navigation, route }: Props) {
   const viewportWidth = useViewportWidth();
   const webViewport = getWebViewport(viewportWidth);
   const isDesktopWeb = webViewport === "desktop";
-  const showHeaderRow = webViewport !== "mobile";
   const sectionGap = getWebSectionSpacing(webViewport);
+  const pageContainerStyle = getWebPageContainerStyle(webViewport, {
+    mobile: 480,
+    tablet: TABLET_PAGE_MAX_WIDTH,
+    desktop: DESKTOP_PAGE_MAX_WIDTH,
+  });
 
   const completionPayload = useMemo(() => {
     if (!route.params || route.params.completed !== true) {
@@ -84,54 +87,60 @@ export default function HomeScreen({ navigation, route }: Props) {
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={[
-        styles.listContent,
-        {
-          paddingTop: getWebPageTopSpacing(webViewport),
-          paddingBottom: spacing.sm + insets.bottom,
-        },
-      ]}
-      showsVerticalScrollIndicator={false}
-    >
-      <View
-        style={[
-          styles.contentWrap,
-          getWebPageContainerStyle(webViewport, {
-            mobile: 480,
-            tablet: TABLET_PAGE_MAX_WIDTH,
-            desktop: DESKTOP_PAGE_MAX_WIDTH,
-          }),
-        ]}
-      >
-        {showHeaderRow ? (
-          <View style={[styles.headerRow, !isDesktopWeb && styles.headerRowCompact, { marginBottom: sectionGap }]}>
-            <HomeHeaderLogo />
-            <HomeHeaderSettingsButton navigation={navigation} />
-          </View>
-        ) : null}
+    <View style={styles.container}>
+      <View style={{ paddingTop: getWebPageTopSpacing(webViewport) }}>
+        <View style={[styles.contentWrap, pageContainerStyle]}>
+          <HomeScreenHeader navigation={navigation} />
+        </View>
+      </View>
 
-        <View style={[styles.sectionStack, { gap: sectionGap }]}>
-          <View style={styles.sectionBlock}>
-            <HomeGreetingTitle />
-            <View style={[styles.primaryActionCardWrap, { marginTop: sectionGap }]}>
-              <View style={styles.primaryActionCard}>
-                <HomeNightSummary onPressPrimary={() => setIsSleepOptionModalVisible(true)} />
+      <ScrollView
+        style={styles.scrollArea}
+        contentContainerStyle={[
+          styles.listContent,
+          {
+            paddingTop: spacing.xs,
+            paddingBottom: spacing.sm + insets.bottom,
+          },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={[styles.contentWrap, pageContainerStyle]}>
+          <View style={[styles.sectionStack, { gap: sectionGap }]}>
+            <View style={styles.sectionBlock}>
+              <HomeGreetingTitle />
+              <View style={[styles.primaryActionCardWrap, { marginTop: sectionGap }]}>
+                <View style={styles.primaryActionCard}>
+                  <HomeNightSummary onPressPrimary={() => setIsSleepOptionModalVisible(true)} />
+                </View>
               </View>
             </View>
-          </View>
 
-          {isDesktopWeb ? (
-            <View style={[styles.sectionBlock, styles.desktopTwoColumnSection]}>
-              <View style={styles.desktopColumn}>
+            {isDesktopWeb ? (
+              <View style={[styles.sectionBlock, styles.desktopTwoColumnSection]}>
+                <View style={styles.desktopColumn}>
+                  <AudioTrackListSection
+                    title={id.home.pickWhatYouNeedTitle}
+                    tracks={nonSoundscapeTracks}
+                    onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
+                  />
+                </View>
+                <View style={styles.desktopColumn}>
+                  <AudioTrackListSection
+                    title={id.home.soundscapeShortTitle}
+                    tracks={soundscapeTracks}
+                    showDuration={false}
+                    onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
+                  />
+                </View>
+              </View>
+            ) : (
+              <View style={[styles.sectionBlock, styles.audioSectionsStack, { gap: sectionGap }]}>
                 <AudioTrackListSection
                   title={id.home.pickWhatYouNeedTitle}
                   tracks={nonSoundscapeTracks}
                   onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
                 />
-              </View>
-              <View style={styles.desktopColumn}>
                 <AudioTrackListSection
                   title={id.home.soundscapeShortTitle}
                   tracks={soundscapeTracks}
@@ -139,31 +148,17 @@ export default function HomeScreen({ navigation, route }: Props) {
                   onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
                 />
               </View>
-            </View>
-          ) : (
-            <View style={[styles.sectionBlock, styles.audioSectionsStack, { gap: sectionGap }]}>
-              <AudioTrackListSection
-                title={id.home.pickWhatYouNeedTitle}
-                tracks={nonSoundscapeTracks}
-                onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
-              />
-              <AudioTrackListSection
-                title={id.home.soundscapeShortTitle}
-                tracks={soundscapeTracks}
-                showDuration={false}
-                onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
-              />
-            </View>
-          )}
+            )}
+          </View>
         </View>
-      </View>
+      </ScrollView>
 
       <SleepOptionModal
         visible={isSleepOptionModalVisible}
         onClose={() => setIsSleepOptionModalVisible(false)}
         onSelect={handleSelectSleepOption}
       />
-    </ScrollView>
+    </View>
   );
 }
 
@@ -172,23 +167,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.bg,
   },
+  scrollArea: {
+    flex: 1,
+  },
   listContent: {
-    paddingTop: spacing.sm,
+    paddingBottom: spacing.sm,
   },
   contentWrap: {
     width: "100%",
     alignSelf: "center",
-  },
-  headerRow: {
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: WEB_SECTION_CONTENT_INSET,
-  },
-  headerRowCompact: {
-    paddingTop: spacing.lg,
-    paddingHorizontal: spacing.md,
   },
   sectionStack: {},
   sectionBlock: {
