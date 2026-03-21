@@ -96,6 +96,6 @@ const styles = StyleSheet.create({
   },
   timeRowCompact: { marginBottom: spacing.md },
   timeText: { fontSize: typography.caption, color: colors.mutedText },
-  timeTextCompact: { fontSize: typography.small },
+  timeTextCompact: { fontSize: typography.caption },
   sessionTimeText: { color: colors.mutedText },
 });

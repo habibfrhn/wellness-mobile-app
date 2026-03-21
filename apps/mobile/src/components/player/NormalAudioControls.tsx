@@ -100,6 +100,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     textAlign: "center",
   },
-  secondaryTextCompact: { fontSize: typography.small },
+  secondaryTextCompact: { fontSize: typography.caption },
   pressed: { opacity: 0.85 },
 });

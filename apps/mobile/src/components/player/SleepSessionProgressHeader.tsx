@@ -42,11 +42,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: { fontSize: typography.title, color: colors.text, fontWeight: "700" },
-  titleCompact: { fontSize: typography.h2 },
+  titleCompact: { fontSize: typography.caption },
   creator: {
     marginTop: spacing.xs / 4,
     fontSize: typography.caption,
     color: colors.mutedText,
   },
-  creatorCompact: { fontSize: typography.small },
+  creatorCompact: { fontSize: typography.caption },
 });

@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   optionTitleCompact: {
-    fontSize: typography.small,
+    fontSize: typography.caption,
   },
   infoWrap: {
     position: "relative",
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
   },
   timerStatusTextCompact: {
-    fontSize: typography.small,
+    fontSize: typography.caption,
   },
   pressed: { opacity: 0.85 },
 });
