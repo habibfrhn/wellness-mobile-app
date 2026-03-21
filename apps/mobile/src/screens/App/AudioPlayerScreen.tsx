@@ -44,13 +44,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   const viewportWidth = useViewportWidth();
   const webViewport = getWebViewport(viewportWidth);
   const isWeb = Platform.OS === "web";
-  const playerContentWidth = isWeb
-    ? webViewport === "desktop"
-      ? 320
-      : webViewport === "tablet"
-        ? 300
-        : 280
-    : 420;
+  const playerContentWidth = isWeb ? 320 : 420;
   const sectionGap = isWeb ? spacing.md : getWebSectionSpacing(webViewport);
   const [progressWidth, setProgressWidth] = useState(0);
   const [favorite, setFavorite] = useState(() => isFavorite(audioId));
@@ -211,6 +205,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
           }),
           styles.contentVerticalPadding,
           isWeb && styles.contentVerticalPaddingWeb,
+          isWeb && styles.contentCenteredWeb,
           { paddingBottom: spacing.xl + insets.bottom },
         ]}
         showsVerticalScrollIndicator={false}
@@ -315,6 +310,10 @@ const styles = StyleSheet.create({
   },
   contentVerticalPaddingWeb: {
     paddingTop: spacing.sm,
+  },
+  contentCenteredWeb: {
+    flexGrow: 1,
+    justifyContent: "center",
   },
   playerLayout: {
     width: "100%",
