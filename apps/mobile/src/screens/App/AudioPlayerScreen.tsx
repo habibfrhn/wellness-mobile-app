@@ -163,6 +163,8 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   useLayoutEffect(() => {
     navigation.setOptions({
       title: "",
+      headerStyle: { backgroundColor: colors.white },
+      headerShadowVisible: false,
       headerRight: () => null,
       headerLeft: () => <HeaderCloseButton onPress={handleClose} />,
     });
@@ -205,7 +207,6 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
           }),
           styles.contentVerticalPadding,
           isWeb && styles.contentVerticalPaddingWeb,
-          isWeb && styles.contentCenteredWeb,
           { paddingBottom: spacing.xl + insets.bottom },
         ]}
         showsVerticalScrollIndicator={false}
@@ -309,11 +310,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing.lg,
   },
   contentVerticalPaddingWeb: {
-    paddingTop: spacing.sm,
-  },
-  contentCenteredWeb: {
-    flexGrow: 1,
-    justifyContent: "center",
+    paddingTop: spacing.xl,
   },
   playerLayout: {
     width: "100%",
