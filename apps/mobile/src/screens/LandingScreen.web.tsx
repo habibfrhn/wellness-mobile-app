@@ -1,6 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
-import { NavigationProp, NavigatorScreenParams, useNavigation } from "@react-navigation/native";
-import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  NavigationProp,
+  NavigatorScreenParams,
+  useNavigation,
+} from "@react-navigation/native";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 import { colors, radius, spacing, typography } from "../theme/tokens";
 import { getWebPageTopSpacing, getWebViewport } from "../constants/webLayout";
@@ -8,13 +20,11 @@ import type { AuthStackParamList } from "../navigation/types";
 import useViewportWidth from "../hooks/useViewportWidth";
 import WebResponsiveFrame from "../components/WebResponsiveFrame";
 
-
 type RootStackParamList = {
   Landing: undefined;
   Auth: NavigatorScreenParams<AuthStackParamList> | undefined;
   App: undefined;
 };
-
 
 type SectionKey =
   | "beranda"
@@ -53,7 +63,12 @@ const SECTION_TITLE_STYLE_DESKTOP = {
 };
 const DESKTOP_TWO_COLUMN_GAP = 56;
 const SECTION_GAP = 0;
-const TRACKED_SECTIONS: SectionKey[] = ["beranda", "cara-kerja", "manfaat", "faq"];
+const TRACKED_SECTIONS: SectionKey[] = [
+  "beranda",
+  "cara-kerja",
+  "manfaat",
+  "faq",
+];
 const HEADER_NAV_ITEMS: Array<{ key: SectionKey; label: string }> = [
   { key: "beranda", label: "Beranda" },
   { key: "manfaat", label: "Manfaat" },
@@ -90,9 +105,11 @@ export default function LandingScreen() {
     navigation.navigate("Auth", { screen: "SignUp" });
   };
 
-
   const goToSection = (key: SectionKey) => {
-    scrollRef.current?.scrollTo({ y: sectionOffsets.current[key], animated: true });
+    scrollRef.current?.scrollTo({
+      y: sectionOffsets.current[key],
+      animated: true,
+    });
   };
 
   const closeFoundingModal = () => {
@@ -108,7 +125,9 @@ export default function LandingScreen() {
   };
 
   useEffect(() => {
-    const hasObserver = typeof window !== "undefined" && typeof IntersectionObserver !== "undefined";
+    const hasObserver =
+      typeof window !== "undefined" &&
+      typeof IntersectionObserver !== "undefined";
     if (!hasObserver) {
       return;
     }
@@ -116,7 +135,10 @@ export default function LandingScreen() {
     const elements = TRACKED_SECTIONS.map((sectionKey) => ({
       sectionKey,
       element: document.getElementById(sectionKey),
-    })).filter((item): item is { sectionKey: SectionKey; element: HTMLElement } => Boolean(item.element));
+    })).filter(
+      (item): item is { sectionKey: SectionKey; element: HTMLElement } =>
+        Boolean(item.element),
+    );
 
     if (!elements.length) {
       return;
@@ -124,17 +146,19 @@ export default function LandingScreen() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        const intersectingEntries = entries.filter((entry) => entry.isIntersecting);
+        const intersectingEntries = entries.filter(
+          (entry) => entry.isIntersecting,
+        );
         if (!intersectingEntries.length) {
           return;
         }
 
         const focalPoint = window.innerHeight * 0.35;
-        const nextEntry = intersectingEntries
-          .sort(
-            (a, b) =>
-              Math.abs(a.boundingClientRect.top - focalPoint) - Math.abs(b.boundingClientRect.top - focalPoint),
-          )[0];
+        const nextEntry = intersectingEntries.sort(
+          (a, b) =>
+            Math.abs(a.boundingClientRect.top - focalPoint) -
+            Math.abs(b.boundingClientRect.top - focalPoint),
+        )[0];
 
         const nextSection = nextEntry.target.id as SectionKey;
         if (TRACKED_SECTIONS.includes(nextSection)) {
@@ -161,264 +185,594 @@ export default function LandingScreen() {
         style={styles.page}
         contentContainerStyle={[
           styles.content,
-          { paddingTop: getWebPageTopSpacing(viewport) },
+          { paddingTop: getWebPageTopSpacing(viewport) + spacing.md },
           isTablet && styles.contentTablet,
           isDesktop && styles.contentDesktop,
         ]}
         keyboardShouldPersistTaps="handled"
         scrollEnabled={!isFoundingOpen}
       >
-      <View style={[styles.mainContent, isDesktop && styles.mainContentDesktop, isTablet && styles.mainContentTablet, !isDesktop && !isTablet && styles.mainContentMobile]}>
-      <View
-        nativeID="beranda"
-        onLayout={(event) => {
-          sectionOffsets.current.beranda = event.nativeEvent.layout.y;
-        }}
-        style={[styles.section, isDesktop && styles.sectionDesktop, styles.headerSection, isDesktop && styles.headerSectionDesktop]}
-      >
-        <Text style={styles.brand}>Lumepo</Text>
-
-        {isDesktop ? (
-          <View style={styles.headerDesktopNav}>
-            {HEADER_NAV_ITEMS.map((item) => (
-              <Pressable key={item.key} onPress={() => goToSection(item.key)} style={styles.navItem}>
-                <Text style={styles.navText}>{item.label}</Text>
-                <View style={[styles.navUnderline, activeSection === item.key && styles.navUnderlineActive, { transition: "opacity 180ms ease" } as any]} />
-              </Pressable>
-            ))}
-          </View>
-        ) : (
-          <View />
-        )}
-
-        <View style={[styles.headerActions, isTablet && styles.headerActionsTablet, !isDesktop && !isTablet && styles.headerActionsMobile]}>
-          {isDesktop ? (
-            <Pressable onPress={goToLogin} style={[styles.textButton, styles.headerTextButton]}>
-              <Text style={styles.textButtonLabel}>Masuk</Text>
-            </Pressable>
-          ) : null}
-          <Pressable onPress={goToSignUp} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, isDesktop && styles.headerPrimaryButtonCompact]}>
-            <Text style={styles.landingButtonPrimaryText}>Buat akun</Text>
-          </Pressable>
-        </View>
-      </View>
-
-      <View
-        nativeID="hero"
-        onLayout={(event) => {
-          sectionOffsets.current.hero = event.nativeEvent.layout.y;
-        }}
-        style={[styles.section, isTablet && styles.sectionTablet, isDesktop && styles.sectionDesktop, styles.heroSection, isDesktop && styles.heroSectionDesktop]}
-      >
-        <View style={[styles.heroLayout, isDesktop && styles.heroLayoutDesktop, !isDesktop && styles.heroLayoutMobile]}>
-          <View style={[styles.heroTextColumn, isDesktop && styles.heroTextColumnDesktop, isTablet && styles.heroTextColumnTablet]}>
-            <Text style={[styles.heroTitle, isTablet && styles.heroTitleTablet, isDesktop && styles.heroTitleDesktop]}>Tutup hari dengan lebih tenang</Text>
-            <View style={[styles.heroCtaRow, styles.heroCtaRowBreathing, isTablet && styles.heroCtaRowTablet, isDesktop && styles.heroCtaRowDesktop]}>
-              <Pressable onPress={goToSignUp} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop || isTablet ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.heroCtaButton]}>
-                <Text style={styles.landingButtonPrimaryText}>Mulai gratis</Text>
-              </Pressable>
-              <Pressable onPress={() => setIsFoundingOpen(true)} style={[styles.landingButtonBase, styles.landingButtonSecondary, isDesktop || isTablet ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.heroCtaButton]}>
-                <Text style={styles.landingButtonSecondaryText}>Jadi founding member</Text>
-              </Pressable>
-            </View>
-          </View>
-
-          <View style={[styles.heroImageCard, isDesktop && styles.heroImageCardDesktop]}>
-            <Image source={HERO_IMAGE} style={styles.heroImage} resizeMode="cover" />
-          </View>
-        </View>
-      </View>
-
-      <View
-        nativeID="cara-kerja"
-        onLayout={(event) => {
-          sectionOffsets.current["cara-kerja"] = event.nativeEvent.layout.y;
-        }}
-        style={[styles.section, isDesktop && styles.sectionDesktop]}
-      >
-        <View style={[styles.processLayout, isDesktop ? styles.processLayoutDesktop : styles.processLayoutMobile]}>
-          <View style={[styles.heroImageCard, isDesktop && styles.heroImageCardDesktop]}>
-            <Image source={EMPATHY_IMAGE_FOUR} style={styles.heroImage} resizeMode="cover" />
-          </View>
-
-          <View style={[styles.processContentColumn, isDesktop && styles.processContentColumnDesktop]}>
-            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.sectionTitleToContentGap, isDesktop && styles.sectionTitleToContentGapDesktop]}>
-              Langkah kecil sebelum tidur
-            </Text>
-            <Text style={styles.processSupportText}>
-              Cukup pilih mode yang kamu butuhkan, lalu biarkan langkahnya memandu kamu. Tanpa banyak
-              pilihan, tanpa distraksi.
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      <View
-        nativeID="manfaat"
-        onLayout={(event) => {
-          sectionOffsets.current.manfaat = event.nativeEvent.layout.y;
-        }}
-        style={[styles.section, isDesktop && styles.sectionDesktop]}
-      >
-        <View style={[styles.benefitsLayout, isDesktop ? styles.benefitsLayoutDesktop : styles.benefitsLayoutMobile]}>
-          <View style={[styles.benefitsTextColumn, isDesktop && styles.benefitsTextColumnDesktop]}>
-            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.benefitsTitle, styles.sectionTitleToContentGap, isDesktop && styles.sectionTitleToContentGapDesktop]}>Yang kamu rasakan</Text>
-            <Text style={styles.benefitsBody}>
-              Pelan pelan pikiran mulai melambat dan tubuh lebih siap untuk tidur. Tidur terasa lebih dalam dan bangun lebih ringan. Kamu punya ruang untuk menutup hari dengan sadar.
-            </Text>
-          </View>
-
-          <View style={[styles.benefitsImageCard, isDesktop && styles.benefitsImageCardDesktop]}>
-            <Image source={BENEFITS_IMAGE} style={styles.heroImage} resizeMode="cover" />
-          </View>
-        </View>
-      </View>
-
-      <View
-        nativeID="trust"
-        onLayout={(event) => {
-          sectionOffsets.current.trust = event.nativeEvent.layout.y;
-        }}
-        style={[styles.section, isDesktop && styles.sectionDesktop]}
-      >
-        <View style={[styles.trustLayout, isDesktop ? styles.trustLayoutDesktop : styles.trustLayoutMobile]}>
-          <View style={[styles.trustImageCard, isDesktop && styles.trustImageCardDesktop]}>
-            <Image source={TRUST_IMAGE} style={styles.heroImage} resizeMode="cover" />
-          </View>
-
-          <View style={[styles.trustTextColumn, isDesktop && styles.trustTextColumnDesktop]}>
-            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.trustTitle, styles.sectionTitleToContentGap, isDesktop && styles.sectionTitleToContentGapDesktop]}>
-              Dibuat dari Pengalaman Nyata
-            </Text>
-            <Text style={styles.trustBody}>
-              Aplikasi ini lahir dari seseorang yang juga sering merasa sulit mematikan pikiran di malam hari. Bukan tentang menjadi lebih produktif, tapi tentang memberi diri sendiri ruang untuk berhenti.
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      <View
-        nativeID="closing-cta"
-        onLayout={(event) => {
-          sectionOffsets.current["closing-cta"] = event.nativeEvent.layout.y;
-        }}
-        style={[styles.section, isDesktop && styles.sectionDesktop, styles.closingCtaSection]}
-      >
-        <View style={[styles.closingCtaLayout, isDesktop ? styles.closingCtaLayoutDesktop : styles.closingCtaLayoutMobile]}>
-          <View style={[styles.closingCtaTextColumn, isDesktop && styles.closingCtaTextColumnDesktop]}>
-            <Text style={[styles.sectionTitle, isDesktop && styles.sectionTitleDesktop, styles.sectionTitleToContentGap, isDesktop && styles.sectionTitleToContentGapDesktop]}>Malam Ini, Kamu Bisa Memulainya</Text>
-            <Text style={styles.closingCtaSubtext}>Cukup 15 menit sebelum tidur.</Text>
-            <Pressable onPress={goToSignUp} style={[styles.landingButtonBase, styles.landingButtonPrimary, isDesktop || isTablet ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile, styles.closingCtaButton]}>
-              <Text style={styles.landingButtonPrimaryText}>Mulai Gratis</Text>
-            </Pressable>
-            <Text style={styles.closingCtaMicrocopy}>Tanpa kartu kredit.</Text>
-          </View>
-
-          <View style={[styles.closingCtaImageCard, isDesktop && styles.closingCtaImageCardDesktop]}>
-            <Image source={CLOSING_CTA_IMAGE} style={styles.heroImage} resizeMode="cover" />
-          </View>
-        </View>
-      </View>
-
-      <View
-        nativeID="faq"
-        onLayout={(event) => {
-          sectionOffsets.current.faq = event.nativeEvent.layout.y;
-        }}
-        style={[styles.section, isDesktop && styles.sectionDesktop]}
-      >
-        <Text
+        <View
           style={[
-            styles.sectionTitle,
-            isDesktop && styles.sectionTitleDesktop,
-            styles.sectionTitleToContentGap,
-            isDesktop && styles.sectionTitleToContentGapDesktop,
-            styles.faqSectionTitle,
+            styles.mainContent,
+            isDesktop && styles.mainContentDesktop,
+            isTablet && styles.mainContentTablet,
+            !isDesktop && !isTablet && styles.mainContentMobile,
           ]}
         >
-          FAQ
-        </Text>
+          <View
+            nativeID="beranda"
+            onLayout={(event) => {
+              sectionOffsets.current.beranda = event.nativeEvent.layout.y;
+            }}
+            style={[
+              styles.section,
+              isDesktop && styles.sectionDesktop,
+              styles.headerSection,
+              isDesktop && styles.headerSectionDesktop,
+            ]}
+          >
+            <Text style={styles.brand}>Lumepo</Text>
 
-        <View style={styles.faqList}>
-          <View style={styles.faqItem}>
-            <Text style={styles.faqQuestion}>Apakah ini cocok kalau saya sering overthinking?</Text>
-            <Text style={styles.faqAnswer}>Ya. Ritual ini membantu pikiran melambat dengan alur yang lembut dan terarah.</Text>
+            {isDesktop ? (
+              <View style={styles.headerDesktopNav}>
+                {HEADER_NAV_ITEMS.map((item) => (
+                  <Pressable
+                    key={item.key}
+                    onPress={() => goToSection(item.key)}
+                    style={styles.navItem}
+                  >
+                    <Text style={styles.navText}>{item.label}</Text>
+                    <View
+                      style={[
+                        styles.navUnderline,
+                        activeSection === item.key && styles.navUnderlineActive,
+                        { transition: "opacity 180ms ease" } as any,
+                      ]}
+                    />
+                  </Pressable>
+                ))}
+              </View>
+            ) : (
+              <View />
+            )}
+
+            <View
+              style={[
+                styles.headerActions,
+                isTablet && styles.headerActionsTablet,
+                !isDesktop && !isTablet && styles.headerActionsMobile,
+              ]}
+            >
+              {isDesktop ? (
+                <Pressable
+                  onPress={goToLogin}
+                  style={[styles.textButton, styles.headerTextButton]}
+                >
+                  <Text style={styles.textButtonLabel}>Masuk</Text>
+                </Pressable>
+              ) : null}
+              <Pressable
+                onPress={goToSignUp}
+                style={[
+                  styles.landingButtonBase,
+                  styles.landingButtonPrimary,
+                  isDesktop
+                    ? styles.landingButtonSizeDesktop
+                    : styles.landingButtonSizeMobile,
+                  isDesktop && styles.headerPrimaryButtonCompact,
+                ]}
+              >
+                <Text style={styles.landingButtonPrimaryText}>Buat akun</Text>
+              </Pressable>
+            </View>
           </View>
 
-          <View style={styles.faqItem}>
-            <Text style={styles.faqQuestion}>Berapa lama durasinya?</Text>
-            <Text style={styles.faqAnswer}>Sekitar 15 menit sebelum tidur.</Text>
+          <View
+            nativeID="hero"
+            onLayout={(event) => {
+              sectionOffsets.current.hero = event.nativeEvent.layout.y;
+            }}
+            style={[
+              styles.section,
+              isTablet && styles.sectionTablet,
+              isDesktop && styles.sectionDesktop,
+              styles.heroSection,
+              isDesktop && styles.heroSectionDesktop,
+            ]}
+          >
+            <View
+              style={[
+                styles.heroLayout,
+                isDesktop && styles.heroLayoutDesktop,
+                !isDesktop && styles.heroLayoutMobile,
+              ]}
+            >
+              <View
+                style={[
+                  styles.heroTextColumn,
+                  isDesktop && styles.heroTextColumnDesktop,
+                  isTablet && styles.heroTextColumnTablet,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.heroTitle,
+                    isTablet && styles.heroTitleTablet,
+                    isDesktop && styles.heroTitleDesktop,
+                  ]}
+                >
+                  Tutup hari dengan lebih tenang
+                </Text>
+                <View
+                  style={[
+                    styles.heroCtaRow,
+                    styles.heroCtaRowBreathing,
+                    isTablet && styles.heroCtaRowTablet,
+                    isDesktop && styles.heroCtaRowDesktop,
+                  ]}
+                >
+                  <Pressable
+                    onPress={goToSignUp}
+                    style={[
+                      styles.landingButtonBase,
+                      styles.landingButtonPrimary,
+                      isDesktop || isTablet
+                        ? styles.landingButtonSizeDesktop
+                        : styles.landingButtonSizeMobile,
+                      styles.heroCtaButton,
+                    ]}
+                  >
+                    <Text style={styles.landingButtonPrimaryText}>
+                      Mulai gratis
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => setIsFoundingOpen(true)}
+                    style={[
+                      styles.landingButtonBase,
+                      styles.landingButtonSecondary,
+                      isDesktop || isTablet
+                        ? styles.landingButtonSizeDesktop
+                        : styles.landingButtonSizeMobile,
+                      styles.heroCtaButton,
+                    ]}
+                  >
+                    <Text style={styles.landingButtonSecondaryText}>
+                      Jadi founding member
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+
+              <View
+                style={[
+                  styles.heroImageCard,
+                  isDesktop && styles.heroImageCardDesktop,
+                ]}
+              >
+                <Image
+                  source={HERO_IMAGE}
+                  style={styles.heroImage}
+                  resizeMode="cover"
+                />
+              </View>
+            </View>
           </View>
 
-          <View style={styles.faqItem}>
-            <Text style={styles.faqQuestion}>Apakah perlu bayar?</Text>
-            <Text style={styles.faqAnswer}>Kamu bisa mulai gratis di fase beta.</Text>
+          <View
+            nativeID="cara-kerja"
+            onLayout={(event) => {
+              sectionOffsets.current["cara-kerja"] = event.nativeEvent.layout.y;
+            }}
+            style={[styles.section, isDesktop && styles.sectionDesktop]}
+          >
+            <View
+              style={[
+                styles.processLayout,
+                isDesktop
+                  ? styles.processLayoutDesktop
+                  : styles.processLayoutMobile,
+              ]}
+            >
+              <View
+                style={[
+                  styles.heroImageCard,
+                  isDesktop && styles.heroImageCardDesktop,
+                ]}
+              >
+                <Image
+                  source={EMPATHY_IMAGE_FOUR}
+                  style={styles.heroImage}
+                  resizeMode="cover"
+                />
+              </View>
+
+              <View
+                style={[
+                  styles.processContentColumn,
+                  isDesktop && styles.processContentColumnDesktop,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.sectionTitle,
+                    isDesktop && styles.sectionTitleDesktop,
+                    styles.sectionTitleToContentGap,
+                    isDesktop && styles.sectionTitleToContentGapDesktop,
+                  ]}
+                >
+                  Langkah kecil sebelum tidur
+                </Text>
+                <Text style={styles.processSupportText}>
+                  Cukup pilih mode yang kamu butuhkan, lalu biarkan langkahnya
+                  memandu kamu. Tanpa banyak pilihan, tanpa distraksi.
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <View
+            nativeID="manfaat"
+            onLayout={(event) => {
+              sectionOffsets.current.manfaat = event.nativeEvent.layout.y;
+            }}
+            style={[styles.section, isDesktop && styles.sectionDesktop]}
+          >
+            <View
+              style={[
+                styles.benefitsLayout,
+                isDesktop
+                  ? styles.benefitsLayoutDesktop
+                  : styles.benefitsLayoutMobile,
+              ]}
+            >
+              <View
+                style={[
+                  styles.benefitsTextColumn,
+                  isDesktop && styles.benefitsTextColumnDesktop,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.sectionTitle,
+                    isDesktop && styles.sectionTitleDesktop,
+                    styles.benefitsTitle,
+                    styles.sectionTitleToContentGap,
+                    isDesktop && styles.sectionTitleToContentGapDesktop,
+                  ]}
+                >
+                  Yang kamu rasakan
+                </Text>
+                <Text style={styles.benefitsBody}>
+                  Pelan pelan pikiran mulai melambat dan tubuh lebih siap untuk
+                  tidur. Tidur terasa lebih dalam dan bangun lebih ringan. Kamu
+                  punya ruang untuk menutup hari dengan sadar.
+                </Text>
+              </View>
+
+              <View
+                style={[
+                  styles.benefitsImageCard,
+                  isDesktop && styles.benefitsImageCardDesktop,
+                ]}
+              >
+                <Image
+                  source={BENEFITS_IMAGE}
+                  style={styles.heroImage}
+                  resizeMode="cover"
+                />
+              </View>
+            </View>
+          </View>
+
+          <View
+            nativeID="trust"
+            onLayout={(event) => {
+              sectionOffsets.current.trust = event.nativeEvent.layout.y;
+            }}
+            style={[styles.section, isDesktop && styles.sectionDesktop]}
+          >
+            <View
+              style={[
+                styles.trustLayout,
+                isDesktop
+                  ? styles.trustLayoutDesktop
+                  : styles.trustLayoutMobile,
+              ]}
+            >
+              <View
+                style={[
+                  styles.trustImageCard,
+                  isDesktop && styles.trustImageCardDesktop,
+                ]}
+              >
+                <Image
+                  source={TRUST_IMAGE}
+                  style={styles.heroImage}
+                  resizeMode="cover"
+                />
+              </View>
+
+              <View
+                style={[
+                  styles.trustTextColumn,
+                  isDesktop && styles.trustTextColumnDesktop,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.sectionTitle,
+                    isDesktop && styles.sectionTitleDesktop,
+                    styles.trustTitle,
+                    styles.sectionTitleToContentGap,
+                    isDesktop && styles.sectionTitleToContentGapDesktop,
+                  ]}
+                >
+                  Dibuat dari Pengalaman Nyata
+                </Text>
+                <Text style={styles.trustBody}>
+                  Aplikasi ini lahir dari seseorang yang juga sering merasa
+                  sulit mematikan pikiran di malam hari. Bukan tentang menjadi
+                  lebih produktif, tapi tentang memberi diri sendiri ruang untuk
+                  berhenti.
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <View
+            nativeID="closing-cta"
+            onLayout={(event) => {
+              sectionOffsets.current["closing-cta"] =
+                event.nativeEvent.layout.y;
+            }}
+            style={[
+              styles.section,
+              isDesktop && styles.sectionDesktop,
+              styles.closingCtaSection,
+            ]}
+          >
+            <View
+              style={[
+                styles.closingCtaLayout,
+                isDesktop
+                  ? styles.closingCtaLayoutDesktop
+                  : styles.closingCtaLayoutMobile,
+              ]}
+            >
+              <View
+                style={[
+                  styles.closingCtaTextColumn,
+                  isDesktop && styles.closingCtaTextColumnDesktop,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.sectionTitle,
+                    isDesktop && styles.sectionTitleDesktop,
+                    styles.sectionTitleToContentGap,
+                    isDesktop && styles.sectionTitleToContentGapDesktop,
+                  ]}
+                >
+                  Malam Ini, Kamu Bisa Memulainya
+                </Text>
+                <Text style={styles.closingCtaSubtext}>
+                  Cukup 15 menit sebelum tidur.
+                </Text>
+                <Pressable
+                  onPress={goToSignUp}
+                  style={[
+                    styles.landingButtonBase,
+                    styles.landingButtonPrimary,
+                    isDesktop || isTablet
+                      ? styles.landingButtonSizeDesktop
+                      : styles.landingButtonSizeMobile,
+                    styles.closingCtaButton,
+                  ]}
+                >
+                  <Text style={styles.landingButtonPrimaryText}>
+                    Mulai Gratis
+                  </Text>
+                </Pressable>
+                <Text style={styles.closingCtaMicrocopy}>
+                  Tanpa kartu kredit.
+                </Text>
+              </View>
+
+              <View
+                style={[
+                  styles.closingCtaImageCard,
+                  isDesktop && styles.closingCtaImageCardDesktop,
+                ]}
+              >
+                <Image
+                  source={CLOSING_CTA_IMAGE}
+                  style={styles.heroImage}
+                  resizeMode="cover"
+                />
+              </View>
+            </View>
+          </View>
+
+          <View
+            nativeID="faq"
+            onLayout={(event) => {
+              sectionOffsets.current.faq = event.nativeEvent.layout.y;
+            }}
+            style={[styles.section, isDesktop && styles.sectionDesktop]}
+          >
+            <Text
+              style={[
+                styles.sectionTitle,
+                isDesktop && styles.sectionTitleDesktop,
+                styles.sectionTitleToContentGap,
+                isDesktop && styles.sectionTitleToContentGapDesktop,
+                styles.faqSectionTitle,
+              ]}
+            >
+              FAQ
+            </Text>
+
+            <View style={styles.faqList}>
+              <View style={styles.faqItem}>
+                <Text style={styles.faqQuestion}>
+                  Apakah ini cocok kalau saya sering overthinking?
+                </Text>
+                <Text style={styles.faqAnswer}>
+                  Ya. Ritual ini membantu pikiran melambat dengan alur yang
+                  lembut dan terarah.
+                </Text>
+              </View>
+
+              <View style={styles.faqItem}>
+                <Text style={styles.faqQuestion}>Berapa lama durasinya?</Text>
+                <Text style={styles.faqAnswer}>
+                  Sekitar 15 menit sebelum tidur.
+                </Text>
+              </View>
+
+              <View style={styles.faqItem}>
+                <Text style={styles.faqQuestion}>Apakah perlu bayar?</Text>
+                <Text style={styles.faqAnswer}>
+                  Kamu bisa mulai gratis di fase beta.
+                </Text>
+              </View>
+            </View>
           </View>
         </View>
-      </View>
 
-      </View>
+        <View style={styles.footerOuter}>
+          <View
+            style={[styles.footerInner, !isDesktop && styles.footerInnerMobile]}
+          >
+            <View
+              style={[
+                styles.footerTopRow,
+                isTablet && styles.footerTopRowTablet,
+                isDesktop && styles.footerTopRowDesktop,
+              ]}
+            >
+              <View style={styles.footerColumn}>
+                <Text style={styles.footerBrandTitle}>Lumepo</Text>
+                <Text style={styles.footerDescription}>
+                  Ruang tenang untuk menutup hari dengan sadar.
+                </Text>
+                <Text style={styles.footerCopyright}>
+                  © 2025 Lumepo. Semua hak dilindungi.
+                </Text>
+              </View>
 
-      <View style={styles.footerOuter}>
-        <View style={[styles.footerInner, !isDesktop && styles.footerInnerMobile]}>
-          <View style={[styles.footerTopRow, isTablet && styles.footerTopRowTablet, isDesktop && styles.footerTopRowDesktop]}>
-            <View style={styles.footerColumn}>
-            <Text style={styles.footerBrandTitle}>Lumepo</Text>
-            <Text style={styles.footerDescription}>Ruang tenang untuk menutup hari dengan sadar.</Text>
-            <Text style={styles.footerCopyright}>© 2025 Lumepo. Semua hak dilindungi.</Text>
+              <View style={styles.footerColumn}>
+                <Text style={styles.footerHeading}>Navigasi</Text>
+                <Pressable
+                  onPress={() => goToSection("beranda")}
+                  style={({ hovered }: any) => [
+                    styles.footerLinkPressable,
+                    hovered && styles.footerLinkPressableHover,
+                  ]}
+                >
+                  <Text style={styles.footerLinkText}>Beranda</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => goToSection("manfaat")}
+                  style={({ hovered }: any) => [
+                    styles.footerLinkPressable,
+                    hovered && styles.footerLinkPressableHover,
+                  ]}
+                >
+                  <Text style={styles.footerLinkText}>Manfaat</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => goToSection("faq")}
+                  style={({ hovered }: any) => [
+                    styles.footerLinkPressable,
+                    hovered && styles.footerLinkPressableHover,
+                  ]}
+                >
+                  <Text style={styles.footerLinkText}>FAQ</Text>
+                </Pressable>
+              </View>
+
+              <View style={styles.footerColumn}>
+                <Text style={styles.footerHeading}>Informasi</Text>
+                <Pressable
+                  onPress={() => {}}
+                  style={({ hovered }: any) => [
+                    styles.footerLinkPressable,
+                    hovered && styles.footerLinkPressableHover,
+                  ]}
+                >
+                  <Text style={styles.footerLinkText}>Kebijakan Privasi</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => {}}
+                  style={({ hovered }: any) => [
+                    styles.footerLinkPressable,
+                    hovered && styles.footerLinkPressableHover,
+                  ]}
+                >
+                  <Text style={styles.footerLinkText}>Syarat & Ketentuan</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => {}}
+                  style={({ hovered }: any) => [
+                    styles.footerLinkPressable,
+                    hovered && styles.footerLinkPressableHover,
+                  ]}
+                >
+                  <Text style={styles.footerLinkText}>Kontak</Text>
+                </Pressable>
+                <Text style={styles.footerContact}>hello@lumepo.id</Text>
+              </View>
             </View>
+          </View>
 
-            <View style={styles.footerColumn}>
-              <Text style={styles.footerHeading}>Navigasi</Text>
-              <Pressable onPress={() => goToSection("beranda")} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
-                <Text style={styles.footerLinkText}>Beranda</Text>
-              </Pressable>
-              <Pressable onPress={() => goToSection("manfaat")} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
-                <Text style={styles.footerLinkText}>Manfaat</Text>
-              </Pressable>
-              <Pressable onPress={() => goToSection("faq")} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
-                <Text style={styles.footerLinkText}>FAQ</Text>
-              </Pressable>
-            </View>
+          <View style={styles.footerDivider} />
 
-            <View style={styles.footerColumn}>
-              <Text style={styles.footerHeading}>Informasi</Text>
-              <Pressable onPress={() => {}} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
-                <Text style={styles.footerLinkText}>Kebijakan Privasi</Text>
-              </Pressable>
-              <Pressable onPress={() => {}} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
-                <Text style={styles.footerLinkText}>Syarat & Ketentuan</Text>
-              </Pressable>
-              <Pressable onPress={() => {}} style={({ hovered }: any) => [styles.footerLinkPressable, hovered && styles.footerLinkPressableHover]}>
-                <Text style={styles.footerLinkText}>Kontak</Text>
-              </Pressable>
-              <Text style={styles.footerContact}>hello@lumepo.id</Text>
+          <View
+            style={[styles.footerInner, !isDesktop && styles.footerInnerMobile]}
+          >
+            <View
+              style={[
+                styles.footerBottomRow,
+                isTablet && styles.footerBottomRowTablet,
+                isDesktop && styles.footerBottomRowDesktop,
+              ]}
+            >
+              <Text style={styles.footerCopyright}>
+                © 2025 Lumepo. Semua hak dilindungi.
+              </Text>
+              <View />
             </View>
           </View>
         </View>
-
-        <View style={styles.footerDivider} />
-
-        <View style={[styles.footerInner, !isDesktop && styles.footerInnerMobile]}>
-          <View style={[styles.footerBottomRow, isTablet && styles.footerBottomRowTablet, isDesktop && styles.footerBottomRowDesktop]}>
-            <Text style={styles.footerCopyright}>© 2025 Lumepo. Semua hak dilindungi.</Text>
-            <View />
-          </View>
-        </View>
-      </View>
       </ScrollView>
 
       {isFoundingOpen ? (
         <View style={styles.modalOverlay}>
-          <Pressable style={styles.modalBackdrop} onPress={closeFoundingModal} />
-          <View style={[styles.modalCard, isTablet && styles.modalCardTablet, !isDesktop && !isTablet && styles.modalCardMobile]}>
-            <Pressable onPress={closeFoundingModal} style={styles.modalCloseButton}>
+          <Pressable
+            style={styles.modalBackdrop}
+            onPress={closeFoundingModal}
+          />
+          <View
+            style={[
+              styles.modalCard,
+              isTablet && styles.modalCardTablet,
+              !isDesktop && !isTablet && styles.modalCardMobile,
+            ]}
+          >
+            <Pressable
+              onPress={closeFoundingModal}
+              style={styles.modalCloseButton}
+            >
               <Text style={styles.modalCloseText}>×</Text>
             </Pressable>
 
             <Text style={styles.modalTitle}>Jadi Founding Member</Text>
             <Text style={styles.modalBody}>
-              Kami membuka kesempatan untuk 100 orang pertama yang ingin mendukung pengembangan Lumepo.
+              Kami membuka kesempatan untuk 100 orang pertama yang ingin
+              mendukung pengembangan Lumepo.
               {"\n"}
               {"\n"}
               Sebagai Founding Member, kamu akan mendapatkan:
@@ -426,10 +780,15 @@ export default function LandingScreen() {
               {"\n"}• Harga spesial sebagai pendukung awal.
               {"\n"}• Kesempatan memberi masukan langsung dalam pengembangan.
             </Text>
-            <Text style={styles.modalNote}>Kontribusi awal kamu membantu kami menyelesaikan pengembangan aplikasi.</Text>
+            <Text style={styles.modalNote}>
+              Kontribusi awal kamu membantu kami menyelesaikan pengembangan
+              aplikasi.
+            </Text>
 
             {submitted ? (
-              <Text style={styles.modalThanks}>Terima kasih. Kami akan menghubungi kamu segera.</Text>
+              <Text style={styles.modalThanks}>
+                Terima kasih. Kami akan menghubungi kamu segera.
+              </Text>
             ) : (
               <>
                 <TextInput
@@ -445,11 +804,15 @@ export default function LandingScreen() {
                   style={[
                     styles.landingButtonBase,
                     styles.landingButtonPrimary,
-                    isDesktop || isTablet ? styles.landingButtonSizeDesktop : styles.landingButtonSizeMobile,
+                    isDesktop || isTablet
+                      ? styles.landingButtonSizeDesktop
+                      : styles.landingButtonSizeMobile,
                     styles.modalSubmitButton,
                   ]}
                 >
-                  <Text style={styles.landingButtonPrimaryText}>Saya ingin jadi Founding Member</Text>
+                  <Text style={styles.landingButtonPrimaryText}>
+                    Saya ingin jadi Founding Member
+                  </Text>
                 </Pressable>
               </>
             )}
@@ -494,7 +857,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
   },
   mainContentMobile: {
-    paddingHorizontal: 0,
+    paddingHorizontal: spacing.sm,
   },
   section: {
     width: "100%",
@@ -519,12 +882,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     gap: spacing.md,
-    paddingTop: 0,
-    paddingBottom: 0,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.xs,
   },
   headerSectionDesktop: {
-    paddingTop: 0,
-    paddingBottom: 0,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.sm,
   },
   brand: {
     fontSize: typography.title,
@@ -728,7 +1091,6 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
 
-
   benefitsLayout: {
     width: "100%",
     gap: spacing.md,
@@ -767,7 +1129,6 @@ const styles = StyleSheet.create({
     flex: 1,
     maxWidth: 460,
   },
-
 
   faqList: {
     gap: spacing.sm,

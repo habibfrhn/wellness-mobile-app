@@ -2,9 +2,19 @@ import React, { useLayoutEffect } from "react";
 import { ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-import { getWebPageHorizontalPadding, getWebPageTopSpacing, getWebViewport } from "../../constants/webLayout";
+import {
+  getWebPageHorizontalPadding,
+  getWebPageTopSpacing,
+  getWebViewport,
+} from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
-import { colors, lineHeights, radius, spacing, typography } from "../../theme/tokens";
+import {
+  colors,
+  lineHeights,
+  radius,
+  spacing,
+  typography,
+} from "../../theme/tokens";
 
 type Props = {
   title: string;
@@ -13,7 +23,12 @@ type Props = {
   showCloseButton?: boolean;
 };
 
-export default function AuthScreenLayout({ title, subtitle, children, showCloseButton = true }: Props) {
+export default function AuthScreenLayout({
+  title,
+  subtitle,
+  children,
+  showCloseButton = true,
+}: Props) {
   const navigation = useNavigation();
   const viewportWidth = useViewportWidth();
   const viewport = getWebViewport(viewportWidth);
@@ -24,6 +39,7 @@ export default function AuthScreenLayout({ title, subtitle, children, showCloseB
     navigation.setOptions({
       title: "",
       headerShadowVisible: false,
+      headerStyle: { backgroundColor: colors.bg },
       headerLeft: showCloseButton
         ? () => (
             <Pressable
@@ -35,7 +51,10 @@ export default function AuthScreenLayout({ title, subtitle, children, showCloseB
                 }
                 navigation.navigate("Welcome" as never);
               }}
-              style={({ pressed }) => [styles.closeButton, pressed && authSharedStyles.pressed]}
+              style={({ pressed }) => [
+                styles.closeButton,
+                pressed && authSharedStyles.pressed,
+              ]}
               accessibilityRole="button"
               accessibilityLabel="Tutup"
             >
@@ -53,14 +72,31 @@ export default function AuthScreenLayout({ title, subtitle, children, showCloseB
         styles.screenContent,
         isTabletWeb && styles.screenContentTablet,
         isMobileWeb && styles.screenContentMobile,
-        { paddingHorizontal: getWebPageHorizontalPadding(viewport), paddingTop: getWebPageTopSpacing(viewport) },
+        {
+          paddingHorizontal: getWebPageHorizontalPadding(viewport),
+          paddingTop: getWebPageTopSpacing(viewport),
+        },
       ]}
       keyboardShouldPersistTaps="handled"
       contentInsetAdjustmentBehavior="automatic"
     >
-      <View style={[styles.panel, isTabletWeb && styles.panelTablet, isMobileWeb && styles.panelMobile]}>
+      <View
+        style={[
+          styles.panel,
+          isTabletWeb && styles.panelTablet,
+          isMobileWeb && styles.panelMobile,
+        ]}
+      >
         <View style={styles.headerStack}>
-          <Text style={[styles.title, isTabletWeb && styles.titleTablet, isMobileWeb && styles.titleMobile]}>{title}</Text>
+          <Text
+            style={[
+              styles.title,
+              isTabletWeb && styles.titleTablet,
+              isMobileWeb && styles.titleMobile,
+            ]}
+          >
+            {title}
+          </Text>
           {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
         </View>
 
@@ -165,7 +201,7 @@ const styles = StyleSheet.create({
     maxWidth: 580,
     padding: 36,
     borderRadius: radius.md,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.white,
     boxShadow: "0px 8px 28px rgba(33,50,94,0.12)",
   },
   panelTablet: {

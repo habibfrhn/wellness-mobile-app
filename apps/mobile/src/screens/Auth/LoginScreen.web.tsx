@@ -12,9 +12,19 @@ import {
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AuthStackParamList } from "../../navigation/types";
-import { getWebPageHorizontalPadding, getWebPageTopSpacing, getWebViewport } from "../../constants/webLayout";
+import {
+  getWebPageHorizontalPadding,
+  getWebPageTopSpacing,
+  getWebViewport,
+} from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
-import { colors, spacing, radius, typography, lineHeights } from "../../theme/tokens";
+import {
+  colors,
+  spacing,
+  radius,
+  typography,
+  lineHeights,
+} from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import GoogleAuthButton from "../../components/auth/GoogleAuthButton";
 import { clearPendingProfileName } from "../../services/pendingProfileName";
@@ -51,6 +61,7 @@ export default function LoginScreen({ navigation, route }: Props) {
     navigation.setOptions({
       title: "",
       headerShadowVisible: false,
+      headerStyle: { backgroundColor: colors.bg },
       headerLeft: () => (
         <Pressable
           onPress={() => {
@@ -61,7 +72,10 @@ export default function LoginScreen({ navigation, route }: Props) {
             }
             navigation.navigate("Welcome");
           }}
-          style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]}
+          style={({ pressed }) => [
+            styles.closeButton,
+            pressed && styles.pressed,
+          ]}
           accessibilityRole="button"
           accessibilityLabel={id.login.closeLabel}
         >
@@ -135,7 +149,10 @@ export default function LoginScreen({ navigation, route }: Props) {
       await clearPendingProfileName();
       await continueWithGoogle({ nextRoute: "Login" });
     } catch (error) {
-      Alert.alert(id.common.errorTitle, error instanceof Error ? error.message : id.common.tryAgain);
+      Alert.alert(
+        id.common.errorTitle,
+        error instanceof Error ? error.message : id.common.tryAgain,
+      );
       setBusyGoogle(false);
     }
   }
@@ -143,13 +160,35 @@ export default function LoginScreen({ navigation, route }: Props) {
   return (
     <ScrollView
       style={styles.screen}
-      contentContainerStyle={[styles.screenContent, isTabletWeb && styles.screenContentTablet, isMobileWeb && styles.screenContentMobile, { paddingHorizontal: getWebPageHorizontalPadding(viewport), paddingTop: getWebPageTopSpacing(viewport) }]}
+      contentContainerStyle={[
+        styles.screenContent,
+        isTabletWeb && styles.screenContentTablet,
+        isMobileWeb && styles.screenContentMobile,
+        {
+          paddingHorizontal: getWebPageHorizontalPadding(viewport),
+          paddingTop: getWebPageTopSpacing(viewport),
+        },
+      ]}
       keyboardShouldPersistTaps="handled"
       contentInsetAdjustmentBehavior="automatic"
     >
-      <View style={[styles.panel, isTabletWeb && styles.panelTablet, isMobileWeb && styles.panelMobile]}>
+      <View
+        style={[
+          styles.panel,
+          isTabletWeb && styles.panelTablet,
+          isMobileWeb && styles.panelMobile,
+        ]}
+      >
         <View style={styles.headerStack}>
-          <Text style={[styles.title, isTabletWeb && styles.titleTablet, isMobileWeb && styles.titleMobile]}>{id.login.welcomeTitle}</Text>
+          <Text
+            style={[
+              styles.title,
+              isTabletWeb && styles.titleTablet,
+              isMobileWeb && styles.titleMobile,
+            ]}
+          >
+            {id.login.welcomeTitle}
+          </Text>
           <Text style={styles.subtitle}>{id.login.formSubtitle}</Text>
         </View>
 
@@ -172,7 +211,9 @@ export default function LoginScreen({ navigation, route }: Props) {
               style={[styles.input, errors.email && styles.inputError]}
               returnKeyType="next"
             />
-            {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
+            {errors.email ? (
+              <Text style={styles.errorText}>{errors.email}</Text>
+            ) : null}
           </View>
 
           <View>
@@ -191,30 +232,49 @@ export default function LoginScreen({ navigation, route }: Props) {
                 secureTextEntry={!showPassword}
                 placeholder={id.login.passwordPlaceholder}
                 placeholderTextColor={colors.mutedText}
-                style={[styles.input, styles.passwordInput, errors.password && styles.inputError]}
+                style={[
+                  styles.input,
+                  styles.passwordInput,
+                  errors.password && styles.inputError,
+                ]}
                 onSubmitEditing={onSubmit}
                 returnKeyType="go"
               />
               <PasswordToggle
                 visible={showPassword}
                 onPress={() => setShowPassword((v) => !v)}
-                accessibilityLabel={showPassword ? id.common.hidePassword : id.common.showPassword}
+                accessibilityLabel={
+                  showPassword ? id.common.hidePassword : id.common.showPassword
+                }
                 style={styles.toggle}
               />
             </View>
-            {errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null}
+            {errors.password ? (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            ) : null}
           </View>
         </View>
 
         <View style={styles.metaRow}>
-          <Pressable onPress={() => setRememberMe((v) => !v)} style={styles.rememberWrap}>
-            <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
+          <Pressable
+            onPress={() => setRememberMe((v) => !v)}
+            style={styles.rememberWrap}
+          >
+            <View
+              style={[styles.checkbox, rememberMe && styles.checkboxChecked]}
+            >
               {rememberMe ? <View style={styles.checkboxInner} /> : null}
             </View>
             <Text style={styles.metaText}>Ingat saya</Text>
           </Pressable>
 
-          <Pressable onPress={() => navigation.navigate("ForgotPassword", { initialEmail: email.trim() })}>
+          <Pressable
+            onPress={() =>
+              navigation.navigate("ForgotPassword", {
+                initialEmail: email.trim(),
+              })
+            }
+          >
             <Text style={styles.metaLink}>Lupa password?</Text>
           </Pressable>
         </View>
@@ -223,18 +283,31 @@ export default function LoginScreen({ navigation, route }: Props) {
           <Pressable
             onPress={onSubmit}
             disabled={busy || busyGoogle}
-            style={({ pressed }) => [styles.primaryButton, (busy || busyGoogle) && styles.disabled, pressed && !busy && !busyGoogle && styles.pressed]}
+            style={({ pressed }) => [
+              styles.primaryButton,
+              (busy || busyGoogle) && styles.disabled,
+              pressed && !busy && !busyGoogle && styles.pressed,
+            ]}
           >
             {busy ? (
               <ActivityIndicator color={colors.primaryText} />
             ) : (
-              <Text style={styles.primaryButtonText}>{id.login.primaryCta}</Text>
+              <Text style={styles.primaryButtonText}>
+                {id.login.primaryCta}
+              </Text>
             )}
           </Pressable>
 
-          <GoogleAuthButton busy={busyGoogle} onPress={() => void onContinueWithGoogle()} />
+          <GoogleAuthButton
+            busy={busyGoogle}
+            onPress={() => void onContinueWithGoogle()}
+          />
 
-          <LoginSignUpPrompt onPressSignUp={() => navigation.replace("SignUp", { initialEmail: email.trim() })} />
+          <LoginSignUpPrompt
+            onPressSignUp={() =>
+              navigation.replace("SignUp", { initialEmail: email.trim() })
+            }
+          />
         </View>
       </View>
     </ScrollView>
@@ -268,7 +341,7 @@ const styles = StyleSheet.create({
     maxWidth: 580,
     padding: 36,
     borderRadius: radius.md,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.white,
     boxShadow: "0px 8px 28px rgba(33,50,94,0.12)",
   },
   panelTablet: {
