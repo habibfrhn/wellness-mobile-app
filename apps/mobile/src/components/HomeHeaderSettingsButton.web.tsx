@@ -86,8 +86,8 @@ const styles = StyleSheet.create({
     paddingRight: spacing.xs,
   },
   containerCompact: {
-    gap: spacing.sm,
-    paddingRight: spacing.sm,
+    gap: spacing.xs,
+    paddingRight: 0,
   },
   actionButton: {
     flexDirection: "row",
@@ -101,8 +101,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   actionButtonCompact: {
-    width: 44,
-    height: 44,
+    width: 40,
+    height: 40,
     justifyContent: "center",
     paddingHorizontal: 0,
     paddingVertical: 0,

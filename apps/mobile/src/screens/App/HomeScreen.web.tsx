@@ -187,6 +187,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: WEB_SECTION_CONTENT_INSET,
   },
   headerRowCompact: {
+    paddingTop: spacing.md,
     paddingHorizontal: spacing.md,
   },
   sectionStack: {},
