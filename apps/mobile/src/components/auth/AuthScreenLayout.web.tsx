@@ -74,7 +74,7 @@ export default function AuthScreenLayout({
         isMobileWeb && styles.screenContentMobile,
         {
           paddingHorizontal: getWebPageHorizontalPadding(viewport),
-          paddingTop: getWebPageTopSpacing(viewport),
+          paddingTop: spacing.xl,
         },
       ]}
       keyboardShouldPersistTaps="handled"
@@ -182,18 +182,20 @@ const styles = StyleSheet.create({
   screenContent: {
     flexGrow: 1,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
   },
   screenContentTablet: {
     paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.xl,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
   },
   screenContentMobile: {
     justifyContent: "flex-start",
     paddingHorizontal: spacing.md,
-    paddingTop: spacing.md,
+    paddingTop: spacing.lg,
     paddingBottom: spacing.xl,
   },
   panel: {
@@ -215,10 +217,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
   },
   closeButton: {
-    width: 36,
-    height: 36,
-    marginLeft: spacing.sm,
-    marginTop: spacing.xs,
+    width: 32,
+    height: 32,
+    marginLeft: spacing.xs,
+    marginTop: 0,
     alignItems: "center",
     justifyContent: "center",
   },
