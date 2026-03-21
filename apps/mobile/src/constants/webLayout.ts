@@ -49,6 +49,19 @@ export function getWebPageTopSpacing(viewport: WebViewport) {
   return spacing.md;
 }
 
+
+export function getWebSectionSpacing(viewport: WebViewport) {
+  if (viewport === "desktop") {
+    return spacing.xl;
+  }
+
+  if (viewport === "tablet") {
+    return spacing.lg;
+  }
+
+  return spacing.lg;
+}
+
 export function getWebPageMaxWidth(viewport: WebViewport, widths: WebPageWidths) {
   if (viewport === "desktop") {
     return widths.desktop;

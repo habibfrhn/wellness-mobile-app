@@ -13,6 +13,7 @@ import HomeNightSummary from "../../components/HomeNightSummary";
 import {
   getWebPageContainerStyle,
   getWebPageTopSpacing,
+  getWebSectionSpacing,
   getWebViewport,
   WEB_SECTION_CONTENT_INSET,
 } from "../../constants/webLayout";
@@ -33,6 +34,7 @@ export default function HomeScreen({ navigation, route }: Props) {
   const webViewport = getWebViewport(viewportWidth);
   const isDesktopWeb = Platform.OS === "web" && webViewport === "desktop";
   const isTabletWeb = Platform.OS === "web" && webViewport === "tablet";
+  const sectionGap = getWebSectionSpacing(webViewport);
 
 
   const completionPayload = useMemo(() => {
@@ -109,16 +111,16 @@ export default function HomeScreen({ navigation, route }: Props) {
         ]}
       >
         {isDesktopWeb ? (
-          <View style={styles.desktopHeaderRow}>
+          <View style={[styles.desktopHeaderRow, { marginBottom: sectionGap }]}>
             <HomeHeaderLogo />
             <HomeHeaderSettingsButton navigation={navigation} />
           </View>
         ) : null}
 
-        <View style={styles.sectionStack}>
+        <View style={[styles.sectionStack, { gap: sectionGap }]}>
           <View style={styles.sectionBlock}>
             <HomeGreetingTitle />
-            <View style={styles.primaryActionCardWrap}>
+            <View style={[styles.primaryActionCardWrap, { marginTop: sectionGap }]}>
               <View style={styles.primaryActionCard}>
                 <HomeNightSummary onPressPrimary={() => setIsSleepOptionModalVisible(true)} />
               </View>
@@ -144,7 +146,7 @@ export default function HomeScreen({ navigation, route }: Props) {
               </View>
             </View>
           ) : (
-            <View style={styles.sectionBlock}>
+            <View style={[styles.sectionBlock, styles.audioSectionsStack, { gap: sectionGap }]}>
               <AudioTrackListSection
                 title={id.home.pickWhatYouNeedTitle}
                 tracks={nonSoundscapeTracks}
@@ -187,15 +189,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: spacing.lg,
+    marginBottom: 0,
     marginTop: 0,
   },
-  sectionStack: {
-    gap: spacing.lg,
-  },
+  sectionStack: {},
   sectionBlock: {
     width: "100%",
   },
+  audioSectionsStack: {},
   desktopTwoColumnSection: {
     flexDirection: "row",
     gap: spacing.md,
@@ -206,7 +207,6 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   primaryActionCardWrap: {
-    marginTop: spacing.lg,
     paddingHorizontal: WEB_SECTION_CONTENT_INSET,
   },
   primaryActionCard: {

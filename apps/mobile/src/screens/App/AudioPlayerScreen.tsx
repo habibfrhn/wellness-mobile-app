@@ -16,7 +16,7 @@ import { id } from "../../i18n/strings";
 import HeaderCloseButton from "../../components/navigation/HeaderCloseButton";
 import type { AppStackParamList } from "../../navigation/types";
 import { colors, spacing, typography } from "../../theme/tokens";
-import { getWebPageContainerStyle, getWebViewport } from "../../constants/webLayout";
+import { getWebPageContainerStyle, getWebSectionSpacing, getWebViewport } from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { TIMER_OPTIONS, useAudioPlayerSession } from "../../hooks/useAudioPlayerSession";
 
@@ -31,6 +31,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   const webViewport = getWebViewport(viewportWidth);
   const isDesktopWeb = webViewport === "desktop";
   const isTabletWeb = webViewport === "tablet";
+  const sectionGap = getWebSectionSpacing(webViewport);
   const [progressWidth, setProgressWidth] = useState(0);
   const [favorite, setFavorite] = useState(() => isFavorite(audioId));
   const [isExitModalVisible, setIsExitModalVisible] = useState(false);
@@ -183,7 +184,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={[styles.playerLayout, isDesktopWeb && styles.playerLayoutDesktop]}>
+        <View style={[styles.playerLayout, { gap: sectionGap }, isDesktopWeb && styles.playerLayoutDesktop]}>
           <PlayerArtworkSection
           cover={sessionArtwork?.cover ?? track.cover}
           isFavorite={favorite}
@@ -259,7 +260,6 @@ const styles = StyleSheet.create({
   playerLayout: {
     width: "100%",
     alignItems: "center",
-    gap: spacing.lg,
   },
   playerLayoutDesktop: {
     flexDirection: "row",
