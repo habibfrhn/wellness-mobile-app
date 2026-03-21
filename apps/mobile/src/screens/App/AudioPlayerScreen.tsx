@@ -1,4 +1,11 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -16,9 +23,16 @@ import { id } from "../../i18n/strings";
 import HeaderCloseButton from "../../components/navigation/HeaderCloseButton";
 import type { AppStackParamList } from "../../navigation/types";
 import { colors, spacing, typography } from "../../theme/tokens";
-import { getWebPageContainerStyle, getWebSectionSpacing, getWebViewport } from "../../constants/webLayout";
+import {
+  getWebPageContainerStyle,
+  getWebSectionSpacing,
+  getWebViewport,
+} from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
-import { TIMER_OPTIONS, useAudioPlayerSession } from "../../hooks/useAudioPlayerSession";
+import {
+  TIMER_OPTIONS,
+  useAudioPlayerSession,
+} from "../../hooks/useAudioPlayerSession";
 
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -75,7 +89,8 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     }
     return "normal_audio" as const;
   }, [playlistIds, track.contentType]);
-  const shouldConfirmExit = playbackMode === "tailored_session" && hasSessionStarted;
+  const shouldConfirmExit =
+    playbackMode === "tailored_session" && hasSessionStarted;
   const sessionArtwork = useMemo(() => {
     if (!isPlaylistSession) {
       return null;
@@ -120,19 +135,22 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
       resetPlayers();
     };
 
-    const unsubBeforeRemove = navigation.addListener("beforeRemove", (event) => {
-      if (isExitingSessionRef.current) {
-        return;
-      }
+    const unsubBeforeRemove = navigation.addListener(
+      "beforeRemove",
+      (event) => {
+        if (isExitingSessionRef.current) {
+          return;
+        }
 
-      if (!shouldConfirmExit) {
-        stopPlayback();
-        return;
-      }
+        if (!shouldConfirmExit) {
+          stopPlayback();
+          return;
+        }
 
-      event.preventDefault();
-      setIsExitModalVisible(true);
-    });
+        event.preventDefault();
+        setIsExitModalVisible(true);
+      },
+    );
     const unsubBlur = navigation.addListener("blur", stopPlayback);
 
     return () => {
@@ -152,7 +170,9 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
 
   const sleepSessionTitle = useMemo(
     () =>
-      sleepMode === "release_accept" ? id.player.sleepSessionTitleReleaseAccept : id.player.sleepSessionTitleCalmMind,
+      sleepMode === "release_accept"
+        ? id.player.sleepSessionTitleReleaseAccept
+        : id.player.sleepSessionTitleCalmMind,
     [sleepMode],
   );
 
@@ -178,63 +198,94 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
       <ScrollView
         contentContainerStyle={[
           styles.content,
-          getWebPageContainerStyle(webViewport, { mobile: 520, tablet: 760, desktop: 1120 }),
+          getWebPageContainerStyle(webViewport, {
+            mobile: 520,
+            tablet: 760,
+            desktop: 1120,
+          }),
           styles.contentVerticalPadding,
           { paddingBottom: spacing.xl + insets.bottom },
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={[styles.playerLayout, { gap: sectionGap }, isDesktopWeb && styles.playerLayoutDesktop]}>
-          <PlayerArtworkSection
-          cover={sessionArtwork?.cover ?? track.cover}
-          isFavorite={favorite}
-          onToggleFavorite={() => setFavorite(toggleFavorite(track.id))}
-        />
+        <View
+          style={[
+            styles.playerLayout,
+            { gap: sectionGap },
+            isDesktopWeb && styles.playerLayoutDesktop,
+          ]}
+        >
+          <View
+            style={[
+              styles.artworkColumn,
+              isDesktopWeb && styles.artworkColumnDesktop,
+            ]}
+          >
+            <PlayerArtworkSection
+              cover={sessionArtwork?.cover ?? track.cover}
+              isFavorite={favorite}
+              onToggleFavorite={() => setFavorite(toggleFavorite(track.id))}
+            />
+          </View>
 
-          <View style={[styles.sectionsAlignedWithArtwork, isTabletWeb && styles.sectionsTablet, isDesktopWeb && styles.sectionsDesktop]}>
-          <SleepSessionProgressHeader
-            title={isPlaylistSession ? sleepSessionTitle : track.title}
-            subtitle={isPlaylistSession ? sleepSessionPhase : track.creator}
-          />
+          <View
+            style={[
+              styles.sectionsAlignedWithArtwork,
+              isTabletWeb && styles.sectionsTablet,
+              isDesktopWeb && styles.sectionsDesktop,
+            ]}
+          >
+            <SleepSessionProgressHeader
+              title={isPlaylistSession ? sleepSessionTitle : track.title}
+              subtitle={isPlaylistSession ? sleepSessionPhase : track.creator}
+            />
 
-          {showSoundscapeControls ? (
-            <SoundscapeTimerSection
-              timerOptions={TIMER_OPTIONS}
-              timerSeconds={timerSeconds}
-              timerRemaining={timerRemaining}
-              isSessionActive={isSessionActive}
-              onSelectTimer={handleTimerSelect}
-            />
-          ) : playbackMode === "tailored_session" ? (
-            <SleepSessionProgressSection
-              sessionCurrent={sessionCurrent}
-              sessionDuration={sessionDuration}
-              sessionProgressRatio={sessionProgressRatio}
-              onLayoutWidth={setProgressWidth}
-              progressWidth={progressWidth}
-            />
-          ) : (
-            <PlayerProgressSection
-              current={current}
-              duration={duration}
-              progressRatio={progressRatio}
-              onLayoutWidth={setProgressWidth}
-              onSeek={onSeekBarPress}
-              progressWidth={progressWidth}
-            />
-          )}
+            {showSoundscapeControls ? (
+              <SoundscapeTimerSection
+                timerOptions={TIMER_OPTIONS}
+                timerSeconds={timerSeconds}
+                timerRemaining={timerRemaining}
+                isSessionActive={isSessionActive}
+                onSelectTimer={handleTimerSelect}
+              />
+            ) : playbackMode === "tailored_session" ? (
+              <SleepSessionProgressSection
+                sessionCurrent={sessionCurrent}
+                sessionDuration={sessionDuration}
+                sessionProgressRatio={sessionProgressRatio}
+                onLayoutWidth={setProgressWidth}
+                progressWidth={progressWidth}
+              />
+            ) : (
+              <PlayerProgressSection
+                current={current}
+                duration={duration}
+                progressRatio={progressRatio}
+                onLayoutWidth={setProgressWidth}
+                onSeek={onSeekBarPress}
+                progressWidth={progressWidth}
+              />
+            )}
 
-          {playbackMode === "soundscape" ? (
-            <SoundscapeControls isPlaying={activeStatus.playing} onStop={handleStop} onTogglePlay={onTogglePlay} />
-          ) : playbackMode === "tailored_session" ? (
-            <TailoredSessionControls
-              isPlaying={activeStatus.playing}
-              onRestart={onRestart}
-              onTogglePlay={onTogglePlay}
-            />
-          ) : (
-            <NormalAudioControls isPlaying={activeStatus.playing} onRestart={onRestart} onTogglePlay={onTogglePlay} />
-          )}
+            {playbackMode === "soundscape" ? (
+              <SoundscapeControls
+                isPlaying={activeStatus.playing}
+                onStop={handleStop}
+                onTogglePlay={onTogglePlay}
+              />
+            ) : playbackMode === "tailored_session" ? (
+              <TailoredSessionControls
+                isPlaying={activeStatus.playing}
+                onRestart={onRestart}
+                onTogglePlay={onTogglePlay}
+              />
+            ) : (
+              <NormalAudioControls
+                isPlaying={activeStatus.playing}
+                onRestart={onRestart}
+                onTogglePlay={onTogglePlay}
+              />
+            )}
           </View>
         </View>
       </ScrollView>
@@ -261,11 +312,19 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
   },
+  artworkColumn: {
+    width: "100%",
+    maxWidth: 420,
+    flexShrink: 0,
+  },
   playerLayoutDesktop: {
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "center",
     gap: spacing.xl,
+  },
+  artworkColumnDesktop: {
+    width: 420,
   },
   sectionsAlignedWithArtwork: {
     width: "100%",
@@ -276,8 +335,10 @@ const styles = StyleSheet.create({
     maxWidth: 520,
   },
   sectionsDesktop: {
-    flex: 1,
-    maxWidth: 480,
+    width: 420,
+    maxWidth: 420,
+    minWidth: 0,
+    flexShrink: 0,
     alignSelf: "flex-start",
   },
   pressed: { opacity: 0.85 },
