@@ -185,7 +185,12 @@ export default function LandingScreen() {
         style={styles.page}
         contentContainerStyle={[
           styles.content,
-          { paddingTop: getWebPageTopSpacing(viewport) + spacing.md },
+          {
+            paddingTop:
+              !isDesktop && !isTablet
+                ? getWebPageTopSpacing(viewport)
+                : getWebPageTopSpacing(viewport) + spacing.md,
+          },
           isTablet && styles.contentTablet,
           isDesktop && styles.contentDesktop,
         ]}
@@ -375,40 +380,71 @@ export default function LandingScreen() {
                   : styles.processLayoutMobile,
               ]}
             >
-              <View
-                style={[
-                  styles.heroImageCard,
-                  isDesktop && styles.heroImageCardDesktop,
-                ]}
-              >
-                <Image
-                  source={EMPATHY_IMAGE_FOUR}
-                  style={styles.heroImage}
-                  resizeMode="cover"
-                />
-              </View>
+              {!isDesktop && !isTablet ? (
+                <>
+                  <View style={styles.processContentColumn}>
+                    <Text
+                      style={[
+                        styles.sectionTitle,
+                        styles.sectionTitleToContentGap,
+                      ]}
+                    >
+                      Langkah kecil sebelum tidur
+                    </Text>
+                    <Text style={styles.processSupportText}>
+                      Cukup pilih mode yang kamu butuhkan, lalu biarkan
+                      langkahnya memandu kamu. Tanpa banyak pilihan, tanpa
+                      distraksi.
+                    </Text>
+                  </View>
 
-              <View
-                style={[
-                  styles.processContentColumn,
-                  isDesktop && styles.processContentColumnDesktop,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.sectionTitle,
-                    isDesktop && styles.sectionTitleDesktop,
-                    styles.sectionTitleToContentGap,
-                    isDesktop && styles.sectionTitleToContentGapDesktop,
-                  ]}
-                >
-                  Langkah kecil sebelum tidur
-                </Text>
-                <Text style={styles.processSupportText}>
-                  Cukup pilih mode yang kamu butuhkan, lalu biarkan langkahnya
-                  memandu kamu. Tanpa banyak pilihan, tanpa distraksi.
-                </Text>
-              </View>
+                  <View style={styles.heroImageCard}>
+                    <Image
+                      source={EMPATHY_IMAGE_FOUR}
+                      style={styles.heroImage}
+                      resizeMode="cover"
+                    />
+                  </View>
+                </>
+              ) : (
+                <>
+                  <View
+                    style={[
+                      styles.heroImageCard,
+                      isDesktop && styles.heroImageCardDesktop,
+                    ]}
+                  >
+                    <Image
+                      source={EMPATHY_IMAGE_FOUR}
+                      style={styles.heroImage}
+                      resizeMode="cover"
+                    />
+                  </View>
+
+                  <View
+                    style={[
+                      styles.processContentColumn,
+                      isDesktop && styles.processContentColumnDesktop,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.sectionTitle,
+                        isDesktop && styles.sectionTitleDesktop,
+                        styles.sectionTitleToContentGap,
+                        isDesktop && styles.sectionTitleToContentGapDesktop,
+                      ]}
+                    >
+                      Langkah kecil sebelum tidur
+                    </Text>
+                    <Text style={styles.processSupportText}>
+                      Cukup pilih mode yang kamu butuhkan, lalu biarkan
+                      langkahnya memandu kamu. Tanpa banyak pilihan, tanpa
+                      distraksi.
+                    </Text>
+                  </View>
+                </>
+              )}
             </View>
           </View>
 
@@ -481,43 +517,75 @@ export default function LandingScreen() {
                   : styles.trustLayoutMobile,
               ]}
             >
-              <View
-                style={[
-                  styles.trustImageCard,
-                  isDesktop && styles.trustImageCardDesktop,
-                ]}
-              >
-                <Image
-                  source={TRUST_IMAGE}
-                  style={styles.heroImage}
-                  resizeMode="cover"
-                />
-              </View>
+              {!isDesktop && !isTablet ? (
+                <>
+                  <View style={styles.trustTextColumn}>
+                    <Text
+                      style={[
+                        styles.sectionTitle,
+                        styles.trustTitle,
+                        styles.sectionTitleToContentGap,
+                      ]}
+                    >
+                      Dibuat dari Pengalaman Nyata
+                    </Text>
+                    <Text style={styles.trustBody}>
+                      Aplikasi ini lahir dari seseorang yang juga sering merasa
+                      sulit mematikan pikiran di malam hari. Bukan tentang
+                      menjadi lebih produktif, tapi tentang memberi diri sendiri
+                      ruang untuk berhenti.
+                    </Text>
+                  </View>
 
-              <View
-                style={[
-                  styles.trustTextColumn,
-                  isDesktop && styles.trustTextColumnDesktop,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.sectionTitle,
-                    isDesktop && styles.sectionTitleDesktop,
-                    styles.trustTitle,
-                    styles.sectionTitleToContentGap,
-                    isDesktop && styles.sectionTitleToContentGapDesktop,
-                  ]}
-                >
-                  Dibuat dari Pengalaman Nyata
-                </Text>
-                <Text style={styles.trustBody}>
-                  Aplikasi ini lahir dari seseorang yang juga sering merasa
-                  sulit mematikan pikiran di malam hari. Bukan tentang menjadi
-                  lebih produktif, tapi tentang memberi diri sendiri ruang untuk
-                  berhenti.
-                </Text>
-              </View>
+                  <View style={styles.trustImageCard}>
+                    <Image
+                      source={TRUST_IMAGE}
+                      style={styles.heroImage}
+                      resizeMode="cover"
+                    />
+                  </View>
+                </>
+              ) : (
+                <>
+                  <View
+                    style={[
+                      styles.trustImageCard,
+                      isDesktop && styles.trustImageCardDesktop,
+                    ]}
+                  >
+                    <Image
+                      source={TRUST_IMAGE}
+                      style={styles.heroImage}
+                      resizeMode="cover"
+                    />
+                  </View>
+
+                  <View
+                    style={[
+                      styles.trustTextColumn,
+                      isDesktop && styles.trustTextColumnDesktop,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.sectionTitle,
+                        isDesktop && styles.sectionTitleDesktop,
+                        styles.trustTitle,
+                        styles.sectionTitleToContentGap,
+                        isDesktop && styles.sectionTitleToContentGapDesktop,
+                      ]}
+                    >
+                      Dibuat dari Pengalaman Nyata
+                    </Text>
+                    <Text style={styles.trustBody}>
+                      Aplikasi ini lahir dari seseorang yang juga sering merasa
+                      sulit mematikan pikiran di malam hari. Bukan tentang
+                      menjadi lebih produktif, tapi tentang memberi diri sendiri
+                      ruang untuk berhenti.
+                    </Text>
+                  </View>
+                </>
+              )}
             </View>
           </View>
 
