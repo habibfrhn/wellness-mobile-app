@@ -10,7 +10,7 @@ import HomeGreetingTitle from "../../components/HomeGreetingTitle";
 import HomeHeaderLogo from "../../components/HomeHeaderLogo";
 import HomeHeaderSettingsButton from "../../components/HomeHeaderSettingsButton";
 import HomeNightSummary from "../../components/HomeNightSummary";
-import { getWebViewport } from "../../constants/webLayout";
+import { getWebPageContainerStyle, getWebViewport, WEB_SECTION_CONTENT_INSET } from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { id } from "../../i18n/strings";
 import type { AppStackParamList } from "../../navigation/types";
@@ -84,17 +84,17 @@ export default function HomeScreen({ navigation, route }: Props) {
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={[
-        styles.listContent,
-        isDesktopWeb ? styles.desktopListContent : isTabletWeb ? styles.tabletListContent : styles.mobileListContent,
-        { paddingBottom: spacing.sm + insets.bottom },
-      ]}
+      contentContainerStyle={[styles.listContent, { paddingBottom: spacing.sm + insets.bottom }]}
       showsVerticalScrollIndicator={false}
     >
       <View
         style={[
           styles.contentWrap,
-          isDesktopWeb ? styles.contentWrapDesktop : isTabletWeb ? styles.contentWrapTablet : styles.contentWrapMobile,
+          getWebPageContainerStyle(webViewport, {
+            mobile: 480,
+            tablet: TABLET_PAGE_MAX_WIDTH,
+            desktop: DESKTOP_PAGE_MAX_WIDTH,
+          }),
         ]}
       >
         {isDesktopWeb ? (
@@ -165,33 +165,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
   },
   listContent: {
-    paddingTop: 0,
-  },
-  tabletListContent: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-  },
-  mobileListContent: {
-    paddingHorizontal: 0,
-    paddingVertical: spacing.sm,
-  },
-  desktopListContent: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.lg,
-    paddingTop: spacing.lg * 0.8,
+    paddingTop: spacing.sm,
   },
   contentWrap: {
     width: "100%",
     alignSelf: "center",
-  },
-  contentWrapMobile: {
-    maxWidth: 480,
-  },
-  contentWrapTablet: {
-    maxWidth: TABLET_PAGE_MAX_WIDTH,
-  },
-  contentWrapDesktop: {
-    maxWidth: DESKTOP_PAGE_MAX_WIDTH,
   },
   desktopHeaderRow: {
     width: "100%",
@@ -219,12 +197,12 @@ const styles = StyleSheet.create({
   },
   primaryActionCardWrap: {
     marginTop: spacing.lg,
-    paddingHorizontal: 0,
+    paddingHorizontal: WEB_SECTION_CONTENT_INSET,
   },
   primaryActionCard: {
     backgroundColor: colors.card,
     borderRadius: radius.md,
-    paddingHorizontal: 0,
+    paddingHorizontal: WEB_SECTION_CONTENT_INSET,
     paddingVertical: spacing.sm,
     gap: spacing.sm,
     shadowColor: colors.text,

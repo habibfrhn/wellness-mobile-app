@@ -16,7 +16,7 @@ import { id } from "../../i18n/strings";
 import HeaderCloseButton from "../../components/navigation/HeaderCloseButton";
 import type { AppStackParamList } from "../../navigation/types";
 import { colors, spacing, typography } from "../../theme/tokens";
-import { getWebViewport } from "../../constants/webLayout";
+import { getWebPageContainerStyle, getWebViewport } from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { TIMER_OPTIONS, useAudioPlayerSession } from "../../hooks/useAudioPlayerSession";
 
@@ -177,7 +177,8 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
       <ScrollView
         contentContainerStyle={[
           styles.content,
-          isDesktopWeb ? styles.contentDesktop : isTabletWeb ? styles.contentTablet : styles.contentMobile,
+          getWebPageContainerStyle(webViewport, { mobile: 520, tablet: 760, desktop: 1120 }),
+          styles.contentVerticalPadding,
           { paddingBottom: spacing.xl + insets.bottom },
         ]}
         showsVerticalScrollIndicator={false}
@@ -251,19 +252,8 @@ const styles = StyleSheet.create({
   content: {
     width: "100%",
     alignSelf: "center",
-    padding: spacing.md,
   },
-  contentMobile: {
-    maxWidth: 520,
-  },
-  contentTablet: {
-    maxWidth: 760,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
-  },
-  contentDesktop: {
-    maxWidth: 1120,
-    paddingHorizontal: spacing.xl,
+  contentVerticalPadding: {
     paddingTop: spacing.lg,
   },
   playerLayout: {

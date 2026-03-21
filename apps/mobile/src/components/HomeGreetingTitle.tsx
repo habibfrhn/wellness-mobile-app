@@ -7,6 +7,7 @@ import HomeGreetingPrompt from "./HomeGreetingPrompt";
 import { id } from "../i18n/strings";
 import type { AppStackParamList } from "../navigation/types";
 import { colors, spacing, typography } from "../theme/tokens";
+import { WEB_SECTION_CONTENT_INSET } from "../constants/webLayout";
 import { supabase } from "../services/supabase";
 
 export default function HomeGreetingTitle() {
@@ -52,7 +53,7 @@ export default function HomeGreetingTitle() {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: WEB_SECTION_CONTENT_INSET,
     gap: spacing.xs / 2,
   },
   title: {

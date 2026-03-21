@@ -12,7 +12,7 @@ import {
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AuthStackParamList } from "../../navigation/types";
-import { getWebViewport } from "../../constants/webLayout";
+import { getWebPageHorizontalPadding, getWebViewport } from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { colors, spacing, radius, typography, lineHeights } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
@@ -143,7 +143,7 @@ export default function LoginScreen({ navigation, route }: Props) {
   return (
     <ScrollView
       style={styles.screen}
-      contentContainerStyle={[styles.screenContent, isTabletWeb && styles.screenContentTablet, isMobileWeb && styles.screenContentMobile]}
+      contentContainerStyle={[styles.screenContent, { paddingHorizontal: getWebPageHorizontalPadding(viewport) }, isTabletWeb && styles.screenContentTablet, isMobileWeb && styles.screenContentMobile]}
       keyboardShouldPersistTaps="handled"
       contentInsetAdjustmentBehavior="automatic"
     >

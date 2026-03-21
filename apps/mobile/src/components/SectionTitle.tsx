@@ -1,6 +1,7 @@
 import React from "react";
 import { Text, StyleSheet } from "react-native";
 import { colors, spacing, typography } from "../theme/tokens";
+import { WEB_SECTION_CONTENT_INSET } from "../constants/webLayout";
 
 type SectionTitleProps = {
   title: string;
@@ -16,6 +17,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: colors.text,
     marginBottom: spacing.xs,
-    paddingLeft: spacing.sm,
+    paddingLeft: WEB_SECTION_CONTENT_INSET,
   },
 });

@@ -2,7 +2,7 @@ import React, { useLayoutEffect } from "react";
 import { ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-import { getWebViewport } from "../../constants/webLayout";
+import { getWebPageHorizontalPadding, getWebViewport } from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { colors, lineHeights, radius, spacing, typography } from "../../theme/tokens";
 
@@ -51,6 +51,7 @@ export default function AuthScreenLayout({ title, subtitle, children, showCloseB
       style={styles.screen}
       contentContainerStyle={[
         styles.screenContent,
+        { paddingHorizontal: getWebPageHorizontalPadding(viewport) },
         isTabletWeb && styles.screenContentTablet,
         isMobileWeb && styles.screenContentMobile,
       ]}

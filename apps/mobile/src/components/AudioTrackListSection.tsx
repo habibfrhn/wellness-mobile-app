@@ -1,6 +1,7 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import { spacing } from "../theme/tokens";
+import { WEB_SECTION_CONTENT_INSET } from "../constants/webLayout";
 import type { AudioTrack } from "../content/audioCatalog";
 import SectionTitle from "./SectionTitle";
 import AudioTrackCard from "./AudioTrackCard";
@@ -42,7 +43,7 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
   },
   list: {
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: WEB_SECTION_CONTENT_INSET,
     flexDirection: "row",
     flexWrap: "wrap",
     gap: spacing.xs,
