@@ -39,7 +39,7 @@ export default function AuthScreenLayout({
     navigation.setOptions({
       title: "",
       headerShadowVisible: false,
-      headerStyle: { backgroundColor: colors.bg },
+      headerStyle: { backgroundColor: colors.bg, height: 52 } as any,
       headerLeft: showCloseButton
         ? () => (
             <Pressable

@@ -61,7 +61,7 @@ export default function LoginScreen({ navigation, route }: Props) {
     navigation.setOptions({
       title: "",
       headerShadowVisible: false,
-      headerStyle: { backgroundColor: colors.bg },
+      headerStyle: { backgroundColor: colors.bg, height: 52 } as any,
       headerLeft: () => (
         <Pressable
           onPress={() => {
