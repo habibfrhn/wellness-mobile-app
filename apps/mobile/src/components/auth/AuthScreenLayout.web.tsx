@@ -51,9 +51,9 @@ export default function AuthScreenLayout({ title, subtitle, children, showCloseB
       style={styles.screen}
       contentContainerStyle={[
         styles.screenContent,
-        { paddingHorizontal: getWebPageHorizontalPadding(viewport), paddingTop: getWebPageTopSpacing(viewport) },
         isTabletWeb && styles.screenContentTablet,
         isMobileWeb && styles.screenContentMobile,
+        { paddingHorizontal: getWebPageHorizontalPadding(viewport), paddingTop: getWebPageTopSpacing(viewport) },
       ]}
       keyboardShouldPersistTaps="handled"
       contentInsetAdjustmentBehavior="automatic"

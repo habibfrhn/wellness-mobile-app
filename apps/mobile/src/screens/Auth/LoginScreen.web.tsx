@@ -143,7 +143,7 @@ export default function LoginScreen({ navigation, route }: Props) {
   return (
     <ScrollView
       style={styles.screen}
-      contentContainerStyle={[styles.screenContent, { paddingHorizontal: getWebPageHorizontalPadding(viewport), paddingTop: getWebPageTopSpacing(viewport) }, isTabletWeb && styles.screenContentTablet, isMobileWeb && styles.screenContentMobile]}
+      contentContainerStyle={[styles.screenContent, isTabletWeb && styles.screenContentTablet, isMobileWeb && styles.screenContentMobile, { paddingHorizontal: getWebPageHorizontalPadding(viewport), paddingTop: getWebPageTopSpacing(viewport) }]}
       keyboardShouldPersistTaps="handled"
       contentInsetAdjustmentBehavior="automatic"
     >

@@ -43,10 +43,10 @@ export function getWebPageTopSpacing(viewport: WebViewport) {
   }
 
   if (viewport === "tablet") {
-    return spacing.lg;
+    return spacing.xl;
   }
 
-  return spacing.md;
+  return spacing.lg;
 }
 
 
