@@ -72,9 +72,14 @@ export default function HomeScreen({ navigation, route }: Props) {
     };
   }, [completionPayload, navigation]);
 
-  const nonSoundscapeTracks = AUDIO_TRACKS.filter((track) => track.contentType !== "soundscape");
-  const soundscapeTracks = AUDIO_TRACKS.filter((track) => track.contentType === "soundscape");
-  const [isSleepOptionModalVisible, setIsSleepOptionModalVisible] = useState(false);
+  const nonSoundscapeTracks = AUDIO_TRACKS.filter(
+    (track) => track.contentType !== "soundscape",
+  );
+  const soundscapeTracks = AUDIO_TRACKS.filter(
+    (track) => track.contentType === "soundscape",
+  );
+  const [isSleepOptionModalVisible, setIsSleepOptionModalVisible] =
+    useState(false);
 
   const handleSelectSleepOption = (option: "calm_mind" | "release_accept") => {
     setIsSleepOptionModalVisible(false);
@@ -84,7 +89,11 @@ export default function HomeScreen({ navigation, route }: Props) {
         ? (["afirmasi_tidur", "bersiap_tidur", "rintik-hujan"] as const)
         : (["meditasi_tidur", "bersiap_tidur", "ombak-laut"] as const);
 
-    navigation.navigate("Player", { audioId: playlistIds[0], playlistIds: [...playlistIds], sleepMode: option });
+    navigation.navigate("Player", {
+      audioId: playlistIds[0],
+      playlistIds: [...playlistIds],
+      sleepMode: option,
+    });
   };
 
   return (
@@ -93,7 +102,9 @@ export default function HomeScreen({ navigation, route }: Props) {
       contentContainerStyle={[
         styles.listContent,
         {
-          paddingTop: isMobileWeb ? spacing.md : getWebPageTopSpacing(webViewport),
+          paddingTop: isMobileWeb
+            ? spacing.md
+            : getWebPageTopSpacing(webViewport),
           paddingBottom: spacing.sm + insets.bottom,
         },
       ]}
@@ -107,9 +118,13 @@ export default function HomeScreen({ navigation, route }: Props) {
         <View style={[styles.sectionStack, { gap: sectionGap }]}>
           <View style={styles.sectionBlock}>
             <HomeGreetingTitle />
-            <View style={[styles.primaryActionCardWrap, { marginTop: sectionGap }]}>
+            <View
+              style={[styles.primaryActionCardWrap, { marginTop: sectionGap }]}
+            >
               <View style={styles.primaryActionCard}>
-                <HomeNightSummary onPressPrimary={() => setIsSleepOptionModalVisible(true)} />
+                <HomeNightSummary
+                  onPressPrimary={() => setIsSleepOptionModalVisible(true)}
+                />
               </View>
             </View>
           </View>
@@ -120,7 +135,9 @@ export default function HomeScreen({ navigation, route }: Props) {
                 <AudioTrackListSection
                   title={id.home.pickWhatYouNeedTitle}
                   tracks={nonSoundscapeTracks}
-                  onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
+                  onPress={(track) =>
+                    navigation.navigate("Player", { audioId: track.id })
+                  }
                 />
               </View>
               <View style={styles.desktopColumn}>
@@ -128,22 +145,34 @@ export default function HomeScreen({ navigation, route }: Props) {
                   title={id.home.soundscapeShortTitle}
                   tracks={soundscapeTracks}
                   showDuration={false}
-                  onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
+                  onPress={(track) =>
+                    navigation.navigate("Player", { audioId: track.id })
+                  }
                 />
               </View>
             </View>
           ) : (
-            <View style={[styles.sectionBlock, styles.audioSectionsStack, { gap: sectionGap }]}>
+            <View
+              style={[
+                styles.sectionBlock,
+                styles.audioSectionsStack,
+                { gap: sectionGap },
+              ]}
+            >
               <AudioTrackListSection
                 title={id.home.pickWhatYouNeedTitle}
                 tracks={nonSoundscapeTracks}
-                onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
+                onPress={(track) =>
+                  navigation.navigate("Player", { audioId: track.id })
+                }
               />
               <AudioTrackListSection
                 title={id.home.soundscapeShortTitle}
                 tracks={soundscapeTracks}
                 showDuration={false}
-                onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
+                onPress={(track) =>
+                  navigation.navigate("Player", { audioId: track.id })
+                }
               />
             </View>
           )}
@@ -193,10 +222,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     paddingHorizontal: 0,
     paddingVertical: 0,
-    shadowColor: colors.text,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 3,
+    boxShadow: `0px 4px 16px ${colors.text}1F`,
   },
 });
