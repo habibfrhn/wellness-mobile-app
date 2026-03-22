@@ -258,7 +258,7 @@ export default function LandingScreen() {
                 />
               ) : (
                 <>
-                  {isDesktop ? (
+                  {isDesktop || isTablet ? (
                     <Pressable
                       onPress={goToLogin}
                       style={[styles.textButton, styles.headerTextButton]}
@@ -271,10 +271,10 @@ export default function LandingScreen() {
                     style={[
                       styles.landingButtonBase,
                       styles.landingButtonPrimary,
-                      isDesktop
+                      isDesktop || isTablet
                         ? styles.landingButtonSizeDesktop
                         : styles.landingButtonSizeMobile,
-                      isDesktop && styles.headerPrimaryButtonCompact,
+                      (isDesktop || isTablet) && styles.headerPrimaryButtonCompact,
                     ]}
                   >
                     <Text style={styles.landingButtonPrimaryText}>Buat akun</Text>
@@ -300,8 +300,8 @@ export default function LandingScreen() {
             <View
               style={[
                 styles.heroLayout,
-                isDesktop && styles.heroLayoutDesktop,
-                !isDesktop && styles.heroLayoutMobile,
+                (isDesktop || isTablet) && styles.heroLayoutDesktop,
+                !isDesktop && !isTablet && styles.heroLayoutMobile,
               ]}
             >
               <View
@@ -337,6 +337,7 @@ export default function LandingScreen() {
                         ? styles.landingButtonSizeDesktop
                         : styles.landingButtonSizeMobile,
                       styles.heroCtaButton,
+                      isTablet && styles.heroCtaButtonTablet,
                     ]}
                   >
                     <Text style={styles.landingButtonPrimaryText}>
@@ -352,6 +353,7 @@ export default function LandingScreen() {
                         ? styles.landingButtonSizeDesktop
                         : styles.landingButtonSizeMobile,
                       styles.heroCtaButton,
+                      isTablet && styles.heroCtaButtonTablet,
                     ]}
                   >
                     <Text style={styles.landingButtonSecondaryText}>
@@ -364,7 +366,7 @@ export default function LandingScreen() {
               <View
                 style={[
                   styles.heroImageCard,
-                  isDesktop && styles.heroImageCardDesktop,
+                  (isDesktop || isTablet) && styles.heroImageCardDesktop,
                 ]}
               >
                 <Image
@@ -381,12 +383,12 @@ export default function LandingScreen() {
             onLayout={(event) => {
               sectionOffsets.current["cara-kerja"] = event.nativeEvent.layout.y;
             }}
-            style={[styles.section, isDesktop && styles.sectionDesktop]}
+            style={[styles.section, (isDesktop || isTablet) && styles.sectionDesktop]}
           >
             <View
               style={[
                 styles.processLayout,
-                isDesktop
+                isDesktop || isTablet
                   ? styles.processLayoutDesktop
                   : styles.processLayoutMobile,
               ]}
@@ -422,7 +424,7 @@ export default function LandingScreen() {
                   <View
                     style={[
                       styles.heroImageCard,
-                      isDesktop && styles.heroImageCardDesktop,
+                      (isDesktop || isTablet) && styles.heroImageCardDesktop,
                     ]}
                   >
                     <Image
@@ -435,15 +437,15 @@ export default function LandingScreen() {
                   <View
                     style={[
                       styles.processContentColumn,
-                      isDesktop && styles.processContentColumnDesktop,
+                      (isDesktop || isTablet) && styles.processContentColumnDesktop,
                     ]}
                   >
                     <Text
                       style={[
                         styles.sectionTitle,
-                        isDesktop && styles.sectionTitleDesktop,
+                        (isDesktop || isTablet) && styles.sectionTitleDesktop,
                         styles.sectionTitleToContentGap,
-                        isDesktop && styles.sectionTitleToContentGapDesktop,
+                        (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
                       ]}
                     >
                       Langkah kecil sebelum tidur
@@ -464,12 +466,12 @@ export default function LandingScreen() {
             onLayout={(event) => {
               sectionOffsets.current.manfaat = event.nativeEvent.layout.y;
             }}
-            style={[styles.section, isDesktop && styles.sectionDesktop]}
+            style={[styles.section, (isDesktop || isTablet) && styles.sectionDesktop]}
           >
             <View
               style={[
                 styles.benefitsLayout,
-                isDesktop
+                isDesktop || isTablet
                   ? styles.benefitsLayoutDesktop
                   : styles.benefitsLayoutMobile,
               ]}
@@ -477,16 +479,16 @@ export default function LandingScreen() {
               <View
                 style={[
                   styles.benefitsTextColumn,
-                  isDesktop && styles.benefitsTextColumnDesktop,
+                  (isDesktop || isTablet) && styles.benefitsTextColumnDesktop,
                 ]}
               >
                 <Text
                   style={[
                     styles.sectionTitle,
-                    isDesktop && styles.sectionTitleDesktop,
+                    (isDesktop || isTablet) && styles.sectionTitleDesktop,
                     styles.benefitsTitle,
                     styles.sectionTitleToContentGap,
-                    isDesktop && styles.sectionTitleToContentGapDesktop,
+                    (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
                   ]}
                 >
                   Yang kamu rasakan
@@ -501,7 +503,7 @@ export default function LandingScreen() {
               <View
                 style={[
                   styles.benefitsImageCard,
-                  isDesktop && styles.benefitsImageCardDesktop,
+                  (isDesktop || isTablet) && styles.benefitsImageCardDesktop,
                 ]}
               >
                 <Image
@@ -518,12 +520,12 @@ export default function LandingScreen() {
             onLayout={(event) => {
               sectionOffsets.current.trust = event.nativeEvent.layout.y;
             }}
-            style={[styles.section, isDesktop && styles.sectionDesktop]}
+            style={[styles.section, (isDesktop || isTablet) && styles.sectionDesktop]}
           >
             <View
               style={[
                 styles.trustLayout,
-                isDesktop
+                isDesktop || isTablet
                   ? styles.trustLayoutDesktop
                   : styles.trustLayoutMobile,
               ]}
@@ -561,7 +563,7 @@ export default function LandingScreen() {
                   <View
                     style={[
                       styles.trustImageCard,
-                      isDesktop && styles.trustImageCardDesktop,
+                      (isDesktop || isTablet) && styles.trustImageCardDesktop,
                     ]}
                   >
                     <Image
@@ -574,16 +576,16 @@ export default function LandingScreen() {
                   <View
                     style={[
                       styles.trustTextColumn,
-                      isDesktop && styles.trustTextColumnDesktop,
+                      (isDesktop || isTablet) && styles.trustTextColumnDesktop,
                     ]}
                   >
                     <Text
                       style={[
                         styles.sectionTitle,
-                        isDesktop && styles.sectionTitleDesktop,
+                        (isDesktop || isTablet) && styles.sectionTitleDesktop,
                         styles.trustTitle,
                         styles.sectionTitleToContentGap,
-                        isDesktop && styles.sectionTitleToContentGapDesktop,
+                        (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
                       ]}
                     >
                       Dibuat dari Pengalaman Nyata
@@ -608,14 +610,14 @@ export default function LandingScreen() {
             }}
             style={[
               styles.section,
-              isDesktop && styles.sectionDesktop,
+              (isDesktop || isTablet) && styles.sectionDesktop,
               styles.closingCtaSection,
             ]}
           >
             <View
               style={[
                 styles.closingCtaLayout,
-                isDesktop
+                isDesktop || isTablet
                   ? styles.closingCtaLayoutDesktop
                   : styles.closingCtaLayoutMobile,
               ]}
@@ -623,15 +625,15 @@ export default function LandingScreen() {
               <View
                 style={[
                   styles.closingCtaTextColumn,
-                  isDesktop && styles.closingCtaTextColumnDesktop,
+                  (isDesktop || isTablet) && styles.closingCtaTextColumnDesktop,
                 ]}
               >
                 <Text
                   style={[
                     styles.sectionTitle,
-                    isDesktop && styles.sectionTitleDesktop,
+                    (isDesktop || isTablet) && styles.sectionTitleDesktop,
                     styles.sectionTitleToContentGap,
-                    isDesktop && styles.sectionTitleToContentGapDesktop,
+                    (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
                   ]}
                 >
                   Malam Ini, Kamu Bisa Memulainya
@@ -662,7 +664,7 @@ export default function LandingScreen() {
               <View
                 style={[
                   styles.closingCtaImageCard,
-                  isDesktop && styles.closingCtaImageCardDesktop,
+                  (isDesktop || isTablet) && styles.closingCtaImageCardDesktop,
                 ]}
               >
                 <Image
@@ -679,14 +681,14 @@ export default function LandingScreen() {
             onLayout={(event) => {
               sectionOffsets.current.faq = event.nativeEvent.layout.y;
             }}
-            style={[styles.section, isDesktop && styles.sectionDesktop]}
+            style={[styles.section, (isDesktop || isTablet) && styles.sectionDesktop]}
           >
             <Text
               style={[
                 styles.sectionTitle,
-                isDesktop && styles.sectionTitleDesktop,
+                (isDesktop || isTablet) && styles.sectionTitleDesktop,
                 styles.sectionTitleToContentGap,
-                isDesktop && styles.sectionTitleToContentGapDesktop,
+                (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
                 styles.faqSectionTitle,
               ]}
             >
@@ -1005,7 +1007,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   headerActionsTablet: {
-    flexWrap: "wrap",
+    flexDirection: "row",
+    alignItems: "center",
     justifyContent: "flex-end",
   },
   headerActionsMobile: {
@@ -1057,8 +1060,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   heroTextColumnTablet: {
-    maxWidth: 680,
-    alignSelf: "center",
+    flex: 1,
+    maxWidth: 360,
+    alignSelf: "stretch",
+    alignItems: "flex-start",
+    justifyContent: "center",
   },
   heroTextColumnDesktop: {
     flex: 1,
@@ -1077,8 +1083,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   heroTitleTablet: {
-    fontSize: 42,
-    lineHeight: 50,
+    fontSize: 40,
+    lineHeight: 48,
+    maxWidth: 360,
+    textAlign: "left",
   },
   heroTitleDesktop: {
     fontSize: 46,
@@ -1115,9 +1123,7 @@ const styles = StyleSheet.create({
     marginTop: HERO_GAP,
   },
   heroCtaRowTablet: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
+    alignItems: "flex-start",
   },
   heroCtaRowDesktop: {
     gap: spacing.sm,
@@ -1127,6 +1133,9 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 300,
     alignSelf: "center",
+  },
+  heroCtaButtonTablet: {
+    alignSelf: "flex-start",
   },
   heroImageCard: {
     width: "100%",
