@@ -780,7 +780,12 @@ export default function LandingScreen() {
                 </Pressable>
               </View>
 
-              <View style={styles.footerColumn}>
+              <View
+                style={[
+                  styles.footerColumn,
+                  !isDesktop && !isTablet && styles.footerInfoColumnMobile,
+                ]}
+              >
                 <Text style={styles.footerHeading}>Informasi</Text>
                 <Pressable
                   onPress={goToPrivacyPolicy}
@@ -814,7 +819,12 @@ export default function LandingScreen() {
             </View>
           </View>
 
-          <View style={styles.footerDivider} />
+          <View
+            style={[
+              styles.footerDivider,
+              !isDesktop && !isTablet && styles.footerDividerMobile,
+            ]}
+          />
 
           <View
             style={[styles.footerInner, !isDesktop && styles.footerInnerMobile]}
@@ -822,6 +832,7 @@ export default function LandingScreen() {
             <View
               style={[
                 styles.footerBottomRow,
+                !isDesktop && !isTablet && styles.footerBottomRowMobile,
                 isTablet && styles.footerBottomRowTablet,
                 isDesktop && styles.footerBottomRowDesktop,
               ]}
@@ -1431,11 +1442,17 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: spacing.xs,
   },
+  footerInfoColumnMobile: {
+    paddingBottom: spacing.lg,
+  },
   footerDivider: {
     width: "100%",
     height: 1,
     marginTop: spacing.sm,
     backgroundColor: "rgba(255,255,255,0.12)",
+  },
+  footerDividerMobile: {
+    marginTop: 0,
   },
   footerBottomRow: {
     flexDirection: "column",
@@ -1444,6 +1461,9 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     paddingTop: spacing.md,
     paddingBottom: 16,
+  },
+  footerBottomRowMobile: {
+    paddingTop: spacing.lg,
   },
   footerBottomRowTablet: {
     flexDirection: "row",
