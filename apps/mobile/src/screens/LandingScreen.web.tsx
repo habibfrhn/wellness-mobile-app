@@ -1414,7 +1414,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     gap: spacing.md,
     paddingTop: 30,
-    paddingBottom: 24,
+    paddingBottom: spacing.lg,
   },
   footerTopRowTablet: {
     flexDirection: "row",
@@ -1490,8 +1490,10 @@ const styles = StyleSheet.create({
   },
   footerContact: {
     fontSize: typography.body,
+    lineHeight: 24,
     color: colors.white,
     marginTop: spacing.xs,
+    marginBottom: spacing.sm,
   },
   modalOverlay: {
     ...StyleSheet.absoluteFillObject,
