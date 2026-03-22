@@ -19,6 +19,7 @@ import { getWebPageTopSpacing, getWebViewport } from "../constants/webLayout";
 import type { AuthStackParamList } from "../navigation/types";
 import useViewportWidth from "../hooks/useViewportWidth";
 import WebResponsiveFrame from "../components/WebResponsiveFrame";
+import LandingMobileAuthMenu from "../components/landing/LandingMobileAuthMenu";
 
 type RootStackParamList = {
   Landing: undefined;
@@ -62,6 +63,7 @@ const SECTION_TITLE_STYLE_DESKTOP = {
   lineHeight: 40,
 };
 const DESKTOP_TWO_COLUMN_GAP = 56;
+const MOBILE_SECTION_STACK_GAP = spacing.lg;
 const SECTION_GAP = 0;
 const TRACKED_SECTIONS: SectionKey[] = [
   "beranda",
@@ -249,27 +251,36 @@ export default function LandingScreen() {
                 !isDesktop && !isTablet && styles.headerActionsMobile,
               ]}
             >
-              {isDesktop ? (
-                <Pressable
-                  onPress={goToLogin}
-                  style={[styles.textButton, styles.headerTextButton]}
-                >
-                  <Text style={styles.textButtonLabel}>Masuk</Text>
-                </Pressable>
-              ) : null}
-              <Pressable
-                onPress={goToSignUp}
-                style={[
-                  styles.landingButtonBase,
-                  styles.landingButtonPrimary,
-                  isDesktop
-                    ? styles.landingButtonSizeDesktop
-                    : styles.landingButtonSizeMobile,
-                  isDesktop && styles.headerPrimaryButtonCompact,
-                ]}
-              >
-                <Text style={styles.landingButtonPrimaryText}>Buat akun</Text>
-              </Pressable>
+              {!isDesktop && !isTablet ? (
+                <LandingMobileAuthMenu
+                  onPressLogin={goToLogin}
+                  onPressSignUp={goToSignUp}
+                />
+              ) : (
+                <>
+                  {isDesktop ? (
+                    <Pressable
+                      onPress={goToLogin}
+                      style={[styles.textButton, styles.headerTextButton]}
+                    >
+                      <Text style={styles.textButtonLabel}>Masuk</Text>
+                    </Pressable>
+                  ) : null}
+                  <Pressable
+                    onPress={goToSignUp}
+                    style={[
+                      styles.landingButtonBase,
+                      styles.landingButtonPrimary,
+                      isDesktop
+                        ? styles.landingButtonSizeDesktop
+                        : styles.landingButtonSizeMobile,
+                      isDesktop && styles.headerPrimaryButtonCompact,
+                    ]}
+                  >
+                    <Text style={styles.landingButtonPrimaryText}>Buat akun</Text>
+                  </Pressable>
+                </>
+              )}
             </View>
           </View>
 
@@ -1038,6 +1049,7 @@ const styles = StyleSheet.create({
   },
   heroLayoutMobile: {
     flexDirection: "column",
+    gap: MOBILE_SECTION_STACK_GAP,
   },
   heroTextColumn: {
     flex: 1,
@@ -1144,6 +1156,7 @@ const styles = StyleSheet.create({
   },
   processLayoutMobile: {
     flexDirection: "column",
+    gap: MOBILE_SECTION_STACK_GAP,
   },
   processContentColumn: {
     width: "100%",
@@ -1170,6 +1183,7 @@ const styles = StyleSheet.create({
   },
   benefitsLayoutMobile: {
     flexDirection: "column",
+    gap: MOBILE_SECTION_STACK_GAP,
   },
   benefitsTextColumn: {
     width: "100%",
@@ -1261,6 +1275,7 @@ const styles = StyleSheet.create({
   },
   trustLayoutMobile: {
     flexDirection: "column",
+    gap: MOBILE_SECTION_STACK_GAP,
   },
   trustTextColumn: {
     width: "100%",
@@ -1299,6 +1314,7 @@ const styles = StyleSheet.create({
   },
   closingCtaLayoutMobile: {
     flexDirection: "column",
+    gap: MOBILE_SECTION_STACK_GAP,
   },
   closingCtaTextColumn: {
     width: "100%",
