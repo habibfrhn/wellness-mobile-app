@@ -16,7 +16,7 @@ import {
 
 import { colors, radius, spacing, typography } from "../theme/tokens";
 import { getWebPageTopSpacing, getWebViewport } from "../constants/webLayout";
-import type { AuthStackParamList } from "../navigation/types";
+import type { AppStackParamList, AuthStackParamList } from "../navigation/types";
 import useViewportWidth from "../hooks/useViewportWidth";
 import WebResponsiveFrame from "../components/WebResponsiveFrame";
 import LandingMobileAuthMenu from "../components/landing/LandingMobileAuthMenu";
@@ -24,7 +24,7 @@ import LandingMobileAuthMenu from "../components/landing/LandingMobileAuthMenu";
 type RootStackParamList = {
   Landing: undefined;
   Auth: NavigatorScreenParams<AuthStackParamList> | undefined;
-  App: undefined;
+  App: NavigatorScreenParams<AppStackParamList> | undefined;
 };
 
 type SectionKey =
@@ -105,6 +105,14 @@ export default function LandingScreen() {
 
   const goToSignUp = () => {
     navigation.navigate("Auth", { screen: "SignUp" });
+  };
+
+  const goToPrivacyPolicy = () => {
+    navigation.navigate("App", { screen: "PrivacyPolicy" });
+  };
+
+  const goToTermsConditions = () => {
+    navigation.navigate("App", { screen: "TermsConditions" });
   };
 
   const goToSection = (key: SectionKey) => {
@@ -739,9 +747,6 @@ export default function LandingScreen() {
                 <Text style={styles.footerDescription}>
                   Ruang tenang untuk menutup hari dengan sadar.
                 </Text>
-                <Text style={styles.footerCopyright}>
-                  © 2025 Lumepo. Semua hak dilindungi.
-                </Text>
               </View>
 
               <View style={styles.footerColumn}>
@@ -778,7 +783,7 @@ export default function LandingScreen() {
               <View style={styles.footerColumn}>
                 <Text style={styles.footerHeading}>Informasi</Text>
                 <Pressable
-                  onPress={() => {}}
+                  onPress={goToPrivacyPolicy}
                   style={({ hovered }: any) => [
                     styles.footerLinkPressable,
                     hovered && styles.footerLinkPressableHover,
@@ -787,7 +792,7 @@ export default function LandingScreen() {
                   <Text style={styles.footerLinkText}>Kebijakan Privasi</Text>
                 </Pressable>
                 <Pressable
-                  onPress={() => {}}
+                  onPress={goToTermsConditions}
                   style={({ hovered }: any) => [
                     styles.footerLinkPressable,
                     hovered && styles.footerLinkPressableHover,
@@ -1408,7 +1413,8 @@ const styles = StyleSheet.create({
   footerTopRow: {
     flexDirection: "column",
     gap: spacing.md,
-    paddingVertical: 30,
+    paddingTop: 30,
+    paddingBottom: 24,
   },
   footerTopRowTablet: {
     flexDirection: "row",
@@ -1428,6 +1434,7 @@ const styles = StyleSheet.create({
   footerDivider: {
     width: "100%",
     height: 1,
+    marginTop: spacing.sm,
     backgroundColor: "rgba(255,255,255,0.12)",
   },
   footerBottomRow: {
@@ -1435,7 +1442,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     justifyContent: "space-between",
     alignItems: "flex-start",
-    paddingVertical: 16,
+    paddingTop: spacing.md,
+    paddingBottom: 16,
   },
   footerBottomRowTablet: {
     flexDirection: "row",
