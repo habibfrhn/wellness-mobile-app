@@ -2,9 +2,19 @@ import React, { useLayoutEffect } from "react";
 import { ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-import { getWebPageHorizontalPadding, getWebPageTopSpacing, getWebViewport } from "../../constants/webLayout";
+import {
+  getWebPageHorizontalPadding,
+  getWebPageTopSpacing,
+  getWebViewport,
+} from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
-import { colors, lineHeights, radius, spacing, typography } from "../../theme/tokens";
+import {
+  colors,
+  lineHeights,
+  radius,
+  spacing,
+  typography,
+} from "../../theme/tokens";
 
 type Props = {
   title: string;
@@ -13,7 +23,12 @@ type Props = {
   showCloseButton?: boolean;
 };
 
-export default function AuthScreenLayout({ title, subtitle, children, showCloseButton = true }: Props) {
+export default function AuthScreenLayout({
+  title,
+  subtitle,
+  children,
+  showCloseButton = true,
+}: Props) {
   const navigation = useNavigation();
   const viewportWidth = useViewportWidth();
   const viewport = getWebViewport(viewportWidth);
@@ -23,7 +38,7 @@ export default function AuthScreenLayout({ title, subtitle, children, showCloseB
   useLayoutEffect(() => {
     navigation.setOptions({
       title: "",
-      headerShadowVisible: false,
+      headerShown: false,
       headerLeft: showCloseButton
         ? () => (
             <Pressable
@@ -35,7 +50,10 @@ export default function AuthScreenLayout({ title, subtitle, children, showCloseB
                 }
                 navigation.navigate("Welcome" as never);
               }}
-              style={({ pressed }) => [styles.closeButton, pressed && authSharedStyles.pressed]}
+              style={({ pressed }) => [
+                styles.closeButton,
+                pressed && authSharedStyles.pressed,
+              ]}
               accessibilityRole="button"
               accessibilityLabel="Tutup"
             >
@@ -53,18 +71,59 @@ export default function AuthScreenLayout({ title, subtitle, children, showCloseB
         styles.screenContent,
         isTabletWeb && styles.screenContentTablet,
         isMobileWeb && styles.screenContentMobile,
-        { paddingHorizontal: getWebPageHorizontalPadding(viewport), paddingTop: getWebPageTopSpacing(viewport) },
+        {
+          paddingHorizontal: getWebPageHorizontalPadding(viewport),
+          paddingTop: spacing.lg,
+        },
       ]}
       keyboardShouldPersistTaps="handled"
       contentInsetAdjustmentBehavior="automatic"
     >
-      <View style={[styles.panel, isTabletWeb && styles.panelTablet, isMobileWeb && styles.panelMobile]}>
-        <View style={styles.headerStack}>
-          <Text style={[styles.title, isTabletWeb && styles.titleTablet, isMobileWeb && styles.titleMobile]}>{title}</Text>
-          {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+      {showCloseButton ? (
+        <View style={styles.inlineHeader}>
+          <Pressable
+            onPress={() => {
+              const parent = navigation.getParent();
+              if (parent) {
+                parent.navigate("Landing" as never);
+                return;
+              }
+              navigation.navigate("Welcome" as never);
+            }}
+            style={({ pressed }) => [
+              styles.closeButton,
+              pressed && authSharedStyles.pressed,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel="Tutup"
+          >
+            <Text style={styles.closeText}>✕</Text>
+          </Pressable>
         </View>
+      ) : null}
+      <View style={styles.contentColumn}>
+        <View
+          style={[
+            styles.panel,
+            isTabletWeb && styles.panelTablet,
+            isMobileWeb && styles.panelMobile,
+          ]}
+        >
+          <View style={styles.headerStack}>
+            <Text
+              style={[
+                styles.title,
+                isTabletWeb && styles.titleTablet,
+                isMobileWeb && styles.titleMobile,
+              ]}
+            >
+              {title}
+            </Text>
+            {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+          </View>
 
-        {children}
+          {children}
+        </View>
       </View>
     </ScrollView>
   );
@@ -72,7 +131,7 @@ export default function AuthScreenLayout({ title, subtitle, children, showCloseB
 
 export const authSharedStyles = StyleSheet.create({
   formFields: {
-    marginTop: spacing.xl,
+    marginTop: spacing.lg,
     gap: spacing.sm,
   },
   label: {
@@ -141,36 +200,38 @@ export const authSharedStyles = StyleSheet.create({
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.white,
   },
   screenContent: {
     flexGrow: 1,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.md,
   },
   screenContentTablet: {
     paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.xl,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.md,
   },
   screenContentMobile: {
     justifyContent: "flex-start",
     paddingHorizontal: spacing.md,
     paddingTop: spacing.md,
-    paddingBottom: spacing.xl,
+    paddingBottom: spacing.lg,
   },
   panel: {
     width: "100%",
-    maxWidth: 580,
-    padding: 36,
+    maxWidth: 520,
+    padding: 28,
     borderRadius: radius.md,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.white,
     boxShadow: "0px 8px 28px rgba(33,50,94,0.12)",
   },
   panelTablet: {
-    maxWidth: 640,
-    padding: spacing.xl,
+    maxWidth: 560,
+    padding: spacing.lg,
   },
   panelMobile: {
     maxWidth: "100%",
@@ -179,10 +240,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
   },
   closeButton: {
-    width: 36,
-    height: 36,
-    marginLeft: spacing.sm,
-    marginTop: spacing.xs,
+    width: 24,
+    height: 24,
+    marginLeft: 0,
+    marginTop: 0,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -190,6 +251,17 @@ const styles = StyleSheet.create({
     fontSize: typography.title,
     color: colors.text,
     fontWeight: "700",
+  },
+  contentColumn: {
+    width: "100%",
+    maxWidth: 520,
+    alignSelf: "center",
+  },
+  inlineHeader: {
+    width: "100%",
+    alignSelf: "stretch",
+    marginBottom: spacing.sm,
+    alignItems: "flex-start",
   },
   headerStack: {
     alignItems: "flex-start",
@@ -202,10 +274,10 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
   titleTablet: {
-    fontSize: 28,
+    fontSize: typography.title,
   },
   titleMobile: {
-    fontSize: typography.h2,
+    fontSize: typography.title,
   },
   subtitle: {
     fontSize: typography.small,

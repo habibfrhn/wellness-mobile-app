@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
-import { colors, controlSizes, radius, spacing, typography } from "../../theme/tokens";
+import {
+  colors,
+  controlSizes,
+  radius,
+  spacing,
+  typography,
+} from "../../theme/tokens";
 
 type TimerOption = {
   label: string;
@@ -14,6 +20,7 @@ type SoundscapeTimerSectionProps = {
   timerRemaining: number | null;
   isSessionActive: boolean;
   onSelectTimer: (seconds: number) => void;
+  compact?: boolean;
 };
 
 function formatTime(sec: number) {
@@ -29,46 +36,84 @@ export default function SoundscapeTimerSection({
   timerRemaining,
   isSessionActive,
   onSelectTimer,
+  compact = false,
 }: SoundscapeTimerSectionProps) {
   const [showTimerInfo, setShowTimerInfo] = useState(false);
 
   return (
-    <View style={styles.soundscapeOptions}>
+    <View
+      style={[
+        styles.soundscapeOptions,
+        compact && styles.soundscapeOptionsCompact,
+      ]}
+    >
       <View style={styles.optionBlock}>
         <View style={styles.optionHeader}>
-          <Text style={styles.optionTitle}>Timer</Text>
+          <Text
+            style={[styles.optionTitle, compact && styles.optionTitleCompact]}
+          >
+            Timer
+          </Text>
           <View style={styles.infoWrap}>
             <Pressable
               onPressIn={() => setShowTimerInfo(true)}
               onPressOut={() => setShowTimerInfo(false)}
-              style={styles.infoIcon}
+              style={[styles.infoIcon, compact && styles.infoIconCompact]}
               hitSlop={6}
             >
               <Text style={styles.infoIconText}>?</Text>
             </Pressable>
             {showTimerInfo ? (
-              <View style={styles.infoBubbleOverlay}>
-                <Text style={styles.infoText}>Audio akan dihentikan sesuai durasi timer.</Text>
+              <View
+                style={[
+                  styles.infoBubbleOverlay,
+                  compact && styles.infoBubbleOverlayCompact,
+                ]}
+              >
+                <Text style={styles.infoText}>
+                  Audio akan dihentikan sesuai durasi timer.
+                </Text>
               </View>
             ) : null}
           </View>
         </View>
 
         {isSessionActive ? (
-          <Text style={styles.timerStatusText}>{formatTime(timerRemaining ?? timerSeconds ?? 0)}</Text>
+          <Text
+            style={[
+              styles.timerStatusText,
+              compact && styles.timerStatusTextCompact,
+            ]}
+          >
+            {formatTime(timerRemaining ?? timerSeconds ?? 0)}
+          </Text>
         ) : (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.timerRow}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={[
+              styles.timerRow,
+              compact && styles.timerRowCompact,
+            ]}
+          >
             {timerOptions.map((option) => (
               <Pressable
                 key={option.seconds}
                 style={({ pressed }) => [
                   styles.timerPill,
+                  compact && styles.timerPillCompact,
                   timerSeconds === option.seconds && styles.timerPillActive,
                   pressed && styles.pressed,
                 ]}
                 onPress={() => onSelectTimer(option.seconds)}
               >
-                <Text style={[styles.timerText, timerSeconds === option.seconds && styles.timerTextActive]}>
+                <Text
+                  style={[
+                    styles.timerText,
+                    compact && styles.timerTextCompact,
+                    timerSeconds === option.seconds && styles.timerTextActive,
+                  ]}
+                >
                   {option.label}
                 </Text>
               </Pressable>
@@ -86,6 +131,11 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     gap: spacing.md,
   },
+  soundscapeOptionsCompact: {
+    marginTop: spacing.xs,
+    marginBottom: spacing.xs,
+    gap: spacing.xs,
+  },
   optionBlock: {
     gap: spacing.xs,
   },
@@ -100,6 +150,9 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontWeight: "600",
   },
+  optionTitleCompact: {
+    fontSize: typography.caption,
+  },
   infoWrap: {
     position: "relative",
   },
@@ -110,6 +163,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     alignItems: "center",
     justifyContent: "center",
+  },
+  infoIconCompact: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
   },
   infoIconText: {
     fontSize: typography.caption,
@@ -127,6 +185,9 @@ const styles = StyleSheet.create({
     zIndex: 10,
     minWidth: 180,
   },
+  infoBubbleOverlayCompact: {
+    minWidth: 160,
+  },
   infoText: {
     fontSize: typography.micro,
     color: colors.mutedText,
@@ -136,11 +197,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.xs,
   },
+  timerRowCompact: {
+    gap: spacing.xs / 2,
+  },
   timerPill: {
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs / 2,
     borderRadius: radius.full,
     backgroundColor: colors.card,
+  },
+  timerPillCompact: {
+    paddingHorizontal: spacing.xs + 2,
+    paddingVertical: spacing.xs / 2,
   },
   timerPillActive: {
     backgroundColor: colors.primary,
@@ -151,6 +219,9 @@ const styles = StyleSheet.create({
     color: colors.text,
     textAlign: "center",
   },
+  timerTextCompact: {
+    fontSize: typography.micro,
+  },
   timerTextActive: {
     color: colors.primaryText,
   },
@@ -158,6 +229,9 @@ const styles = StyleSheet.create({
     fontSize: typography.caption,
     fontWeight: "600",
     color: colors.mutedText,
+  },
+  timerStatusTextCompact: {
+    fontSize: typography.caption,
   },
   pressed: { opacity: 0.85 },
 });

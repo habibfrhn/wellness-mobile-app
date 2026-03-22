@@ -12,9 +12,19 @@ import {
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AuthStackParamList } from "../../navigation/types";
-import { getWebPageHorizontalPadding, getWebPageTopSpacing, getWebViewport } from "../../constants/webLayout";
+import {
+  getWebPageHorizontalPadding,
+  getWebPageTopSpacing,
+  getWebViewport,
+} from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
-import { colors, spacing, radius, typography, lineHeights } from "../../theme/tokens";
+import {
+  colors,
+  spacing,
+  radius,
+  typography,
+  lineHeights,
+} from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import GoogleAuthButton from "../../components/auth/GoogleAuthButton";
 import { clearPendingProfileName } from "../../services/pendingProfileName";
@@ -50,7 +60,7 @@ export default function LoginScreen({ navigation, route }: Props) {
   useLayoutEffect(() => {
     navigation.setOptions({
       title: "",
-      headerShadowVisible: false,
+      headerShown: false,
       headerLeft: () => (
         <Pressable
           onPress={() => {
@@ -61,7 +71,10 @@ export default function LoginScreen({ navigation, route }: Props) {
             }
             navigation.navigate("Welcome");
           }}
-          style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]}
+          style={({ pressed }) => [
+            styles.closeButton,
+            pressed && styles.pressed,
+          ]}
           accessibilityRole="button"
           accessibilityLabel={id.login.closeLabel}
         >
@@ -135,7 +148,10 @@ export default function LoginScreen({ navigation, route }: Props) {
       await clearPendingProfileName();
       await continueWithGoogle({ nextRoute: "Login" });
     } catch (error) {
-      Alert.alert(id.common.errorTitle, error instanceof Error ? error.message : id.common.tryAgain);
+      Alert.alert(
+        id.common.errorTitle,
+        error instanceof Error ? error.message : id.common.tryAgain,
+      );
       setBusyGoogle(false);
     }
   }
@@ -143,98 +159,178 @@ export default function LoginScreen({ navigation, route }: Props) {
   return (
     <ScrollView
       style={styles.screen}
-      contentContainerStyle={[styles.screenContent, isTabletWeb && styles.screenContentTablet, isMobileWeb && styles.screenContentMobile, { paddingHorizontal: getWebPageHorizontalPadding(viewport), paddingTop: getWebPageTopSpacing(viewport) }]}
+      contentContainerStyle={[
+        styles.screenContent,
+        isTabletWeb && styles.screenContentTablet,
+        isMobileWeb && styles.screenContentMobile,
+        {
+          paddingHorizontal: getWebPageHorizontalPadding(viewport),
+          paddingTop: spacing.lg,
+        },
+      ]}
       keyboardShouldPersistTaps="handled"
       contentInsetAdjustmentBehavior="automatic"
     >
-      <View style={[styles.panel, isTabletWeb && styles.panelTablet, isMobileWeb && styles.panelMobile]}>
-        <View style={styles.headerStack}>
-          <Text style={[styles.title, isTabletWeb && styles.titleTablet, isMobileWeb && styles.titleMobile]}>{id.login.welcomeTitle}</Text>
-          <Text style={styles.subtitle}>{id.login.formSubtitle}</Text>
-        </View>
-
-        <View style={styles.formFields}>
-          <View>
-            <Text style={styles.label}>{id.login.emailLabel}</Text>
-            <TextInput
-              value={email}
-              onChangeText={(value) => {
-                setEmail(value);
-                if (errors.email) {
-                  setErrors((prev) => ({ ...prev, email: undefined }));
-                }
-              }}
-              autoCapitalize="none"
-              autoCorrect={false}
-              keyboardType="email-address"
-              placeholder={id.login.emailPlaceholder}
-              placeholderTextColor={colors.mutedText}
-              style={[styles.input, errors.email && styles.inputError]}
-              returnKeyType="next"
-            />
-            {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
+      <View style={styles.inlineHeader}>
+        <Pressable
+          onPress={() => {
+            const parent = navigation.getParent();
+            if (parent) {
+              parent.navigate("Landing" as never);
+              return;
+            }
+            navigation.navigate("Welcome");
+          }}
+          style={({ pressed }) => [
+            styles.closeButton,
+            pressed && styles.pressed,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel={id.login.closeLabel}
+        >
+          <Text style={styles.closeText}>✕</Text>
+        </Pressable>
+      </View>
+      <View style={styles.contentColumn}>
+        <View
+          style={[
+            styles.panel,
+            isTabletWeb && styles.panelTablet,
+            isMobileWeb && styles.panelMobile,
+          ]}
+        >
+          <View style={styles.headerStack}>
+            <Text
+              style={[
+                styles.title,
+                isTabletWeb && styles.titleTablet,
+                isMobileWeb && styles.titleMobile,
+              ]}
+            >
+              {id.login.welcomeTitle}
+            </Text>
+            <Text style={styles.subtitle}>{id.login.formSubtitle}</Text>
           </View>
 
-          <View>
-            <Text style={styles.label}>{id.login.passwordLabel}</Text>
-            <View style={styles.inputWrap}>
+          <View style={styles.formFields}>
+            <View>
+              <Text style={styles.label}>{id.login.emailLabel}</Text>
               <TextInput
-                value={password}
+                value={email}
                 onChangeText={(value) => {
-                  setPassword(value);
-                  if (errors.password) {
-                    setErrors((prev) => ({ ...prev, password: undefined }));
+                  setEmail(value);
+                  if (errors.email) {
+                    setErrors((prev) => ({ ...prev, email: undefined }));
                   }
                 }}
                 autoCapitalize="none"
                 autoCorrect={false}
-                secureTextEntry={!showPassword}
-                placeholder={id.login.passwordPlaceholder}
+                keyboardType="email-address"
+                placeholder={id.login.emailPlaceholder}
                 placeholderTextColor={colors.mutedText}
-                style={[styles.input, styles.passwordInput, errors.password && styles.inputError]}
-                onSubmitEditing={onSubmit}
-                returnKeyType="go"
+                style={[styles.input, errors.email && styles.inputError]}
+                returnKeyType="next"
               />
-              <PasswordToggle
-                visible={showPassword}
-                onPress={() => setShowPassword((v) => !v)}
-                accessibilityLabel={showPassword ? id.common.hidePassword : id.common.showPassword}
-                style={styles.toggle}
-              />
+              {errors.email ? (
+                <Text style={styles.errorText}>{errors.email}</Text>
+              ) : null}
             </View>
-            {errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null}
+
+            <View>
+              <Text style={styles.label}>{id.login.passwordLabel}</Text>
+              <View style={styles.inputWrap}>
+                <TextInput
+                  value={password}
+                  onChangeText={(value) => {
+                    setPassword(value);
+                    if (errors.password) {
+                      setErrors((prev) => ({ ...prev, password: undefined }));
+                    }
+                  }}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  secureTextEntry={!showPassword}
+                  placeholder={id.login.passwordPlaceholder}
+                  placeholderTextColor={colors.mutedText}
+                  style={[
+                    styles.input,
+                    styles.passwordInput,
+                    errors.password && styles.inputError,
+                  ]}
+                  onSubmitEditing={onSubmit}
+                  returnKeyType="go"
+                />
+                <PasswordToggle
+                  visible={showPassword}
+                  onPress={() => setShowPassword((v) => !v)}
+                  accessibilityLabel={
+                    showPassword
+                      ? id.common.hidePassword
+                      : id.common.showPassword
+                  }
+                  style={styles.toggle}
+                />
+              </View>
+              {errors.password ? (
+                <Text style={styles.errorText}>{errors.password}</Text>
+              ) : null}
+            </View>
           </View>
-        </View>
 
-        <View style={styles.metaRow}>
-          <Pressable onPress={() => setRememberMe((v) => !v)} style={styles.rememberWrap}>
-            <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
-              {rememberMe ? <View style={styles.checkboxInner} /> : null}
-            </View>
-            <Text style={styles.metaText}>Ingat saya</Text>
-          </Pressable>
+          <View style={styles.metaRow}>
+            <Pressable
+              onPress={() => setRememberMe((v) => !v)}
+              style={styles.rememberWrap}
+            >
+              <View
+                style={[styles.checkbox, rememberMe && styles.checkboxChecked]}
+              >
+                {rememberMe ? <View style={styles.checkboxInner} /> : null}
+              </View>
+              <Text style={styles.metaText}>Ingat saya</Text>
+            </Pressable>
 
-          <Pressable onPress={() => navigation.navigate("ForgotPassword", { initialEmail: email.trim() })}>
-            <Text style={styles.metaLink}>Lupa password?</Text>
-          </Pressable>
-        </View>
+            <Pressable
+              onPress={() =>
+                navigation.navigate("ForgotPassword", {
+                  initialEmail: email.trim(),
+                })
+              }
+            >
+              <Text style={styles.metaLink}>Lupa password?</Text>
+            </Pressable>
+          </View>
 
-        <View style={styles.actionsStack}>
-          <Pressable
-            onPress={onSubmit}
-            disabled={busy || busyGoogle}
-            style={({ pressed }) => [styles.primaryButton, (busy || busyGoogle) && styles.disabled, pressed && !busy && !busyGoogle && styles.pressed]}
-          >
-            {busy ? (
-              <ActivityIndicator color={colors.primaryText} />
-            ) : (
-              <Text style={styles.primaryButtonText}>{id.login.primaryCta}</Text>
-            )}
-          </Pressable>
+          <View style={styles.actionsStack}>
+            <Pressable
+              onPress={onSubmit}
+              disabled={busy || busyGoogle}
+              style={({ pressed }) => [
+                styles.primaryButton,
+                (busy || busyGoogle) && styles.disabled,
+                pressed && !busy && !busyGoogle && styles.pressed,
+              ]}
+            >
+              {busy ? (
+                <ActivityIndicator color={colors.primaryText} />
+              ) : (
+                <Text style={styles.primaryButtonText}>
+                  {id.login.primaryCta}
+                </Text>
+              )}
+            </Pressable>
 
-          <GoogleAuthButton busy={busyGoogle} onPress={() => void onContinueWithGoogle()} />
+            <GoogleAuthButton
+              busy={busyGoogle}
+              onPress={() => void onContinueWithGoogle()}
+            />
 
-          <LoginSignUpPrompt onPressSignUp={() => navigation.replace("SignUp", { initialEmail: email.trim() })} />
+            <LoginSignUpPrompt
+              onPressSignUp={() =>
+                navigation.replace("SignUp", { initialEmail: email.trim() })
+              }
+            />
+          </View>
         </View>
       </View>
     </ScrollView>
@@ -244,36 +340,38 @@ export default function LoginScreen({ navigation, route }: Props) {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.white,
   },
   screenContent: {
     flexGrow: 1,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.md,
   },
   screenContentTablet: {
     paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.xl,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.md,
   },
   screenContentMobile: {
     justifyContent: "flex-start",
     paddingHorizontal: spacing.md,
     paddingTop: spacing.md,
-    paddingBottom: spacing.xl,
+    paddingBottom: spacing.lg,
   },
   panel: {
     width: "100%",
-    maxWidth: 580,
-    padding: 36,
+    maxWidth: 520,
+    padding: 28,
     borderRadius: radius.md,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.white,
     boxShadow: "0px 8px 28px rgba(33,50,94,0.12)",
   },
   panelTablet: {
-    maxWidth: 640,
-    padding: spacing.xl,
+    maxWidth: 560,
+    padding: spacing.lg,
   },
   panelMobile: {
     maxWidth: "100%",
@@ -282,10 +380,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
   },
   closeButton: {
-    width: 36,
-    height: 36,
-    marginLeft: spacing.sm,
-    marginTop: spacing.xs,
+    width: 24,
+    height: 24,
+    marginLeft: 0,
+    marginTop: 0,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -294,21 +392,32 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontWeight: "700",
   },
+  contentColumn: {
+    width: "100%",
+    maxWidth: 520,
+    alignSelf: "center",
+  },
+  inlineHeader: {
+    width: "100%",
+    alignSelf: "stretch",
+    marginBottom: spacing.sm,
+    alignItems: "flex-start",
+  },
   headerStack: {
     alignItems: "flex-start",
     gap: spacing.xs,
   },
   title: {
-    fontSize: typography.h1,
+    fontSize: typography.title,
     color: colors.primary,
     fontWeight: "700",
     textAlign: "left",
   },
   titleTablet: {
-    fontSize: 28,
+    fontSize: typography.title,
   },
   titleMobile: {
-    fontSize: typography.h2,
+    fontSize: typography.title,
   },
   subtitle: {
     fontSize: typography.small,
@@ -317,7 +426,7 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
   formFields: {
-    marginTop: spacing.xl,
+    marginTop: spacing.lg,
     gap: spacing.sm,
   },
   label: {
@@ -379,7 +488,7 @@ const styles = StyleSheet.create({
     borderColor: colors.mutedText,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: colors.bg,
+    backgroundColor: colors.white,
   },
   checkboxChecked: {
     borderColor: colors.primary,

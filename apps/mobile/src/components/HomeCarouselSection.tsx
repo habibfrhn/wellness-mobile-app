@@ -1,9 +1,24 @@
 import React, { useMemo, useState } from "react";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View, type LayoutChangeEvent } from "react-native";
+import {
+  Image,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  type LayoutChangeEvent,
+} from "react-native";
 
 import type { AudioTrack } from "../content/audioCatalog";
 import useViewportWidth from "../hooks/useViewportWidth";
-import { colors, radius, spacing, typography, lineHeights } from "../theme/tokens";
+import {
+  colors,
+  radius,
+  spacing,
+  typography,
+  lineHeights,
+} from "../theme/tokens";
 import SectionTitle from "./SectionTitle";
 
 type HomeCarouselSectionProps = {
@@ -15,19 +30,33 @@ type HomeCarouselSectionProps = {
 const WEB_BREAKPOINT = 640;
 const MOBILE_VISIBLE_CARDS = 1.5;
 
-export default function HomeCarouselSection({ title, tracks, onPress }: HomeCarouselSectionProps) {
+export default function HomeCarouselSection({
+  title,
+  tracks,
+  onPress,
+}: HomeCarouselSectionProps) {
   const viewportWidth = useViewportWidth();
   const [containerWidth, setContainerWidth] = useState<number | null>(null);
   const isDesktopLike = viewportWidth > WEB_BREAKPOINT;
 
-  const effectiveWidth = containerWidth ?? Math.max(320, viewportWidth - spacing.sm * 2);
+  const effectiveWidth =
+    containerWidth ?? Math.max(320, viewportWidth - spacing.sm * 2);
 
   const cardWidth = useMemo(() => {
     if (isDesktopLike) {
-      return Math.max(160, Math.min(280, Math.floor((effectiveWidth - spacing.sm * 2) / 3.35)));
+      return Math.max(
+        160,
+        Math.min(280, Math.floor((effectiveWidth - spacing.sm * 2) / 3.35)),
+      );
     }
 
-    return Math.max(180, Math.min(240, Math.floor((effectiveWidth - spacing.sm) / MOBILE_VISIBLE_CARDS)));
+    return Math.max(
+      180,
+      Math.min(
+        240,
+        Math.floor((effectiveWidth - spacing.sm) / MOBILE_VISIBLE_CARDS),
+      ),
+    );
   }, [effectiveWidth, isDesktopLike]);
 
   const onContainerLayout = (event: LayoutChangeEvent) => {
@@ -47,10 +76,19 @@ export default function HomeCarouselSection({ title, tracks, onPress }: HomeCaro
             <Pressable
               key={track.id}
               onPress={() => onPress(track)}
-              style={({ pressed }) => [styles.card, styles.cardShadow, { width: cardWidth }, pressed && styles.pressed]}
+              style={({ pressed }) => [
+                styles.card,
+                styles.cardShadow,
+                { width: cardWidth },
+                pressed && styles.pressed,
+              ]}
               hitSlop={6}
             >
-              <Image source={track.thumbnail} style={styles.thumbnail} resizeMode="cover" />
+              <Image
+                source={track.thumbnail}
+                style={styles.thumbnail}
+                resizeMode="cover"
+              />
               <View style={styles.cardBody}>
                 <Text style={styles.cardTitle} numberOfLines={1}>
                   {track.title}
@@ -66,6 +104,17 @@ export default function HomeCarouselSection({ title, tracks, onPress }: HomeCaro
     </View>
   );
 }
+
+const cardShadowStyle =
+  Platform.OS === "web"
+    ? { boxShadow: `0px 4px 12px ${colors.text}14` }
+    : {
+        shadowColor: colors.text,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 10,
+        elevation: 2,
+      };
 
 const styles = StyleSheet.create({
   container: {
@@ -84,13 +133,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     overflow: "hidden",
   },
-  cardShadow: {
-    shadowColor: colors.text,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    elevation: 2,
-  },
+  cardShadow: cardShadowStyle,
   thumbnail: {
     width: "100%",
     aspectRatio: 1,

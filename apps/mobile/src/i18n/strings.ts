@@ -57,6 +57,8 @@ export const id = {
     heroTitle: "Effortless Sleep Ritual for Busy Minds",
     heroSubtitle: "Pendek, terstruktur, dan menenangkan—membantu kamu wind-down dari hari yang melelahkan tanpa distraksi.",
     secondaryHeroCta: "Coba Demo",
+    mobileMenuLabel: "Buka menu navigasi",
+    mobileMenuHint: "Pilih untuk masuk atau membuat akun",
   },
 
   signup: {

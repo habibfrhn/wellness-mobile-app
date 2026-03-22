@@ -6,8 +6,11 @@ type TailoredSessionControlsProps = {
   isPlaying: boolean;
   onRestart: () => void;
   onTogglePlay: () => void;
+  compact?: boolean;
 };
 
-export default function TailoredSessionControls(props: TailoredSessionControlsProps) {
+export default function TailoredSessionControls(
+  props: TailoredSessionControlsProps,
+) {
   return <NormalAudioControls {...props} />;
 }

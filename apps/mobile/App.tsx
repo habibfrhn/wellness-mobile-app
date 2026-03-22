@@ -380,6 +380,19 @@ export default function App() {
     })();
   }, [ready]);
 
+  useEffect(() => {
+    if (Platform.OS !== "web" || webAuthStatus !== "missing") {
+      return;
+    }
+
+    replaceWebUrl("/");
+    setWebAuthStatus("idle");
+    setForceReset(false);
+    setWebResetFlowActive(false);
+    setAuthStartRoute("Welcome");
+    void clearNextAuthRoute();
+  }, [webAuthStatus]);
+
   if (!ready || (!session && !authStartResolved)) {
     return (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
@@ -408,12 +421,9 @@ export default function App() {
 
     if (webAuthStatus === "missing") {
       return (
-        <WebAuthStatusScreen
-          title={id.auth.callbackMissingTitle}
-          body={id.auth.callbackMissingBody}
-          actionLabel={id.auth.callbackAction}
-          onAction={onReturnToLogin}
-        />
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+          <ActivityIndicator />
+        </View>
       );
     }
 

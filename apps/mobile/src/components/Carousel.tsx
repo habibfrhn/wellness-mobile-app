@@ -1,6 +1,19 @@
 import React from "react";
-import { View, Text, StyleSheet, Pressable, Image } from "react-native";
-import { colors, spacing, radius, typography, lineHeights } from "../theme/tokens";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Image,
+  Platform,
+} from "react-native";
+import {
+  colors,
+  spacing,
+  radius,
+  typography,
+  lineHeights,
+} from "../theme/tokens";
 import type { AudioTrack } from "../content/audioCatalog";
 import SectionTitle from "./SectionTitle";
 
@@ -18,7 +31,12 @@ type CarouselProps = {
   columns?: 1 | 2;
 };
 
-export default function Carousel({ title, tracks, onPress, columns = 1 }: CarouselProps) {
+export default function Carousel({
+  title,
+  tracks,
+  onPress,
+  columns = 1,
+}: CarouselProps) {
   return (
     <View style={styles.container}>
       <SectionTitle title={title} />
@@ -27,10 +45,20 @@ export default function Carousel({ title, tracks, onPress, columns = 1 }: Carous
           const isSoundscape = item.contentType === "soundscape";
 
           return (
-            <View key={item.id} style={[styles.item, columns === 2 ? styles.itemTwoColumns : styles.itemSingleColumn]}>
+            <View
+              key={item.id}
+              style={[
+                styles.item,
+                columns === 2 ? styles.itemTwoColumns : styles.itemSingleColumn,
+              ]}
+            >
               <Pressable
                 onPress={() => onPress(item)}
-                style={({ pressed }) => [styles.card, styles.cardShadow, pressed && styles.pressed]}
+                style={({ pressed }) => [
+                  styles.card,
+                  styles.cardShadow,
+                  pressed && styles.pressed,
+                ]}
                 hitSlop={6}
               >
                 <View style={styles.cardContent}>
@@ -38,7 +66,12 @@ export default function Carousel({ title, tracks, onPress, columns = 1 }: Carous
                     source={item.thumbnail}
                     style={[
                       styles.thumbnail,
-                      { height: columns === 2 ? spacing.xl + spacing.md : spacing.xl * 2 },
+                      {
+                        height:
+                          columns === 2
+                            ? spacing.xl + spacing.md
+                            : spacing.xl * 2,
+                      },
                     ]}
                     resizeMode="cover"
                   />
@@ -49,7 +82,11 @@ export default function Carousel({ title, tracks, onPress, columns = 1 }: Carous
                     <Text style={styles.cardMeta} numberOfLines={1}>
                       {item.creator}
                     </Text>
-                    {isSoundscape ? null : <Text style={styles.cardDuration}>{formatTime(item.durationSec)}</Text>}
+                    {isSoundscape ? null : (
+                      <Text style={styles.cardDuration}>
+                        {formatTime(item.durationSec)}
+                      </Text>
+                    )}
                   </View>
                 </View>
               </Pressable>
@@ -60,6 +97,17 @@ export default function Carousel({ title, tracks, onPress, columns = 1 }: Carous
     </View>
   );
 }
+
+const cardShadowStyle =
+  Platform.OS === "web"
+    ? { boxShadow: `0px 4px 12px ${colors.text}14` }
+    : {
+        shadowColor: colors.text,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 10,
+        elevation: 2,
+      };
 
 const styles = StyleSheet.create({
   container: {
@@ -87,13 +135,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     overflow: "hidden",
   },
-  cardShadow: {
-    shadowColor: colors.text,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    elevation: 2,
-  },
+  cardShadow: cardShadowStyle,
   cardContent: {
     gap: 0,
     alignItems: "flex-start",
