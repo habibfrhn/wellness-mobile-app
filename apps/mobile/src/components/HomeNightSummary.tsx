@@ -2,15 +2,20 @@ import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { id } from "../i18n/strings";
+import type { NightStreakHeroState } from "../services/nightStreak";
 import { colors, radius, spacing, typography } from "../theme/tokens";
+import HomeStreakHero from "./HomeStreakHero";
 
 type Props = {
   onPressPrimary: () => void;
+  streakState: NightStreakHeroState;
 };
 
-export default function HomeNightSummary({ onPressPrimary }: Props) {
+export default function HomeNightSummary({ onPressPrimary, streakState }: Props) {
   return (
     <View style={styles.container}>
+      <HomeStreakHero state={streakState} />
+
       <Text style={styles.title}>{id.home.primaryCardTitle}</Text>
       <Text style={styles.body}>{id.home.primaryCardBody}</Text>
 
@@ -27,6 +32,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   title: {
+    marginTop: spacing.xs,
     color: colors.text,
     fontSize: typography.body,
     fontWeight: "700",

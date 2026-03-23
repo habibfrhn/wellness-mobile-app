@@ -1,93 +1,149 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const KEY_LAST_COMPLETION_DATE_KEY = "night:last_completion_date_key";
-const KEY_STREAK_COUNT = "night:streak_count";
+import { supabase } from "./supabase";
 
-export type NightStreakState = {
-  lastCompletionDateKey: string | null;
-  streakCount: number;
+const CACHE_KEY = "night:streak_progress_cache";
+
+export type NightStreakProgress = {
+  userId: string;
+  currentStreak: number;
+  longestStreak: number;
+  lastCompletedDate: string | null;
+  totalCompletedSessions: number;
+  createdAt: string;
+  updatedAt: string;
 };
 
-/**
- * Convert a timestamp into a local `date_key` used by the night ritual streak logic.
- *
- * Product rule:
- * - 18:00–23:59 belongs to that same "night" date.
- * - 00:00–02:59 belongs to the previous "night" date.
- *
- * Outside that window we still return a deterministic local date key so callers
- * can safely use the function at any time.
- */
+type NightStreakProgressRow = {
+  user_id: string;
+  current_streak: number;
+  longest_streak: number;
+  last_completed_date: string | null;
+  total_completed_sessions: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type NightStreakHeroState =
+  | { kind: "no_streak" }
+  | { kind: "active"; count: number }
+  | { kind: "broken" };
+
 export function getNightDateKey(at: Date = new Date()): string {
-  const local = new Date(at);
-  const hour = local.getHours();
-
-  if (hour < 3) {
-    local.setDate(local.getDate() - 1);
-  }
-
-  return formatDateKey(local);
+  return formatDateKey(at);
 }
 
-export async function getNightStreakState(): Promise<NightStreakState> {
-  try {
-    const [lastCompletionDateKey, streakCountRaw] = await Promise.all([
-      AsyncStorage.getItem(KEY_LAST_COMPLETION_DATE_KEY),
-      AsyncStorage.getItem(KEY_STREAK_COUNT),
-    ]);
-
-    const streakCountParsed = Number.parseInt(streakCountRaw ?? "0", 10);
-    const streakCount = Number.isFinite(streakCountParsed) && streakCountParsed > 0 ? streakCountParsed : 0;
-
-    return {
-      lastCompletionDateKey,
-      streakCount,
-    };
-  } catch {
-    return {
-      lastCompletionDateKey: null,
-      streakCount: 0,
-    };
+export function deriveNightStreakHeroState(
+  progress: NightStreakProgress | null,
+  at: Date = new Date(),
+): NightStreakHeroState {
+  if (!progress || progress.totalCompletedSessions <= 0 || !progress.lastCompletedDate) {
+    return { kind: "no_streak" };
   }
+
+  const dayGap = getDateKeyGap(progress.lastCompletedDate, getNightDateKey(at));
+
+  if (dayGap === null) {
+    return { kind: "no_streak" };
+  }
+
+  if (dayGap <= 1 && progress.currentStreak > 0) {
+    return { kind: "active", count: progress.currentStreak };
+  }
+
+  return { kind: "broken" };
 }
 
-/**
- * Record a completed night session and return the updated streak state.
- *
- * Rules:
- * - same date_key: keep streak unchanged (prevents double counting in one night)
- * - consecutive date_key: increment streak
- * - otherwise: reset streak to 1
- */
-export async function registerNightCompletion(at: Date = new Date()): Promise<NightStreakState> {
+export async function getNightStreakState(forceRefresh = false): Promise<NightStreakProgress | null> {
+  if (!forceRefresh) {
+    const cached = await readCachedNightStreak();
+    if (cached) {
+      return cached;
+    }
+  }
+
+  const { data: authData, error: authError } = await supabase.auth.getUser();
+  if (authError || !authData.user?.id) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("night_streak_progress")
+    .select("user_id,current_streak,longest_streak,last_completed_date,total_completed_sessions,created_at,updated_at")
+    .eq("user_id", authData.user.id)
+    .maybeSingle<NightStreakProgressRow>();
+
+  if (error) {
+    return null;
+  }
+
+  const mapped = data ? mapRowToProgress(data) : null;
+  await writeCachedNightStreak(mapped);
+  return mapped;
+}
+
+export async function registerNightCompletion(at: Date = new Date()): Promise<NightStreakProgress | null> {
+  const { data: authData, error: authError } = await supabase.auth.getUser();
+  if (authError || !authData.user?.id) {
+    return null;
+  }
+
   const completionDateKey = getNightDateKey(at);
 
-  const previous = await getNightStreakState();
+  const { data, error } = await supabase.rpc("record_night_streak_completion", {
+    p_completion_date: completionDateKey,
+  });
 
-  let nextStreak = 1;
-
-  if (previous.lastCompletionDateKey === completionDateKey) {
-    nextStreak = Math.max(previous.streakCount, 1);
-  } else if (
-    previous.lastCompletionDateKey &&
-    isConsecutiveDateKey(previous.lastCompletionDateKey, completionDateKey)
-  ) {
-    nextStreak = Math.max(previous.streakCount, 0) + 1;
+  if (error || !data) {
+    return null;
   }
 
-  try {
-    await Promise.all([
-      AsyncStorage.setItem(KEY_LAST_COMPLETION_DATE_KEY, completionDateKey),
-      AsyncStorage.setItem(KEY_STREAK_COUNT, String(nextStreak)),
-    ]);
-  } catch {
-    // Ignore persistence failures and still return computed state to keep UI responsive.
-  }
+  const mapped = mapRowToProgress(data as NightStreakProgressRow);
+  await writeCachedNightStreak(mapped);
+  return mapped;
+}
 
+function mapRowToProgress(row: NightStreakProgressRow): NightStreakProgress {
   return {
-    lastCompletionDateKey: completionDateKey,
-    streakCount: nextStreak,
+    userId: row.user_id,
+    currentStreak: Math.max(0, row.current_streak ?? 0),
+    longestStreak: Math.max(0, row.longest_streak ?? 0),
+    lastCompletedDate: row.last_completed_date,
+    totalCompletedSessions: Math.max(0, row.total_completed_sessions ?? 0),
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
   };
+}
+
+async function readCachedNightStreak(): Promise<NightStreakProgress | null> {
+  try {
+    const raw = await AsyncStorage.getItem(CACHE_KEY);
+    if (!raw) {
+      return null;
+    }
+
+    const parsed = JSON.parse(raw) as NightStreakProgress;
+    if (!parsed?.userId) {
+      return null;
+    }
+
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+async function writeCachedNightStreak(progress: NightStreakProgress | null): Promise<void> {
+  try {
+    if (!progress) {
+      await AsyncStorage.removeItem(CACHE_KEY);
+      return;
+    }
+
+    await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(progress));
+  } catch {
+    // Ignore cache failures.
+  }
 }
 
 function formatDateKey(date: Date): string {
@@ -98,16 +154,16 @@ function formatDateKey(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-function isConsecutiveDateKey(previousDateKey: string, nextDateKey: string): boolean {
-  const previous = parseDateKey(previousDateKey);
-  const next = parseDateKey(nextDateKey);
+function getDateKeyGap(fromDateKey: string, toDateKey: string): number | null {
+  const from = parseDateKey(fromDateKey);
+  const to = parseDateKey(toDateKey);
 
-  if (!previous || !next) {
-    return false;
+  if (!from || !to) {
+    return null;
   }
 
   const dayInMs = 24 * 60 * 60 * 1000;
-  return next.getTime() - previous.getTime() === dayInMs;
+  return Math.floor((to.getTime() - from.getTime()) / dayInMs);
 }
 
 function parseDateKey(value: string): Date | null {
@@ -131,4 +187,3 @@ function parseDateKey(value: string): Date | null {
 
   return parsed;
 }
-

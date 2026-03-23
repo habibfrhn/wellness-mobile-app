@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Platform, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useFocusEffect } from "@react-navigation/native";
 
 import { AUDIO_TRACKS } from "../../content/audioCatalog";
 import AudioTrackListSection from "../../components/AudioTrackListSection";
@@ -20,7 +21,12 @@ import {
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { id } from "../../i18n/strings";
 import type { AppStackParamList } from "../../navigation/types";
-import { registerNightCompletion } from "../../services/nightStreak";
+import {
+  deriveNightStreakHeroState,
+  getNightStreakState,
+  registerNightCompletion,
+  type NightStreakHeroState,
+} from "../../services/nightStreak";
 import { colors, radius, spacing } from "../../theme/tokens";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Home">;
@@ -33,8 +39,8 @@ export default function HomeScreen({ navigation, route }: Props) {
   const viewportWidth = useViewportWidth();
   const webViewport = getWebViewport(viewportWidth);
   const isDesktopWeb = Platform.OS === "web" && webViewport === "desktop";
-  const isTabletWeb = Platform.OS === "web" && webViewport === "tablet";
   const sectionGap = getWebSectionSpacing(webViewport);
+  const [streakState, setStreakState] = useState<NightStreakHeroState>({ kind: "no_streak" });
 
 
   const completionPayload = useMemo(() => {
@@ -53,12 +59,13 @@ export default function HomeScreen({ navigation, route }: Props) {
         return;
       }
 
-      await registerNightCompletion();
+      const progress = await registerNightCompletion();
 
       if (!mounted) {
         return;
       }
 
+      setStreakState(deriveNightStreakHeroState(progress));
       navigation.setParams(undefined);
     };
 
@@ -68,6 +75,25 @@ export default function HomeScreen({ navigation, route }: Props) {
       mounted = false;
     };
   }, [completionPayload, navigation]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      let cancelled = false;
+
+      const refreshStreak = async () => {
+        const progress = await getNightStreakState(true);
+        if (!cancelled) {
+          setStreakState(deriveNightStreakHeroState(progress));
+        }
+      };
+
+      void refreshStreak();
+
+      return () => {
+        cancelled = true;
+      };
+    }, []),
+  );
 
 
   const nonSoundscapeTracks = AUDIO_TRACKS.filter((track) => track.contentType !== "soundscape");
@@ -122,7 +148,10 @@ export default function HomeScreen({ navigation, route }: Props) {
             <HomeGreetingTitle />
             <View style={[styles.primaryActionCardWrap, { marginTop: sectionGap }]}>
               <View style={styles.primaryActionCard}>
-                <HomeNightSummary onPressPrimary={() => setIsSleepOptionModalVisible(true)} />
+                <HomeNightSummary
+                  onPressPrimary={() => setIsSleepOptionModalVisible(true)}
+                  streakState={streakState}
+                />
               </View>
             </View>
           </View>
