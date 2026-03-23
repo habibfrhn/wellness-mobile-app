@@ -23,7 +23,9 @@ export default function HomeNightSummary({ onPressPrimary }: Props) {
         onPress={onPressPrimary}
         style={[styles.primaryButton, isDesktop ? styles.primaryButtonDesktop : styles.primaryButtonCompact]}
       >
-        <Text style={styles.primaryButtonText}>{id.home.primarySleepCta}</Text>
+        <Text numberOfLines={1} style={styles.primaryButtonText}>
+          {id.home.primarySleepCta}
+        </Text>
       </Pressable>
     </View>
   );
@@ -52,11 +54,10 @@ const styles = StyleSheet.create({
   primaryButton: {
     backgroundColor: colors.primary,
     borderRadius: radius.sm,
-    alignSelf: "center",
-    minHeight: 56,
-    width: "100%",
-    maxWidth: 280,
-    paddingHorizontal: spacing.xl,
+    alignSelf: "flex-start",
+    minHeight: 52,
+    minWidth: 152,
+    paddingHorizontal: spacing.lg,
     alignItems: "center",
     justifyContent: "center",
   },
