@@ -34,6 +34,7 @@ export default function HomeNightSummary({ onPressPrimary }: Props) {
 const styles = StyleSheet.create({
   container: {
     gap: spacing.sm,
+    alignItems: "center",
   },
   containerCompact: {
     padding: spacing.lg,
@@ -45,11 +46,13 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: typography.body,
     fontWeight: "700",
+    textAlign: "center",
   },
   body: {
     color: colors.mutedText,
     fontSize: typography.small,
     lineHeight: typography.body,
+    textAlign: "center",
   },
   primaryButton: {
     backgroundColor: colors.primary,
