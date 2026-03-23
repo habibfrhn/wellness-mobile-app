@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { supabase } from "./supabase";
 
-const CACHE_KEY = "night:streak_progress_cache";
+const CACHE_KEY_PREFIX = "night:streak_progress_cache:";
 
 export type NightStreakProgress = {
   userId: string;
@@ -55,51 +55,31 @@ export function deriveNightStreakHeroState(
 }
 
 export async function getNightStreakState(forceRefresh = false): Promise<NightStreakProgress | null> {
+  const { data: authData, error: authError } = await supabase.auth.getUser();
+  if (authError || !authData.user?.id) {
+    return null;
+  }
+  const userId = authData.user.id;
+
   if (!forceRefresh) {
-    const cached = await readCachedNightStreak();
+    const cached = await readCachedNightStreak(userId);
     if (cached) {
       return cached;
     }
   }
 
-  const { data: authData, error: authError } = await supabase.auth.getUser();
-  if (authError || !authData.user?.id) {
-    return null;
-  }
-
   const { data, error } = await supabase
     .from("night_streak_progress")
     .select("user_id,current_streak,longest_streak,last_completed_date,total_completed_sessions,created_at,updated_at")
-    .eq("user_id", authData.user.id)
+    .eq("user_id", userId)
     .maybeSingle<NightStreakProgressRow>();
 
   if (error) {
-    return null;
+    return readCachedNightStreak(userId);
   }
 
   const mapped = data ? mapRowToProgress(data) : null;
-  await writeCachedNightStreak(mapped);
-  return mapped;
-}
-
-export async function registerNightCompletion(at: Date = new Date()): Promise<NightStreakProgress | null> {
-  const { data: authData, error: authError } = await supabase.auth.getUser();
-  if (authError || !authData.user?.id) {
-    return null;
-  }
-
-  const completionDateKey = getNightDateKey(at);
-
-  const { data, error } = await supabase.rpc("record_night_streak_completion", {
-    p_completion_date: completionDateKey,
-  });
-
-  if (error || !data) {
-    return null;
-  }
-
-  const mapped = mapRowToProgress(data as NightStreakProgressRow);
-  await writeCachedNightStreak(mapped);
+  await writeCachedNightStreak(userId, mapped);
   return mapped;
 }
 
@@ -115,9 +95,9 @@ function mapRowToProgress(row: NightStreakProgressRow): NightStreakProgress {
   };
 }
 
-async function readCachedNightStreak(): Promise<NightStreakProgress | null> {
+async function readCachedNightStreak(userId: string): Promise<NightStreakProgress | null> {
   try {
-    const raw = await AsyncStorage.getItem(CACHE_KEY);
+    const raw = await AsyncStorage.getItem(`${CACHE_KEY_PREFIX}${userId}`);
     if (!raw) {
       return null;
     }
@@ -133,14 +113,15 @@ async function readCachedNightStreak(): Promise<NightStreakProgress | null> {
   }
 }
 
-async function writeCachedNightStreak(progress: NightStreakProgress | null): Promise<void> {
+async function writeCachedNightStreak(userId: string, progress: NightStreakProgress | null): Promise<void> {
   try {
+    const cacheKey = `${CACHE_KEY_PREFIX}${userId}`;
     if (!progress) {
-      await AsyncStorage.removeItem(CACHE_KEY);
+      await AsyncStorage.removeItem(cacheKey);
       return;
     }
 
-    await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(progress));
+    await AsyncStorage.setItem(cacheKey, JSON.stringify(progress));
   } catch {
     // Ignore cache failures.
   }

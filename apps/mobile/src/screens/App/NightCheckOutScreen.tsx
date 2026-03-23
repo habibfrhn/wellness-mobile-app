@@ -31,20 +31,27 @@ export default function NightCheckOutScreen({ navigation, route }: Props) {
     setFeedback(message);
 
     timeoutRef.current = setTimeout(() => {
-      // Persist to Supabase in the background. Failures are intentionally ignored
-      // so users can continue seamlessly when offline or when backend is unavailable.
-      void recordNightSession({
-        date_key: getNightDateKey(),
-        mode,
-        stress_before: stressBefore,
-        stress_after: stressAfter,
-      });
+      const syncCompletion = async () => {
+        // Await briefly so Home can immediately reflect server-confirmed streak updates,
+        // but keep UX responsive by capping the wait time.
+        await Promise.race([
+          recordNightSession({
+            date_key: getNightDateKey(),
+            mode,
+            stress_before: stressBefore,
+            stress_after: stressAfter,
+          }),
+          new Promise((resolve) => setTimeout(resolve, 1500)),
+        ]);
 
-      navigation.navigate("Home", {
-        completed: true,
-        stressBefore,
-        stressAfter,
-      });
+        navigation.navigate("Home", {
+          completed: true,
+          stressBefore,
+          stressAfter,
+        });
+      };
+
+      void syncCompletion();
     }, 900);
   };
 

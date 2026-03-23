@@ -24,7 +24,6 @@ import type { AppStackParamList } from "../../navigation/types";
 import {
   deriveNightStreakHeroState,
   getNightStreakState,
-  registerNightCompletion,
   type NightStreakHeroState,
 } from "../../services/nightStreak";
 import { colors, radius, spacing } from "../../theme/tokens";
@@ -59,13 +58,15 @@ export default function HomeScreen({ navigation, route }: Props) {
         return;
       }
 
-      const progress = await registerNightCompletion();
+      const progress = await getNightStreakState(true);
 
       if (!mounted) {
         return;
       }
 
-      setStreakState(deriveNightStreakHeroState(progress));
+      if (progress) {
+        setStreakState(deriveNightStreakHeroState(progress));
+      }
       navigation.setParams(undefined);
     };
 

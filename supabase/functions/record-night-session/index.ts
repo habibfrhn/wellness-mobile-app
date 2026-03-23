@@ -18,7 +18,8 @@ type ErrorCode =
   | "RATE_LIMITED"
   | "SERVER_MISCONFIGURATION"
   | "RATE_LIMIT_FAILED"
-  | "UPSERT_FAILED";
+  | "UPSERT_FAILED"
+  | "STREAK_UPDATE_FAILED";
 
 const DATE_KEY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const ACTION_NAME = "record_night_session";
@@ -164,5 +165,17 @@ Deno.serve(async (req: Request) => {
     return error(500, "Failed to record night session", "UPSERT_FAILED");
   }
 
-  return json(200, { ok: true });
+  const { data: streakData, error: streakError } = await userClient.rpc(
+    "record_night_streak_completion",
+    {
+      p_completion_date: payload.date_key,
+    }
+  );
+
+  if (streakError) {
+    console.error("record-night-session: streak update failed", streakError);
+    return error(500, "Failed to update streak", "STREAK_UPDATE_FAILED");
+  }
+
+  return json(200, { ok: true, streak: streakData ?? null });
 });
