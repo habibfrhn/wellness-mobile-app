@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   primaryButton: {
     backgroundColor: colors.primary,
     borderRadius: radius.sm,
-    alignSelf: "flex-start",
+    alignSelf: "center",
     minHeight: 52,
     minWidth: 152,
     paddingHorizontal: spacing.lg,
