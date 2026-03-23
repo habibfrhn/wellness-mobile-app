@@ -11,6 +11,7 @@ export const id = {
     passwordsNotMatchBody: "Pastikan kedua kata sandi sama.",
     errorTitle: "Terjadi kesalahan",
     tryAgain: "Silakan coba lagi.",
+    menu: "Menu",
     linkExpiredTitle: "Tautan kedaluwarsa",
     linkExpiredBody: "Tautan sudah kedaluwarsa. Silakan minta tautan baru.",
     linkInvalidTitle: "Tautan tidak valid",

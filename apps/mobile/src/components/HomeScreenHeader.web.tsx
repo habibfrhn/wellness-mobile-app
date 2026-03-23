@@ -7,6 +7,7 @@ import useViewportWidth from "../hooks/useViewportWidth";
 import type { AppStackParamList } from "../navigation/types";
 import { spacing } from "../theme/tokens";
 import HomeHeaderLogo from "./HomeHeaderLogo";
+import HomeHeaderMobileMenuButton from "./HomeHeaderMobileMenuButton";
 import HomeHeaderSettingsButton from "./HomeHeaderSettingsButton";
 
 type Props = {
@@ -25,7 +26,11 @@ export default function HomeScreenHeader({ navigation }: Props) {
       ]}
     >
       <HomeHeaderLogo />
-      <HomeHeaderSettingsButton navigation={navigation} />
+      {viewport === "mobile" ? (
+        <HomeHeaderMobileMenuButton navigation={navigation} />
+      ) : (
+        <HomeHeaderSettingsButton navigation={navigation} />
+      )}
     </View>
   );
 }
