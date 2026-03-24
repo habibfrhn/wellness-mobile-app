@@ -35,10 +35,9 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   title: {
-    fontSize: typography.title,
-    lineHeight: 24,
+    fontSize: typography.body,
     fontWeight: "700",
-    color: colors.primary,
+    color: colors.text,
   },
   body: {
     fontSize: typography.small,
