@@ -10,6 +10,7 @@ import SleepOptionModal from "../../components/SleepOptionModal";
 import HomeGreetingTitle from "../../components/HomeGreetingTitle";
 import HomeScreenHeader from "../../components/HomeScreenHeader";
 import HomeNightSummary from "../../components/HomeNightSummary";
+import HomeFoundingMemberCard from "../../components/HomeFoundingMemberCard";
 import {
   getWebPageContainerStyle,
   getWebPageTopSpacing,
@@ -160,6 +161,9 @@ export default function HomeScreen({ navigation, route }: Props) {
                 />
               </View>
             </View>
+            <View style={[styles.secondaryActionCardWrap, { marginTop: spacing.sm }]}>
+              <HomeFoundingMemberCard onPress={() => navigation.navigate("FoundingMember")} />
+            </View>
           </View>
 
           {isDesktopWeb ? (
@@ -248,6 +252,9 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   primaryActionCardWrap: {
+    paddingHorizontal: WEB_SECTION_CONTENT_INSET,
+  },
+  secondaryActionCardWrap: {
     paddingHorizontal: WEB_SECTION_CONTENT_INSET,
   },
   primaryActionCard: {

@@ -10,7 +10,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 
@@ -80,9 +79,6 @@ const HEADER_NAV_ITEMS: Array<{ key: SectionKey; label: string }> = [
 export default function LandingScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const scrollRef = useRef<ScrollView | null>(null);
-  const [isFoundingOpen, setIsFoundingOpen] = useState(false);
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
   const [activeSection, setActiveSection] = useState<SectionKey>("beranda");
   const viewportWidth = useViewportWidth();
   const sectionOffsets = useRef<Record<SectionKey, number>>({
@@ -120,18 +116,6 @@ export default function LandingScreen() {
       y: sectionOffsets.current[key],
       animated: true,
     });
-  };
-
-  const closeFoundingModal = () => {
-    setIsFoundingOpen(false);
-    setSubmitted(false);
-    setEmail("");
-  };
-
-  const submitFounding = () => {
-    if (email.includes("@")) {
-      setSubmitted(true);
-    }
   };
 
   useEffect(() => {
@@ -205,7 +189,6 @@ export default function LandingScreen() {
           isDesktop && styles.contentDesktop,
         ]}
         keyboardShouldPersistTaps="handled"
-        scrollEnabled={!isFoundingOpen}
       >
         <View
           style={[
@@ -886,76 +869,6 @@ export default function LandingScreen() {
         </View>
       </ScrollView>
 
-      {isFoundingOpen ? (
-        <View style={styles.modalOverlay}>
-          <Pressable
-            style={styles.modalBackdrop}
-            onPress={closeFoundingModal}
-          />
-          <View
-            style={[
-              styles.modalCard,
-              isTablet && styles.modalCardTablet,
-              !isDesktop && !isTablet && styles.modalCardMobile,
-            ]}
-          >
-            <Pressable
-              onPress={closeFoundingModal}
-              style={styles.modalCloseButton}
-            >
-              <Text style={styles.modalCloseText}>×</Text>
-            </Pressable>
-
-            <Text style={styles.modalTitle}>Jadi Founding Member</Text>
-            <Text style={styles.modalBody}>
-              Kami membuka kesempatan untuk 100 orang pertama yang ingin
-              mendukung pengembangan Lumepo.
-              {"\n"}
-              {"\n"}
-              Sebagai Founding Member, kamu akan mendapatkan:
-              {"\n"}• Akses seumur hidup saat aplikasi resmi diluncurkan.
-              {"\n"}• Harga spesial sebagai pendukung awal.
-              {"\n"}• Kesempatan memberi masukan langsung dalam pengembangan.
-            </Text>
-            <Text style={styles.modalNote}>
-              Kontribusi awal kamu membantu kami menyelesaikan pengembangan
-              aplikasi.
-            </Text>
-
-            {submitted ? (
-              <Text style={styles.modalThanks}>
-                Terima kasih. Kami akan menghubungi kamu segera.
-              </Text>
-            ) : (
-              <>
-                <TextInput
-                  value={email}
-                  onChangeText={setEmail}
-                  placeholder="Masukkan email kamu"
-                  style={styles.modalInput}
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                />
-                <Pressable
-                  onPress={submitFounding}
-                  style={[
-                    styles.landingButtonBase,
-                    styles.landingButtonPrimary,
-                    isDesktop || isTablet
-                      ? styles.landingButtonSizeDesktop
-                      : styles.landingButtonSizeMobile,
-                    styles.modalSubmitButton,
-                  ]}
-                >
-                  <Text style={styles.landingButtonPrimaryText}>
-                    Saya ingin jadi Founding Member
-                  </Text>
-                </Pressable>
-              </>
-            )}
-          </View>
-        </View>
-      ) : null}
     </WebResponsiveFrame>
   );
 }
@@ -1554,77 +1467,5 @@ const styles = StyleSheet.create({
     color: colors.white,
     marginTop: spacing.xs,
     marginBottom: spacing.sm,
-  },
-  modalOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 20,
-    padding: spacing.lg,
-  },
-  modalBackdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.4)",
-  },
-  modalCard: {
-    width: "100%",
-    maxWidth: 480,
-    borderRadius: radius.md,
-    backgroundColor: colors.white,
-    padding: spacing.xl,
-    gap: spacing.md,
-  },
-  modalCardTablet: {
-    maxWidth: 560,
-  },
-  modalCardMobile: {
-    padding: spacing.md,
-  },
-  modalCloseButton: {
-    position: "absolute",
-    top: spacing.sm,
-    right: spacing.sm,
-    width: 32,
-    height: 32,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  modalCloseText: {
-    fontSize: 24,
-    color: colors.mutedText,
-    lineHeight: 24,
-  },
-  modalTitle: {
-    fontSize: typography.h2,
-    fontWeight: "700",
-    color: colors.text,
-  },
-  modalBody: {
-    fontSize: typography.body,
-    lineHeight: 24,
-    color: colors.mutedText,
-  },
-  modalNote: {
-    fontSize: typography.small,
-    color: colors.mutedText,
-  },
-  modalInput: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 13,
-    fontSize: typography.body,
-    color: colors.text,
-    backgroundColor: colors.white,
-  },
-  modalSubmitButton: {
-    width: "100%",
-  },
-  modalThanks: {
-    fontSize: typography.body,
-    color: colors.text,
-    lineHeight: 24,
-    fontWeight: "600",
   },
 });
