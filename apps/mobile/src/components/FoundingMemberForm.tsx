@@ -64,8 +64,6 @@ export default function FoundingMemberForm({
 }: Props) {
   return (
     <View style={styles.formCard}>
-      <Text style={styles.sectionTitle}>{id.foundingMember.sectionTitle}</Text>
-
       <Text style={styles.fieldLabel}>{id.foundingMember.nameLabel}</Text>
       <TextInput
         value={values.name}
@@ -162,13 +160,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     padding: spacing.md,
     gap: spacing.sm,
-  },
-  sectionTitle: {
-    fontSize: typography.title,
-    lineHeight: 24,
-    fontWeight: "700",
-    color: colors.primary,
-    marginBottom: spacing.xs,
   },
   fieldLabel: {
     fontSize: typography.small,

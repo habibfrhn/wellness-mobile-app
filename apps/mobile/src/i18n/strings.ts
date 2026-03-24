@@ -200,7 +200,7 @@ export const id = {
     soundscapeShortTitle: "Suara pengantar tidur",
     foundingMemberTitle: "Bantu bentuk Lumepo lebih awal",
     foundingMemberBody:
-      "Punya masukan atau ingin ikut membentuk Lumepo dari awal? Bergabung sebagai Founding Member dan bantu kami membangun pengalaman tidur yang benar-benar terasa membantu.",
+      "Punya masukan dan ingin ikut membentuk Lumepo dari awal? Bergabung sebagai Founding Member untuk membantu kami merancang pengalaman tidur yang lebih menenangkan, jelas, dan relevan untuk keseharianmu.",
     foundingMemberCta: "Jadi Founding Member",
   },
 

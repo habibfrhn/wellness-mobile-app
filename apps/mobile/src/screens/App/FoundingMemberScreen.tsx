@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   introCard: {
-    backgroundColor: colors.card,
+    backgroundColor: colors.bg,
     borderRadius: radius.md,
     padding: spacing.md,
     gap: spacing.sm,
