@@ -26,6 +26,7 @@ import {
   getNightStreakState,
   type NightStreakHeroState,
 } from "../../services/nightStreak";
+import { consumePendingFoundingMemberIntent } from "../../services/pendingFoundingMemberIntent";
 import { colors, radius, spacing } from "../../theme/tokens";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Home">;
@@ -89,6 +90,12 @@ export default function HomeScreen({ navigation, route }: Props) {
       let cancelled = false;
 
       const refreshStreak = async () => {
+        const shouldOpenFoundingMember = await consumePendingFoundingMemberIntent();
+        if (shouldOpenFoundingMember) {
+          navigation.navigate("FoundingMember");
+          return;
+        }
+
         const progress = await getNightStreakState(true);
         if (!cancelled) {
           setStreakState(deriveNightStreakHeroState(progress));
@@ -100,7 +107,7 @@ export default function HomeScreen({ navigation, route }: Props) {
       return () => {
         cancelled = true;
       };
-    }, []),
+    }, [navigation]),
   );
 
   const nonSoundscapeTracks = useMemo(

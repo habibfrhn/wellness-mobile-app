@@ -20,6 +20,7 @@ import useViewportWidth from "../hooks/useViewportWidth";
 import WebResponsiveFrame from "../components/WebResponsiveFrame";
 import LandingMobileAuthMenu from "../components/landing/LandingMobileAuthMenu";
 import { supabase } from "../services/supabase";
+import { setPendingFoundingMemberIntent } from "../services/pendingFoundingMemberIntent";
 
 type RootStackParamList = {
   Landing: undefined;
@@ -126,6 +127,7 @@ export default function LandingScreen() {
       return;
     }
 
+    await setPendingFoundingMemberIntent();
     navigation.navigate("Auth", { screen: "SignUp" });
   };
 
