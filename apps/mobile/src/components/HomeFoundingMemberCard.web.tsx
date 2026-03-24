@@ -52,6 +52,8 @@ const styles = StyleSheet.create({
   cta: {
     marginTop: spacing.md,
     backgroundColor: colors.bg,
+    borderWidth: 1,
+    borderColor: `${colors.primary}40`,
     borderRadius: radius.sm,
     minHeight: 52,
     minWidth: 152,

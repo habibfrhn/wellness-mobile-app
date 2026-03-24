@@ -168,7 +168,7 @@ export default function HomeScreen({ navigation, route }: Props) {
                 />
               </View>
             </View>
-            <View style={[styles.secondaryActionCardWrap, { marginTop: spacing.sm }]}>
+            <View style={styles.secondaryActionCardWrap}>
               <HomeFoundingMemberCard onPress={() => navigation.navigate("FoundingMember")} />
             </View>
           </View>
@@ -263,6 +263,7 @@ const styles = StyleSheet.create({
   },
   secondaryActionCardWrap: {
     paddingHorizontal: WEB_SECTION_CONTENT_INSET,
+    marginTop: spacing.md,
   },
   primaryActionCard: {
     backgroundColor: colors.card,
