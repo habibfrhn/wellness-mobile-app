@@ -114,10 +114,7 @@ export default function AppStack() {
       <Stack.Screen
         name="FoundingMember"
         options={{
-          title: "",
-          headerBackTitleVisible: false,
-          headerStyle: { backgroundColor: colors.bg },
-          headerStatusBarHeight: 0,
+          headerShown: false,
         }}
       >
         {(props) => <FoundingMemberScreen {...props} />}

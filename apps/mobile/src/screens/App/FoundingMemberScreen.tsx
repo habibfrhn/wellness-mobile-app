@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import FoundingMemberForm from "../../components/FoundingMemberForm";
@@ -24,7 +24,7 @@ function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-export default function FoundingMemberScreen({}: Props) {
+export default function FoundingMemberScreen({ navigation }: Props) {
   const viewportWidth = useViewportWidth();
   const webViewport = getWebViewport(viewportWidth);
   const [values, setValues] = useState<FoundingMemberFormValues>(() => getInitialFoundingMemberFormValues());
@@ -130,6 +130,18 @@ export default function FoundingMemberScreen({}: Props) {
       showsVerticalScrollIndicator={false}
     >
       <View style={[styles.contentWrap, containerStyle]}>
+        <View style={styles.pageHeaderRow}>
+          <Pressable
+            onPress={() => navigation.goBack()}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel={id.player.back}
+            style={styles.pageHeaderBackButton}
+          >
+            <Text style={styles.pageHeaderBackText}>←</Text>
+          </Pressable>
+        </View>
+
         <View style={styles.introCard}>
           <Text style={styles.introText}>{id.foundingMember.intro}</Text>
           <Text style={styles.supportText}>{id.foundingMember.supportCopy}</Text>
@@ -168,6 +180,24 @@ const styles = StyleSheet.create({
     width: "100%",
     alignSelf: "center",
     gap: spacing.md,
+  },
+  pageHeaderRow: {
+    minHeight: 36,
+    justifyContent: "center",
+    marginBottom: spacing.xs,
+  },
+  pageHeaderBackButton: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.full,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  pageHeaderBackText: {
+    fontSize: typography.title,
+    lineHeight: 22,
+    fontWeight: "600",
+    color: colors.text,
   },
   introCard: {
     backgroundColor: colors.card,
