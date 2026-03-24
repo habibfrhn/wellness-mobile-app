@@ -116,7 +116,8 @@ export default function AppStack() {
         options={{
           title: "",
           headerBackTitleVisible: false,
-          headerStyle: { backgroundColor: "#F6F7F8" },
+          headerStyle: { backgroundColor: colors.bg },
+          headerStatusBarHeight: 0,
         }}
       >
         {(props) => <FoundingMemberScreen {...props} />}
