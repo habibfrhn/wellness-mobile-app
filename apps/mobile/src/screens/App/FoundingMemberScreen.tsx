@@ -138,11 +138,12 @@ export default function FoundingMemberScreen({ navigation }: Props) {
             accessibilityLabel={id.player.back}
             style={styles.pageHeaderBackButton}
           >
-            <Text style={styles.pageHeaderBackText}>←</Text>
+            <Text style={styles.pageHeaderBackText}>‹</Text>
           </Pressable>
         </View>
 
         <View style={styles.introCard}>
+          <Text style={styles.introTitle}>Founding Member</Text>
           <Text style={styles.introText}>{id.foundingMember.intro}</Text>
           <Text style={styles.supportText}>{id.foundingMember.supportCopy}</Text>
         </View>
@@ -185,6 +186,7 @@ const styles = StyleSheet.create({
     minHeight: 36,
     justifyContent: "center",
     marginBottom: spacing.xs,
+    marginLeft: -spacing.xs,
   },
   pageHeaderBackButton: {
     width: 32,
@@ -194,10 +196,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   pageHeaderBackText: {
-    fontSize: typography.title,
+    fontSize: 32,
     lineHeight: 22,
-    fontWeight: "600",
+    fontWeight: "500",
     color: colors.text,
+  },
+  introTitle: {
+    fontSize: typography.title,
+    lineHeight: 24,
+    fontWeight: "700",
+    color: colors.primary,
   },
   introCard: {
     backgroundColor: colors.card,
