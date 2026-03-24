@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     gap: spacing.xs / 2,
   },
   title: {
-    color: colors.text,
+    color: colors.primary,
     fontSize: typography.title,
     fontWeight: "700",
   },

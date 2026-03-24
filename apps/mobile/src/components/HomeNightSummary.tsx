@@ -33,8 +33,9 @@ const styles = StyleSheet.create({
   },
   title: {
     marginTop: spacing.xs,
-    color: colors.text,
-    fontSize: typography.body,
+    color: colors.primary,
+    fontSize: typography.title,
+    lineHeight: 24,
     fontWeight: "700",
   },
   body: {
