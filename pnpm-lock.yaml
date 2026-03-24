@@ -6,11 +6,7 @@ settings:
 
 importers:
 
-  .:
-    devDependencies:
-      supabase:
-        specifier: ^2.76.10
-        version: 2.76.10
+  .: {}
 
   apps/mobile:
     dependencies:
