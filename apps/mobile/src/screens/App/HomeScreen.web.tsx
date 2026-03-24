@@ -102,11 +102,13 @@ export default function HomeScreen({ navigation, route }: Props) {
     }, []),
   );
 
-  const nonSoundscapeTracks = AUDIO_TRACKS.filter(
-    (track) => track.contentType !== "soundscape",
+  const nonSoundscapeTracks = useMemo(
+    () => AUDIO_TRACKS.filter((track) => track.contentType !== "soundscape"),
+    [],
   );
-  const soundscapeTracks = AUDIO_TRACKS.filter(
-    (track) => track.contentType === "soundscape",
+  const soundscapeTracks = useMemo(
+    () => AUDIO_TRACKS.filter((track) => track.contentType === "soundscape"),
+    [],
   );
   const [isSleepOptionModalVisible, setIsSleepOptionModalVisible] =
     useState(false);

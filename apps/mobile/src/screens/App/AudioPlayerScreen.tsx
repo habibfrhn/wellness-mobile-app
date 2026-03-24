@@ -45,7 +45,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   const webViewport = getWebViewport(viewportWidth);
   const isWeb = Platform.OS === "web";
   const playerContentWidth = isWeb ? 320 : 420;
-  const sectionGap = isWeb ? spacing.md : getWebSectionSpacing(webViewport);
+  const sectionGap = isWeb ? getWebSectionSpacing(webViewport) : spacing.md;
   const [progressWidth, setProgressWidth] = useState(0);
   const [favorite, setFavorite] = useState(() => isFavorite(audioId));
   const [isExitModalVisible, setIsExitModalVisible] = useState(false);

@@ -30,8 +30,14 @@ function mapLinkType(type: string | null): AuthLinkType {
  * Handles Supabase auth links for web and native.
  */
 export async function handleAuthLink(url: string) {
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(url);
+  } catch {
+    return { handled: false as const };
+  }
+
   const parsed = Linking.parse(url);
-  const parsedUrl = new URL(url);
   const hashParams = new URLSearchParams(parsedUrl.hash.replace(/^#/, ""));
 
   const getParam = (key: string) => {

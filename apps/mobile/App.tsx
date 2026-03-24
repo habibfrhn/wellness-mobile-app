@@ -139,7 +139,23 @@ export default function App() {
     }
 
     async function processUrl(url: string) {
-      const res = await handleAuthLink(url);
+      let res: Awaited<ReturnType<typeof handleAuthLink>>;
+      try {
+        res = await handleAuthLink(url);
+      } catch {
+        if (Platform.OS === "web" && getWebAuthPath(typeof window !== "undefined" ? window.location.pathname : null)) {
+          setWebAuthStatus("error");
+        } else {
+          Alert.alert(id.common.errorTitle, id.common.tryAgain);
+        }
+        await setNextAuthRoute("Login");
+        setAuthStartRoute("Login");
+        setForceReset(false);
+        setWebResetFlowActive(false);
+        await clearPendingProfileName();
+        return;
+      }
+
       if (!res.handled) {
         await clearPendingProfileName();
         setWebAuthStatus("missing");
