@@ -16,6 +16,7 @@ import SettingsScreen from "../screens/App/SettingsScreen";
 import PrivacyPolicyScreen from "../screens/App/PrivacyPolicyScreen";
 import TermsConditionsScreen from "../screens/App/TermsConditionsScreen";
 import ReminderSettingsScreen from "../screens/App/ReminderSettingsScreen";
+import FoundingMemberScreen from "../screens/App/FoundingMemberScreen";
 import HomeHeaderLogo from "../components/HomeHeaderLogo";
 import HomeHeaderSettingsButton from "../components/HomeHeaderSettingsButton";
 import type { AppStackParamList } from "./types";
@@ -108,6 +109,16 @@ export default function AppStack() {
 
       <Stack.Screen name="ResetPassword" options={{ title: "Ubah kata sandi" }}>
         {(props) => <ResetPasswordScreen {...props} />}
+      </Stack.Screen>
+
+      <Stack.Screen
+        name="FoundingMember"
+        options={{
+          title: id.foundingMember.title,
+          headerBackTitleVisible: false,
+        }}
+      >
+        {(props) => <FoundingMemberScreen {...props} />}
       </Stack.Screen>
 
       <Stack.Screen
