@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
     backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: colors.text,
+    borderColor: colors.primary,
     borderRadius: radius.sm,
     minHeight: 52,
     minWidth: 152,
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
   },
   ctaText: {
-    color: colors.text,
+    color: colors.primary,
     fontWeight: "600",
     textAlign: "center",
     flexShrink: 1,
