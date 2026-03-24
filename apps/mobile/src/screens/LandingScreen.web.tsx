@@ -349,23 +349,7 @@ export default function LandingScreen() {
                     ]}
                   >
                     <Text style={styles.landingButtonPrimaryText}>
-                      Mulai gratis
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => setIsFoundingOpen(true)}
-                    style={[
-                      styles.landingButtonBase,
-                      styles.landingButtonSecondary,
-                      isDesktop || isTablet
-                        ? styles.landingButtonSizeDesktop
-                        : styles.landingButtonSizeMobile,
-                      styles.heroCtaButton,
-                      isTablet && styles.heroCtaButtonTablet,
-                    ]}
-                  >
-                    <Text style={styles.landingButtonSecondaryText}>
-                      Jadi founding member
+                      Mulai gratis (beta)
                     </Text>
                   </Pressable>
                 </View>
