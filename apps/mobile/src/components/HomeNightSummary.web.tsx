@@ -43,9 +43,8 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
   },
   title: {
-    color: colors.primary,
-    fontSize: typography.title,
-    lineHeight: 24,
+    color: colors.text,
+    fontSize: typography.body,
     fontWeight: "700",
     textAlign: "center",
   },
