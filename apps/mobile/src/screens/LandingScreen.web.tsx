@@ -19,6 +19,7 @@ import type { AppStackParamList, AuthStackParamList } from "../navigation/types"
 import useViewportWidth from "../hooks/useViewportWidth";
 import WebResponsiveFrame from "../components/WebResponsiveFrame";
 import LandingMobileAuthMenu from "../components/landing/LandingMobileAuthMenu";
+import { supabase } from "../services/supabase";
 
 type RootStackParamList = {
   Landing: undefined;
@@ -75,6 +76,12 @@ const HEADER_NAV_ITEMS: Array<{ key: SectionKey; label: string }> = [
   { key: "manfaat", label: "Manfaat" },
   { key: "faq", label: "FAQ" },
 ];
+const FOUNDING_MEMBER_BENEFITS = [
+  "Bantu kami menentukan apa yang penting untuk dibangun berikutnya",
+  "Dapat akses lebih awal ke fitur baru",
+  "Terima update langsung dari tim",
+  "Dapat penawaran khusus saat paket berbayar diluncurkan",
+];
 
 export default function LandingScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -109,6 +116,17 @@ export default function LandingScreen() {
 
   const goToTermsConditions = () => {
     navigation.navigate("App", { screen: "TermsConditions" });
+  };
+
+  const goToFoundingMember = async () => {
+    const { data } = await supabase.auth.getSession();
+
+    if (data.session) {
+      navigation.navigate("App", { screen: "FoundingMember" });
+      return;
+    }
+
+    navigation.navigate("Auth", { screen: "SignUp" });
   };
 
   const goToSection = (key: SectionKey) => {
@@ -335,6 +353,24 @@ export default function LandingScreen() {
                       Mulai gratis (beta)
                     </Text>
                   </Pressable>
+                  <Pressable
+                    onPress={() => {
+                      void goToFoundingMember();
+                    }}
+                    style={[
+                      styles.landingButtonBase,
+                      styles.landingButtonSecondary,
+                      isDesktop || isTablet
+                        ? styles.landingButtonSizeDesktop
+                        : styles.landingButtonSizeMobile,
+                      styles.heroCtaButton,
+                      isTablet && styles.heroCtaButtonTablet,
+                    ]}
+                  >
+                    <Text style={styles.landingButtonSecondaryText}>
+                      Jadi Founding Member
+                    </Text>
+                  </Pressable>
                 </View>
               </View>
 
@@ -351,6 +387,57 @@ export default function LandingScreen() {
                 />
               </View>
             </View>
+          </View>
+
+          <View
+            style={[
+              styles.section,
+              (isDesktop || isTablet) && styles.sectionDesktop,
+              styles.foundingMemberSection,
+            ]}
+          >
+            <Text
+              style={[
+                styles.sectionTitle,
+                (isDesktop || isTablet) && styles.sectionTitleDesktop,
+                styles.sectionTitleToContentGap,
+                (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
+              ]}
+            >
+              Bantu bentuk Lumepo dari awal
+            </Text>
+            <Text style={styles.foundingMemberBody}>
+              Lumepo gratis untuk dicoba siapa saja. Founding Member adalah orang-orang yang ingin
+              ikut membentuk produk ini lewat masukan, pengalaman, dan ide mereka.
+            </Text>
+            <View style={styles.foundingMemberBulletList}>
+              {FOUNDING_MEMBER_BENEFITS.map((benefit) => (
+                <View key={benefit} style={styles.foundingMemberBulletRow}>
+                  <Text style={styles.foundingMemberBulletMark}>•</Text>
+                  <Text style={styles.foundingMemberBulletText}>{benefit}</Text>
+                </View>
+              ))}
+            </View>
+            <Pressable
+              onPress={() => {
+                void goToFoundingMember();
+              }}
+              style={[
+                styles.landingButtonBase,
+                styles.landingButtonSecondary,
+                isDesktop || isTablet
+                  ? styles.landingButtonSizeDesktop
+                  : styles.landingButtonSizeMobile,
+                styles.foundingMemberButton,
+              ]}
+            >
+              <Text style={styles.landingButtonSecondaryText}>
+                Jadi Founding Member
+              </Text>
+            </Pressable>
+            <Text style={styles.foundingMemberHelperText}>
+              Buat akun atau masuk untuk bergabung.
+            </Text>
           </View>
 
           <View
@@ -1325,6 +1412,44 @@ const styles = StyleSheet.create({
     fontSize: typography.caption,
     color: colors.mutedText,
     textAlign: "left",
+  },
+  foundingMemberSection: {
+    gap: spacing.sm,
+  },
+  foundingMemberBody: {
+    fontSize: typography.body,
+    lineHeight: 24,
+    color: colors.mutedText,
+  },
+  foundingMemberBulletList: {
+    gap: spacing.xs,
+    marginTop: spacing.xs,
+  },
+  foundingMemberBulletRow: {
+    flexDirection: "row",
+    gap: spacing.xs,
+    alignItems: "flex-start",
+  },
+  foundingMemberBulletMark: {
+    fontSize: typography.body,
+    lineHeight: 24,
+    color: colors.primary,
+    fontWeight: "700",
+  },
+  foundingMemberBulletText: {
+    flex: 1,
+    fontSize: typography.small,
+    lineHeight: 22,
+    color: colors.text,
+  },
+  foundingMemberButton: {
+    alignSelf: "flex-start",
+    marginTop: spacing.sm,
+  },
+  foundingMemberHelperText: {
+    fontSize: typography.caption,
+    lineHeight: 18,
+    color: colors.mutedText,
   },
   landingButtonBase: {
     borderRadius: BUTTON_BORDER_RADIUS,
