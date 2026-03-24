@@ -690,25 +690,81 @@ export default function LandingScreen() {
             <View style={styles.faqList}>
               <View style={styles.faqItem}>
                 <Text style={styles.faqQuestion}>
-                  Apakah ini cocok kalau saya sering overthinking?
+                  Apakah ini cocok kalau saya sering overthinking sebelum tidur?
                 </Text>
                 <Text style={styles.faqAnswer}>
-                  Ya. Ritual ini membantu pikiran melambat dengan alur yang
-                  lembut dan terarah.
-                </Text>
-              </View>
-
-              <View style={styles.faqItem}>
-                <Text style={styles.faqQuestion}>Berapa lama durasinya?</Text>
-                <Text style={styles.faqAnswer}>
-                  Sekitar 15 menit sebelum tidur.
+                  Ya. Ritual ini dibuat untuk membantu pikiran terasa lebih
+                  tenang sebelum tidur, jadi kamu tidak terus terjebak dalam
+                  pikiran sendiri.
                 </Text>
               </View>
 
               <View style={styles.faqItem}>
-                <Text style={styles.faqQuestion}>Apakah perlu bayar?</Text>
+                <Text style={styles.faqQuestion}>Berapa lama waktunya?</Text>
                 <Text style={styles.faqAnswer}>
-                  Kamu bisa mulai gratis di fase beta.
+                  Sekitar 10–15 menit sebelum tidur. Cukup singkat untuk jadi
+                  kebiasaan, tanpa terasa merepotkan.
+                </Text>
+              </View>
+
+              <View style={styles.faqItem}>
+                <Text style={styles.faqQuestion}>
+                  Apakah saya harus bisa meditasi dulu?
+                </Text>
+                <Text style={styles.faqAnswer}>
+                  Tidak sama sekali. Kamu tinggal ikuti panduannya dan
+                  dengarkan dengan santai.
+                </Text>
+              </View>
+
+              <View style={styles.faqItem}>
+                <Text style={styles.faqQuestion}>
+                  Kapan waktu terbaik untuk memakainya?
+                </Text>
+                <Text style={styles.faqAnswer}>
+                  Paling pas dipakai menjelang tidur, saat kamu ingin
+                  menenangkan pikiran dan mulai beristirahat.
+                </Text>
+              </View>
+
+              <View style={styles.faqItem}>
+                <Text style={styles.faqQuestion}>
+                  Apakah saya bisa mencobanya gratis?
+                </Text>
+                <Text style={styles.faqAnswer}>
+                  Ya. Saat ini kamu bisa mulai gratis selama fase beta.
+                </Text>
+              </View>
+
+              <View style={styles.faqItem}>
+                <Text style={styles.faqQuestion}>
+                  Apakah ini cocok untuk saya yang susah berhenti mikir di
+                  malam hari?
+                </Text>
+                <Text style={styles.faqAnswer}>
+                  Cocok. Ritual ini dirancang untuk membantu kamu pelan-pelan
+                  lepas dari pikiran yang ramai sebelum tidur.
+                </Text>
+              </View>
+
+              <View style={styles.faqItem}>
+                <Text style={styles.faqQuestion}>
+                  Apakah saya harus memakainya setiap malam?
+                </Text>
+                <Text style={styles.faqAnswer}>
+                  Tidak harus, tapi biasanya hasilnya terasa lebih baik kalau
+                  dipakai secara rutin.
+                </Text>
+              </View>
+
+              <View style={styles.faqItem}>
+                <Text style={styles.faqQuestion}>
+                  Apakah ini pengganti bantuan profesional untuk masalah tidur?
+                </Text>
+                <Text style={styles.faqAnswer}>
+                  Tidak. Aplikasi ini dibuat untuk membantu rutinitas tidur
+                  terasa lebih tenang, bukan untuk menggantikan bantuan medis
+                  atau profesional.
                 </Text>
               </View>
             </View>
