@@ -385,6 +385,8 @@ s3_access_key = "env(S3_ACCESS_KEY)"
 s3_secret_key = "env(S3_SECRET_KEY)"
 
 [functions.delete-user-account]
-verify_jwt = false
+verify_jwt = true
 [functions.record-night-session]
-verify_jwt = false
+verify_jwt = true
+[functions.submit-founding-member]
+verify_jwt = true

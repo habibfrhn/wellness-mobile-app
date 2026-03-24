@@ -41,24 +41,31 @@ export function getInitialFoundingMemberFormValues(): FoundingMemberFormValues {
 }
 
 export async function submitFoundingMemberForm(values: FoundingMemberFormValues) {
-  const { data: authData, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
 
-  if (authError) {
-    return { error: authError };
+  if (sessionError || !session?.access_token) {
+    return { error: sessionError ?? new Error("Missing auth session") };
   }
 
-  const { error } = await supabase.from("founding_member_submissions").insert({
-    user_id: authData.user?.id ?? null,
-    name: values.name.trim(),
-    email: values.email.trim(),
-    sleep_issue: values.sleepIssue.trim(),
-    sleep_frequency: values.sleepFrequency,
-    joining_reason: values.whyJoin.trim(),
-    feedback_willingness: values.feedbackWillingness,
-    interview_willingness: values.interviewWillingness,
-    payment_willingness: values.paymentWillingness,
-    preferred_monthly_price: values.preferredPrice,
-    consent_to_contact: values.consentToContact,
+  const { error } = await supabase.functions.invoke<{ ok: boolean }>("submit-founding-member", {
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    body: {
+      name: values.name.trim(),
+      email: values.email.trim(),
+      sleep_issue: values.sleepIssue.trim(),
+      sleep_frequency: values.sleepFrequency,
+      joining_reason: values.whyJoin.trim(),
+      feedback_willingness: values.feedbackWillingness,
+      interview_willingness: values.interviewWillingness,
+      payment_willingness: values.paymentWillingness,
+      preferred_monthly_price: values.preferredPrice,
+      consent_to_contact: values.consentToContact,
+    },
   });
 
   return { error };
