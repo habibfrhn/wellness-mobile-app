@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import FoundingMemberForm from "../../components/FoundingMemberForm";
@@ -55,6 +55,13 @@ export default function FoundingMemberScreen({ navigation }: Props) {
       mounted = false;
     };
   }, []);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: "",
+      headerStyle: { backgroundColor: colors.bg },
+    });
+  }, [navigation]);
 
   const containerStyle = useMemo(
     () =>
@@ -130,18 +137,6 @@ export default function FoundingMemberScreen({ navigation }: Props) {
       showsVerticalScrollIndicator={false}
     >
       <View style={[styles.contentWrap, containerStyle]}>
-        <View style={styles.pageHeaderRow}>
-          <Pressable
-            onPress={() => navigation.goBack()}
-            hitSlop={8}
-            accessibilityRole="button"
-            accessibilityLabel={id.player.back}
-            style={styles.pageHeaderBackButton}
-          >
-            <Text style={styles.pageHeaderBackText}>‹</Text>
-          </Pressable>
-        </View>
-
         <View style={styles.introCard}>
           <Text style={styles.introTitle}>Founding Member</Text>
           <Text style={styles.introText}>{id.foundingMember.intro}</Text>
@@ -181,25 +176,6 @@ const styles = StyleSheet.create({
     width: "100%",
     alignSelf: "center",
     gap: spacing.md,
-  },
-  pageHeaderRow: {
-    minHeight: 36,
-    justifyContent: "center",
-    marginBottom: spacing.xs,
-    marginLeft: -spacing.xs,
-  },
-  pageHeaderBackButton: {
-    width: 32,
-    height: 32,
-    borderRadius: radius.full,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  pageHeaderBackText: {
-    fontSize: 32,
-    lineHeight: 22,
-    fontWeight: "500",
-    color: colors.text,
   },
   introTitle: {
     fontSize: typography.title,

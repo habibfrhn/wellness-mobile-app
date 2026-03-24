@@ -114,7 +114,8 @@ export default function AppStack() {
       <Stack.Screen
         name="FoundingMember"
         options={{
-          headerShown: false,
+          title: "",
+          headerBackTitleVisible: false,
         }}
       >
         {(props) => <FoundingMemberScreen {...props} />}
