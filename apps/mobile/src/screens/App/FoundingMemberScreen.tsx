@@ -130,11 +130,7 @@ export default function FoundingMemberScreen({}: Props) {
       showsVerticalScrollIndicator={false}
     >
       <View style={[styles.contentWrap, containerStyle]}>
-        <View style={styles.introCard}>
-          <Text style={styles.title}>{id.foundingMember.title}</Text>
-          <Text style={styles.intro}>{id.foundingMember.intro}</Text>
-          <Text style={styles.support}>{id.foundingMember.supportCopy}</Text>
-        </View>
+        <View style={styles.introCard} />
 
         {isSuccess ? (
           <View style={styles.successCard}>
@@ -171,26 +167,10 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   introCard: {
-    backgroundColor: colors.bg,
+    backgroundColor: "#F6F7F8",
     borderRadius: radius.md,
     padding: spacing.md,
-    gap: spacing.sm,
-  },
-  title: {
-    fontSize: typography.h2,
-    lineHeight: 30,
-    fontWeight: "700",
-    color: colors.primary,
-  },
-  intro: {
-    fontSize: typography.body,
-    lineHeight: 24,
-    color: colors.text,
-  },
-  support: {
-    fontSize: typography.small,
-    lineHeight: 22,
-    color: colors.mutedText,
+    minHeight: 56,
   },
   successCard: {
     backgroundColor: colors.card,
