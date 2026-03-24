@@ -1,7 +1,9 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { getWebViewport } from "../constants/webLayout";
 import { id } from "../i18n/strings";
+import useViewportWidth from "../hooks/useViewportWidth";
 import { colors, radius, spacing, typography } from "../theme/tokens";
 
 type Props = {
@@ -9,11 +11,14 @@ type Props = {
 };
 
 export default function HomeFoundingMemberCard({ onPress }: Props) {
+  const viewport = getWebViewport(useViewportWidth());
+  const isMobileWeb = viewport === "mobile";
+
   return (
     <View style={styles.card}>
       <Text style={styles.title}>{id.home.foundingMemberTitle}</Text>
       <Text style={styles.body}>{id.home.foundingMemberBody}</Text>
-      <Pressable onPress={onPress} style={styles.cta}>
+      <Pressable onPress={onPress} style={[styles.cta, isMobileWeb ? styles.ctaMobile : styles.ctaDesktopTablet]}>
         <Text style={styles.ctaText}>{id.home.foundingMemberCta}</Text>
       </Pressable>
     </View>
@@ -48,13 +53,18 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
     backgroundColor: colors.primary,
     borderRadius: radius.sm,
-    alignSelf: "center",
     minHeight: 52,
     minWidth: 152,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     alignItems: "center",
     justifyContent: "center",
+  },
+  ctaMobile: {
+    alignSelf: "center",
+  },
+  ctaDesktopTablet: {
+    alignSelf: "flex-start",
   },
   ctaText: {
     color: colors.white,
