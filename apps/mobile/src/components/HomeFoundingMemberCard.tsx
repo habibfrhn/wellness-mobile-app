@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
   },
   cta: {
     marginTop: spacing.lg,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.bg,
     borderRadius: radius.sm,
     alignSelf: "stretch",
     minHeight: 56,
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   ctaText: {
-    color: colors.white,
+    color: colors.primary,
     fontWeight: "600",
     textAlign: "center",
     flexShrink: 1,
