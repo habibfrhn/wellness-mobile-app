@@ -1,8 +1,9 @@
 import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import FoundingMemberForm from "../../components/FoundingMemberForm";
+import WebResponsiveFrame from "../../components/WebResponsiveFrame";
 import { getWebPageContainerStyle, getWebPageTopSpacing, getWebViewport } from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { id } from "../../i18n/strings";
@@ -27,6 +28,8 @@ function isValidEmail(value: string) {
 export default function FoundingMemberScreen({ navigation }: Props) {
   const viewportWidth = useViewportWidth();
   const webViewport = getWebViewport(viewportWidth);
+  const isWeb = Platform.OS === "web";
+  const isMobileWeb = isWeb && webViewport === "mobile";
   const [values, setValues] = useState<FoundingMemberFormValues>(() => getInitialFoundingMemberFormValues());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -129,10 +132,13 @@ export default function FoundingMemberScreen({ navigation }: Props) {
     setIsSuccess(true);
   };
 
-  return (
+  const content = (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={[styles.contentContainer, { paddingTop: getWebPageTopSpacing(webViewport) }]}
+      contentContainerStyle={[
+        styles.contentContainer,
+        { paddingTop: isMobileWeb ? spacing.md : getWebPageTopSpacing(webViewport) },
+      ]}
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
@@ -161,6 +167,12 @@ export default function FoundingMemberScreen({ navigation }: Props) {
       </View>
     </ScrollView>
   );
+
+  if (isWeb) {
+    return <WebResponsiveFrame disableFrame>{content}</WebResponsiveFrame>;
+  }
+
+  return content;
 }
 
 const styles = StyleSheet.create({
