@@ -5,13 +5,18 @@ type ErrorCode =
   | "MISSING_USER_TOKEN"
   | "SERVER_MISCONFIGURATION"
   | "INVALID_SESSION"
+  | "RATE_LIMIT_FAILED"
+  | "RATE_LIMITED"
   | "DELETE_FAILED";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-user-jwt",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
+
+const ACTION_NAME = "delete_user_account";
+const MAX_REQUESTS_PER_HOUR = 3;
 
 function json(status: number, body: Record<string, unknown>) {
   return new Response(JSON.stringify(body), {
@@ -30,7 +35,13 @@ function getAuthorizationToken(req: Request) {
     return authorization.slice(7);
   }
 
-  return req.headers.get("x-user-jwt") ?? "";
+  return "";
+}
+
+function getHourBucket(date: Date): string {
+  const bucketDate = new Date(date);
+  bucketDate.setUTCMinutes(0, 0, 0);
+  return `1h:${bucketDate.toISOString().replace(/\.\d{3}Z$/, "Z")}`;
 }
 
 Deno.serve(async (req: Request) => {
@@ -60,11 +71,30 @@ Deno.serve(async (req: Request) => {
   }
 
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
+  const rateLimitBucket = getHourBucket(new Date());
+  const { data: incrementedCount, error: rateLimitError } = await adminClient.rpc(
+    "increment_rate_limit",
+    {
+      p_user_id: userData.user.id,
+      p_action: ACTION_NAME,
+      p_bucket: rateLimitBucket,
+    }
+  );
+
+  if (rateLimitError || typeof incrementedCount !== "number") {
+    console.error("delete-user-account: rate limit increment failed", rateLimitError);
+    return error(500, "Failed to process rate limit", "RATE_LIMIT_FAILED");
+  }
+
+  if (incrementedCount > MAX_REQUESTS_PER_HOUR) {
+    return error(429, "Too many requests", "RATE_LIMITED");
+  }
+
   const { error: deleteError } = await adminClient.auth.admin.deleteUser(userData.user.id);
 
   if (deleteError) {
     console.error("delete-user-account: failed to delete user", deleteError);
-    return error(500, deleteError.message || "Failed to delete account", "DELETE_FAILED");
+    return error(500, "Failed to delete account", "DELETE_FAILED");
   }
 
   return json(200, { ok: true });

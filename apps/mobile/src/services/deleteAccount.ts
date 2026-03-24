@@ -99,7 +99,13 @@ async function deleteAccountViaFunction() {
   }
 
   if (!response.ok || !payload?.ok) {
-    throw new Error(payload?.error || id.account.deleteFailed);
+    if (payload?.code === "RATE_LIMITED") {
+      throw new Error(id.common.tryAgain);
+    }
+    if (payload?.code === "INVALID_SESSION" || payload?.code === "MISSING_USER_TOKEN") {
+      throw new Error(id.account.sessionMissing);
+    }
+    throw new Error(id.account.deleteFailed);
   }
 }
 
