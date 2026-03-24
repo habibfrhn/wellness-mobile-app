@@ -98,20 +98,25 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     (player: any) => {
       clearRetryTimeouts();
 
-      let attempts = 3;
+      let attempts = 12;
       const attemptPlay = () => {
+        if (attempts <= 0) {
+          return;
+        }
+
+        attempts -= 1;
         try {
           player.play();
-          return;
         } catch {
-          attempts -= 1;
-          if (attempts <= 0) {
-            return;
-          }
-
-          const timeoutId = setTimeout(attemptPlay, 120);
-          retryTimeoutRefs.current.push(timeoutId);
+          // no-op; retry below to handle slow player readiness
         }
+
+        if (player?.playing === true) {
+          return;
+        }
+
+        const timeoutId = setTimeout(attemptPlay, 160);
+        retryTimeoutRefs.current.push(timeoutId);
       };
 
       attemptPlay();
