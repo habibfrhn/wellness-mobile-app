@@ -15,8 +15,10 @@ type UseSleepSessionPlayerArgs = {
   setAutoPlayNextTrack: Dispatch<SetStateAction<boolean>>;
   activePlayer: any;
   primaryPlayer: any;
+  playWithRetry: (player: any) => void;
   pauseAll: () => void;
   resetPlayers: () => void;
+  onSessionComplete?: () => void;
 };
 
 export function useSleepSessionPlayer({
@@ -33,8 +35,10 @@ export function useSleepSessionPlayer({
   setAutoPlayNextTrack,
   activePlayer,
   primaryPlayer,
+  playWithRetry,
   pauseAll,
   resetPlayers,
+  onSessionComplete,
 }: UseSleepSessionPlayerArgs) {
   const elapsedBeforeCurrent = useMemo(
     () => trackDurations.slice(0, playlistIndex).reduce((sum, item) => sum + item, 0),
@@ -62,29 +66,38 @@ export function useSleepSessionPlayer({
         setAutoPlayNextTrack(false);
         setHasSessionStarted(true);
         primaryPlayer.seekTo(0);
-        primaryPlayer.play();
+        playWithRetry(primaryPlayer);
         return;
       }
 
       if (atEnd) {
         activePlayer.seekTo(0);
       }
-      activePlayer.play();
+      playWithRetry(activePlayer);
       setHasSessionStarted(true);
     } catch {
       // no-op
     }
-  }, [activePlayer, activeStatusPlaying, atEnd, hasSessionStarted, pauseAll, primaryPlayer, resetPlayers, setHasSessionStarted]);
+  }, [
+    activePlayer,
+    activeStatusPlaying,
+    atEnd,
+    hasSessionStarted,
+    pauseAll,
+    playWithRetry,
+    primaryPlayer,
+    setHasSessionStarted,
+  ]);
 
   const onRestart = useCallback(() => {
     try {
       resetPlayers();
-      primaryPlayer.play();
+      playWithRetry(primaryPlayer);
       setHasSessionStarted(true);
     } catch {
       // no-op
     }
-  }, [primaryPlayer, resetPlayers, setHasSessionStarted]);
+  }, [playWithRetry, primaryPlayer, resetPlayers, setHasSessionStarted]);
 
   useEffect(() => {
     if (!isTailoredSession || !autoPlayNextTrack) {
@@ -92,14 +105,21 @@ export function useSleepSessionPlayer({
     }
 
     try {
-      primaryPlayer.play();
+      playWithRetry(primaryPlayer);
       setHasSessionStarted(true);
     } catch {
       // no-op
     } finally {
       setAutoPlayNextTrack(false);
     }
-  }, [autoPlayNextTrack, isTailoredSession, primaryPlayer, setAutoPlayNextTrack, setHasSessionStarted]);
+  }, [
+    autoPlayNextTrack,
+    isTailoredSession,
+    playWithRetry,
+    primaryPlayer,
+    setAutoPlayNextTrack,
+    setHasSessionStarted,
+  ]);
 
   useEffect(() => {
     if (!isTailoredSession || !hasSessionStarted || activeStatusPlaying || !atEnd) {
@@ -112,6 +132,7 @@ export function useSleepSessionPlayer({
       return;
     }
 
+    onSessionComplete?.();
     resetPlayers();
     setHasSessionStarted(false);
     setPlaylistIndex(0);
@@ -120,6 +141,7 @@ export function useSleepSessionPlayer({
     atEnd,
     hasSessionStarted,
     isTailoredSession,
+    onSessionComplete,
     playlistIndex,
     resetPlayers,
     setAutoPlayNextTrack,

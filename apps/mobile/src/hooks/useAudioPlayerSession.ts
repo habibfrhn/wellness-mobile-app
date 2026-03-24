@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { getTrackById } from "../content/audioCatalog";
 import type { AudioId } from "../content/audioCatalog";
+import { saveNightSessionCompletion, type NightSessionMode } from "../services/nightSessions";
 import { useSleepSessionPlayer } from "./useSleepSessionPlayer";
 
 const FADE_OUT_SECONDS = 5;
@@ -19,9 +20,10 @@ export const TIMER_OPTIONS = [
 type UseAudioPlayerSessionArgs = {
   audioId: AudioId;
   playlistIds?: AudioId[];
+  sleepMode?: NightSessionMode;
 };
 
-export function useAudioPlayerSession({ audioId, playlistIds }: UseAudioPlayerSessionArgs) {
+export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAudioPlayerSessionArgs) {
   const normalizedPlaylistIds = useMemo(() => {
     const sourceIds = playlistIds && playlistIds.length > 0 ? playlistIds : [audioId];
     return sourceIds.filter((value, index, arr) => arr.indexOf(value) === index);
@@ -38,6 +40,8 @@ export function useAudioPlayerSession({ audioId, playlistIds }: UseAudioPlayerSe
   const [timerRemaining, setTimerRemaining] = useState<number | null>(null);
 
   const fadeOutIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const retryTimeoutRefs = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const sessionCompletionLockRef = useRef(false);
 
   const currentAudioId: AudioId = normalizedPlaylistIds[playlistIndex] ?? audioId;
   const track = useMemo(() => getTrackById(currentAudioId), [currentAudioId]);
@@ -81,6 +85,40 @@ export function useAudioPlayerSession({ audioId, playlistIds }: UseAudioPlayerSe
     }
   }, []);
 
+  const clearRetryTimeouts = useCallback(() => {
+    if (!retryTimeoutRefs.current.length) {
+      return;
+    }
+
+    retryTimeoutRefs.current.forEach((timeoutId) => clearTimeout(timeoutId));
+    retryTimeoutRefs.current = [];
+  }, []);
+
+  const playWithRetry = useCallback(
+    (player: any) => {
+      clearRetryTimeouts();
+
+      let attempts = 3;
+      const attemptPlay = () => {
+        try {
+          player.play();
+          return;
+        } catch {
+          attempts -= 1;
+          if (attempts <= 0) {
+            return;
+          }
+
+          const timeoutId = setTimeout(attemptPlay, 120);
+          retryTimeoutRefs.current.push(timeoutId);
+        }
+      };
+
+      attemptPlay();
+    },
+    [clearRetryTimeouts],
+  );
+
   const resetPlayers = useCallback(() => {
     clearFadeOutInterval();
     try {
@@ -101,6 +139,7 @@ export function useAudioPlayerSession({ audioId, playlistIds }: UseAudioPlayerSe
   }, [clearFadeOutInterval, primaryPlayer, secondaryPlayer, setPlayerVolume]);
 
   const pauseAll = useCallback(() => {
+    clearRetryTimeouts();
     try {
       primaryPlayer.pause();
     } catch {
@@ -111,7 +150,24 @@ export function useAudioPlayerSession({ audioId, playlistIds }: UseAudioPlayerSe
     } catch {
       // no-op
     }
-  }, [primaryPlayer, secondaryPlayer]);
+  }, [clearRetryTimeouts, primaryPlayer, secondaryPlayer]);
+
+  const handleSessionComplete = useCallback(() => {
+    if (!sleepMode || sessionCompletionLockRef.current) {
+      return;
+    }
+
+    sessionCompletionLockRef.current = true;
+    void saveNightSessionCompletion({
+      mode: sleepMode,
+      stressBefore: 3,
+      stressAfter: 3,
+    }).finally(() => {
+      setTimeout(() => {
+        sessionCompletionLockRef.current = false;
+      }, 500);
+    });
+  }, [sleepMode]);
 
   const sleepSessionPlayer = useSleepSessionPlayer({
     isTailoredSession,
@@ -127,8 +183,10 @@ export function useAudioPlayerSession({ audioId, playlistIds }: UseAudioPlayerSe
     setAutoPlayNextTrack,
     activePlayer,
     primaryPlayer,
+    playWithRetry,
     pauseAll,
     resetPlayers,
+    onSessionComplete: handleSessionComplete,
   });
 
   const onTogglePlay = useCallback(() => {
@@ -146,11 +204,19 @@ export function useAudioPlayerSession({ audioId, playlistIds }: UseAudioPlayerSe
       if (atEnd) {
         activePlayer.seekTo(0);
       }
-      activePlayer.play();
+      playWithRetry(activePlayer);
     } catch {
       // no-op
     }
-  }, [activePlayer, activeStatus.playing, atEnd, isTailoredSession, pauseAll, sleepSessionPlayer]);
+  }, [
+    activePlayer,
+    activeStatus.playing,
+    atEnd,
+    isTailoredSession,
+    pauseAll,
+    playWithRetry,
+    sleepSessionPlayer,
+  ]);
 
   const onRestart = useCallback(() => {
     if (isTailoredSession) {
@@ -160,11 +226,11 @@ export function useAudioPlayerSession({ audioId, playlistIds }: UseAudioPlayerSe
 
     try {
       resetPlayers();
-      primaryPlayer.play();
+      playWithRetry(primaryPlayer);
     } catch {
       // no-op
     }
-  }, [isTailoredSession, primaryPlayer, resetPlayers, sleepSessionPlayer]);
+  }, [isTailoredSession, playWithRetry, primaryPlayer, resetPlayers, sleepSessionPlayer]);
 
   const onSeek = useCallback(
     (value: number) => {
@@ -329,8 +395,9 @@ export function useAudioPlayerSession({ audioId, playlistIds }: UseAudioPlayerSe
   useEffect(() => {
     return () => {
       clearFadeOutInterval();
+      clearRetryTimeouts();
     };
-  }, [clearFadeOutInterval]);
+  }, [clearFadeOutInterval, clearRetryTimeouts]);
 
   return {
     track,

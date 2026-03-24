@@ -74,7 +74,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     handleStop,
     resetPlayers,
     resetSessionState,
-  } = useAudioPlayerSession({ audioId, playlistIds });
+  } = useAudioPlayerSession({ audioId, playlistIds, sleepMode });
 
   useEffect(() => {
     setFavorite(isFavorite(track.id));
