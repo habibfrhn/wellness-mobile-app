@@ -15,7 +15,10 @@ import {
 
 import { colors, radius, spacing, typography } from "../theme/tokens";
 import { getWebPageTopSpacing, getWebViewport } from "../constants/webLayout";
-import type { AppStackParamList, AuthStackParamList } from "../navigation/types";
+import type {
+  AppStackParamList,
+  AuthStackParamList,
+} from "../navigation/types";
 import useViewportWidth from "../hooks/useViewportWidth";
 import WebResponsiveFrame from "../components/WebResponsiveFrame";
 import LandingMobileAuthMenu from "../components/landing/LandingMobileAuthMenu";
@@ -39,7 +42,7 @@ type SectionKey =
 
 const HERO_IMAGE = require("../../assets/image/landing-page/1.jpg");
 const EMPATHY_IMAGE_FOUR = require("../../assets/image/landing-page/4.jpg");
-const BENEFITS_IMAGE = require("../../assets/image/landing-page/8.jpg");
+const BENEFITS_IMAGE = require("../../assets/image/landing-page/12.jpg");
 const TRUST_IMAGE = require("../../assets/image/landing-page/9.jpg");
 const CLOSING_CTA_IMAGE = require("../../assets/image/landing-page/10.jpg");
 const HERO_GAP = 20;
@@ -285,10 +288,13 @@ export default function LandingScreen() {
                       isDesktop || isTablet
                         ? styles.landingButtonSizeDesktop
                         : styles.landingButtonSizeMobile,
-                      (isDesktop || isTablet) && styles.headerPrimaryButtonCompact,
+                      (isDesktop || isTablet) &&
+                        styles.headerPrimaryButtonCompact,
                     ]}
                   >
-                    <Text style={styles.landingButtonPrimaryText}>Buat akun</Text>
+                    <Text style={styles.landingButtonPrimaryText}>
+                      Buat akun
+                    </Text>
                   </Pressable>
                 </>
               )}
@@ -403,14 +409,16 @@ export default function LandingScreen() {
                 styles.sectionTitle,
                 (isDesktop || isTablet) && styles.sectionTitleDesktop,
                 styles.sectionTitleToContentGap,
-                (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
+                (isDesktop || isTablet) &&
+                  styles.sectionTitleToContentGapDesktop,
               ]}
             >
               Bantu bentuk Lumepo dari awal
             </Text>
             <Text style={styles.foundingMemberBody}>
-              Lumepo gratis untuk dicoba siapa saja. Founding Member adalah orang-orang yang ingin
-              ikut membentuk produk ini lewat masukan, pengalaman, dan ide mereka.
+              Lumepo gratis untuk dicoba siapa saja. Founding Member adalah
+              orang-orang yang ingin ikut membentuk produk ini lewat masukan,
+              pengalaman, dan ide mereka.
             </Text>
             <View style={styles.foundingMemberBulletList}>
               {FOUNDING_MEMBER_BENEFITS.map((benefit) => (
@@ -447,7 +455,10 @@ export default function LandingScreen() {
             onLayout={(event) => {
               sectionOffsets.current["cara-kerja"] = event.nativeEvent.layout.y;
             }}
-            style={[styles.section, (isDesktop || isTablet) && styles.sectionDesktop]}
+            style={[
+              styles.section,
+              (isDesktop || isTablet) && styles.sectionDesktop,
+            ]}
           >
             <View
               style={[
@@ -501,7 +512,8 @@ export default function LandingScreen() {
                   <View
                     style={[
                       styles.processContentColumn,
-                      (isDesktop || isTablet) && styles.processContentColumnDesktop,
+                      (isDesktop || isTablet) &&
+                        styles.processContentColumnDesktop,
                     ]}
                   >
                     <Text
@@ -509,7 +521,8 @@ export default function LandingScreen() {
                         styles.sectionTitle,
                         (isDesktop || isTablet) && styles.sectionTitleDesktop,
                         styles.sectionTitleToContentGap,
-                        (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
+                        (isDesktop || isTablet) &&
+                          styles.sectionTitleToContentGapDesktop,
                       ]}
                     >
                       Langkah kecil sebelum tidur
@@ -530,7 +543,10 @@ export default function LandingScreen() {
             onLayout={(event) => {
               sectionOffsets.current.manfaat = event.nativeEvent.layout.y;
             }}
-            style={[styles.section, (isDesktop || isTablet) && styles.sectionDesktop]}
+            style={[
+              styles.section,
+              (isDesktop || isTablet) && styles.sectionDesktop,
+            ]}
           >
             <View
               style={[
@@ -540,42 +556,73 @@ export default function LandingScreen() {
                   : styles.benefitsLayoutMobile,
               ]}
             >
-              <View
-                style={[
-                  styles.benefitsTextColumn,
-                  (isDesktop || isTablet) && styles.benefitsTextColumnDesktop,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.sectionTitle,
-                    (isDesktop || isTablet) && styles.sectionTitleDesktop,
-                    styles.benefitsTitle,
-                    styles.sectionTitleToContentGap,
-                    (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
-                  ]}
-                >
-                  Yang kamu rasakan
-                </Text>
-                <Text style={styles.benefitsBody}>
-                  Pelan pelan pikiran mulai melambat dan tubuh lebih siap untuk
-                  tidur. Tidur terasa lebih dalam dan bangun lebih ringan. Kamu
-                  punya ruang untuk menutup hari dengan sadar.
-                </Text>
-              </View>
+              {!isDesktop && !isTablet ? (
+                <>
+                  <View style={styles.benefitsTextColumn}>
+                    <Text
+                      style={[
+                        styles.sectionTitle,
+                        styles.benefitsTitle,
+                        styles.sectionTitleToContentGap,
+                      ]}
+                    >
+                      Yang kamu rasakan
+                    </Text>
+                    <Text style={styles.benefitsBody}>
+                      Pelan pelan pikiran mulai melambat dan tubuh lebih siap
+                      untuk tidur. Tidur terasa lebih dalam dan bangun lebih
+                      ringan. Kamu punya ruang untuk menutup hari dengan sadar.
+                    </Text>
+                  </View>
 
-              <View
-                style={[
-                  styles.benefitsImageCard,
-                  (isDesktop || isTablet) && styles.benefitsImageCardDesktop,
-                ]}
-              >
-                <Image
-                  source={BENEFITS_IMAGE}
-                  style={styles.heroImage}
-                  resizeMode="cover"
-                />
-              </View>
+                  <View style={styles.benefitsImageCard}>
+                    <Image
+                      source={BENEFITS_IMAGE}
+                      style={styles.heroImage}
+                      resizeMode="cover"
+                    />
+                  </View>
+                </>
+              ) : (
+                <>
+                  <View
+                    style={[
+                      styles.benefitsImageCard,
+                      styles.benefitsImageCardDesktop,
+                    ]}
+                  >
+                    <Image
+                      source={BENEFITS_IMAGE}
+                      style={styles.heroImage}
+                      resizeMode="cover"
+                    />
+                  </View>
+
+                  <View
+                    style={[
+                      styles.benefitsTextColumn,
+                      styles.benefitsTextColumnDesktop,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.sectionTitle,
+                        styles.sectionTitleDesktop,
+                        styles.benefitsTitle,
+                        styles.sectionTitleToContentGap,
+                        styles.sectionTitleToContentGapDesktop,
+                      ]}
+                    >
+                      Yang kamu rasakan
+                    </Text>
+                    <Text style={styles.benefitsBody}>
+                      Pelan pelan pikiran mulai melambat dan tubuh lebih siap
+                      untuk tidur. Tidur terasa lebih dalam dan bangun lebih
+                      ringan. Kamu punya ruang untuk menutup hari dengan sadar.
+                    </Text>
+                  </View>
+                </>
+              )}
             </View>
           </View>
 
@@ -584,7 +631,10 @@ export default function LandingScreen() {
             onLayout={(event) => {
               sectionOffsets.current.trust = event.nativeEvent.layout.y;
             }}
-            style={[styles.section, (isDesktop || isTablet) && styles.sectionDesktop]}
+            style={[
+              styles.section,
+              (isDesktop || isTablet) && styles.sectionDesktop,
+            ]}
           >
             <View
               style={[
@@ -626,19 +676,6 @@ export default function LandingScreen() {
                 <>
                   <View
                     style={[
-                      styles.trustImageCard,
-                      (isDesktop || isTablet) && styles.trustImageCardDesktop,
-                    ]}
-                  >
-                    <Image
-                      source={TRUST_IMAGE}
-                      style={styles.heroImage}
-                      resizeMode="cover"
-                    />
-                  </View>
-
-                  <View
-                    style={[
                       styles.trustTextColumn,
                       (isDesktop || isTablet) && styles.trustTextColumnDesktop,
                     ]}
@@ -649,7 +686,8 @@ export default function LandingScreen() {
                         (isDesktop || isTablet) && styles.sectionTitleDesktop,
                         styles.trustTitle,
                         styles.sectionTitleToContentGap,
-                        (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
+                        (isDesktop || isTablet) &&
+                          styles.sectionTitleToContentGapDesktop,
                       ]}
                     >
                       Dibuat dari Pengalaman Nyata
@@ -660,6 +698,18 @@ export default function LandingScreen() {
                       menjadi lebih produktif, tapi tentang memberi diri sendiri
                       ruang untuk berhenti.
                     </Text>
+                  </View>
+                  <View
+                    style={[
+                      styles.trustImageCard,
+                      (isDesktop || isTablet) && styles.trustImageCardDesktop,
+                    ]}
+                  >
+                    <Image
+                      source={TRUST_IMAGE}
+                      style={styles.heroImage}
+                      resizeMode="cover"
+                    />
                   </View>
                 </>
               )}
@@ -686,57 +736,99 @@ export default function LandingScreen() {
                   : styles.closingCtaLayoutMobile,
               ]}
             >
-              <View
-                style={[
-                  styles.closingCtaTextColumn,
-                  (isDesktop || isTablet) && styles.closingCtaTextColumnDesktop,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.sectionTitle,
-                    (isDesktop || isTablet) && styles.sectionTitleDesktop,
-                    styles.sectionTitleToContentGap,
-                    (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
-                  ]}
-                >
-                  Malam Ini, Kamu Bisa Memulainya
-                </Text>
-                <Text style={styles.closingCtaSubtext}>
-                  Cukup 15 menit sebelum tidur.
-                </Text>
-                <Pressable
-                  onPress={goToSignUp}
-                  style={[
-                    styles.landingButtonBase,
-                    styles.landingButtonPrimary,
-                    isDesktop || isTablet
-                      ? styles.landingButtonSizeDesktop
-                      : styles.landingButtonSizeMobile,
-                    styles.closingCtaButton,
-                  ]}
-                >
-                  <Text style={styles.landingButtonPrimaryText}>
-                    Mulai Gratis
-                  </Text>
-                </Pressable>
-                <Text style={styles.closingCtaMicrocopy}>
-                  Tanpa kartu kredit.
-                </Text>
-              </View>
+              {!isDesktop && !isTablet ? (
+                <>
+                  <View style={styles.closingCtaTextColumn}>
+                    <Text
+                      style={[
+                        styles.sectionTitle,
+                        styles.sectionTitleToContentGap,
+                      ]}
+                    >
+                      Malam Ini, Kamu Bisa Memulainya
+                    </Text>
+                    <Text style={styles.closingCtaSubtext}>
+                      Cukup 15 menit sebelum tidur.
+                    </Text>
+                    <Pressable
+                      onPress={goToSignUp}
+                      style={[
+                        styles.landingButtonBase,
+                        styles.landingButtonPrimary,
+                        styles.landingButtonSizeMobile,
+                        styles.closingCtaButton,
+                      ]}
+                    >
+                      <Text style={styles.landingButtonPrimaryText}>
+                        Mulai Gratis
+                      </Text>
+                    </Pressable>
+                    <Text style={styles.closingCtaMicrocopy}>
+                      Tanpa kartu kredit.
+                    </Text>
+                  </View>
 
-              <View
-                style={[
-                  styles.closingCtaImageCard,
-                  (isDesktop || isTablet) && styles.closingCtaImageCardDesktop,
-                ]}
-              >
-                <Image
-                  source={CLOSING_CTA_IMAGE}
-                  style={styles.heroImage}
-                  resizeMode="cover"
-                />
-              </View>
+                  <View style={styles.closingCtaImageCard}>
+                    <Image
+                      source={CLOSING_CTA_IMAGE}
+                      style={styles.heroImage}
+                      resizeMode="cover"
+                    />
+                  </View>
+                </>
+              ) : (
+                <>
+                  <View
+                    style={[
+                      styles.closingCtaImageCard,
+                      styles.closingCtaImageCardDesktop,
+                    ]}
+                  >
+                    <Image
+                      source={CLOSING_CTA_IMAGE}
+                      style={styles.heroImage}
+                      resizeMode="cover"
+                    />
+                  </View>
+
+                  <View
+                    style={[
+                      styles.closingCtaTextColumn,
+                      styles.closingCtaTextColumnDesktop,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.sectionTitle,
+                        styles.sectionTitleDesktop,
+                        styles.sectionTitleToContentGap,
+                        styles.sectionTitleToContentGapDesktop,
+                      ]}
+                    >
+                      Malam Ini, Kamu Bisa Memulainya
+                    </Text>
+                    <Text style={styles.closingCtaSubtext}>
+                      Cukup 15 menit sebelum tidur.
+                    </Text>
+                    <Pressable
+                      onPress={goToSignUp}
+                      style={[
+                        styles.landingButtonBase,
+                        styles.landingButtonPrimary,
+                        styles.landingButtonSizeDesktop,
+                        styles.closingCtaButton,
+                      ]}
+                    >
+                      <Text style={styles.landingButtonPrimaryText}>
+                        Mulai Gratis
+                      </Text>
+                    </Pressable>
+                    <Text style={styles.closingCtaMicrocopy}>
+                      Tanpa kartu kredit.
+                    </Text>
+                  </View>
+                </>
+              )}
             </View>
           </View>
 
@@ -745,14 +837,18 @@ export default function LandingScreen() {
             onLayout={(event) => {
               sectionOffsets.current.faq = event.nativeEvent.layout.y;
             }}
-            style={[styles.section, (isDesktop || isTablet) && styles.sectionDesktop]}
+            style={[
+              styles.section,
+              (isDesktop || isTablet) && styles.sectionDesktop,
+            ]}
           >
             <Text
               style={[
                 styles.sectionTitle,
                 (isDesktop || isTablet) && styles.sectionTitleDesktop,
                 styles.sectionTitleToContentGap,
-                (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
+                (isDesktop || isTablet) &&
+                  styles.sectionTitleToContentGapDesktop,
                 styles.faqSectionTitle,
               ]}
             >
@@ -784,8 +880,8 @@ export default function LandingScreen() {
                   Apakah saya harus bisa meditasi dulu?
                 </Text>
                 <Text style={styles.faqAnswer}>
-                  Tidak sama sekali. Kamu tinggal ikuti panduannya dan
-                  dengarkan dengan santai.
+                  Tidak sama sekali. Kamu tinggal ikuti panduannya dan dengarkan
+                  dengan santai.
                 </Text>
               </View>
 
@@ -810,8 +906,8 @@ export default function LandingScreen() {
 
               <View style={styles.faqItem}>
                 <Text style={styles.faqQuestion}>
-                  Apakah ini cocok untuk saya yang susah berhenti mikir di
-                  malam hari?
+                  Apakah ini cocok untuk saya yang susah berhenti mikir di malam
+                  hari?
                 </Text>
                 <Text style={styles.faqAnswer}>
                   Cocok. Ritual ini dirancang untuk membantu kamu pelan-pelan
@@ -957,7 +1053,6 @@ export default function LandingScreen() {
           </View>
         </View>
       </ScrollView>
-
     </WebResponsiveFrame>
   );
 }
@@ -1399,6 +1494,7 @@ const styles = StyleSheet.create({
   },
   closingCtaImageCardDesktop: {
     flex: 1,
+    maxWidth: 460,
   },
   closingCtaSubtext: {
     fontSize: typography.body,
