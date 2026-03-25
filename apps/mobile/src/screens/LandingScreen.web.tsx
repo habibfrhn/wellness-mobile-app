@@ -42,6 +42,7 @@ const EMPATHY_IMAGE_FOUR = require("../../assets/image/landing-page/4.jpg");
 const BENEFITS_IMAGE = require("../../assets/image/landing-page/8.jpg");
 const TRUST_IMAGE = require("../../assets/image/landing-page/9.jpg");
 const CLOSING_CTA_IMAGE = require("../../assets/image/landing-page/10.jpg");
+const FOUNDING_MEMBER_IMAGE = require("../../assets/image/landing-page/12.jpg");
 const HERO_GAP = 20;
 const HERO_IMAGE_RATIO = 4 / 5;
 const BUTTON_PADDING_VERTICAL_DESKTOP = 12;
@@ -398,48 +399,132 @@ export default function LandingScreen() {
               styles.foundingMemberSection,
             ]}
           >
-            <Text
+            <View
               style={[
-                styles.sectionTitle,
-                (isDesktop || isTablet) && styles.sectionTitleDesktop,
-                styles.sectionTitleToContentGap,
-                (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
-              ]}
-            >
-              Bantu bentuk Lumepo dari awal
-            </Text>
-            <Text style={styles.foundingMemberBody}>
-              Lumepo gratis untuk dicoba siapa saja. Founding Member adalah orang-orang yang ingin
-              ikut membentuk produk ini lewat masukan, pengalaman, dan ide mereka.
-            </Text>
-            <View style={styles.foundingMemberBulletList}>
-              {FOUNDING_MEMBER_BENEFITS.map((benefit) => (
-                <View key={benefit} style={styles.foundingMemberBulletRow}>
-                  <Text style={styles.foundingMemberBulletMark}>•</Text>
-                  <Text style={styles.foundingMemberBulletText}>{benefit}</Text>
-                </View>
-              ))}
-            </View>
-            <Pressable
-              onPress={() => {
-                void goToFoundingMember();
-              }}
-              style={[
-                styles.landingButtonBase,
-                styles.landingButtonSecondary,
+                styles.foundingMemberLayout,
                 isDesktop || isTablet
-                  ? styles.landingButtonSizeDesktop
-                  : styles.landingButtonSizeMobile,
-                styles.foundingMemberButton,
+                  ? styles.foundingMemberLayoutDesktop
+                  : styles.foundingMemberLayoutMobile,
               ]}
             >
-              <Text style={styles.landingButtonSecondaryText}>
-                Jadi Founding Member
-              </Text>
-            </Pressable>
-            <Text style={styles.foundingMemberHelperText}>
-              Buat akun atau masuk untuk bergabung.
-            </Text>
+              {!isDesktop && !isTablet ? (
+                <>
+                  <View style={styles.foundingMemberTextColumn}>
+                    <Text
+                      style={[
+                        styles.sectionTitle,
+                        styles.sectionTitleToContentGap,
+                      ]}
+                    >
+                      Bantu bentuk Lumepo dari awal
+                    </Text>
+                    <Text style={styles.foundingMemberBody}>
+                      Lumepo gratis untuk dicoba siapa saja. Founding Member adalah orang-orang
+                      yang ingin ikut membentuk produk ini lewat masukan, pengalaman, dan ide
+                      mereka.
+                    </Text>
+                    <View style={styles.foundingMemberBulletList}>
+                      {FOUNDING_MEMBER_BENEFITS.map((benefit) => (
+                        <View key={benefit} style={styles.foundingMemberBulletRow}>
+                          <Text style={styles.foundingMemberBulletMark}>•</Text>
+                          <Text style={styles.foundingMemberBulletText}>{benefit}</Text>
+                        </View>
+                      ))}
+                    </View>
+                    <Pressable
+                      onPress={() => {
+                        void goToFoundingMember();
+                      }}
+                      style={[
+                        styles.landingButtonBase,
+                        styles.landingButtonSecondary,
+                        styles.landingButtonSizeMobile,
+                        styles.foundingMemberButton,
+                      ]}
+                    >
+                      <Text style={styles.landingButtonSecondaryText}>
+                        Jadi Founding Member
+                      </Text>
+                    </Pressable>
+                    <Text style={styles.foundingMemberHelperText}>
+                      Buat akun atau masuk untuk bergabung.
+                    </Text>
+                  </View>
+
+                  <View style={styles.foundingMemberImageCard}>
+                    <Image
+                      source={FOUNDING_MEMBER_IMAGE}
+                      style={styles.heroImage}
+                      resizeMode="cover"
+                    />
+                  </View>
+                </>
+              ) : (
+                <>
+                  <View
+                    style={[
+                      styles.foundingMemberImageCard,
+                      styles.foundingMemberImageCardDesktop,
+                    ]}
+                  >
+                    <Image
+                      source={FOUNDING_MEMBER_IMAGE}
+                      style={styles.heroImage}
+                      resizeMode="cover"
+                    />
+                  </View>
+
+                  <View
+                    style={[
+                      styles.foundingMemberTextColumn,
+                      styles.foundingMemberTextColumnDesktop,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.sectionTitle,
+                        styles.sectionTitleDesktop,
+                        styles.sectionTitleToContentGap,
+                        styles.sectionTitleToContentGapDesktop,
+                      ]}
+                    >
+                      Bantu bentuk Lumepo dari awal
+                    </Text>
+                    <Text style={styles.foundingMemberBody}>
+                      Lumepo gratis untuk dicoba siapa saja. Founding Member adalah orang-orang
+                      yang ingin ikut membentuk produk ini lewat masukan, pengalaman, dan ide
+                      mereka.
+                    </Text>
+                    <View style={styles.foundingMemberBulletList}>
+                      {FOUNDING_MEMBER_BENEFITS.map((benefit) => (
+                        <View key={benefit} style={styles.foundingMemberBulletRow}>
+                          <Text style={styles.foundingMemberBulletMark}>•</Text>
+                          <Text style={styles.foundingMemberBulletText}>{benefit}</Text>
+                        </View>
+                      ))}
+                    </View>
+                    <Pressable
+                      onPress={() => {
+                        void goToFoundingMember();
+                      }}
+                      style={[
+                        styles.landingButtonBase,
+                        styles.landingButtonSecondary,
+                        styles.landingButtonSizeDesktop,
+                        styles.foundingMemberButton,
+                      ]}
+                    >
+                      <Text style={styles.landingButtonSecondaryText}>
+                        Jadi Founding Member
+                      </Text>
+                    </Pressable>
+                    <Text style={styles.foundingMemberHelperText}>
+                      Buat akun atau masuk untuk bergabung.
+                    </Text>
+                  </View>
+                </>
+              )}
+            </View>
           </View>
 
           <View
@@ -487,19 +572,6 @@ export default function LandingScreen() {
                 <>
                   <View
                     style={[
-                      styles.heroImageCard,
-                      (isDesktop || isTablet) && styles.heroImageCardDesktop,
-                    ]}
-                  >
-                    <Image
-                      source={EMPATHY_IMAGE_FOUR}
-                      style={styles.heroImage}
-                      resizeMode="cover"
-                    />
-                  </View>
-
-                  <View
-                    style={[
                       styles.processContentColumn,
                       (isDesktop || isTablet) && styles.processContentColumnDesktop,
                     ]}
@@ -519,6 +591,19 @@ export default function LandingScreen() {
                       langkahnya memandu kamu. Tanpa banyak pilihan, tanpa
                       distraksi.
                     </Text>
+                  </View>
+
+                  <View
+                    style={[
+                      styles.heroImageCard,
+                      (isDesktop || isTablet) && styles.heroImageCardDesktop,
+                    ]}
+                  >
+                    <Image
+                      source={EMPATHY_IMAGE_FOUR}
+                      style={styles.heroImage}
+                      resizeMode="cover"
+                    />
                   </View>
                 </>
               )}
@@ -540,42 +625,73 @@ export default function LandingScreen() {
                   : styles.benefitsLayoutMobile,
               ]}
             >
-              <View
-                style={[
-                  styles.benefitsTextColumn,
-                  (isDesktop || isTablet) && styles.benefitsTextColumnDesktop,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.sectionTitle,
-                    (isDesktop || isTablet) && styles.sectionTitleDesktop,
-                    styles.benefitsTitle,
-                    styles.sectionTitleToContentGap,
-                    (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
-                  ]}
-                >
-                  Yang kamu rasakan
-                </Text>
-                <Text style={styles.benefitsBody}>
-                  Pelan pelan pikiran mulai melambat dan tubuh lebih siap untuk
-                  tidur. Tidur terasa lebih dalam dan bangun lebih ringan. Kamu
-                  punya ruang untuk menutup hari dengan sadar.
-                </Text>
-              </View>
+              {!isDesktop && !isTablet ? (
+                <>
+                  <View style={styles.benefitsTextColumn}>
+                    <Text
+                      style={[
+                        styles.sectionTitle,
+                        styles.benefitsTitle,
+                        styles.sectionTitleToContentGap,
+                      ]}
+                    >
+                      Yang kamu rasakan
+                    </Text>
+                    <Text style={styles.benefitsBody}>
+                      Pelan pelan pikiran mulai melambat dan tubuh lebih siap untuk
+                      tidur. Tidur terasa lebih dalam dan bangun lebih ringan. Kamu
+                      punya ruang untuk menutup hari dengan sadar.
+                    </Text>
+                  </View>
 
-              <View
-                style={[
-                  styles.benefitsImageCard,
-                  (isDesktop || isTablet) && styles.benefitsImageCardDesktop,
-                ]}
-              >
-                <Image
-                  source={BENEFITS_IMAGE}
-                  style={styles.heroImage}
-                  resizeMode="cover"
-                />
-              </View>
+                  <View style={styles.benefitsImageCard}>
+                    <Image
+                      source={BENEFITS_IMAGE}
+                      style={styles.heroImage}
+                      resizeMode="cover"
+                    />
+                  </View>
+                </>
+              ) : (
+                <>
+                  <View
+                    style={[
+                      styles.benefitsImageCard,
+                      (isDesktop || isTablet) && styles.benefitsImageCardDesktop,
+                    ]}
+                  >
+                    <Image
+                      source={BENEFITS_IMAGE}
+                      style={styles.heroImage}
+                      resizeMode="cover"
+                    />
+                  </View>
+
+                  <View
+                    style={[
+                      styles.benefitsTextColumn,
+                      (isDesktop || isTablet) && styles.benefitsTextColumnDesktop,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.sectionTitle,
+                        (isDesktop || isTablet) && styles.sectionTitleDesktop,
+                        styles.benefitsTitle,
+                        styles.sectionTitleToContentGap,
+                        (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
+                      ]}
+                    >
+                      Yang kamu rasakan
+                    </Text>
+                    <Text style={styles.benefitsBody}>
+                      Pelan pelan pikiran mulai melambat dan tubuh lebih siap untuk
+                      tidur. Tidur terasa lebih dalam dan bangun lebih ringan. Kamu
+                      punya ruang untuk menutup hari dengan sadar.
+                    </Text>
+                  </View>
+                </>
+              )}
             </View>
           </View>
 
@@ -626,19 +742,6 @@ export default function LandingScreen() {
                 <>
                   <View
                     style={[
-                      styles.trustImageCard,
-                      (isDesktop || isTablet) && styles.trustImageCardDesktop,
-                    ]}
-                  >
-                    <Image
-                      source={TRUST_IMAGE}
-                      style={styles.heroImage}
-                      resizeMode="cover"
-                    />
-                  </View>
-
-                  <View
-                    style={[
                       styles.trustTextColumn,
                       (isDesktop || isTablet) && styles.trustTextColumnDesktop,
                     ]}
@@ -660,6 +763,19 @@ export default function LandingScreen() {
                       menjadi lebih produktif, tapi tentang memberi diri sendiri
                       ruang untuk berhenti.
                     </Text>
+                  </View>
+
+                  <View
+                    style={[
+                      styles.trustImageCard,
+                      (isDesktop || isTablet) && styles.trustImageCardDesktop,
+                    ]}
+                  >
+                    <Image
+                      source={TRUST_IMAGE}
+                      style={styles.heroImage}
+                      resizeMode="cover"
+                    />
                   </View>
                 </>
               )}
@@ -686,57 +802,99 @@ export default function LandingScreen() {
                   : styles.closingCtaLayoutMobile,
               ]}
             >
-              <View
-                style={[
-                  styles.closingCtaTextColumn,
-                  (isDesktop || isTablet) && styles.closingCtaTextColumnDesktop,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.sectionTitle,
-                    (isDesktop || isTablet) && styles.sectionTitleDesktop,
-                    styles.sectionTitleToContentGap,
-                    (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
-                  ]}
-                >
-                  Malam Ini, Kamu Bisa Memulainya
-                </Text>
-                <Text style={styles.closingCtaSubtext}>
-                  Cukup 15 menit sebelum tidur.
-                </Text>
-                <Pressable
-                  onPress={goToSignUp}
-                  style={[
-                    styles.landingButtonBase,
-                    styles.landingButtonPrimary,
-                    isDesktop || isTablet
-                      ? styles.landingButtonSizeDesktop
-                      : styles.landingButtonSizeMobile,
-                    styles.closingCtaButton,
-                  ]}
-                >
-                  <Text style={styles.landingButtonPrimaryText}>
-                    Mulai Gratis
-                  </Text>
-                </Pressable>
-                <Text style={styles.closingCtaMicrocopy}>
-                  Tanpa kartu kredit.
-                </Text>
-              </View>
+              {!isDesktop && !isTablet ? (
+                <>
+                  <View style={styles.closingCtaTextColumn}>
+                    <Text
+                      style={[
+                        styles.sectionTitle,
+                        styles.sectionTitleToContentGap,
+                      ]}
+                    >
+                      Malam Ini, Kamu Bisa Memulainya
+                    </Text>
+                    <Text style={styles.closingCtaSubtext}>
+                      Cukup 15 menit sebelum tidur.
+                    </Text>
+                    <Pressable
+                      onPress={goToSignUp}
+                      style={[
+                        styles.landingButtonBase,
+                        styles.landingButtonPrimary,
+                        styles.landingButtonSizeMobile,
+                        styles.closingCtaButton,
+                      ]}
+                    >
+                      <Text style={styles.landingButtonPrimaryText}>
+                        Mulai Gratis
+                      </Text>
+                    </Pressable>
+                    <Text style={styles.closingCtaMicrocopy}>
+                      Tanpa kartu kredit.
+                    </Text>
+                  </View>
 
-              <View
-                style={[
-                  styles.closingCtaImageCard,
-                  (isDesktop || isTablet) && styles.closingCtaImageCardDesktop,
-                ]}
-              >
-                <Image
-                  source={CLOSING_CTA_IMAGE}
-                  style={styles.heroImage}
-                  resizeMode="cover"
-                />
-              </View>
+                  <View style={styles.closingCtaImageCard}>
+                    <Image
+                      source={CLOSING_CTA_IMAGE}
+                      style={styles.heroImage}
+                      resizeMode="cover"
+                    />
+                  </View>
+                </>
+              ) : (
+                <>
+                  <View
+                    style={[
+                      styles.closingCtaImageCard,
+                      (isDesktop || isTablet) && styles.closingCtaImageCardDesktop,
+                    ]}
+                  >
+                    <Image
+                      source={CLOSING_CTA_IMAGE}
+                      style={styles.heroImage}
+                      resizeMode="cover"
+                    />
+                  </View>
+
+                  <View
+                    style={[
+                      styles.closingCtaTextColumn,
+                      (isDesktop || isTablet) && styles.closingCtaTextColumnDesktop,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.sectionTitle,
+                        (isDesktop || isTablet) && styles.sectionTitleDesktop,
+                        styles.sectionTitleToContentGap,
+                        (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
+                      ]}
+                    >
+                      Malam Ini, Kamu Bisa Memulainya
+                    </Text>
+                    <Text style={styles.closingCtaSubtext}>
+                      Cukup 15 menit sebelum tidur.
+                    </Text>
+                    <Pressable
+                      onPress={goToSignUp}
+                      style={[
+                        styles.landingButtonBase,
+                        styles.landingButtonPrimary,
+                        styles.landingButtonSizeDesktop,
+                        styles.closingCtaButton,
+                      ]}
+                    >
+                      <Text style={styles.landingButtonPrimaryText}>
+                        Mulai Gratis
+                      </Text>
+                    </Pressable>
+                    <Text style={styles.closingCtaMicrocopy}>
+                      Tanpa kartu kredit.
+                    </Text>
+                  </View>
+                </>
+              )}
             </View>
           </View>
 
@@ -1416,7 +1574,38 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
   foundingMemberSection: {
-    gap: spacing.sm,
+    gap: 0,
+  },
+  foundingMemberLayout: {
+    width: "100%",
+    gap: spacing.md,
+  },
+  foundingMemberLayoutDesktop: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: DESKTOP_TWO_COLUMN_GAP,
+  },
+  foundingMemberLayoutMobile: {
+    flexDirection: "column",
+    gap: MOBILE_SECTION_STACK_GAP,
+  },
+  foundingMemberImageCard: {
+    width: "100%",
+    aspectRatio: HERO_IMAGE_RATIO,
+    borderRadius: radius.md,
+    overflow: "hidden",
+    backgroundColor: colors.white,
+  },
+  foundingMemberImageCardDesktop: {
+    flex: 1,
+    maxWidth: 460,
+  },
+  foundingMemberTextColumn: {
+    width: "100%",
+  },
+  foundingMemberTextColumnDesktop: {
+    flex: 1,
+    justifyContent: "center",
   },
   foundingMemberBody: {
     fontSize: typography.body,
