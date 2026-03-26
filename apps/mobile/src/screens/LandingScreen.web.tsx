@@ -70,11 +70,6 @@ const TRACKED_SECTIONS: SectionKey[] = [
   "manfaat",
   "faq",
 ];
-const HEADER_NAV_ITEMS: Array<{ key: SectionKey; label: string }> = [
-  { key: "beranda", label: "Beranda" },
-  { key: "manfaat", label: "Manfaat" },
-  { key: "faq", label: "FAQ" },
-];
 export default function LandingScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const scrollRef = useRef<ScrollView | null>(null);
@@ -116,6 +111,36 @@ export default function LandingScreen() {
       animated: true,
     });
   };
+
+  const headerNavItems: Array<{
+    key: string;
+    label: string;
+    onPress: () => void;
+    trackedSectionKey?: SectionKey;
+  }> = [
+    {
+      key: "home",
+      label: "Home",
+      onPress: () => goToSection("beranda"),
+      trackedSectionKey: "beranda",
+    },
+    {
+      key: "faq",
+      label: "FAQ",
+      onPress: () => goToSection("faq"),
+      trackedSectionKey: "faq",
+    },
+    {
+      key: "privacy-policy",
+      label: "Kebijakan Privasi",
+      onPress: goToPrivacyPolicy,
+    },
+    {
+      key: "terms-conditions",
+      label: "Syarat & Ketentuan",
+      onPress: goToTermsConditions,
+    },
+  ];
 
   useEffect(() => {
     const hasObserver =
@@ -207,23 +232,26 @@ export default function LandingScreen() {
               isDesktop && styles.sectionDesktop,
               styles.headerSection,
               isDesktop && styles.headerSectionDesktop,
+              styles.headerSectionSticky,
             ]}
           >
             <Text style={styles.brand}>Lumepo</Text>
 
-            {isDesktop ? (
+            {isDesktop || isTablet ? (
               <View style={styles.headerDesktopNav}>
-                {HEADER_NAV_ITEMS.map((item) => (
+                {headerNavItems.map((item) => (
                   <Pressable
                     key={item.key}
-                    onPress={() => goToSection(item.key)}
+                    onPress={item.onPress}
                     style={styles.navItem}
                   >
                     <Text style={styles.navText}>{item.label}</Text>
                     <View
                       style={[
                         styles.navUnderline,
-                        activeSection === item.key && styles.navUnderlineActive,
+                        item.trackedSectionKey && activeSection === item.trackedSectionKey
+                          ? styles.navUnderlineActive
+                          : null,
                         { transition: "opacity 180ms ease" } as any,
                       ]}
                     />
@@ -854,16 +882,7 @@ export default function LandingScreen() {
                     hovered && styles.footerLinkPressableHover,
                   ]}
                 >
-                  <Text style={styles.footerLinkText}>Beranda</Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => goToSection("manfaat")}
-                  style={({ hovered }: any) => [
-                    styles.footerLinkPressable,
-                    hovered && styles.footerLinkPressableHover,
-                  ]}
-                >
-                  <Text style={styles.footerLinkText}>Manfaat</Text>
+                  <Text style={styles.footerLinkText}>Home</Text>
                 </Pressable>
                 <Pressable
                   onPress={() => goToSection("faq")}
@@ -873,6 +892,24 @@ export default function LandingScreen() {
                   ]}
                 >
                   <Text style={styles.footerLinkText}>FAQ</Text>
+                </Pressable>
+                <Pressable
+                  onPress={goToPrivacyPolicy}
+                  style={({ hovered }: any) => [
+                    styles.footerLinkPressable,
+                    hovered && styles.footerLinkPressableHover,
+                  ]}
+                >
+                  <Text style={styles.footerLinkText}>Kebijakan Privasi</Text>
+                </Pressable>
+                <Pressable
+                  onPress={goToTermsConditions}
+                  style={({ hovered }: any) => [
+                    styles.footerLinkPressable,
+                    hovered && styles.footerLinkPressableHover,
+                  ]}
+                >
+                  <Text style={styles.footerLinkText}>Syarat & Ketentuan</Text>
                 </Pressable>
               </View>
 
@@ -1011,6 +1048,12 @@ const styles = StyleSheet.create({
   headerSectionDesktop: {
     paddingTop: spacing.md,
     paddingBottom: spacing.sm,
+  },
+  headerSectionSticky: {
+    position: "sticky" as any,
+    top: 0,
+    zIndex: 100,
+    backgroundColor: colors.white,
   },
   brand: {
     fontSize: typography.title,
