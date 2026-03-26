@@ -6,6 +6,9 @@ import type { AudioId } from "../content/audioCatalog";
 import { saveNightSessionCompletion, type NightSessionMode } from "../services/nightSessions";
 
 const FADE_OUT_SECONDS = 5;
+const TAILORED_TRANSITION_FADE_OUT_MS = 160;
+const TAILORED_TRANSITION_FADE_IN_MS = 360;
+const VOLUME_TICK_MS = 40;
 
 export const TIMER_OPTIONS = [
   { label: "5 min", seconds: 5 * 60 },
@@ -55,27 +58,21 @@ export function useWebAudioPlayerSession({
   const sessionCompletionLockRef = useRef(false);
   const playlistIndexRef = useRef(playlistIndex);
   const hasSessionStartedRef = useRef(hasSessionStarted);
+  const transitionRequestRef = useRef(0);
 
-  const log = useCallback(
-    (event: string, payload?: Record<string, unknown>) => {
-      if (!isTailoredSession) {
-        return;
-      }
-      if (payload) {
-        console.log(`[tailored] ${event}`, payload);
-      } else {
-        console.log(`[tailored] ${event}`);
-      }
-    },
-    [isTailoredSession],
-  );
+  const getOrCreateAudio = useCallback(() => {
+    if (audioRef.current) {
+      return audioRef.current;
+    }
+    if (typeof Audio === "undefined") {
+      return null;
+    }
 
-  if (!audioRef.current && typeof Audio !== "undefined") {
     const audio = new Audio();
     audio.preload = "auto";
     audioRef.current = audio;
-    log("audio-element-created");
-  }
+    return audio;
+  }, []);
 
   const currentAudioId: AudioId = normalizedPlaylistIds[playlistIndex] ?? audioId;
   const track = useMemo(() => getTrackById(currentAudioId), [currentAudioId]);
@@ -114,21 +111,43 @@ export function useWebAudioPlayerSession({
     }
   }, []);
 
-  const pauseWithReason = useCallback(
-    (reason: string) => {
-      const audio = audioRef.current;
-      if (!audio) {
-        return;
+  const fadeVolume = useCallback(
+    (audio: HTMLAudioElement, from: number, to: number, durationMs: number, requestId?: number) => {
+      clearFadeOutInterval();
+
+      if (durationMs <= 0 || from === to) {
+        audio.volume = to;
+        return Promise.resolve();
       }
-      log("pause-called", { reason, src: audio.src, index: playlistIndexRef.current });
-      audio.pause();
+
+      audio.volume = from;
+      const startMs = Date.now();
+
+      return new Promise<void>((resolve) => {
+        fadeIntervalRef.current = setInterval(() => {
+          if (requestId !== undefined && transitionRequestRef.current !== requestId) {
+            clearFadeOutInterval();
+            resolve();
+            return;
+          }
+
+          const progress = Math.min((Date.now() - startMs) / durationMs, 1);
+          audio.volume = from + (to - from) * progress;
+
+          if (progress >= 1) {
+            clearFadeOutInterval();
+            audio.volume = to;
+            resolve();
+          }
+        }, VOLUME_TICK_MS);
+      });
     },
-    [log],
+    [clearFadeOutInterval],
   );
 
   const assignTrackSource = useCallback(
-    (targetTrack: ReturnType<typeof getTrackById>, reason: string) => {
-      const audio = audioRef.current;
+    (targetTrack: ReturnType<typeof getTrackById>) => {
+      const audio = getOrCreateAudio();
       if (!audio) {
         return false;
       }
@@ -138,76 +157,72 @@ export function useWebAudioPlayerSession({
         return false;
       }
 
-      log("src-assigned", { reason, trackId: targetTrack.id, from: currentSourceRef.current, to: nextSource });
-      pauseWithReason(`assign-track-source:${reason}`);
+      audio.pause();
       audio.src = nextSource;
-      currentSourceRef.current = nextSource;
       audio.loop = targetTrack.contentType === "soundscape" && !isTailoredSession;
       audio.load();
+
+      currentSourceRef.current = nextSource;
       setCurrent(0);
       setDuration(targetTrack.durationSec);
       setIsLoading(true);
       return true;
     },
-    [isTailoredSession, log, pauseWithReason],
+    [getOrCreateAudio, isTailoredSession],
   );
 
-  const playCurrent = useCallback(
-    async (reason: string) => {
-      const audio = audioRef.current;
+  const playAudio = useCallback(async () => {
+    const audio = getOrCreateAudio();
+    if (!audio) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await audio.play();
+    } catch {
+      setIsPlaying(false);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [getOrCreateAudio]);
+
+  const pause = useCallback(() => {
+    const audio = getOrCreateAudio();
+    if (!audio) {
+      return;
+    }
+    audio.pause();
+  }, [getOrCreateAudio]);
+
+  const seekTo = useCallback(
+    (seconds: number) => {
+      const audio = getOrCreateAudio();
       if (!audio) {
         return;
       }
 
-      log("play-called", {
-        reason,
-        src: audio.src,
-        playlistIndex: playlistIndexRef.current,
-        hasSessionStarted: hasSessionStartedRef.current,
-      });
-      setIsLoading(true);
-      try {
-        await audio.play();
-        log("play-resolved", { reason, src: audio.src });
-      } catch (error: unknown) {
-        log("play-rejected", {
-          reason,
-          error: error instanceof Error ? error.message : String(error),
-        });
-        setIsPlaying(false);
-      } finally {
-        setIsLoading(false);
-      }
+      audio.currentTime = Math.max(0, seconds);
+      setCurrent(audio.currentTime || 0);
     },
-    [log],
+    [getOrCreateAudio],
   );
-
-  const pause = useCallback(() => {
-    pauseWithReason("pause-callback");
-  }, [pauseWithReason]);
-
-  const seekTo = useCallback((seconds: number) => {
-    const audio = audioRef.current;
-    if (!audio) {
-      return;
-    }
-    audio.currentTime = Math.max(0, seconds);
-    setCurrent(audio.currentTime || 0);
-  }, []);
 
   const resetPlayers = useCallback(() => {
     clearFadeOutInterval();
-    const audio = audioRef.current;
+    transitionRequestRef.current += 1;
+
+    const audio = getOrCreateAudio();
     if (!audio) {
       return;
     }
 
-    pauseWithReason("reset-players");
+    audio.pause();
     audio.currentTime = 0;
     audio.volume = 1;
     setCurrent(0);
     setIsPlaying(false);
-  }, [clearFadeOutInterval, pauseWithReason]);
+  }, [clearFadeOutInterval, getOrCreateAudio]);
 
   const handleSessionComplete = useCallback(() => {
     if (!sleepMode || sessionCompletionLockRef.current) {
@@ -226,26 +241,49 @@ export function useWebAudioPlayerSession({
     });
   }, [sleepMode]);
 
+  const transitionToIndex = useCallback(
+    async (nextIndex: number) => {
+      const nextTrackId = normalizedPlaylistIds[nextIndex];
+      if (!nextTrackId) {
+        return;
+      }
+
+      const audio = getOrCreateAudio();
+      if (!audio) {
+        return;
+      }
+
+      transitionRequestRef.current += 1;
+      const requestId = transitionRequestRef.current;
+
+      if (!audio.paused) {
+        await fadeVolume(audio, audio.volume, 0, TAILORED_TRANSITION_FADE_OUT_MS, requestId);
+      }
+
+      if (transitionRequestRef.current !== requestId) {
+        return;
+      }
+
+      const nextTrack = getTrackById(nextTrackId);
+      setPlaylistIndex(nextIndex);
+      assignTrackSource(nextTrack);
+
+      audio.volume = 0;
+      await playAudio();
+
+      if (transitionRequestRef.current !== requestId) {
+        return;
+      }
+
+      await fadeVolume(audio, 0, 1, TAILORED_TRANSITION_FADE_IN_MS, requestId);
+    },
+    [assignTrackSource, fadeVolume, getOrCreateAudio, normalizedPlaylistIds, playAudio],
+  );
+
   useEffect(() => {
     playlistIndexRef.current = playlistIndex;
     hasSessionStartedRef.current = hasSessionStarted;
   }, [hasSessionStarted, playlistIndex]);
-
-  useEffect(() => {
-    log("state-change", {
-      hasSessionStarted,
-      playlistIndex,
-      isPlaying,
-      isLoading,
-    });
-  }, [hasSessionStarted, isLoading, isPlaying, log, playlistIndex]);
-
-  useEffect(() => {
-    if (!isTailoredSession) {
-      return;
-    }
-    log("route-params", { audioId, playlistIds: normalizedPlaylistIds, sleepMode });
-  }, [audioId, isTailoredSession, log, normalizedPlaylistIds, sleepMode]);
 
   useEffect(() => {
     const assetModules = normalizedPlaylistIds.map((id) => getTrackById(id).asset);
@@ -253,30 +291,18 @@ export function useWebAudioPlayerSession({
   }, [normalizedPlaylistIds]);
 
   useEffect(() => {
-    const audio = audioRef.current;
+    const audio = getOrCreateAudio();
     if (!audio) {
       return;
     }
 
     const handleLoadedMetadata = () => {
-      if (isTailoredSession) {
-        log("loadedmetadata", { src: audio.src, duration: audio.duration });
-      }
       setDuration(Number.isFinite(audio.duration) ? audio.duration : 0);
       setIsLoading(false);
     };
-    const handleCanPlay = () => {
-      log("canplay", { src: audio.src });
-    };
     const handleTimeUpdate = () => setCurrent(audio.currentTime || 0);
-    const handlePlay = () => {
-      log("play-event", { src: audio.src, index: playlistIndexRef.current });
-      setIsPlaying(true);
-    };
-    const handlePause = () => {
-      log("pause-event", { src: audio.src, index: playlistIndexRef.current });
-      setIsPlaying(false);
-    };
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
     const handleWaiting = () => setIsLoading(true);
     const handlePlaying = () => setIsLoading(false);
     const handleError = () => {
@@ -285,22 +311,10 @@ export function useWebAudioPlayerSession({
     };
 
     const handleEnded = () => {
-      log("ended-event", {
-        index: playlistIndexRef.current,
-        hasSessionStarted: hasSessionStartedRef.current,
-      });
+      const currentIndex = playlistIndexRef.current;
 
-      if (isTailoredSession && hasSessionStartedRef.current && playlistIndexRef.current < normalizedPlaylistIds.length - 1) {
-        const nextIndex = playlistIndexRef.current + 1;
-        const nextTrack = getTrackById(normalizedPlaylistIds[nextIndex]);
-        log("transition-next", {
-          from: playlistIndexRef.current,
-          to: nextIndex,
-          nextTrackId: nextTrack.id,
-        });
-        setPlaylistIndex(nextIndex);
-        assignTrackSource(nextTrack, "ended-next");
-        void playCurrent("ended-next");
+      if (isTailoredSession && hasSessionStartedRef.current && currentIndex < normalizedPlaylistIds.length - 1) {
+        void transitionToIndex(currentIndex + 1);
         return;
       }
 
@@ -315,7 +329,6 @@ export function useWebAudioPlayerSession({
     };
 
     audio.addEventListener("loadedmetadata", handleLoadedMetadata);
-    audio.addEventListener("canplay", handleCanPlay);
     audio.addEventListener("timeupdate", handleTimeUpdate);
     audio.addEventListener("play", handlePlay);
     audio.addEventListener("pause", handlePause);
@@ -326,10 +339,10 @@ export function useWebAudioPlayerSession({
 
     return () => {
       clearFadeOutInterval();
-      pauseWithReason("audio-effect-cleanup");
+      transitionRequestRef.current += 1;
+      audio.pause();
       audio.src = "";
       audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      audio.removeEventListener("canplay", handleCanPlay);
       audio.removeEventListener("timeupdate", handleTimeUpdate);
       audio.removeEventListener("play", handlePlay);
       audio.removeEventListener("pause", handlePause);
@@ -340,46 +353,44 @@ export function useWebAudioPlayerSession({
       audioRef.current = null;
     };
   }, [
-    assignTrackSource,
     clearFadeOutInterval,
+    getOrCreateAudio,
     handleSessionComplete,
     isTailoredSession,
-    log,
     normalizedPlaylistIds,
-    pauseWithReason,
-    playCurrent,
+    transitionToIndex,
   ]);
 
   useEffect(() => {
-    const preferredIndex = isTailoredSession ? 0 : (() => {
-      const startIndex = normalizedPlaylistIds.indexOf(audioId);
-      return startIndex >= 0 ? startIndex : 0;
-    })();
+    const preferredIndex = isTailoredSession
+      ? 0
+      : (() => {
+          const startIndex = normalizedPlaylistIds.indexOf(audioId);
+          return startIndex >= 0 ? startIndex : 0;
+        })();
 
+    transitionRequestRef.current += 1;
     setPlaylistIndex(preferredIndex);
     setHasSessionStarted(false);
     currentSourceRef.current = null;
 
     const initialTrack = getTrackById(normalizedPlaylistIds[preferredIndex] ?? audioId);
-    assignTrackSource(initialTrack, "route-init");
+    assignTrackSource(initialTrack);
   }, [assignTrackSource, audioId, isTailoredSession, normalizedPlaylistIds]);
 
   useEffect(() => {
     if (!isTailoredSession) {
-      assignTrackSource(track, "track-change");
-      return;
+      assignTrackSource(track);
     }
-
-    log("segment-index", { playlistIndex, trackId: track.id, hasSessionStarted });
-  }, [assignTrackSource, hasSessionStarted, isTailoredSession, log, playlistIndex, track]);
+  }, [assignTrackSource, isTailoredSession, track]);
 
   useEffect(() => {
-    const audio = audioRef.current;
+    const audio = getOrCreateAudio();
     if (!audio) {
       return;
     }
     audio.loop = showSoundscapeControls;
-  }, [showSoundscapeControls]);
+  }, [getOrCreateAudio, showSoundscapeControls]);
 
   useEffect(() => {
     if (showSoundscapeControls) {
@@ -413,7 +424,7 @@ export function useWebAudioPlayerSession({
   }, [isPlaying, showSoundscapeControls, timerSeconds]);
 
   const fadeOutAndStop = useCallback(() => {
-    const audio = audioRef.current;
+    const audio = getOrCreateAudio();
     if (!audio) {
       return;
     }
@@ -429,13 +440,13 @@ export function useWebAudioPlayerSession({
 
       if (progress >= 1) {
         clearFadeOutInterval();
-        pauseWithReason("fade-out-complete");
+        audio.pause();
         audio.currentTime = 0;
         audio.volume = 1;
         setCurrent(0);
       }
     }, 250);
-  }, [clearFadeOutInterval, pauseWithReason]);
+  }, [clearFadeOutInterval, getOrCreateAudio]);
 
   useEffect(() => {
     if (!showSoundscapeControls || timerRemaining === null || timerRemaining > 0) {
@@ -447,26 +458,27 @@ export function useWebAudioPlayerSession({
   }, [fadeOutAndStop, showSoundscapeControls, timerRemaining, timerSeconds]);
 
   const onTogglePlay = useCallback(() => {
-    const audio = audioRef.current;
+    const audio = getOrCreateAudio();
     if (!audio) {
       return;
     }
 
     clearFadeOutInterval();
+    transitionRequestRef.current += 1;
 
     if (audio.paused) {
       if (isTailoredSession && !hasSessionStarted) {
         setHasSessionStarted(true);
-        const firstTrack = getTrackById(normalizedPlaylistIds[0] ?? audioId);
         setPlaylistIndex(0);
-        assignTrackSource(firstTrack, "toggle-first-tailored");
+        const firstTrack = getTrackById(normalizedPlaylistIds[0] ?? audioId);
+        assignTrackSource(firstTrack);
       }
 
       if (atEnd) {
         audio.currentTime = 0;
       }
 
-      void playCurrent("toggle-play");
+      void playAudio();
       return;
     }
 
@@ -476,27 +488,30 @@ export function useWebAudioPlayerSession({
     atEnd,
     audioId,
     clearFadeOutInterval,
+    getOrCreateAudio,
     hasSessionStarted,
     isTailoredSession,
     normalizedPlaylistIds,
     pause,
-    playCurrent,
+    playAudio,
   ]);
 
   const onRestart = useCallback(() => {
+    transitionRequestRef.current += 1;
+
     if (isTailoredSession) {
       setHasSessionStarted(true);
-      const firstTrack = getTrackById(normalizedPlaylistIds[0] ?? audioId);
       setPlaylistIndex(0);
-      assignTrackSource(firstTrack, "restart-tailored");
-      void playCurrent("restart-tailored");
+      const firstTrack = getTrackById(normalizedPlaylistIds[0] ?? audioId);
+      assignTrackSource(firstTrack);
+      void playAudio();
       return;
     }
 
-    assignTrackSource(track, "restart");
+    assignTrackSource(track);
     seekTo(0);
-    void playCurrent("restart");
-  }, [assignTrackSource, audioId, isTailoredSession, normalizedPlaylistIds, playCurrent, seekTo, track]);
+    void playAudio();
+  }, [assignTrackSource, audioId, isTailoredSession, normalizedPlaylistIds, playAudio, seekTo, track]);
 
   const onSeek = useCallback(
     (value: number) => {
