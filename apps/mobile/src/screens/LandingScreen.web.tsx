@@ -116,19 +116,16 @@ export default function LandingScreen() {
     key: string;
     label: string;
     onPress: () => void;
-    trackedSectionKey?: SectionKey;
   }> = [
     {
       key: "home",
       label: "Home",
       onPress: () => goToSection("beranda"),
-      trackedSectionKey: "beranda",
     },
     {
       key: "faq",
       label: "FAQ",
       onPress: () => goToSection("faq"),
-      trackedSectionKey: "faq",
     },
     {
       key: "privacy-policy",
@@ -141,6 +138,7 @@ export default function LandingScreen() {
       onPress: goToTermsConditions,
     },
   ];
+  const activeNavKey = activeSection === "faq" ? "faq" : "home";
 
   useEffect(() => {
     const hasObserver =
@@ -249,9 +247,7 @@ export default function LandingScreen() {
                     <View
                       style={[
                         styles.navUnderline,
-                        item.trackedSectionKey && activeSection === item.trackedSectionKey
-                          ? styles.navUnderlineActive
-                          : null,
+                        item.key === activeNavKey ? styles.navUnderlineActive : null,
                         { transition: "opacity 180ms ease" } as any,
                       ]}
                     />
