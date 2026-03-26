@@ -177,6 +177,33 @@ export function useWebAudioPlayerSession({
     [normalizedPlaylistIds, play, setSourceForTrack],
   );
 
+  const startTailoredSession = useCallback(() => {
+    const audio = audioRef.current;
+    const firstTrackId = normalizedPlaylistIds[0] ?? audioId;
+    if (!audio || !firstTrackId) {
+      return;
+    }
+
+    const firstTrack = getTrackById(firstTrackId);
+    setSourceForTrack(firstTrack);
+    setPlaylistIndex(0);
+    hasSessionStartedRef.current = true;
+    setIsLoading(true);
+
+    void audio
+      .play()
+      .then(() => {
+        setHasSessionStarted(true);
+        setIsLoading(false);
+      })
+      .catch(() => {
+        hasSessionStartedRef.current = false;
+        setHasSessionStarted(false);
+        setIsPlaying(false);
+        setIsLoading(false);
+      });
+  }, [audioId, normalizedPlaylistIds, setSourceForTrack]);
+
   const resetPlayers = useCallback(() => {
     clearFadeOutInterval();
     const audio = audioRef.current;
@@ -417,8 +444,7 @@ export function useWebAudioPlayerSession({
 
     if (audio.paused) {
       if (isTailoredSession && !hasSessionStarted) {
-        setHasSessionStarted(true);
-        void playTailoredFromIndex(0);
+        startTailoredSession();
         return;
       }
 
@@ -443,21 +469,21 @@ export function useWebAudioPlayerSession({
     pause,
     play,
     playTailoredFromIndex,
+    startTailoredSession,
     setSourceForTrack,
     track,
   ]);
 
   const onRestart = useCallback(() => {
     if (isTailoredSession) {
-      setHasSessionStarted(true);
-      void playTailoredFromIndex(0);
+      startTailoredSession();
       return;
     }
 
     setSourceForTrack(track);
     seekTo(0);
     void play();
-  }, [isTailoredSession, play, playTailoredFromIndex, seekTo, setSourceForTrack, track]);
+  }, [isTailoredSession, play, seekTo, setSourceForTrack, startTailoredSession, track]);
 
   const onSeek = useCallback(
     (value: number) => {
