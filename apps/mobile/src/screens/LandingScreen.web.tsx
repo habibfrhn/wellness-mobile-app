@@ -19,6 +19,7 @@ import type { AppStackParamList, AuthStackParamList } from "../navigation/types"
 import useViewportWidth from "../hooks/useViewportWidth";
 import WebResponsiveFrame from "../components/WebResponsiveFrame";
 import LandingMobileAuthMenu from "../components/landing/LandingMobileAuthMenu";
+import { id } from "../i18n/strings";
 
 type RootStackParamList = {
   Landing: undefined;
@@ -338,7 +339,15 @@ export default function LandingScreen() {
                     isDesktop && styles.heroTitleDesktop,
                   ]}
                 >
-                  Tutup hari dengan lebih tenang
+                  {id.landing.heroTitle}
+                </Text>
+                <Text
+                  style={[
+                    styles.heroDescription,
+                    isDesktop && styles.heroDescriptionDesktop,
+                  ]}
+                >
+                  {id.landing.heroSubtitle}
                 </Text>
                 <View
                   style={[
