@@ -198,60 +198,6 @@ export const id = {
     pickWhatYouNeedTitle: "Temani sebelum tidur",
     soundscapeCarouselTitle: "Soundscape untuk tidur",
     soundscapeShortTitle: "Suara pengantar tidur",
-    foundingMemberTitle: "Bantu bentuk Lumepo lebih awal",
-    foundingMemberBody:
-      "Punya masukan dan ingin ikut membentuk Lumepo dari awal? Bergabung sebagai Founding Member untuk membantu kami merancang pengalaman tidur yang lebih menenangkan, jelas, dan relevan untuk keseharianmu.",
-    foundingMemberCta: "Jadi Founding Member",
-  },
-
-  foundingMember: {
-    title: "Jadi Founding Member",
-    intro:
-      "Lumepo saat ini gratis untuk digunakan. Founding Member adalah orang-orang yang ingin ikut membentuk produk ini dari awal lewat masukan, ide, dan pengalaman mereka.",
-    supportCopy:
-      "Sebagai Founding Member, kamu bisa membantu kami menentukan apa yang benar-benar penting untuk dibangun berikutnya. Nantinya, kamu juga akan mendapat info lebih awal dan penawaran khusus saat paket berbayar diluncurkan.",
-    sectionTitle: "Ceritakan sedikit tentang kamu",
-    nameLabel: "Nama",
-    namePlaceholder: "Nama kamu",
-    emailLabel: "Email",
-    emailPlaceholder: "nama@email.com",
-    sleepIssueLabel: "Apa yang biasanya membuat kamu sulit tidur?",
-    sleepFrequencyLabel: "Seberapa sering kamu sulit tidur?",
-    whyJoinLabel: "Kenapa kamu tertarik jadi Founding Member?",
-    feedbackWillingnessLabel:
-      "Apakah kamu bersedia memberi masukan saat kami mengembangkan Lumepo?",
-    interviewWillingnessLabel: "Apakah kamu terbuka untuk ikut obrolan singkat 10–15 menit?",
-    paymentWillingnessLabel:
-      "Kalau Lumepo benar-benar membantu tidur kamu, apakah kamu akan mempertimbangkan untuk membayar nantinya?",
-    priceLabel: "Harga bulanan yang terasa masuk akal untukmu?",
-    consentLabel: "Saya bersedia dihubungi untuk update dan masukan produk",
-    submitCta: "Kirim",
-    submittingCta: "Mengirim...",
-    submitError: "Pengiriman belum berhasil. Coba lagi sebentar lagi.",
-    successTitle: "Terima kasih.",
-    successBody:
-      "Masukan kamu sangat berarti untuk membantu kami membentuk Lumepo dari awal.",
-    successSubtext:
-      "Kalau kami melihat kecocokan, kami akan menghubungimu untuk update berikutnya atau obrolan singkat.",
-    validation: {
-      nameRequired: "Nama perlu diisi dulu ya.",
-      emailInvalid: "Email belum valid. Coba cek lagi.",
-      textRequired: "Mohon isi jawaban yang masih kosong.",
-      optionRequired: "Ada beberapa pilihan yang belum kamu isi.",
-      consentRequired: "Kami perlu persetujuan kontak sebelum form dikirim.",
-    },
-    optionLabels: {
-      hampir_setiap_malam: "Hampir setiap malam",
-      beberapa_kali_seminggu: "Beberapa kali seminggu",
-      kadang_kadang: "Kadang-kadang",
-      ya: "Ya",
-      mungkin: "Mungkin",
-      tidak: "Tidak",
-      "29000": "Rp29.000",
-      "49000": "Rp49.000",
-      "79000": "Rp79.000",
-      "99000_plus": "Rp99.000+",
-    },
   },
 
   player: {

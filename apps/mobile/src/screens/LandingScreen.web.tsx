@@ -19,8 +19,6 @@ import type { AppStackParamList, AuthStackParamList } from "../navigation/types"
 import useViewportWidth from "../hooks/useViewportWidth";
 import WebResponsiveFrame from "../components/WebResponsiveFrame";
 import LandingMobileAuthMenu from "../components/landing/LandingMobileAuthMenu";
-import { supabase } from "../services/supabase";
-import { setPendingFoundingMemberIntent } from "../services/pendingFoundingMemberIntent";
 
 type RootStackParamList = {
   Landing: undefined;
@@ -42,7 +40,6 @@ const EMPATHY_IMAGE_FOUR = require("../../assets/image/landing-page/4.jpg");
 const BENEFITS_IMAGE = require("../../assets/image/landing-page/8.jpg");
 const TRUST_IMAGE = require("../../assets/image/landing-page/9.jpg");
 const CLOSING_CTA_IMAGE = require("../../assets/image/landing-page/10.jpg");
-const FOUNDING_MEMBER_IMAGE = require("../../assets/image/landing-page/12.jpg");
 const HERO_GAP = 20;
 const HERO_IMAGE_RATIO = 4 / 5;
 const BUTTON_PADDING_VERTICAL_DESKTOP = 12;
@@ -78,13 +75,6 @@ const HEADER_NAV_ITEMS: Array<{ key: SectionKey; label: string }> = [
   { key: "manfaat", label: "Manfaat" },
   { key: "faq", label: "FAQ" },
 ];
-const FOUNDING_MEMBER_BENEFITS = [
-  "Bantu kami menentukan apa yang penting untuk dibangun berikutnya",
-  "Dapat akses lebih awal ke fitur baru",
-  "Terima update langsung dari tim",
-  "Dapat penawaran khusus saat paket berbayar diluncurkan",
-];
-
 export default function LandingScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const scrollRef = useRef<ScrollView | null>(null);
@@ -118,18 +108,6 @@ export default function LandingScreen() {
 
   const goToTermsConditions = () => {
     navigation.navigate("App", { screen: "TermsConditions" });
-  };
-
-  const goToFoundingMember = async () => {
-    const { data } = await supabase.auth.getSession();
-
-    if (data.session) {
-      navigation.navigate("App", { screen: "FoundingMember" });
-      return;
-    }
-
-    await setPendingFoundingMemberIntent();
-    navigation.navigate("Auth", { screen: "SignUp" });
   };
 
   const goToSection = (key: SectionKey) => {
@@ -356,24 +334,6 @@ export default function LandingScreen() {
                       Mulai gratis (beta)
                     </Text>
                   </Pressable>
-                  <Pressable
-                    onPress={() => {
-                      void goToFoundingMember();
-                    }}
-                    style={[
-                      styles.landingButtonBase,
-                      styles.landingButtonSecondary,
-                      isDesktop || isTablet
-                        ? styles.landingButtonSizeDesktop
-                        : styles.landingButtonSizeMobile,
-                      styles.heroCtaButton,
-                      isTablet && styles.heroCtaButtonTablet,
-                    ]}
-                  >
-                    <Text style={styles.landingButtonSecondaryText}>
-                      Jadi Founding Member
-                    </Text>
-                  </Pressable>
                 </View>
               </View>
 
@@ -392,140 +352,6 @@ export default function LandingScreen() {
             </View>
           </View>
 
-          <View
-            style={[
-              styles.section,
-              (isDesktop || isTablet) && styles.sectionDesktop,
-              styles.foundingMemberSection,
-            ]}
-          >
-            <View
-              style={[
-                styles.foundingMemberLayout,
-                isDesktop || isTablet
-                  ? styles.foundingMemberLayoutDesktop
-                  : styles.foundingMemberLayoutMobile,
-              ]}
-            >
-              {!isDesktop && !isTablet ? (
-                <>
-                  <View style={styles.foundingMemberTextColumn}>
-                    <Text
-                      style={[
-                        styles.sectionTitle,
-                        styles.sectionTitleToContentGap,
-                      ]}
-                    >
-                      Bantu bentuk Lumepo dari awal
-                    </Text>
-                    <Text style={styles.foundingMemberBody}>
-                      Lumepo gratis untuk dicoba siapa saja. Founding Member adalah orang-orang
-                      yang ingin ikut membentuk produk ini lewat masukan, pengalaman, dan ide
-                      mereka.
-                    </Text>
-                    <View style={styles.foundingMemberBulletList}>
-                      {FOUNDING_MEMBER_BENEFITS.map((benefit) => (
-                        <View key={benefit} style={styles.foundingMemberBulletRow}>
-                          <Text style={styles.foundingMemberBulletMark}>•</Text>
-                          <Text style={styles.foundingMemberBulletText}>{benefit}</Text>
-                        </View>
-                      ))}
-                    </View>
-                    <Pressable
-                      onPress={() => {
-                        void goToFoundingMember();
-                      }}
-                      style={[
-                        styles.landingButtonBase,
-                        styles.landingButtonSecondary,
-                        styles.landingButtonSizeMobile,
-                        styles.foundingMemberButton,
-                      ]}
-                    >
-                      <Text style={styles.landingButtonSecondaryText}>
-                        Jadi Founding Member
-                      </Text>
-                    </Pressable>
-                    <Text style={styles.foundingMemberHelperText}>
-                      Buat akun atau masuk untuk bergabung.
-                    </Text>
-                  </View>
-
-                  <View style={styles.foundingMemberImageCard}>
-                    <Image
-                      source={FOUNDING_MEMBER_IMAGE}
-                      style={styles.heroImage}
-                      resizeMode="cover"
-                    />
-                  </View>
-                </>
-              ) : (
-                <>
-                  <View
-                    style={[
-                      styles.foundingMemberImageCard,
-                      styles.foundingMemberImageCardDesktop,
-                    ]}
-                  >
-                    <Image
-                      source={FOUNDING_MEMBER_IMAGE}
-                      style={styles.heroImage}
-                      resizeMode="cover"
-                    />
-                  </View>
-
-                  <View
-                    style={[
-                      styles.foundingMemberTextColumn,
-                      styles.foundingMemberTextColumnDesktop,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.sectionTitle,
-                        styles.sectionTitleDesktop,
-                        styles.sectionTitleToContentGap,
-                        styles.sectionTitleToContentGapDesktop,
-                      ]}
-                    >
-                      Bantu bentuk Lumepo dari awal
-                    </Text>
-                    <Text style={styles.foundingMemberBody}>
-                      Lumepo gratis untuk dicoba siapa saja. Founding Member adalah orang-orang
-                      yang ingin ikut membentuk produk ini lewat masukan, pengalaman, dan ide
-                      mereka.
-                    </Text>
-                    <View style={styles.foundingMemberBulletList}>
-                      {FOUNDING_MEMBER_BENEFITS.map((benefit) => (
-                        <View key={benefit} style={styles.foundingMemberBulletRow}>
-                          <Text style={styles.foundingMemberBulletMark}>•</Text>
-                          <Text style={styles.foundingMemberBulletText}>{benefit}</Text>
-                        </View>
-                      ))}
-                    </View>
-                    <Pressable
-                      onPress={() => {
-                        void goToFoundingMember();
-                      }}
-                      style={[
-                        styles.landingButtonBase,
-                        styles.landingButtonSecondary,
-                        styles.landingButtonSizeDesktop,
-                        styles.foundingMemberButton,
-                      ]}
-                    >
-                      <Text style={styles.landingButtonSecondaryText}>
-                        Jadi Founding Member
-                      </Text>
-                    </Pressable>
-                    <Text style={styles.foundingMemberHelperText}>
-                      Buat akun atau masuk untuk bergabung.
-                    </Text>
-                  </View>
-                </>
-              )}
-            </View>
-          </View>
 
           <View
             nativeID="cara-kerja"
@@ -1573,75 +1399,6 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
     textAlign: "left",
   },
-  foundingMemberSection: {
-    gap: 0,
-  },
-  foundingMemberLayout: {
-    width: "100%",
-    gap: spacing.md,
-  },
-  foundingMemberLayoutDesktop: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: DESKTOP_TWO_COLUMN_GAP,
-  },
-  foundingMemberLayoutMobile: {
-    flexDirection: "column",
-    gap: MOBILE_SECTION_STACK_GAP,
-  },
-  foundingMemberImageCard: {
-    width: "100%",
-    aspectRatio: HERO_IMAGE_RATIO,
-    borderRadius: radius.md,
-    overflow: "hidden",
-    backgroundColor: colors.white,
-  },
-  foundingMemberImageCardDesktop: {
-    flex: 1,
-    maxWidth: 460,
-  },
-  foundingMemberTextColumn: {
-    width: "100%",
-  },
-  foundingMemberTextColumnDesktop: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  foundingMemberBody: {
-    fontSize: typography.body,
-    lineHeight: 24,
-    color: colors.mutedText,
-  },
-  foundingMemberBulletList: {
-    gap: spacing.xs,
-    marginTop: spacing.xs,
-  },
-  foundingMemberBulletRow: {
-    flexDirection: "row",
-    gap: spacing.xs,
-    alignItems: "flex-start",
-  },
-  foundingMemberBulletMark: {
-    fontSize: typography.body,
-    lineHeight: 24,
-    color: colors.primary,
-    fontWeight: "700",
-  },
-  foundingMemberBulletText: {
-    flex: 1,
-    fontSize: typography.small,
-    lineHeight: 22,
-    color: colors.text,
-  },
-  foundingMemberButton: {
-    alignSelf: "flex-start",
-    marginTop: spacing.sm,
-  },
-  foundingMemberHelperText: {
-    fontSize: typography.caption,
-    lineHeight: 18,
-    color: colors.mutedText,
-  },
   landingButtonBase: {
     borderRadius: BUTTON_BORDER_RADIUS,
     alignItems: "center",
@@ -1664,17 +1421,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: colors.white,
   },
-  landingButtonSecondary: {
-    borderWidth: 1,
-    borderColor: `${colors.mutedText}44`,
-    backgroundColor: colors.white,
-  },
-  landingButtonSecondaryText: {
-    fontSize: typography.body,
-    fontWeight: "700",
-    color: colors.text,
-  },
-
   footerOuter: {
     width: "100%",
     backgroundColor: "#21325E",

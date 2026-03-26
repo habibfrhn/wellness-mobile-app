@@ -30,5 +30,4 @@ export type AppStackParamList = {
   TermsConditions: undefined;
   ReminderSettings: undefined;
   ResetPassword: undefined;
-  FoundingMember: undefined;
 };

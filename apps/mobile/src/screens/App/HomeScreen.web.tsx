@@ -10,7 +10,6 @@ import SleepOptionModal from "../../components/SleepOptionModal";
 import HomeGreetingTitle from "../../components/HomeGreetingTitle";
 import HomeScreenHeader from "../../components/HomeScreenHeader";
 import HomeNightSummary from "../../components/HomeNightSummary";
-import HomeFoundingMemberCard from "../../components/HomeFoundingMemberCard";
 import {
   getWebPageContainerStyle,
   getWebPageTopSpacing,
@@ -26,7 +25,6 @@ import {
   getNightStreakState,
   type NightStreakHeroState,
 } from "../../services/nightStreak";
-import { consumePendingFoundingMemberIntent } from "../../services/pendingFoundingMemberIntent";
 import { colors, radius, spacing } from "../../theme/tokens";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Home">;
@@ -90,12 +88,6 @@ export default function HomeScreen({ navigation, route }: Props) {
       let cancelled = false;
 
       const refreshStreak = async () => {
-        const shouldOpenFoundingMember = await consumePendingFoundingMemberIntent();
-        if (shouldOpenFoundingMember) {
-          navigation.navigate("FoundingMember");
-          return;
-        }
-
         const progress = await getNightStreakState(true);
         if (!cancelled) {
           setStreakState(deriveNightStreakHeroState(progress));
@@ -167,9 +159,6 @@ export default function HomeScreen({ navigation, route }: Props) {
                   streakState={streakState}
                 />
               </View>
-            </View>
-            <View style={[styles.secondaryActionCardWrap, { marginTop: sectionGap }]}>
-              <HomeFoundingMemberCard onPress={() => navigation.navigate("FoundingMember")} />
             </View>
           </View>
 
@@ -259,9 +248,6 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   primaryActionCardWrap: {
-    paddingHorizontal: WEB_SECTION_CONTENT_INSET,
-  },
-  secondaryActionCardWrap: {
     paddingHorizontal: WEB_SECTION_CONTENT_INSET,
   },
   primaryActionCard: {

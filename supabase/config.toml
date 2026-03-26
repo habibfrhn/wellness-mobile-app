@@ -388,5 +388,3 @@ s3_secret_key = "env(S3_SECRET_KEY)"
 verify_jwt = true
 [functions.record-night-session]
 verify_jwt = true
-[functions.submit-founding-member]
-verify_jwt = true
