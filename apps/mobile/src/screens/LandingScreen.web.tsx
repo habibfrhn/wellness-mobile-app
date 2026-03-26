@@ -98,11 +98,17 @@ export default function LandingScreen() {
   };
 
   const goToPrivacyPolicy = () => {
-    navigation.navigate("App", { screen: "PrivacyPolicy" });
+    navigation.navigate("App", {
+      screen: "PrivacyPolicy",
+      params: { entryPoint: "landing" },
+    });
   };
 
   const goToTermsConditions = () => {
-    navigation.navigate("App", { screen: "TermsConditions" });
+    navigation.navigate("App", {
+      screen: "TermsConditions",
+      params: { entryPoint: "landing" },
+    });
   };
 
   const goToSection = (key: SectionKey) => {
