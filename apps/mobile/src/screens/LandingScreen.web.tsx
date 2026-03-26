@@ -89,6 +89,7 @@ export default function LandingScreen() {
   const viewport = getWebViewport(viewportWidth);
   const isDesktop = viewport === "desktop";
   const isTablet = viewport === "tablet";
+  const heroTitleText = id.landing.heroTitle.replace(", ", ",\n");
 
   const goToLogin = () => {
     navigation.navigate("Auth", { screen: "Login" });
@@ -339,7 +340,7 @@ export default function LandingScreen() {
                     isDesktop && styles.heroTitleDesktop,
                   ]}
                 >
-                  {id.landing.heroTitle}
+                  {heroTitleText}
                 </Text>
                 <Text
                   style={[
@@ -1099,13 +1100,13 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   heroSection: {
-    paddingTop: 40,
-    paddingBottom: 32,
+    paddingTop: 48,
+    paddingBottom: 40,
     marginBottom: 0,
   },
   heroSectionDesktop: {
-    paddingTop: 60,
-    paddingBottom: 40,
+    paddingTop: 72,
+    paddingBottom: 56,
   },
   heroLayout: {
     flexDirection: "row",
@@ -1121,7 +1122,7 @@ const styles = StyleSheet.create({
   },
   heroTextColumn: {
     flex: 1,
-    gap: 0,
+    gap: spacing.xs,
     alignItems: "center",
   },
   heroTextColumnTablet: {
@@ -1133,6 +1134,7 @@ const styles = StyleSheet.create({
   },
   heroTextColumnDesktop: {
     flex: 1,
+    alignItems: "flex-start",
     justifyContent: "center",
   },
   heroIntro: {
@@ -1141,21 +1143,22 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   heroTitle: {
-    fontSize: 36,
-    lineHeight: 42,
+    fontSize: 30,
+    lineHeight: 36,
     fontWeight: "800",
     color: colors.text,
-    textAlign: "center",
+    textAlign: "left",
   },
   heroTitleTablet: {
-    fontSize: 40,
-    lineHeight: 48,
-    maxWidth: 360,
+    fontSize: 36,
+    lineHeight: 42,
+    maxWidth: 420,
     textAlign: "left",
   },
   heroTitleDesktop: {
-    fontSize: 46,
-    lineHeight: 54,
+    fontSize: 42,
+    lineHeight: 48,
+    maxWidth: 480,
   },
   heroSubheadline: {
     fontSize: typography.title,
@@ -1168,15 +1171,17 @@ const styles = StyleSheet.create({
     lineHeight: 34,
   },
   heroDescription: {
-    fontSize: typography.body,
-    lineHeight: 24,
+    marginTop: spacing.xs,
+    fontSize: typography.body + 1,
+    lineHeight: 26,
     color: colors.mutedText,
-    maxWidth: 620,
+    maxWidth: 380,
+    textAlign: "left",
   },
   heroDescriptionDesktop: {
     fontSize: typography.title,
-    lineHeight: 32,
-    maxWidth: 640,
+    lineHeight: 30,
+    maxWidth: 460,
   },
   heroCtaRow: {
     flexDirection: "column",
@@ -1185,7 +1190,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   heroCtaRowBreathing: {
-    marginTop: HERO_GAP,
+    marginTop: HERO_GAP + 4,
   },
   heroCtaRowTablet: {
     alignItems: "flex-start",
