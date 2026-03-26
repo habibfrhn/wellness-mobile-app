@@ -6,6 +6,7 @@ import type { AudioId } from "../content/audioCatalog";
 import { saveNightSessionCompletion, type NightSessionMode } from "../services/nightSessions";
 
 const FADE_OUT_SECONDS = 5;
+const DEBUG_TAILORED_START = false;
 
 export const TIMER_OPTIONS = [
   { label: "5 min", seconds: 5 * 60 },
@@ -31,6 +32,20 @@ export function useWebAudioPlayerSession({
   playlistIds,
   sleepMode,
 }: UseWebAudioPlayerSessionArgs) {
+  const logTailoredStart = useCallback(
+    (message: string, payload?: Record<string, unknown>) => {
+      if (!DEBUG_TAILORED_START) {
+        return;
+      }
+      if (payload) {
+        console.debug(`[tailored-start] ${message}`, payload);
+        return;
+      }
+      console.debug(`[tailored-start] ${message}`);
+    },
+    [],
+  );
+
   const normalizedPlaylistIds = useMemo(() => {
     const sourceIds = playlistIds && playlistIds.length > 0 ? playlistIds : [audioId];
     return sourceIds.filter((value, index, arr) => arr.indexOf(value) === index);
@@ -113,6 +128,10 @@ export function useWebAudioPlayerSession({
       }
 
       const nextSource = getAssetUri(targetTrack.asset);
+      logTailoredStart("setSourceForTrack", {
+        targetTrackId: targetTrack.id,
+        sourceChanged: currentSourceRef.current !== nextSource,
+      });
       if (currentSourceRef.current === nextSource) {
         return false;
       }
@@ -127,7 +146,7 @@ export function useWebAudioPlayerSession({
       setIsLoading(true);
       return true;
     },
-    [isTailoredSession],
+    [isTailoredSession, logTailoredStart],
   );
 
   const play = useCallback(async () => {
@@ -186,6 +205,11 @@ export function useWebAudioPlayerSession({
     }
 
     const firstTrack = getTrackById(firstTrackId);
+    logTailoredStart("startTailoredSession:begin", {
+      firstTrackId,
+      hasSessionStarted,
+      playlistIndex,
+    });
     isTailoredStartPendingRef.current = true;
     setSourceForTrack(firstTrack);
     setPlaylistIndex(0);
@@ -195,18 +219,29 @@ export function useWebAudioPlayerSession({
     void audio
       .play()
       .then(() => {
+        logTailoredStart("startTailoredSession:play-resolved");
         isTailoredStartPendingRef.current = false;
         setHasSessionStarted(true);
         setIsLoading(false);
       })
-      .catch(() => {
+      .catch((error: unknown) => {
+        logTailoredStart("startTailoredSession:play-rejected", {
+          error: error instanceof Error ? error.message : String(error),
+        });
         isTailoredStartPendingRef.current = false;
         hasSessionStartedRef.current = false;
         setHasSessionStarted(false);
         setIsPlaying(false);
         setIsLoading(false);
       });
-  }, [audioId, normalizedPlaylistIds, setSourceForTrack]);
+  }, [
+    audioId,
+    hasSessionStarted,
+    logTailoredStart,
+    normalizedPlaylistIds,
+    playlistIndex,
+    setSourceForTrack,
+  ]);
 
   const resetPlayers = useCallback(() => {
     clearFadeOutInterval();
@@ -324,6 +359,27 @@ export function useWebAudioPlayerSession({
   }, [clearFadeOutInterval, playTailoredFromIndex]);
 
   useEffect(() => {
+    if (!isTailoredSession || !DEBUG_TAILORED_START) {
+      return;
+    }
+    logTailoredStart("state-change", {
+      playlistIndex,
+      hasSessionStarted,
+      isPlaying,
+      isLoading,
+      src: audioRef.current?.src ?? null,
+      pendingStart: isTailoredStartPendingRef.current,
+    });
+  }, [
+    hasSessionStarted,
+    isLoading,
+    isPlaying,
+    isTailoredSession,
+    logTailoredStart,
+    playlistIndex,
+  ]);
+
+  useEffect(() => {
     setPlaylistIndex((prev) => {
       const preferredIndex = normalizedPlaylistIds.indexOf(audioId);
       const nextIndex = preferredIndex >= 0 ? preferredIndex : 0;
@@ -337,10 +393,15 @@ export function useWebAudioPlayerSession({
   useEffect(() => {
     if (isTailoredSession) {
       if (hasSessionStarted || isTailoredStartPendingRef.current) {
+        logTailoredStart("prebind-skipped", {
+          hasSessionStarted,
+          pendingStart: isTailoredStartPendingRef.current,
+        });
         return;
       }
 
       const firstTrack = getTrackById(normalizedPlaylistIds[0] ?? audioId);
+      logTailoredStart("prebind-first-track", { firstTrackId: firstTrack.id });
       const sourceChanged = setSourceForTrack(firstTrack);
       if (sourceChanged) {
         clearFadeOutInterval();
@@ -450,8 +511,10 @@ export function useWebAudioPlayerSession({
     if (audio.paused) {
       if (isTailoredSession && !hasSessionStarted) {
         if (isTailoredStartPendingRef.current) {
+          logTailoredStart("toggle-ignored-pending-start");
           return;
         }
+        logTailoredStart("toggle-start-tailored-session");
         startTailoredSession();
         return;
       }
