@@ -148,7 +148,7 @@ export const id = {
 
   home: {
     title: "Ritual malam",
-    subtitle: "Pilihan sesi singkat untuk menutup hari dengan lebih tenang.",
+    subtitle: "Kamu tidak perlu memilih apa pun. Kami akan menyiapkan sesi tidur yang paling cocok untuk menemani kamu rileks dan pelan-pelan terlelap.",
     durationBadge: "5 menit",
     noteNoAutoplay: "Audio tidak diputar otomatis. Anda yang memulai saat sudah siap.",
     greetingWithName: "Selamat malam, {name} 👋😊",
