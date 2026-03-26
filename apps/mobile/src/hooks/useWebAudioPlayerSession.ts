@@ -60,6 +60,12 @@ export function useWebAudioPlayerSession({
   const playlistLengthRef = useRef(normalizedPlaylistIds.length);
   const onSessionCompleteRef = useRef<() => void>(() => undefined);
 
+  if (!audioRef.current && typeof Audio !== "undefined") {
+    const audio = new Audio();
+    audio.preload = "auto";
+    audioRef.current = audio;
+  }
+
   const currentAudioId: AudioId = normalizedPlaylistIds[playlistIndex] ?? audioId;
   const track = useMemo(() => getTrackById(currentAudioId), [currentAudioId]);
   const isSoundscape = track.contentType === "soundscape" && !isTailoredSession;
@@ -104,6 +110,28 @@ export function useWebAudioPlayerSession({
     }
     audio.pause();
   }, []);
+
+  const ensureCurrentTrackSource = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) {
+      return false;
+    }
+
+    const nextSource = getAssetUri(track.asset);
+    if (currentSourceRef.current === nextSource) {
+      return false;
+    }
+
+    audio.pause();
+    audio.src = nextSource;
+    currentSourceRef.current = nextSource;
+    audio.loop = showSoundscapeControls;
+    audio.load();
+    setCurrent(0);
+    setDuration(track.durationSec);
+    setIsLoading(true);
+    return true;
+  }, [showSoundscapeControls, track.asset, track.durationSec]);
 
   const play = useCallback(async () => {
     const audio = audioRef.current;
@@ -181,8 +209,10 @@ export function useWebAudioPlayerSession({
   }, [normalizedPlaylistIds]);
 
   useEffect(() => {
-    const audio = new Audio();
-    audio.preload = "auto";
+    const audio = audioRef.current;
+    if (!audio) {
+      return;
+    }
     audioRef.current = audio;
 
     const handleLoadedMetadata = () => {
@@ -262,8 +292,7 @@ export function useWebAudioPlayerSession({
       return;
     }
 
-    const nextSource = getAssetUri(track.asset);
-    const hasSourceChanged = currentSourceRef.current !== nextSource;
+    const hasSourceChanged = ensureCurrentTrackSource();
     if (!hasSourceChanged) {
       if (shouldAutoplayRef.current) {
         shouldAutoplayRef.current = false;
@@ -276,19 +305,10 @@ export function useWebAudioPlayerSession({
     const shouldAutoplay = shouldAutoplayRef.current;
     shouldAutoplayRef.current = false;
 
-    audio.pause();
-    audio.src = nextSource;
-    currentSourceRef.current = nextSource;
-    audio.loop = showSoundscapeControls;
-    audio.load();
-    setCurrent(0);
-    setDuration(track.durationSec);
-    setIsLoading(true);
-
     if (shouldAutoplay) {
       void play();
     }
-  }, [clearFadeOutInterval, play, showSoundscapeControls, track.asset, track.durationSec]);
+  }, [clearFadeOutInterval, ensureCurrentTrackSource, play]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -385,12 +405,22 @@ export function useWebAudioPlayerSession({
         audio.currentTime = 0;
       }
 
+      ensureCurrentTrackSource();
       void play();
       return;
     }
 
     pause();
-  }, [atEnd, clearFadeOutInterval, hasSessionStarted, isTailoredSession, pause, play, playlistIndex]);
+  }, [
+    atEnd,
+    clearFadeOutInterval,
+    ensureCurrentTrackSource,
+    hasSessionStarted,
+    isTailoredSession,
+    pause,
+    play,
+    playlistIndex,
+  ]);
 
   const onRestart = useCallback(() => {
     if (isTailoredSession) {
