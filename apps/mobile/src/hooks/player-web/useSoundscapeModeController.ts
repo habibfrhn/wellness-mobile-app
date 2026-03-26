@@ -37,6 +37,7 @@ function reducer(state: SoundscapeState, action: SoundscapeAction): SoundscapeSt
 
 export function useSoundscapeModeController({ engine, track }: { engine: BrowserAudioEngine; track: AudioTrack }) {
   const source = useMemo(() => getAudioAssetUri(track.asset), [track.asset]);
+  const sourceError = source ? null : "Audio source tidak tersedia.";
   const [state, dispatch] = useReducer(reducer, {
     timerSeconds: TIMER_OPTIONS[0].seconds,
     timerRemaining: TIMER_OPTIONS[0].seconds,
@@ -48,6 +49,9 @@ export function useSoundscapeModeController({ engine, track }: { engine: Browser
   const progressRatio = duration > 0 ? Math.min(Math.max(current / duration, 0), 1) : 0;
 
   const start = useCallback(async () => {
+    if (!source) {
+      return;
+    }
     engine.setLoop(true);
     const started = await engine.start({ source, seekTo: 0, loop: true });
     if (!started) return;
@@ -92,7 +96,7 @@ export function useSoundscapeModeController({ engine, track }: { engine: Browser
 
   return {
     phase: engine.state.phase,
-    error: engine.state.error,
+    error: engine.state.error ?? sourceError,
     isPlaying,
     current,
     duration,

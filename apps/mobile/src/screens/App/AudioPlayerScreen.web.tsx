@@ -122,6 +122,7 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
 
   const sleepSessionTitle = sleepMode === "release_accept" ? id.player.sleepSessionTitleReleaseAccept : id.player.sleepSessionTitleCalmMind;
   const sleepSessionPhase = tailoredMode.playlistIndex === 0 ? id.player.sleepSessionPhaseMind : tailoredMode.playlistIndex === 1 ? id.player.sleepSessionPhaseBody : id.player.sleepSessionPhaseSoundscape;
+  const activeError = playbackMode === "tailored_session" ? tailoredMode.error : playbackMode === "soundscape" ? soundscapeMode.error : normalMode.error;
 
   const handleConfirmExitSession = useCallback(() => {
     tailoredMode.resetSession();
@@ -129,6 +130,15 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
     isExitingSessionRef.current = true;
     navigation.navigate("Home");
   }, [navigation, tailoredMode]);
+
+  if (!activeTrack) {
+    return (
+      <View style={styles.fallbackContainer}>
+        <Text style={styles.fallbackTitle}>Player tidak tersedia.</Text>
+        <Text style={styles.fallbackSubtitle}>Silakan kembali dan pilih audio lagi.</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -141,7 +151,7 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={[styles.playerLayout, { gap: sectionGap }]}> 
+        <View style={[styles.playerLayout, { gap: sectionGap }]}>
           <View style={styles.artworkColumn}>
             <PlayerArtworkSection
               cover={sessionArtwork?.cover ?? activeTrack.cover}
@@ -192,7 +202,7 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
                 compact
               />
             )}
-            {engine.state.phase === "error" ? <Text style={styles.errorText}>{engine.state.error}</Text> : null}
+            {activeError ? <Text style={styles.errorText}>{activeError}</Text> : null}
           </View>
         </View>
       </ScrollView>
@@ -213,5 +223,23 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     color: colors.danger,
     fontSize: typography.caption,
+  },
+  fallbackContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.white,
+    paddingHorizontal: spacing.lg,
+  },
+  fallbackTitle: {
+    color: colors.text,
+    fontSize: typography.title,
+    fontWeight: "700",
+  },
+  fallbackSubtitle: {
+    marginTop: spacing.xs,
+    color: colors.mutedText,
+    fontSize: typography.caption,
+    textAlign: "center",
   },
 });

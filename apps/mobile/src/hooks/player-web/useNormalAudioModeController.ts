@@ -6,12 +6,16 @@ import { getAudioAssetUri } from "./audioAssetUri";
 
 export function useNormalAudioModeController({ engine, track }: { engine: BrowserAudioEngine; track: AudioTrack }) {
   const source = useMemo(() => getAudioAssetUri(track.asset), [track.asset]);
+  const sourceError = source ? null : "Audio source tidak tersedia.";
   const isPlaying = engine.state.phase === "playing";
   const duration = engine.state.duration || track.durationSec;
   const current = Math.min(engine.state.currentTime, duration);
   const progressRatio = duration > 0 ? Math.min(Math.max(current / duration, 0), 1) : 0;
 
   const start = useCallback(async () => {
+    if (!source) {
+      return;
+    }
     await engine.start({ source, seekTo: 0, loop: false });
   }, [engine, source]);
 
@@ -42,7 +46,7 @@ export function useNormalAudioModeController({ engine, track }: { engine: Browse
 
   return {
     phase: engine.state.phase,
-    error: engine.state.error,
+    error: engine.state.error ?? sourceError,
     isPlaying,
     current,
     duration,

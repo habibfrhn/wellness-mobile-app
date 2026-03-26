@@ -69,6 +69,7 @@ export function useTailoredSessionModeController({
   const tracks = useMemo(() => normalizedPlaylistIds.map((id) => getTrackById(id)), [normalizedPlaylistIds]);
   const currentTrack = tracks[state.playlistIndex] ?? tracks[0];
   const source = useMemo(() => getAudioAssetUri(currentTrack.asset), [currentTrack.asset]);
+  const sourceError = source ? null : "Audio source tidak tersedia.";
   const trackDurations = useMemo(() => tracks.map((track) => track.durationSec), [tracks]);
   const elapsedBeforeCurrent = useMemo(
     () => trackDurations.slice(0, state.playlistIndex).reduce((sum, item) => sum + item, 0),
@@ -80,6 +81,10 @@ export function useTailoredSessionModeController({
 
   const startCurrentTrack = useCallback(async () => {
     dispatch({ type: "START_REQUEST" });
+    if (!source) {
+      dispatch({ type: "ERROR" });
+      return false;
+    }
     const started = await engine.start({ source, seekTo: 0, loop: false });
     if (!started) {
       dispatch({ type: "ERROR" });
@@ -92,7 +97,16 @@ export function useTailoredSessionModeController({
   const restart = useCallback(async () => {
     engine.stop();
     dispatch({ type: "RESET" });
-    await engine.start({ source: getAudioAssetUri(tracks[0].asset), seekTo: 0, loop: false });
+    const restartSource = getAudioAssetUri(tracks[0].asset);
+    if (!restartSource) {
+      dispatch({ type: "ERROR" });
+      return;
+    }
+    const started = await engine.start({ source: restartSource, seekTo: 0, loop: false });
+    if (!started) {
+      dispatch({ type: "ERROR" });
+      return;
+    }
     dispatch({ type: "PLAYING" });
   }, [engine, tracks]);
 
@@ -131,7 +145,12 @@ export function useTailoredSessionModeController({
     const runAdvance = async () => {
       dispatch({ type: "NEXT_TRACK" });
       const nextTrack = tracks[state.playlistIndex + 1];
-      const started = await engine.start({ source: getAudioAssetUri(nextTrack.asset), seekTo: 0, loop: false });
+      const nextSource = getAudioAssetUri(nextTrack.asset);
+      if (!nextSource) {
+        dispatch({ type: "ERROR" });
+        return;
+      }
+      const started = await engine.start({ source: nextSource, seekTo: 0, loop: false });
       if (!started) {
         dispatch({ type: "ERROR" });
         return;
@@ -149,7 +168,7 @@ export function useTailoredSessionModeController({
 
   return {
     phase: state.phase,
-    error: engine.state.error,
+    error: engine.state.error ?? sourceError,
     isPlaying: engine.state.phase === "playing",
     currentTrack,
     hasSessionStarted: state.hasStarted,
