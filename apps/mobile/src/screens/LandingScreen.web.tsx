@@ -1129,12 +1129,12 @@ const styles = StyleSheet.create({
     flex: 1,
     maxWidth: 360,
     alignSelf: "stretch",
-    alignItems: "flex-start",
+    alignItems: "center",
     justifyContent: "center",
   },
   heroTextColumnDesktop: {
     flex: 1,
-    alignItems: "flex-start",
+    alignItems: "center",
     justifyContent: "center",
   },
   heroIntro: {
@@ -1147,13 +1147,13 @@ const styles = StyleSheet.create({
     lineHeight: 36,
     fontWeight: "800",
     color: colors.text,
-    textAlign: "left",
+    textAlign: "center",
   },
   heroTitleTablet: {
     fontSize: 36,
     lineHeight: 42,
     maxWidth: 420,
-    textAlign: "left",
+    textAlign: "center",
   },
   heroTitleDesktop: {
     fontSize: 42,
@@ -1172,15 +1172,15 @@ const styles = StyleSheet.create({
   },
   heroDescription: {
     marginTop: spacing.xs,
-    fontSize: typography.body + 1,
-    lineHeight: 26,
+    fontSize: typography.body,
+    lineHeight: 28,
     color: colors.mutedText,
-    maxWidth: 380,
-    textAlign: "left",
+    maxWidth: 420,
+    textAlign: "center",
   },
   heroDescriptionDesktop: {
-    fontSize: typography.title,
-    lineHeight: 30,
+    fontSize: typography.body,
+    lineHeight: 28,
     maxWidth: 460,
   },
   heroCtaRow: {
@@ -1193,7 +1193,7 @@ const styles = StyleSheet.create({
     marginTop: HERO_GAP + 4,
   },
   heroCtaRowTablet: {
-    alignItems: "flex-start",
+    alignItems: "center",
   },
   heroCtaRowDesktop: {
     gap: spacing.sm,
@@ -1205,7 +1205,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   heroCtaButtonTablet: {
-    alignSelf: "flex-start",
+    alignSelf: "center",
   },
   heroImageCard: {
     width: "100%",
