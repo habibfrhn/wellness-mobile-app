@@ -54,6 +54,7 @@ export function useWebAudioPlayerSession({
   const currentSourceRef = useRef<string | null>(null);
   const fadeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const sessionCompletionLockRef = useRef(false);
+  const isTailoredStartPendingRef = useRef(false);
   const playlistIndexRef = useRef(playlistIndex);
   const hasSessionStartedRef = useRef(hasSessionStarted);
   const isTailoredSessionRef = useRef(isTailoredSession);
@@ -185,6 +186,7 @@ export function useWebAudioPlayerSession({
     }
 
     const firstTrack = getTrackById(firstTrackId);
+    isTailoredStartPendingRef.current = true;
     setSourceForTrack(firstTrack);
     setPlaylistIndex(0);
     hasSessionStartedRef.current = true;
@@ -193,10 +195,12 @@ export function useWebAudioPlayerSession({
     void audio
       .play()
       .then(() => {
+        isTailoredStartPendingRef.current = false;
         setHasSessionStarted(true);
         setIsLoading(false);
       })
       .catch(() => {
+        isTailoredStartPendingRef.current = false;
         hasSessionStartedRef.current = false;
         setHasSessionStarted(false);
         setIsPlaying(false);
@@ -326,12 +330,13 @@ export function useWebAudioPlayerSession({
       return prev === nextIndex ? prev : nextIndex;
     });
     setHasSessionStarted(false);
+    isTailoredStartPendingRef.current = false;
     currentSourceRef.current = null;
   }, [audioId, normalizedPlaylistIds]);
 
   useEffect(() => {
     if (isTailoredSession) {
-      if (hasSessionStarted) {
+      if (hasSessionStarted || isTailoredStartPendingRef.current) {
         return;
       }
 
@@ -444,6 +449,9 @@ export function useWebAudioPlayerSession({
 
     if (audio.paused) {
       if (isTailoredSession && !hasSessionStarted) {
+        if (isTailoredStartPendingRef.current) {
+          return;
+        }
         startTailoredSession();
         return;
       }
