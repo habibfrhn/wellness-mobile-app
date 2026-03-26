@@ -803,41 +803,10 @@ export default function LandingScreen() {
 
               <View style={styles.faqItem}>
                 <Text style={styles.faqQuestion}>
-                  Kapan waktu terbaik untuk memakainya?
-                </Text>
-                <Text style={styles.faqAnswer}>
-                  Paling pas dipakai menjelang tidur, saat kamu ingin
-                  menenangkan pikiran dan mulai beristirahat.
-                </Text>
-              </View>
-
-              <View style={styles.faqItem}>
-                <Text style={styles.faqQuestion}>
                   Apakah saya bisa mencobanya gratis?
                 </Text>
                 <Text style={styles.faqAnswer}>
                   Ya. Saat ini kamu bisa mulai gratis selama fase beta.
-                </Text>
-              </View>
-
-              <View style={styles.faqItem}>
-                <Text style={styles.faqQuestion}>
-                  Apakah ini cocok untuk saya yang susah berhenti mikir di
-                  malam hari?
-                </Text>
-                <Text style={styles.faqAnswer}>
-                  Cocok. Ritual ini dirancang untuk membantu kamu pelan-pelan
-                  lepas dari pikiran yang ramai sebelum tidur.
-                </Text>
-              </View>
-
-              <View style={styles.faqItem}>
-                <Text style={styles.faqQuestion}>
-                  Apakah saya harus memakainya setiap malam?
-                </Text>
-                <Text style={styles.faqAnswer}>
-                  Tidak harus, tapi biasanya hasilnya terasa lebih baik kalau
-                  dipakai secara rutin.
                 </Text>
               </View>
 
