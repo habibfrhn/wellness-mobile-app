@@ -56,7 +56,7 @@ export const id = {
     badge: "Ritual Malam Harian",
     heroIntro: "Introducing a Smarter Night Routine",
     heroTitle: "Effortless Sleep Ritual for Busy Minds",
-    heroSubtitle: "Pendek, terstruktur, dan menenangkan—membantu kamu wind-down dari hari yang melelahkan tanpa distraksi.",
+    heroSubtitle: "Kamu tidak perlu memilih apa pun. Kami akan menyiapkan sesi tidur yang paling cocok untuk menemani kamu rileks dan pelan-pelan terlelap.",
     secondaryHeroCta: "Coba Demo",
     mobileMenuLabel: "Buka menu navigasi",
     mobileMenuHint: "Pilih untuk masuk atau membuat akun",
