@@ -49,6 +49,7 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
   const [favorite, setFavorite] = useState(() => isFavorite(audioId));
   const [isExitModalVisible, setIsExitModalVisible] = useState(false);
   const isExitingSessionRef = useRef(false);
+  const shouldConfirmExitRef = useRef(false);
 
   const {
     track,
@@ -90,6 +91,10 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
   }, [playlistIds, track.contentType]);
 
   const shouldConfirmExit = playbackMode === "tailored_session" && hasSessionStarted;
+
+  useEffect(() => {
+    shouldConfirmExitRef.current = shouldConfirmExit;
+  }, [shouldConfirmExit]);
 
   const sessionArtwork = useMemo(() => {
     if (!isPlaylistSession) {
@@ -140,7 +145,7 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
         return;
       }
 
-      if (!shouldConfirmExit) {
+      if (!shouldConfirmExitRef.current) {
         stopPlayback();
         return;
       }
@@ -155,7 +160,7 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
       unsubBlur();
       stopPlayback();
     };
-  }, [navigation, resetPlayers, shouldConfirmExit]);
+  }, [navigation, resetPlayers]);
 
   useLayoutEffect(() => {
     navigation.setOptions({

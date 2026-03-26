@@ -114,6 +114,18 @@ export function useWebAudioPlayerSession({
     }
   }, []);
 
+  const pauseWithReason = useCallback(
+    (reason: string) => {
+      const audio = audioRef.current;
+      if (!audio) {
+        return;
+      }
+      log("pause-called", { reason, src: audio.src, index: playlistIndexRef.current });
+      audio.pause();
+    },
+    [log],
+  );
+
   const assignTrackSource = useCallback(
     (targetTrack: ReturnType<typeof getTrackById>, reason: string) => {
       const audio = audioRef.current;
@@ -127,7 +139,7 @@ export function useWebAudioPlayerSession({
       }
 
       log("src-assigned", { reason, trackId: targetTrack.id, from: currentSourceRef.current, to: nextSource });
-      audio.pause();
+      pauseWithReason(`assign-track-source:${reason}`);
       audio.src = nextSource;
       currentSourceRef.current = nextSource;
       audio.loop = targetTrack.contentType === "soundscape" && !isTailoredSession;
@@ -137,7 +149,7 @@ export function useWebAudioPlayerSession({
       setIsLoading(true);
       return true;
     },
-    [isTailoredSession, log],
+    [isTailoredSession, log, pauseWithReason],
   );
 
   const playCurrent = useCallback(
@@ -171,12 +183,8 @@ export function useWebAudioPlayerSession({
   );
 
   const pause = useCallback(() => {
-    const audio = audioRef.current;
-    if (!audio) {
-      return;
-    }
-    audio.pause();
-  }, []);
+    pauseWithReason("pause-callback");
+  }, [pauseWithReason]);
 
   const seekTo = useCallback((seconds: number) => {
     const audio = audioRef.current;
@@ -194,12 +202,12 @@ export function useWebAudioPlayerSession({
       return;
     }
 
-    audio.pause();
+    pauseWithReason("reset-players");
     audio.currentTime = 0;
     audio.volume = 1;
     setCurrent(0);
     setIsPlaying(false);
-  }, [clearFadeOutInterval]);
+  }, [clearFadeOutInterval, pauseWithReason]);
 
   const handleSessionComplete = useCallback(() => {
     if (!sleepMode || sessionCompletionLockRef.current) {
@@ -222,6 +230,15 @@ export function useWebAudioPlayerSession({
     playlistIndexRef.current = playlistIndex;
     hasSessionStartedRef.current = hasSessionStarted;
   }, [hasSessionStarted, playlistIndex]);
+
+  useEffect(() => {
+    log("state-change", {
+      hasSessionStarted,
+      playlistIndex,
+      isPlaying,
+      isLoading,
+    });
+  }, [hasSessionStarted, isLoading, isPlaying, log, playlistIndex]);
 
   useEffect(() => {
     if (!isTailoredSession) {
@@ -309,7 +326,7 @@ export function useWebAudioPlayerSession({
 
     return () => {
       clearFadeOutInterval();
-      audio.pause();
+      pauseWithReason("audio-effect-cleanup");
       audio.src = "";
       audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
       audio.removeEventListener("canplay", handleCanPlay);
@@ -329,6 +346,7 @@ export function useWebAudioPlayerSession({
     isTailoredSession,
     log,
     normalizedPlaylistIds,
+    pauseWithReason,
     playCurrent,
   ]);
 
@@ -411,13 +429,13 @@ export function useWebAudioPlayerSession({
 
       if (progress >= 1) {
         clearFadeOutInterval();
-        audio.pause();
+        pauseWithReason("fade-out-complete");
         audio.currentTime = 0;
         audio.volume = 1;
         setCurrent(0);
       }
     }, 250);
-  }, [clearFadeOutInterval]);
+  }, [clearFadeOutInterval, pauseWithReason]);
 
   useEffect(() => {
     if (!showSoundscapeControls || timerRemaining === null || timerRemaining > 0) {
