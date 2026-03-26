@@ -55,7 +55,7 @@ export const id = {
     getStartedCta: "Get Started",
     badge: "Ritual Malam Harian",
     heroIntro: "Introducing a Smarter Night Routine",
-    heroTitle: "Kamu tinggal rebahan, kami yang pilihkan.",
+    heroTitle: "Kamu tinggal rebahan, kami yang pilihkan",
     heroSubtitle: "Lumepo aku menyiapkan sesi tidur buat kamu",
     secondaryHeroCta: "Coba Demo",
     mobileMenuLabel: "Buka menu navigasi",
