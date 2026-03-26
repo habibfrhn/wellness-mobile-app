@@ -304,6 +304,18 @@ export function useWebAudioPlayerSession({
 
   useEffect(() => {
     if (isTailoredSession) {
+      if (hasSessionStarted) {
+        return;
+      }
+
+      const firstTrack = getTrackById(normalizedPlaylistIds[0] ?? audioId);
+      const sourceChanged = setSourceForTrack(firstTrack);
+      if (sourceChanged) {
+        clearFadeOutInterval();
+      }
+      if (playlistIndex !== 0) {
+        setPlaylistIndex(0);
+      }
       return;
     }
 
@@ -311,7 +323,16 @@ export function useWebAudioPlayerSession({
     if (sourceChanged) {
       clearFadeOutInterval();
     }
-  }, [clearFadeOutInterval, isTailoredSession, setSourceForTrack, track]);
+  }, [
+    audioId,
+    clearFadeOutInterval,
+    hasSessionStarted,
+    isTailoredSession,
+    normalizedPlaylistIds,
+    playlistIndex,
+    setSourceForTrack,
+    track,
+  ]);
 
   useEffect(() => {
     const audio = audioRef.current;
