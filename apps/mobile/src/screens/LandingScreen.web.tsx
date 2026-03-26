@@ -398,6 +398,19 @@ export default function LandingScreen() {
                 <>
                   <View
                     style={[
+                      styles.heroImageCard,
+                      (isDesktop || isTablet) && styles.heroImageCardDesktop,
+                    ]}
+                  >
+                    <Image
+                      source={EMPATHY_IMAGE_FOUR}
+                      style={styles.heroImage}
+                      resizeMode="cover"
+                    />
+                  </View>
+
+                  <View
+                    style={[
                       styles.processContentColumn,
                       (isDesktop || isTablet) && styles.processContentColumnDesktop,
                     ]}
@@ -417,19 +430,6 @@ export default function LandingScreen() {
                       langkahnya memandu kamu. Tanpa banyak pilihan, tanpa
                       distraksi.
                     </Text>
-                  </View>
-
-                  <View
-                    style={[
-                      styles.heroImageCard,
-                      (isDesktop || isTablet) && styles.heroImageCardDesktop,
-                    ]}
-                  >
-                    <Image
-                      source={EMPATHY_IMAGE_FOUR}
-                      style={styles.heroImage}
-                      resizeMode="cover"
-                    />
                   </View>
                 </>
               )}
@@ -482,19 +482,6 @@ export default function LandingScreen() {
                 <>
                   <View
                     style={[
-                      styles.benefitsImageCard,
-                      (isDesktop || isTablet) && styles.benefitsImageCardDesktop,
-                    ]}
-                  >
-                    <Image
-                      source={BENEFITS_IMAGE}
-                      style={styles.heroImage}
-                      resizeMode="cover"
-                    />
-                  </View>
-
-                  <View
-                    style={[
                       styles.benefitsTextColumn,
                       (isDesktop || isTablet) && styles.benefitsTextColumnDesktop,
                     ]}
@@ -515,6 +502,19 @@ export default function LandingScreen() {
                       tidur. Tidur terasa lebih dalam dan bangun lebih ringan. Kamu
                       punya ruang untuk menutup hari dengan sadar.
                     </Text>
+                  </View>
+
+                  <View
+                    style={[
+                      styles.benefitsImageCard,
+                      (isDesktop || isTablet) && styles.benefitsImageCardDesktop,
+                    ]}
+                  >
+                    <Image
+                      source={BENEFITS_IMAGE}
+                      style={styles.heroImage}
+                      resizeMode="cover"
+                    />
                   </View>
                 </>
               )}
@@ -568,6 +568,19 @@ export default function LandingScreen() {
                 <>
                   <View
                     style={[
+                      styles.trustImageCard,
+                      (isDesktop || isTablet) && styles.trustImageCardDesktop,
+                    ]}
+                  >
+                    <Image
+                      source={TRUST_IMAGE}
+                      style={styles.heroImage}
+                      resizeMode="cover"
+                    />
+                  </View>
+
+                  <View
+                    style={[
                       styles.trustTextColumn,
                       (isDesktop || isTablet) && styles.trustTextColumnDesktop,
                     ]}
@@ -589,19 +602,6 @@ export default function LandingScreen() {
                       menjadi lebih produktif, tapi tentang memberi diri sendiri
                       ruang untuk berhenti.
                     </Text>
-                  </View>
-
-                  <View
-                    style={[
-                      styles.trustImageCard,
-                      (isDesktop || isTablet) && styles.trustImageCardDesktop,
-                    ]}
-                  >
-                    <Image
-                      source={TRUST_IMAGE}
-                      style={styles.heroImage}
-                      resizeMode="cover"
-                    />
                   </View>
                 </>
               )}
@@ -672,19 +672,6 @@ export default function LandingScreen() {
                 <>
                   <View
                     style={[
-                      styles.closingCtaImageCard,
-                      (isDesktop || isTablet) && styles.closingCtaImageCardDesktop,
-                    ]}
-                  >
-                    <Image
-                      source={CLOSING_CTA_IMAGE}
-                      style={styles.heroImage}
-                      resizeMode="cover"
-                    />
-                  </View>
-
-                  <View
-                    style={[
                       styles.closingCtaTextColumn,
                       (isDesktop || isTablet) && styles.closingCtaTextColumnDesktop,
                     ]}
@@ -718,6 +705,19 @@ export default function LandingScreen() {
                     <Text style={styles.closingCtaMicrocopy}>
                       Tanpa kartu kredit.
                     </Text>
+                  </View>
+
+                  <View
+                    style={[
+                      styles.closingCtaImageCard,
+                      (isDesktop || isTablet) && styles.closingCtaImageCardDesktop,
+                    ]}
+                  >
+                    <Image
+                      source={CLOSING_CTA_IMAGE}
+                      style={styles.heroImage}
+                      resizeMode="cover"
+                    />
                   </View>
                 </>
               )}
