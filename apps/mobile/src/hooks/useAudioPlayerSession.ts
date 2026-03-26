@@ -42,6 +42,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
   const fadeOutIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const retryTimeoutRefs = useRef<ReturnType<typeof setTimeout>[]>([]);
   const sessionCompletionLockRef = useRef(false);
+  const hasInitializedTrackRef = useRef(false);
 
   const currentAudioId: AudioId = normalizedPlaylistIds[playlistIndex] ?? audioId;
   const track = useMemo(() => getTrackById(currentAudioId), [currentAudioId]);
@@ -277,6 +278,12 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
       setTimerSeconds(null);
       setTimerRemaining(null);
     }
+
+    if (!hasInitializedTrackRef.current) {
+      hasInitializedTrackRef.current = true;
+      return;
+    }
+
     resetPlayers();
   }, [resetPlayers, showSoundscapeControls, track.id]);
 
