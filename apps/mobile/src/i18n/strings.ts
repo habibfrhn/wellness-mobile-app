@@ -148,7 +148,7 @@ export const id = {
 
   home: {
     title: "Ritual malam",
-    subtitle: "Kamu tidak perlu memilih apa pun. Kami akan menyiapkan sesi tidur yang paling cocok untuk menemani kamu rileks dan pelan-pelan terlelap.",
+    subtitle: "Pilihan sesi singkat untuk menutup hari dengan lebih tenang.",
     durationBadge: "5 menit",
     noteNoAutoplay: "Audio tidak diputar otomatis. Anda yang memulai saat sudah siap.",
     greetingWithName: "Selamat malam, {name} 👋😊",
@@ -163,7 +163,7 @@ export const id = {
     streakBrokenPrimary: "Streak terputus",
     streakBrokenSupporting: "Mulai lagi malam ini",
     primaryCardTitle: "Saatnya masuk waktu tidur",
-    primaryCardBody: "Kami akan membantu kamu perlahan melepaskan aktivitas hari ini dan bersiap untuk beristirahat.",
+    primaryCardBody: "Kamu tidak perlu memilih apa pun. Kami akan menyiapkan sesi tidur yang paling cocok untuk menemani kamu rileks dan pelan-pelan terlelap.",
     startOptionCalmMind: "Tenangkan pikiran",
     startOptionSoundscape: "Dengarkan suara",
     startOptionDirectSleep: "Langsung mulai tidur",
