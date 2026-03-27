@@ -14,6 +14,28 @@ type Props = {
   navigation: NativeStackNavigationProp<AppStackParamList>;
 };
 
+function runAfterTouchCommit(callback: () => void) {
+  if (typeof requestAnimationFrame === "function") {
+    requestAnimationFrame(() => {
+      callback();
+    });
+    return;
+  }
+
+  setTimeout(callback, 0);
+}
+
+function blurWebActiveElement() {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  const activeElement = document.activeElement;
+  if (activeElement instanceof HTMLElement) {
+    activeElement.blur();
+  }
+}
+
 function confirmOnWeb(title: string, message: string) {
   if (Platform.OS === "web" && typeof window !== "undefined") {
     return window.confirm(`${title}\n\n${message}`);
@@ -25,8 +47,16 @@ function confirmOnWeb(title: string, message: string) {
 export default function HomeHeaderSettingsButton({ navigation }: Props) {
   const viewport = getWebViewport(useViewportWidth());
   const isDesktop = viewport === "desktop";
+  const onOpenSettings = () => {
+    runAfterTouchCommit(() => {
+      blurWebActiveElement();
+      navigation.navigate("Settings");
+    });
+  };
 
   const onLogout = async () => {
+    blurWebActiveElement();
+
     const logoutAction = async () => {
       const { error } = await signOutToLogin();
       if (error) {
@@ -57,7 +87,7 @@ export default function HomeHeaderSettingsButton({ navigation }: Props) {
   return (
     <View style={[styles.container, !isDesktop && styles.containerCompact]}>
       <Pressable
-        onPress={() => navigation.navigate("Settings")}
+        onPress={onOpenSettings}
         hitSlop={8}
         style={({ pressed }) => [styles.actionButton, !isDesktop && styles.actionButtonCompact, pressed && styles.pressed]}
       >
@@ -66,7 +96,11 @@ export default function HomeHeaderSettingsButton({ navigation }: Props) {
       </Pressable>
 
       <Pressable
-        onPress={onLogout}
+        onPress={() => {
+          runAfterTouchCommit(() => {
+            void onLogout();
+          });
+        }}
         hitSlop={8}
         style={({ pressed }) => [styles.actionButton, !isDesktop && styles.actionButtonCompact, pressed && styles.pressed]}
       >

@@ -23,6 +23,17 @@ function runAfterTouchCommit(callback: () => void) {
   setTimeout(callback, 0);
 }
 
+function blurWebActiveElement() {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  const activeElement = document.activeElement;
+  if (activeElement instanceof HTMLElement) {
+    activeElement.blur();
+  }
+}
+
 function confirmOnWeb(title: string, message: string) {
   if (Platform.OS === "web" && typeof window !== "undefined") {
     return window.confirm(`${title}\n\n${message}`);
@@ -88,12 +99,14 @@ export default function HomeHeaderMobileMenuButton({ navigation }: Props) {
 
   const handleSettingsPress = () => {
     runAfterTouchCommit(() => {
+      blurWebActiveElement();
       closeMenu();
       navigation.navigate("Settings");
     });
   };
 
   const handleLogoutPress = async () => {
+    blurWebActiveElement();
     closeMenu();
 
     const logoutAction = async () => {
