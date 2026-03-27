@@ -36,20 +36,18 @@ export default function SleepOptionModal({
           style={styles.modalCard}
           onPress={(event) => event.stopPropagation()}
         >
-          <View style={styles.headerRow}>
-            <Text style={styles.question}>{id.home.nightModeQuestion}</Text>
-            <Pressable
-              onPress={onClose}
-              accessibilityRole="button"
-              accessibilityLabel="Tutup modal"
-              style={({ pressed }) => [
-                styles.closeButton,
-                pressed ? styles.pressed : null,
-              ]}
-            >
-              <Text style={styles.closeButtonText}>×</Text>
-            </Pressable>
-          </View>
+          <Pressable
+            onPress={onClose}
+            accessibilityRole="button"
+            accessibilityLabel="Tutup modal"
+            style={({ pressed }) => [
+              styles.closeButton,
+              pressed ? styles.pressed : null,
+            ]}
+          >
+            <Text style={styles.closeButtonText}>×</Text>
+          </Pressable>
+          <Text style={styles.question}>{id.home.nightModeQuestion}</Text>
           <Text style={styles.subtitle}>{id.home.nightModeSubtitle}</Text>
 
           <Pressable
@@ -114,29 +112,27 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     gap: spacing.sm,
   },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    gap: spacing.md,
-  },
   question: {
     color: colors.text,
     fontSize: typography.title,
     fontWeight: "700",
-    flex: 1,
+    paddingRight: spacing.xl + spacing.xs,
   },
   closeButton: {
-    width: 32,
-    height: 32,
+    position: "absolute",
+    top: spacing.sm,
+    right: spacing.sm,
+    width: 40,
+    height: 40,
     borderRadius: radius.sm,
     alignItems: "center",
     justifyContent: "center",
+    zIndex: 1,
   },
   closeButtonText: {
     color: colors.mutedText,
-    fontSize: typography.title,
-    lineHeight: 24,
+    fontSize: 30,
+    lineHeight: 34,
     fontWeight: "700",
   },
   subtitle: {
