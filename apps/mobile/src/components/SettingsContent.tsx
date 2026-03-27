@@ -13,6 +13,28 @@ import SettingsSection from "./settings/SettingsSection";
 
 const SUPPORT_EMAIL = "habibfrhn@gmail.com";
 
+function runAfterTouchCommit(callback: () => void) {
+  if (typeof requestAnimationFrame === "function") {
+    requestAnimationFrame(() => {
+      callback();
+    });
+    return;
+  }
+
+  setTimeout(callback, 0);
+}
+
+function blurWebActiveElement() {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  const activeElement = document.activeElement;
+  if (activeElement instanceof HTMLElement) {
+    activeElement.blur();
+  }
+}
+
 function readAppVersionFromAppJson(): string {
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -160,6 +182,13 @@ export default function SettingsContent({ navigation }: Props) {
     Alert.alert(id.account.helpTitle, `${id.account.helpNoAutoplay}\n\n${id.account.helpPlayback}`);
   }
 
+  const navigateFromSettings = (route: "ResetPassword" | "PrivacyPolicy" | "TermsConditions") => {
+    runAfterTouchCommit(() => {
+      blurWebActiveElement();
+      navigation.navigate(route);
+    });
+  };
+
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
       <SettingsSection title={id.account.title}>
@@ -184,7 +213,7 @@ export default function SettingsContent({ navigation }: Props) {
         />
         <SettingsRow label={id.account.emailLabel} value={emailValue} showDivider={false} />
         {showResetPassword ? (
-          <SettingsRow label={id.account.resetPasswordButton} onPress={() => navigation.navigate("ResetPassword")} showChevron />
+          <SettingsRow label={id.account.resetPasswordButton} onPress={() => navigateFromSettings("ResetPassword")} showChevron />
         ) : null}
       </SettingsSection>
 
@@ -202,8 +231,8 @@ export default function SettingsContent({ navigation }: Props) {
 
       <SettingsSection title={id.account.aboutSectionTitle}>
         <SettingsRow label={id.account.versionLabel} value={appVersion} />
-        <SettingsRow label={id.account.privacy} onPress={() => navigation.navigate("PrivacyPolicy")} showChevron />
-        <SettingsRow label={id.account.terms} onPress={() => navigation.navigate("TermsConditions")} showChevron showDivider={false} />
+        <SettingsRow label={id.account.privacy} onPress={() => navigateFromSettings("PrivacyPolicy")} showChevron />
+        <SettingsRow label={id.account.terms} onPress={() => navigateFromSettings("TermsConditions")} showChevron showDivider={false} />
       </SettingsSection>
 
       <SettingsSection title={id.account.dangerSectionTitle}>
