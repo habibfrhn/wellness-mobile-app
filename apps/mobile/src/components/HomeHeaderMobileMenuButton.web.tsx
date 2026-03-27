@@ -12,6 +12,17 @@ type Props = {
   navigation: NativeStackNavigationProp<AppStackParamList>;
 };
 
+function runAfterTouchCommit(callback: () => void) {
+  if (typeof requestAnimationFrame === "function") {
+    requestAnimationFrame(() => {
+      callback();
+    });
+    return;
+  }
+
+  setTimeout(callback, 0);
+}
+
 function confirmOnWeb(title: string, message: string) {
   if (Platform.OS === "web" && typeof window !== "undefined") {
     return window.confirm(`${title}\n\n${message}`);
@@ -76,8 +87,10 @@ export default function HomeHeaderMobileMenuButton({ navigation }: Props) {
   };
 
   const handleSettingsPress = () => {
-    closeMenu();
-    navigation.navigate("Settings");
+    runAfterTouchCommit(() => {
+      closeMenu();
+      navigation.navigate("Settings");
+    });
   };
 
   const handleLogoutPress = async () => {
@@ -151,7 +164,9 @@ export default function HomeHeaderMobileMenuButton({ navigation }: Props) {
 
               <Pressable
                 onPress={() => {
-                  void handleLogoutPress();
+                  runAfterTouchCommit(() => {
+                    void handleLogoutPress();
+                  });
                 }}
                 style={({ pressed }) => [
                   styles.menuItem,
