@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Alert, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Alert, Modal, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
@@ -22,8 +22,58 @@ function confirmOnWeb(title: string, message: string) {
 
 export default function HomeHeaderMobileMenuButton({ navigation }: Props) {
   const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
+  const triggerWrapRef = useRef<View>(null);
 
   const closeMenu = () => setIsMenuVisible(false);
+
+  const updateMenuPosition = useCallback(() => {
+    if (!triggerWrapRef.current?.measureInWindow) {
+      return;
+    }
+
+    triggerWrapRef.current.measureInWindow((x, y, width, height) => {
+      const menuWidth = 172;
+      const viewportWidth = typeof window !== "undefined" ? window.innerWidth : x + width + spacing.sm;
+      const left = Math.max(spacing.sm, Math.min(x + width - menuWidth, viewportWidth - menuWidth - spacing.sm));
+
+      setMenuPosition({
+        top: y + height + spacing.xs,
+        left,
+      });
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!isMenuVisible) {
+      return;
+    }
+
+    updateMenuPosition();
+
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const handleResize = () => {
+      updateMenuPosition();
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [isMenuVisible, updateMenuPosition]);
+
+  const toggleMenu = () => {
+    if (isMenuVisible) {
+      closeMenu();
+      return;
+    }
+
+    updateMenuPosition();
+    setIsMenuVisible(true);
+  };
 
   const handleSettingsPress = () => {
     closeMenu();
@@ -66,53 +116,60 @@ export default function HomeHeaderMobileMenuButton({ navigation }: Props) {
 
   return (
     <View style={styles.root}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={id.common.menu}
-        onPress={() => setIsMenuVisible((previous) => !previous)}
-        hitSlop={8}
-        style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}
-      >
-        <MaterialCommunityIcons
-          name="menu"
-          size={typography.iconMd}
-          color={colors.text}
-        />
-      </Pressable>
+      <View ref={triggerWrapRef} collapsable={false}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={id.common.menu}
+          onPress={toggleMenu}
+          hitSlop={8}
+          style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}
+        >
+          <MaterialCommunityIcons
+            name="menu"
+            size={typography.iconMd}
+            color={colors.text}
+          />
+        </Pressable>
+      </View>
 
-      {isMenuVisible ? (
-        <View style={styles.menuCard}>
-          <Pressable
-            onPress={handleSettingsPress}
-            style={({ pressed }) => [styles.menuItem, pressed && styles.pressed]}
-          >
-            <MaterialCommunityIcons
-              name="cog-outline"
-              size={typography.iconSm}
-              color={colors.text}
-            />
-            <Text style={styles.menuText}>{id.account.settingsMenu}</Text>
-          </Pressable>
+      <Modal transparent animationType="fade" visible={isMenuVisible} onRequestClose={closeMenu}>
+        <View style={styles.overlay}>
+          <Pressable style={styles.backdrop} onPress={closeMenu} />
+          {menuPosition ? (
+            <View style={[styles.menuCard, menuPosition]}>
+              <Pressable
+                onPress={handleSettingsPress}
+                style={({ pressed }) => [styles.menuItem, pressed && styles.pressed]}
+              >
+                <MaterialCommunityIcons
+                  name="cog-outline"
+                  size={typography.iconSm}
+                  color={colors.text}
+                />
+                <Text style={styles.menuText}>{id.account.settingsMenu}</Text>
+              </Pressable>
 
-          <Pressable
-            onPress={() => {
-              void handleLogoutPress();
-            }}
-            style={({ pressed }) => [
-              styles.menuItem,
-              pressed && styles.pressed,
-              styles.lastItem,
-            ]}
-          >
-            <MaterialCommunityIcons
-              name="logout"
-              size={typography.iconSm}
-              color={colors.danger}
-            />
-            <Text style={styles.logoutText}>{id.account.logout}</Text>
-          </Pressable>
+              <Pressable
+                onPress={() => {
+                  void handleLogoutPress();
+                }}
+                style={({ pressed }) => [
+                  styles.menuItem,
+                  pressed && styles.pressed,
+                  styles.lastItem,
+                ]}
+              >
+                <MaterialCommunityIcons
+                  name="logout"
+                  size={typography.iconSm}
+                  color={colors.danger}
+                />
+                <Text style={styles.logoutText}>{id.account.logout}</Text>
+              </Pressable>
+            </View>
+          ) : null}
         </View>
-      ) : null}
+      </Modal>
     </View>
   );
 }
@@ -122,6 +179,12 @@ const styles = StyleSheet.create({
     position: "relative",
     alignItems: "flex-end",
     justifyContent: "center",
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
   },
   iconButton: {
     backgroundColor: colors.white,
@@ -136,9 +199,7 @@ const styles = StyleSheet.create({
   },
   menuCard: {
     position: "absolute",
-    top: 46,
-    right: 0,
-    zIndex: 10,
+    zIndex: 1000,
     backgroundColor: colors.white,
     borderRadius: radius.sm,
     minWidth: 172,
