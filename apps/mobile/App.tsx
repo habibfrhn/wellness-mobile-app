@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Alert, LogBox, Platform, View } from "react-native";
 import * as Linking from "expo-linking";
 import * as Updates from "expo-updates";
-import { NavigationContainer, NavigatorScreenParams } from "@react-navigation/native";
+import { NavigationContainer, NavigatorScreenParams, createNavigationContainerRef } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -31,6 +31,47 @@ type RootStackParamList = {
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 
 const WEB_RESET_FLOW_KEY = "wellness.webResetFlow";
+
+
+const WEB_APP_NAME = "Lumepo";
+
+const WEB_ROUTE_TITLES: Record<string, string> = {
+  Landing: WEB_APP_NAME,
+  Home: WEB_APP_NAME,
+  Login: "Log in",
+  SignUp: "Sign up",
+  ForgotPassword: "Forgot password",
+  ResetPassword: "Reset password",
+  VerifyEmail: "Verify email",
+  Welcome: "Welcome",
+  Player: "Session",
+  Account: "Account",
+  Settings: "Settings",
+  PrivacyPolicy: "Privacy Policy",
+  TermsConditions: "Terms & Conditions",
+  ReminderSettings: "Reminder settings",
+  NightMode: "Night mode",
+  NightCheckIn: "Check in",
+  NightStep1: "Sleep step 1",
+  NightStep2: "Sleep step 2",
+  NightStep3: "Sleep step 3",
+  NightCheckOut: "Check out",
+};
+
+const navigationRef = createNavigationContainerRef<RootStackParamList>();
+
+function formatWebTitle(routeName?: string) {
+  const screenTitle = (routeName && WEB_ROUTE_TITLES[routeName]) || WEB_APP_NAME;
+  return screenTitle === WEB_APP_NAME ? WEB_APP_NAME : `${screenTitle} | ${WEB_APP_NAME}`;
+}
+
+function syncWebTitle(routeName?: string) {
+  if (Platform.OS !== "web" || typeof document === "undefined") {
+    return;
+  }
+
+  document.title = formatWebTitle(routeName);
+}
 
 function isWebResetFlowActive() {
   if (Platform.OS !== "web" || typeof window === "undefined") {
@@ -469,7 +510,11 @@ export default function App() {
   return (
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <SafeAreaProvider>
-        <NavigationContainer>
+        <NavigationContainer
+          ref={navigationRef}
+          onReady={() => syncWebTitle(navigationRef.getCurrentRoute()?.name)}
+          onStateChange={() => syncWebTitle(navigationRef.getCurrentRoute()?.name)}
+        >
           {Platform.OS === "web" ? (
             shouldShowAuth ? (
               <RootStack.Navigator
