@@ -10,7 +10,7 @@ type Props = NativeStackScreenProps<AppStackParamList, "PrivacyPolicy">;
 export default function PrivacyPolicyScreen({ navigation }: Props) {
   useLayoutEffect(() => {
     navigation.setOptions({
-      title: "",
+      headerTitle: "",
       headerStyle: { backgroundColor: colors.bg },
     });
   }, [navigation]);

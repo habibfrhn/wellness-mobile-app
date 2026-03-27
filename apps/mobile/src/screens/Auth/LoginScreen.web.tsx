@@ -59,7 +59,7 @@ export default function LoginScreen({ navigation, route }: Props) {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      title: "",
+      headerTitle: "",
       headerShown: false,
       headerLeft: () => (
         <Pressable

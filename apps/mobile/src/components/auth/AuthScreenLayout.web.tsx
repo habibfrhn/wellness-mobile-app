@@ -37,7 +37,7 @@ export default function AuthScreenLayout({
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      title: "",
+      headerTitle: "",
       headerShown: false,
       headerLeft: showCloseButton
         ? () => (

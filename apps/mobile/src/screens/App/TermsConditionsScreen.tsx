@@ -10,7 +10,7 @@ type Props = NativeStackScreenProps<AppStackParamList, "TermsConditions">;
 export default function TermsConditionsScreen({ navigation }: Props) {
   useLayoutEffect(() => {
     navigation.setOptions({
-      title: "",
+      headerTitle: "",
       headerStyle: { backgroundColor: colors.bg },
     });
   }, [navigation]);

@@ -27,7 +27,7 @@ export default function PrivacyPolicyScreen({ navigation, route }: Props) {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      title: "",
+      headerTitle: "",
       headerStyle: { backgroundColor: colors.bg },
       headerShown: !isLandingEntry,
     });

@@ -164,7 +164,7 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      title: "",
+      headerTitle: "",
       headerStyle: { backgroundColor: colors.white },
       headerShadowVisible: false,
       headerRight: () => null,

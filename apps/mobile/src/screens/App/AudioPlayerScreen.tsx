@@ -162,7 +162,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      title: "",
+      headerTitle: "",
       headerStyle: { backgroundColor: colors.white },
       headerShadowVisible: false,
       headerRight: () => null,

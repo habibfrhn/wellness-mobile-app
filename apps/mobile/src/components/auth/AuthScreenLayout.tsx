@@ -16,7 +16,7 @@ export default function AuthScreenLayout({ title, subtitle, children, showCloseB
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      title: "",
+      headerTitle: "",
       headerShadowVisible: false,
       headerLeft: showCloseButton
         ? () => (

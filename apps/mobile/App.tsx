@@ -36,19 +36,19 @@ const WEB_RESET_FLOW_KEY = "wellness.webResetFlow";
 const WEB_APP_NAME = "Lumepo";
 
 const WEB_ROUTE_TITLES: Record<string, string> = {
-  Landing: WEB_APP_NAME,
-  Home: WEB_APP_NAME,
+  Landing: "Beranda",
+  Home: "Beranda",
   Login: "Log in",
   SignUp: "Sign up",
   ForgotPassword: "Forgot password",
   ResetPassword: "Reset password",
   VerifyEmail: "Verify email",
   Welcome: "Welcome",
-  Player: "Session",
+  Player: "Audio Player",
   Account: "Account",
-  Settings: "Settings",
-  PrivacyPolicy: "Privacy Policy",
-  TermsConditions: "Terms & Conditions",
+  Settings: "Pengaturan",
+  PrivacyPolicy: "Kebijakan Privasi",
+  TermsConditions: "Syarat & Ketentuan",
   ReminderSettings: "Reminder settings",
   NightMode: "Night mode",
   NightCheckIn: "Check in",
@@ -61,8 +61,8 @@ const WEB_ROUTE_TITLES: Record<string, string> = {
 const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
 function formatWebTitle(routeName?: string) {
-  const screenTitle = (routeName && WEB_ROUTE_TITLES[routeName]) || WEB_APP_NAME;
-  return screenTitle === WEB_APP_NAME ? WEB_APP_NAME : `${screenTitle} | ${WEB_APP_NAME}`;
+  const screenTitle = (routeName && WEB_ROUTE_TITLES[routeName]) || "Beranda";
+  return `${screenTitle} | ${WEB_APP_NAME}`;
 }
 
 function syncWebTitle(routeName?: string) {

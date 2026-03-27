@@ -12,7 +12,7 @@ type Props = NativeStackScreenProps<AppStackParamList, "Settings">;
 export default function SettingsScreen({ navigation }: Props) {
   useLayoutEffect(() => {
     navigation.setOptions({
-      title: "",
+      headerTitle: "",
       headerBackVisible: false,
       headerLeft: () => <HeaderCloseButton onPress={() => navigation.goBack()} />,
       headerStyle: { backgroundColor: colors.bg },

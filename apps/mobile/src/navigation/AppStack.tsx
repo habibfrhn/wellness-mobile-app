@@ -59,7 +59,7 @@ export default function AppStack() {
       <Stack.Screen
         name="Account"
         options={{
-          title: "",
+          headerTitle: "",
           headerBackTitleVisible: false,
         }}
       >
@@ -69,7 +69,7 @@ export default function AppStack() {
       <Stack.Screen
         name="Settings"
         options={{
-          title: "",
+          headerTitle: "",
           headerBackTitleVisible: false,
         }}
       >
@@ -113,37 +113,37 @@ export default function AppStack() {
       <Stack.Screen
         name="NightMode"
         component={NightModeScreen}
-        options={{ title: "" }}
+        options={{ headerTitle: "" }}
       />
 
       <Stack.Screen
         name="NightCheckIn"
         component={NightCheckInScreen}
-        options={{ title: "" }}
+        options={{ headerTitle: "" }}
       />
 
       <Stack.Screen
         name="NightStep1"
         component={NightStep1Screen}
-        options={{ title: "" }}
+        options={{ headerTitle: "" }}
       />
 
       <Stack.Screen
         name="NightStep2"
         component={NightStep2Screen}
-        options={{ title: "" }}
+        options={{ headerTitle: "" }}
       />
 
       <Stack.Screen
         name="NightStep3"
         component={NightStep3Screen}
-        options={{ title: "" }}
+        options={{ headerTitle: "" }}
       />
 
       <Stack.Screen
         name="NightCheckOut"
         component={NightCheckOutScreen}
-        options={{ title: "" }}
+        options={{ headerTitle: "" }}
       />
     </Stack.Navigator>
   );
