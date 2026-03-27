@@ -132,17 +132,17 @@ export default function LandingScreen() {
     },
     {
       key: "faq",
-      label: "FAQ",
+      label: "Faq",
       onPress: () => goToSection("faq"),
     },
     {
       key: "privacy-policy",
-      label: "Kebijakan Privasi",
+      label: "Kebijakan privasi",
       onPress: goToPrivacyPolicy,
     },
     {
       key: "terms-conditions",
-      label: "Syarat & Ketentuan",
+      label: "Syarat & ketentuan",
       onPress: goToTermsConditions,
     },
   ];
@@ -780,7 +780,7 @@ export default function LandingScreen() {
                 styles.faqSectionTitle,
               ]}
             >
-              FAQ
+              Faq
             </Text>
 
             <View style={styles.faqList}>
@@ -872,7 +872,7 @@ export default function LandingScreen() {
                     hovered && styles.footerLinkPressableHover,
                   ]}
                 >
-                  <Text style={styles.footerLinkText}>FAQ</Text>
+                  <Text style={styles.footerLinkText}>Faq</Text>
                 </Pressable>
                 <Pressable
                   onPress={goToPrivacyPolicy}
@@ -881,7 +881,7 @@ export default function LandingScreen() {
                     hovered && styles.footerLinkPressableHover,
                   ]}
                 >
-                  <Text style={styles.footerLinkText}>Kebijakan Privasi</Text>
+                  <Text style={styles.footerLinkText}>Kebijakan privasi</Text>
                 </Pressable>
                 <Pressable
                   onPress={goToTermsConditions}
@@ -890,7 +890,7 @@ export default function LandingScreen() {
                     hovered && styles.footerLinkPressableHover,
                   ]}
                 >
-                  <Text style={styles.footerLinkText}>Syarat & Ketentuan</Text>
+                  <Text style={styles.footerLinkText}>Syarat & ketentuan</Text>
                 </Pressable>
               </View>
 
@@ -908,7 +908,7 @@ export default function LandingScreen() {
                     hovered && styles.footerLinkPressableHover,
                   ]}
                 >
-                  <Text style={styles.footerLinkText}>Kebijakan Privasi</Text>
+                  <Text style={styles.footerLinkText}>Kebijakan privasi</Text>
                 </Pressable>
                 <Pressable
                   onPress={goToTermsConditions}
@@ -917,7 +917,7 @@ export default function LandingScreen() {
                     hovered && styles.footerLinkPressableHover,
                   ]}
                 >
-                  <Text style={styles.footerLinkText}>Syarat & Ketentuan</Text>
+                  <Text style={styles.footerLinkText}>Syarat & ketentuan</Text>
                 </Pressable>
                 <Pressable
                   onPress={() => {}}
