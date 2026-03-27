@@ -420,9 +420,9 @@ export default function LandingScreen() {
                       Langkah kecil sebelum tidur
                     </Text>
                     <Text style={styles.processSupportText}>
-                      Cukup pilih mode yang kamu butuhkan, lalu biarkan
-                      langkahnya memandu kamu. Tanpa banyak pilihan, tanpa
-                      distraksi.
+                      Pilih mode yang kamu butuhkan, lalu biarkan Lumepo
+                      memandu kamu pelan-pelan menuju waktu istirahat. Tanpa
+                      banyak pilihan, tanpa distraksi, tanpa ribet.
                     </Text>
                   </View>
 
@@ -466,9 +466,9 @@ export default function LandingScreen() {
                       Langkah kecil sebelum tidur
                     </Text>
                     <Text style={styles.processSupportText}>
-                      Cukup pilih mode yang kamu butuhkan, lalu biarkan
-                      langkahnya memandu kamu. Tanpa banyak pilihan, tanpa
-                      distraksi.
+                      Pilih mode yang kamu butuhkan, lalu biarkan Lumepo
+                      memandu kamu pelan-pelan menuju waktu istirahat. Tanpa
+                      banyak pilihan, tanpa distraksi, tanpa ribet.
                     </Text>
                   </View>
                 </>
@@ -501,12 +501,11 @@ export default function LandingScreen() {
                         styles.sectionTitleToContentGap,
                       ]}
                     >
-                      Yang kamu rasakan
+                      Yang akan kamu rasakan
                     </Text>
                     <Text style={styles.benefitsBody}>
-                      Pelan pelan pikiran mulai melambat dan tubuh lebih siap untuk
-                      tidur. Tidur terasa lebih dalam dan bangun lebih ringan. Kamu
-                      punya ruang untuk menutup hari dengan sadar.
+                      Pikiran mulai melambat dan tubuh terasa lebih tenang. Kamu
+                      punya ruang untuk menutup hari dan bersiap untuk tidur.
                     </Text>
                   </View>
 
@@ -535,12 +534,11 @@ export default function LandingScreen() {
                         (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
                       ]}
                     >
-                      Yang kamu rasakan
+                      Yang akan kamu rasakan
                     </Text>
                     <Text style={styles.benefitsBody}>
-                      Pelan pelan pikiran mulai melambat dan tubuh lebih siap untuk
-                      tidur. Tidur terasa lebih dalam dan bangun lebih ringan. Kamu
-                      punya ruang untuk menutup hari dengan sadar.
+                      Pikiran mulai melambat dan tubuh terasa lebih tenang. Kamu
+                      punya ruang untuk menutup hari dan bersiap untuk tidur.
                     </Text>
                   </View>
 
@@ -586,12 +584,12 @@ export default function LandingScreen() {
                         styles.sectionTitleToContentGap,
                       ]}
                     >
-                      Dibuat dari Pengalaman Nyata
+                      Dibuat dari pengalaman nyata
                     </Text>
                     <Text style={styles.trustBody}>
-                      Aplikasi ini lahir dari seseorang yang juga sering merasa
-                      sulit mematikan pikiran di malam hari. Bukan tentang
-                      menjadi lebih produktif, tapi tentang memberi diri sendiri
+                      Lumepo lahir dari pengalaman seseorang yang tahu rasanya
+                      sulit mematikan pikiran di malam hari. Ini bukan tentang
+                      jadi lebih produktif, tapi tentang memberi diri sendiri
                       ruang untuk berhenti.
                     </Text>
                   </View>
@@ -634,12 +632,12 @@ export default function LandingScreen() {
                         (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
                       ]}
                     >
-                      Dibuat dari Pengalaman Nyata
+                      Dibuat dari pengalaman nyata
                     </Text>
                     <Text style={styles.trustBody}>
-                      Aplikasi ini lahir dari seseorang yang juga sering merasa
-                      sulit mematikan pikiran di malam hari. Bukan tentang
-                      menjadi lebih produktif, tapi tentang memberi diri sendiri
+                      Lumepo lahir dari pengalaman seseorang yang tahu rasanya
+                      sulit mematikan pikiran di malam hari. Ini bukan tentang
+                      jadi lebih produktif, tapi tentang memberi diri sendiri
                       ruang untuk berhenti.
                     </Text>
                   </View>
@@ -677,10 +675,12 @@ export default function LandingScreen() {
                         styles.sectionTitleToContentGap,
                       ]}
                     >
-                      Malam Ini, Kamu Bisa Memulainya
+                      Malam ini, kamu bisa mulai
                     </Text>
                     <Text style={styles.closingCtaSubtext}>
-                      Cukup 15 menit sebelum tidur.
+                      Cukup luangkan 15 menit sebelum tidur. Nyalakan sesi,
+                      rebahkan diri, dan biarkan Lumepo menemani kamu masuk ke
+                      waktu istirahat.
                     </Text>
                     <Pressable
                       onPress={goToSignUp}
@@ -724,10 +724,12 @@ export default function LandingScreen() {
                         (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
                       ]}
                     >
-                      Malam Ini, Kamu Bisa Memulainya
+                      Malam ini, kamu bisa mulai
                     </Text>
                     <Text style={styles.closingCtaSubtext}>
-                      Cukup 15 menit sebelum tidur.
+                      Cukup luangkan 15 menit sebelum tidur. Nyalakan sesi,
+                      rebahkan diri, dan biarkan Lumepo menemani kamu masuk ke
+                      waktu istirahat.
                     </Text>
                     <Pressable
                       onPress={goToSignUp}
