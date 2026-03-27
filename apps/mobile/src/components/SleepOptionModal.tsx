@@ -36,7 +36,20 @@ export default function SleepOptionModal({
           style={styles.modalCard}
           onPress={(event) => event.stopPropagation()}
         >
-          <Text style={styles.question}>{id.home.nightModeQuestion}</Text>
+          <View style={styles.headerRow}>
+            <Text style={styles.question}>{id.home.nightModeQuestion}</Text>
+            <Pressable
+              onPress={onClose}
+              accessibilityRole="button"
+              accessibilityLabel="Tutup modal"
+              style={({ pressed }) => [
+                styles.closeButton,
+                pressed ? styles.pressed : null,
+              ]}
+            >
+              <Text style={styles.closeButtonText}>×</Text>
+            </Pressable>
+          </View>
           <Text style={styles.subtitle}>{id.home.nightModeSubtitle}</Text>
 
           <Pressable
@@ -101,9 +114,29 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     gap: spacing.sm,
   },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: spacing.md,
+  },
   question: {
     color: colors.text,
     fontSize: typography.title,
+    fontWeight: "700",
+    flex: 1,
+  },
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.sm,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  closeButtonText: {
+    color: colors.mutedText,
+    fontSize: typography.title,
+    lineHeight: 24,
     fontWeight: "700",
   },
   subtitle: {
