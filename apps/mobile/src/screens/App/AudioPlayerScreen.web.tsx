@@ -38,6 +38,17 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Player">;
 
+function blurWebActiveElement() {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  const activeElement = document.activeElement;
+  if (activeElement instanceof HTMLElement) {
+    activeElement.blur();
+  }
+}
+
 export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
   const insets = useSafeAreaInsets();
   const { audioId, playlistIds, sleepMode } = route.params;
@@ -127,6 +138,7 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
 
   const handleClose = useCallback(() => {
     if (shouldConfirmExit) {
+      blurWebActiveElement();
       setIsExitModalVisible(true);
       return;
     }
@@ -151,6 +163,7 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
       }
 
       event.preventDefault();
+      blurWebActiveElement();
       setIsExitModalVisible(true);
     });
     const unsubBlur = navigation.addListener("blur", stopPlayback);
