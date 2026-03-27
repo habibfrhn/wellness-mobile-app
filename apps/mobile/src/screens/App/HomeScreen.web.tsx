@@ -32,6 +32,17 @@ type Props = NativeStackScreenProps<AppStackParamList, "Home">;
 const DESKTOP_PAGE_MAX_WIDTH = 1120;
 const TABLET_PAGE_MAX_WIDTH = 820;
 
+function blurWebActiveElement() {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  const activeElement = document.activeElement;
+  if (activeElement instanceof HTMLElement) {
+    activeElement.blur();
+  }
+}
+
 export default function HomeScreen({ navigation, route }: Props) {
   const insets = useSafeAreaInsets();
   const viewportWidth = useViewportWidth();
@@ -113,8 +124,14 @@ export default function HomeScreen({ navigation, route }: Props) {
   const [isSleepOptionModalVisible, setIsSleepOptionModalVisible] =
     useState(false);
 
+  const openPlayer = (audioTrackId: AppStackParamList["Player"]["audioId"]) => {
+    blurWebActiveElement();
+    navigation.navigate("Player", { audioId: audioTrackId });
+  };
+
   const handleSelectSleepOption = (option: "calm_mind" | "release_accept") => {
     setIsSleepOptionModalVisible(false);
+    blurWebActiveElement();
 
     const playlistIds =
       option === "calm_mind"
@@ -168,9 +185,7 @@ export default function HomeScreen({ navigation, route }: Props) {
                 <AudioTrackListSection
                   title={id.home.pickWhatYouNeedTitle}
                   tracks={nonSoundscapeTracks}
-                  onPress={(track) =>
-                    navigation.navigate("Player", { audioId: track.id })
-                  }
+                  onPress={(track) => openPlayer(track.id)}
                 />
               </View>
               <View style={styles.desktopColumn}>
@@ -178,9 +193,7 @@ export default function HomeScreen({ navigation, route }: Props) {
                   title={id.home.soundscapeShortTitle}
                   tracks={soundscapeTracks}
                   showDuration={false}
-                  onPress={(track) =>
-                    navigation.navigate("Player", { audioId: track.id })
-                  }
+                  onPress={(track) => openPlayer(track.id)}
                 />
               </View>
             </View>
@@ -195,17 +208,13 @@ export default function HomeScreen({ navigation, route }: Props) {
               <AudioTrackListSection
                 title={id.home.pickWhatYouNeedTitle}
                 tracks={nonSoundscapeTracks}
-                onPress={(track) =>
-                  navigation.navigate("Player", { audioId: track.id })
-                }
+                onPress={(track) => openPlayer(track.id)}
               />
               <AudioTrackListSection
                 title={id.home.soundscapeShortTitle}
                 tracks={soundscapeTracks}
                 showDuration={false}
-                onPress={(track) =>
-                  navigation.navigate("Player", { audioId: track.id })
-                }
+                onPress={(track) => openPlayer(track.id)}
               />
             </View>
           )}
