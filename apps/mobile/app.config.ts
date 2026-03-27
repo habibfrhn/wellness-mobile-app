@@ -59,6 +59,11 @@ const config: ExpoConfig = {
   runtimeVersion: {
     policy: 'appVersion',
   },
+  web: {
+    favicon: './assets/favicon.png',
+    name: 'Lumepo',
+    shortName: 'Lumepo',
+  },
   extra: {
     eas: {
       projectId: '03b17f91-5b62-4954-98b7-f4b70a8ec29f',
