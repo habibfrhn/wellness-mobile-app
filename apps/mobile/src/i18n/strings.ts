@@ -163,7 +163,7 @@ export const id = {
     streakBrokenPrimary: "Streak terputus",
     streakBrokenSupporting: "Mulai lagi malam ini",
     primaryCardTitle: "Saatnya masuk waktu tidur",
-    primaryCardBody: "Kamu tidak perlu memilih apa pun. Kami akan menyiapkan sesi tidur yang paling cocok untuk menemani kamu rileks dan pelan-pelan terlelap.",
+    primaryCardBody: "Kamu tidak perlu memilih apa pun. Kami akan menyiapkan sesi tidur yang paling cocok untuk menemani kamu rileks dan pelan-pelan tertidur.",
     startOptionCalmMind: "Tenangkan pikiran",
     startOptionSoundscape: "Dengarkan suara",
     startOptionDirectSleep: "Langsung mulai tidur",
