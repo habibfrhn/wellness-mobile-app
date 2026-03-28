@@ -2,23 +2,26 @@ import React from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { id } from "../../i18n/strings";
-import type { AdminAnalyticsRange, AdminAudioSummary, AdminFunnel, AdminKpis, AdminMonthlyRow } from "../../services/adminAnalytics";
+import type {
+  AdminAnalyticsRange,
+  AdminAudioEngagementRow,
+  AdminProductActions,
+  AdminTailoredSessionRow,
+} from "../../services/adminAnalytics";
 import { colors, radius, spacing, typography } from "../../theme/tokens";
 import AdminAudioSummaryPanel from "./AdminAudioSummaryPanel";
 import AdminDateRangeFilter from "./AdminDateRangeFilter";
-import AdminFunnelPanel from "./AdminFunnelPanel";
-import AdminKpiCards from "./AdminKpiCards";
-import AdminMonthlyPanel from "./AdminMonthlyPanel";
+import AdminProductActionsPanel from "./AdminProductActionsPanel";
+import AdminTailoredSessionsPanel from "./AdminTailoredSessionsPanel";
 
 type Props = {
   range: AdminAnalyticsRange;
   onRangeChange: (next: AdminAnalyticsRange) => void;
   busy: boolean;
   errorMessage: string | null;
-  kpis: AdminKpis | null;
-  funnel: AdminFunnel | null;
-  audioRows: AdminAudioSummary[];
-  monthlyRows: AdminMonthlyRow[];
+  productActions: AdminProductActions | null;
+  audioRows: AdminAudioEngagementRow[];
+  tailoredRows: AdminTailoredSessionRow[];
   onRefresh: () => Promise<void>;
   onSignOut: () => Promise<void>;
 };
@@ -28,10 +31,9 @@ export default function AdminDashboardView({
   onRangeChange,
   busy,
   errorMessage,
-  kpis,
-  funnel,
+  productActions,
   audioRows,
-  monthlyRows,
+  tailoredRows,
   onRefresh,
   onSignOut,
 }: Props) {
@@ -56,10 +58,9 @@ export default function AdminDashboardView({
 
       {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
-      <AdminKpiCards kpis={kpis} />
+      <AdminProductActionsPanel actions={productActions} />
       <AdminAudioSummaryPanel rows={audioRows} />
-      <AdminFunnelPanel funnel={funnel} />
-      {range === "12m" ? <AdminMonthlyPanel rows={monthlyRows} /> : null}
+      <AdminTailoredSessionsPanel rows={tailoredRows} />
     </ScrollView>
   );
 }

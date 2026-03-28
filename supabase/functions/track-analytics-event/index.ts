@@ -3,11 +3,14 @@ import { createClient } from "supabase";
 type AnalyticsEventName =
   | "landing_page_view"
   | "landing_cta_click"
+  | "home_sleep_cta_click"
+  | "audio_click"
   | "signup_start"
   | "signup_complete"
   | "audio_play"
   | "audio_complete"
   | "audio_abandon"
+  | "tailored_session_select"
   | "tailored_session_start"
   | "tailored_session_complete"
   | "tailored_session_dropoff";
@@ -41,11 +44,14 @@ const corsHeaders = {
 const EVENT_NAMES: AnalyticsEventName[] = [
   "landing_page_view",
   "landing_cta_click",
+  "home_sleep_cta_click",
+  "audio_click",
   "signup_start",
   "signup_complete",
   "audio_play",
   "audio_complete",
   "audio_abandon",
+  "tailored_session_select",
   "tailored_session_start",
   "tailored_session_complete",
   "tailored_session_dropoff",
@@ -100,7 +106,27 @@ function isValidPayload(value: unknown): value is TrackAnalyticsEventBody {
     return false;
   }
 
-  return true;
+  const eventProps = payload.event_props as Record<string, unknown>;
+
+  if (
+    payload.event_name === "audio_click" ||
+    payload.event_name === "audio_play" ||
+    payload.event_name === "audio_complete" ||
+    payload.event_name === "audio_abandon"
+  ) {
+    return typeof eventProps.audio_id === "string" && eventProps.audio_id.trim().length > 0;
+  }
+
+  if (
+    payload.event_name === "tailored_session_select" ||
+    payload.event_name === "tailored_session_start" ||
+    payload.event_name === "tailored_session_complete" ||
+    payload.event_name === "tailored_session_dropoff"
+  ) {
+    return eventProps.session_mode === "calm_mind" || eventProps.session_mode === "release_accept";
+  }
+
+  return Object.keys(eventProps).length === 0;
 }
 
 async function sha256Hex(value: string) {

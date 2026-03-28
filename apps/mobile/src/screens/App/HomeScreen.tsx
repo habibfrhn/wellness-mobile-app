@@ -26,6 +26,7 @@ import {
   getNightStreakState,
   type NightStreakHeroState,
 } from "../../services/nightStreak";
+import { trackEvent } from "../../services/analytics";
 import { colors, radius, spacing } from "../../theme/tokens";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Home">;
@@ -109,8 +110,14 @@ export default function HomeScreen({ navigation, route }: Props) {
 
   const [isSleepOptionModalVisible, setIsSleepOptionModalVisible] = useState(false);
 
+  const handleAudioPress = (audioId: AppStackParamList["Player"]["audioId"]) => {
+    void trackEvent("audio_click", { audio_id: audioId });
+    navigation.navigate("Player", { audioId });
+  };
+
   const handleSelectSleepOption = (option: "calm_mind" | "release_accept") => {
     setIsSleepOptionModalVisible(false);
+    void trackEvent("tailored_session_select", { session_mode: option });
 
     const playlistIds =
       option === "calm_mind"
@@ -155,7 +162,10 @@ export default function HomeScreen({ navigation, route }: Props) {
             <View style={[styles.primaryActionCardWrap, { marginTop: sectionGap }]}>
               <View style={styles.primaryActionCard}>
                 <HomeNightSummary
-                  onPressPrimary={() => setIsSleepOptionModalVisible(true)}
+                  onPressPrimary={() => {
+                    void trackEvent("home_sleep_cta_click");
+                    setIsSleepOptionModalVisible(true);
+                  }}
                   streakState={streakState}
                 />
               </View>
@@ -168,7 +178,7 @@ export default function HomeScreen({ navigation, route }: Props) {
                 <AudioTrackListSection
                   title={id.home.pickWhatYouNeedTitle}
                   tracks={nonSoundscapeTracks}
-                  onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
+                  onPress={(track) => handleAudioPress(track.id)}
                 />
               </View>
               <View style={styles.desktopColumn}>
@@ -176,7 +186,7 @@ export default function HomeScreen({ navigation, route }: Props) {
                   title={id.home.soundscapeShortTitle}
                   tracks={soundscapeTracks}
                   showDuration={false}
-                  onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
+                  onPress={(track) => handleAudioPress(track.id)}
                 />
               </View>
             </View>
@@ -185,13 +195,13 @@ export default function HomeScreen({ navigation, route }: Props) {
               <AudioTrackListSection
                 title={id.home.pickWhatYouNeedTitle}
                 tracks={nonSoundscapeTracks}
-                onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
+                onPress={(track) => handleAudioPress(track.id)}
               />
               <AudioTrackListSection
                 title={id.home.soundscapeShortTitle}
                 tracks={soundscapeTracks}
                 showDuration={false}
-                onPress={(track) => navigation.navigate("Player", { audioId: track.id })}
+                onPress={(track) => handleAudioPress(track.id)}
               />
             </View>
           )}

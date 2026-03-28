@@ -2,14 +2,12 @@ import { useCallback, useEffect, useState } from "react";
 
 import {
   type AdminAnalyticsRange,
-  type AdminAudioSummary,
-  type AdminFunnel,
-  type AdminKpis,
-  type AdminMonthlyRow,
-  fetchAdminAudioSummary,
-  fetchAdminFunnel,
-  fetchAdminKpis,
-  fetchAdminMonthly12m,
+  type AdminAudioEngagementRow,
+  type AdminProductActions,
+  type AdminTailoredSessionRow,
+  fetchAdminAudioEngagement,
+  fetchAdminProductActions,
+  fetchAdminTailoredSessions,
 } from "../services/adminAnalytics";
 import { id } from "../i18n/strings";
 
@@ -17,37 +15,35 @@ export function useAdminAnalytics(enabled: boolean) {
   const [range, setRange] = useState<AdminAnalyticsRange>("30d");
   const [busy, setBusy] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [kpis, setKpis] = useState<AdminKpis | null>(null);
-  const [funnel, setFunnel] = useState<AdminFunnel | null>(null);
-  const [audioRows, setAudioRows] = useState<AdminAudioSummary[]>([]);
-  const [monthlyRows, setMonthlyRows] = useState<AdminMonthlyRow[]>([]);
+  const [productActions, setProductActions] = useState<AdminProductActions | null>(null);
+  const [audioRows, setAudioRows] = useState<AdminAudioEngagementRow[]>([]);
+  const [tailoredRows, setTailoredRows] = useState<AdminTailoredSessionRow[]>([]);
 
   const load = useCallback(
     async (nextRange: AdminAnalyticsRange = range) => {
       if (!enabled) {
         return;
       }
+
       setBusy(true);
       setErrorMessage(null);
 
-      const [kpisRes, funnelRes, audioRes, monthlyRes] = await Promise.all([
-        fetchAdminKpis(nextRange),
-        fetchAdminFunnel(nextRange),
-        fetchAdminAudioSummary(nextRange),
-        nextRange === "12m" ? fetchAdminMonthly12m() : Promise.resolve({ data: [] as AdminMonthlyRow[], error: null }),
+      const [actionsRes, audioRes, tailoredRes] = await Promise.all([
+        fetchAdminProductActions(nextRange),
+        fetchAdminAudioEngagement(nextRange),
+        fetchAdminTailoredSessions(nextRange),
       ]);
 
-      const firstError = kpisRes.error ?? funnelRes.error ?? audioRes.error ?? monthlyRes.error;
+      const firstError = actionsRes.error ?? audioRes.error ?? tailoredRes.error;
       if (firstError) {
         setErrorMessage(firstError.message ?? id.common.tryAgain);
         setBusy(false);
         return;
       }
 
-      setKpis(kpisRes.data);
-      setFunnel(funnelRes.data);
+      setProductActions(actionsRes.data);
       setAudioRows(audioRes.data);
-      setMonthlyRows(monthlyRes.data);
+      setTailoredRows(tailoredRes.data);
       setBusy(false);
     },
     [enabled, range],
@@ -57,12 +53,12 @@ export function useAdminAnalytics(enabled: boolean) {
     if (!enabled) {
       setBusy(false);
       setErrorMessage(null);
-      setKpis(null);
-      setFunnel(null);
+      setProductActions(null);
       setAudioRows([]);
-      setMonthlyRows([]);
+      setTailoredRows([]);
       return;
     }
+
     void load(range);
   }, [enabled, load, range]);
 
@@ -71,10 +67,9 @@ export function useAdminAnalytics(enabled: boolean) {
     setRange,
     busy,
     errorMessage,
-    kpis,
-    funnel,
+    productActions,
     audioRows,
-    monthlyRows,
+    tailoredRows,
     reload: load,
   };
 }
