@@ -112,6 +112,26 @@ This explains why your insert can say “Success. No rows returned”:
 - the insert worked (or no-op due conflict),
 - table editor shows UUID only unless you join to `auth.users`.
 
+If you are trying to promote a specific email (example `lumepoapp@gmail.com`), run:
+
+```sql
+select id, email, raw_app_meta_data->>'provider' as provider
+from auth.users
+where email = 'lumepoapp@gmail.com';
+```
+
+If this returns **0 rows**, that email does not exist in Supabase Auth yet, so the `insert ... select` into `admin_users` cannot add it.
+
+Then create that email/password account first (Dashboard → Authentication → Users → Add user), and re-run:
+
+```sql
+insert into public.admin_users (user_id)
+select id
+from auth.users
+where email = 'lumepoapp@gmail.com'
+on conflict (user_id) do nothing;
+```
+
 ### About passwords
 
 - Do **not** store or “push” passwords into `public.admin_users`.
