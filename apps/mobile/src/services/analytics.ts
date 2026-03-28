@@ -51,6 +51,24 @@ function exceedsEventPropsLimit(value: Record<string, unknown>) {
   }
 }
 
+type TrackAnalyticsEventPayload = {
+  event_name: AnalyticsEventName;
+  event_props: Record<string, unknown>;
+  session_id: string;
+};
+
+async function invokeTrackAnalyticsEvent(payload: TrackAnalyticsEventPayload) {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const accessToken = sessionData.session?.access_token;
+
+  const { error } = await supabase.functions.invoke<{ ok: boolean }>("track-analytics-event", {
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+    body: payload,
+  });
+
+  return error;
+}
+
 function createSessionId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();
@@ -80,7 +98,7 @@ export async function trackEvent(eventName: AnalyticsEventName, properties: Reco
     session_id: getAnalyticsSessionId(),
   };
 
-  const { error } = await supabase.from("analytics_events").insert(payload);
+  const error = await invokeTrackAnalyticsEvent(payload);
   if (error) {
     console.warn("Failed to track analytics event", eventName, error.message);
   }

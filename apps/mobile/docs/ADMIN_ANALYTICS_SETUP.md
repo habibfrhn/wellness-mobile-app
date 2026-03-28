@@ -28,10 +28,11 @@ order by u.created_at desc;
 Before admin analytics is fully usable, you must complete these manual steps:
 
 1. Link and push migrations to your Supabase project (`supabase db push`).
-2. Ensure your admin auth account exists as **email/password** user in Supabase Auth.
-3. Insert that user into `public.admin_users`.
-4. Open `/admin` and log in with that email/password user.
-5. Generate a few test events and verify dashboard views return rows.
+2. Deploy Edge Function `track-analytics-event` (analytics writes now go through this function).
+3. Ensure your admin auth account exists as **email/password** user in Supabase Auth.
+4. Insert that user into `public.admin_users`.
+5. Open `/admin` and log in with that email/password user.
+6. Generate a few test events and verify dashboard views return rows.
 
 ### Clean-start note (if you deleted all Auth users)
 
@@ -60,7 +61,31 @@ Notes:
 
 ---
 
-## 2) Create (or confirm) your admin user in Auth
+## 2) Deploy analytics ingestion Edge Function (required)
+
+From repo root:
+
+```bash
+supabase functions deploy track-analytics-event --no-verify-jwt
+```
+
+Then confirm deployment:
+
+```bash
+supabase functions list
+```
+
+You should see `track-analytics-event` in the list.
+
+Why this is required:
+- Client apps no longer insert directly into `public.analytics_events`.
+- The edge function applies server-side throttling and then writes with service role.
+
+If you skip this step, analytics events from clients will fail to ingest.
+
+---
+
+## 3) Create (or confirm) your admin user in Auth
 
 Use your app signup flow (or Supabase dashboard Auth UI) to ensure the admin account exists.
 
@@ -80,7 +105,7 @@ If login says `Invalid login credentials`, do one of these:
 
 ---
 
-## 3) Grant admin access
+## 4) Grant admin access
 
 Open Supabase SQL Editor and run:
 
@@ -118,7 +143,7 @@ Also confirm SQL Editor is pointed at the same project/environment where you pus
 
 ---
 
-## 4) Verify admin authorization logic
+## 5) Verify admin authorization logic
 
 Still in SQL Editor, confirm the user is present:
 
@@ -202,7 +227,7 @@ on conflict (user_id) do nothing;
 
 ---
 
-## 5) Open the admin panel
+## 6) Open the admin panel
 
 Run web app:
 
@@ -255,7 +280,7 @@ Interpretation:
 
 ---
 
-## 6) Validate event ingestion quickly
+## 7) Validate event ingestion quickly
 
 In a normal browser session, perform:
 1. Open landing page.
@@ -285,7 +310,7 @@ You should see event rows for:
 
 ---
 
-## 7) Validate dashboard views directly
+## 8) Validate dashboard views directly
 
 Run:
 
