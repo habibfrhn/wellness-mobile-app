@@ -122,6 +122,34 @@ where email = 'lumepoapp@gmail.com';
 
 If this returns **0 rows**, that email does not exist in Supabase Auth yet, so the `insert ... select` into `admin_users` cannot add it.
 
+Why both queries can show `Success. No rows returned`:
+- For the `select ... from auth.users where email = ...`, it means no matching auth user exists.
+- For the `insert ... select ...`, it means nothing was inserted because the source `select` returned 0 rows (or row already existed with `on conflict do nothing`).
+
+Use this diagnostic query to see exact state in one shot:
+
+```sql
+with target_user as (
+  select id, email
+  from auth.users
+  where email = 'lumepoapp@gmail.com'
+),
+inserted as (
+  insert into public.admin_users (user_id)
+  select id from target_user
+  on conflict (user_id) do nothing
+  returning user_id
+)
+select
+  exists(select 1 from target_user) as auth_user_exists,
+  (select count(*) from inserted) as inserted_count,
+  exists(
+    select 1
+    from public.admin_users au
+    join target_user tu on tu.id = au.user_id
+  ) as is_admin_mapped;
+```
+
 Then create that email/password account first (Dashboard → Authentication → Users → Add user), and re-run:
 
 ```sql
