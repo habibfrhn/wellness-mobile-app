@@ -94,11 +94,24 @@ Visit:
   - `http://localhost:8081/?admin=1`
   - or `http://localhost:8081/#/admin`
 
+Important:
+- Use the **exact host/port printed by Expo** in your terminal.
+- If Expo starts on another port (for example `19006`), replace `8081` in the URLs.
+- If you are on LAN mode, open the LAN URL shown by Expo.
+
 Login with the admin account from Step 2.
 
 Expected:
 - Admin user sees dashboard cards/tables.
 - Non-admin user gets unauthorized state.
+
+If the panel loads but says unauthorized:
+
+```sql
+select public.is_admin() as is_admin_for_current_session;
+```
+
+If that returns `false`, the logged-in user is not present in `public.admin_users` yet.
 
 ---
 
