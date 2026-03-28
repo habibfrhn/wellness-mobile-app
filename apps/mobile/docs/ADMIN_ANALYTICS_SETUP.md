@@ -41,6 +41,30 @@ where email = 'admin@yourdomain.com'
 on conflict (user_id) do nothing;
 ```
 
+If you get:
+- `ERROR: 42P01: relation "public.admin_users" does not exist`
+
+it means the admin analytics migration has not been applied to the currently selected database/project yet.
+
+Use this quick diagnosis in SQL Editor:
+
+```sql
+select to_regclass('public.admin_users') as admin_users_table;
+```
+
+Expected:
+- returns `public.admin_users` (table exists)
+- `null` means migration is missing on this environment
+
+Then rerun from your CLI in the same linked project:
+
+```bash
+supabase migration list
+supabase db push
+```
+
+Also confirm SQL Editor is pointed at the same project/environment where you pushed.
+
 ---
 
 ## 4) Verify admin authorization logic
