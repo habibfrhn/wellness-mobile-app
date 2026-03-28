@@ -13,6 +13,43 @@ export type AnalyticsEventName =
   | "tailored_session_dropoff";
 
 let inMemorySessionId: string | null = null;
+const MAX_EVENT_PROPS_BYTES = 2048;
+const MAX_STRING_PROP_LENGTH = 120;
+const AUDIO_ID_PROP_KEY = "audio_id";
+
+function normalizeAudioId(value: unknown) {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  if (!normalized || normalized.length > MAX_STRING_PROP_LENGTH) {
+    return null;
+  }
+
+  return normalized;
+}
+
+function sanitizeEventProps(eventName: AnalyticsEventName, properties: Record<string, unknown>) {
+  const sanitized: Record<string, unknown> = {};
+
+  if (eventName === "audio_play" || eventName === "audio_complete" || eventName === "audio_abandon") {
+    const normalizedAudioId = normalizeAudioId(properties[AUDIO_ID_PROP_KEY]);
+    if (normalizedAudioId) {
+      sanitized[AUDIO_ID_PROP_KEY] = normalizedAudioId;
+    }
+  }
+
+  return sanitized;
+}
+
+function exceedsEventPropsLimit(value: Record<string, unknown>) {
+  try {
+    return JSON.stringify(value).length > MAX_EVENT_PROPS_BYTES;
+  } catch {
+    return true;
+  }
+}
 
 function createSessionId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -31,11 +68,16 @@ export function getAnalyticsSessionId() {
 }
 
 export async function trackEvent(eventName: AnalyticsEventName, properties: Record<string, unknown> = {}) {
+  const sanitizedProps = sanitizeEventProps(eventName, properties);
+  if (exceedsEventPropsLimit(sanitizedProps)) {
+    console.warn("Dropped analytics event due to oversized payload", eventName);
+    return;
+  }
+
   const payload = {
     event_name: eventName,
-    event_props: properties,
+    event_props: sanitizedProps,
     session_id: getAnalyticsSessionId(),
-    occurred_at: new Date().toISOString(),
   };
 
   const { error } = await supabase.from("analytics_events").insert(payload);

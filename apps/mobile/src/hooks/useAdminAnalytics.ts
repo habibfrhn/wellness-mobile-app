@@ -55,6 +55,12 @@ export function useAdminAnalytics(enabled: boolean) {
 
   useEffect(() => {
     if (!enabled) {
+      setBusy(false);
+      setErrorMessage(null);
+      setKpis(null);
+      setFunnel(null);
+      setAudioRows([]);
+      setMonthlyRows([]);
       return;
     }
     void load(range);

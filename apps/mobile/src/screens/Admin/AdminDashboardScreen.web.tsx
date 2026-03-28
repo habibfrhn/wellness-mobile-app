@@ -21,6 +21,15 @@ export default function AdminDashboardScreen({ session }: Props) {
   const { range, setRange, busy: analyticsBusy, errorMessage: analyticsError, kpis, funnel, audioRows, monthlyRows, reload } =
     useAdminAnalytics(Boolean(session) && isAdmin === true);
 
+  const getSafeAuthErrorMessage = useCallback((message: string) => {
+    const normalized = message.toLowerCase();
+    if (normalized.includes("invalid login") || normalized.includes("invalid credentials")) {
+      return id.admin.loginFailed;
+    }
+
+    return id.common.tryAgain;
+  }, []);
+
   const runAdminCheck = useCallback(async () => {
     if (!session) {
       setIsAdmin(null);
@@ -31,7 +40,7 @@ export default function AdminDashboardScreen({ session }: Props) {
     setErrorMessage(null);
     const { data, error } = await supabase.rpc("is_admin");
     if (error) {
-      setErrorMessage(error.message);
+      setErrorMessage(id.admin.accessCheckFailed);
       setBusy(false);
       return;
     }
@@ -46,18 +55,29 @@ export default function AdminDashboardScreen({ session }: Props) {
   }, [runAdminCheck]);
 
   const handleLogin = useCallback(async ({ email, password }: { email: string; password: string }) => {
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail) {
+      setErrorMessage(id.admin.loginNeedEmail);
+      return;
+    }
+
+    if (!password.trim()) {
+      setErrorMessage(id.admin.loginNeedPassword);
+      return;
+    }
+
     setBusy(true);
     setErrorMessage(null);
 
-    const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
+    const { error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
     if (error) {
-      setErrorMessage(error.message);
+      setErrorMessage(getSafeAuthErrorMessage(error.message));
       setBusy(false);
       return;
     }
 
     setBusy(false);
-  }, []);
+  }, [getSafeAuthErrorMessage]);
 
   const handleForgotPassword = useCallback(async (email: string) => {
     const normalizedEmail = email.trim().toLowerCase();
@@ -71,7 +91,7 @@ export default function AdminDashboardScreen({ session }: Props) {
     const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/auth/reset` : undefined;
     const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, redirectTo ? { redirectTo } : undefined);
     if (error) {
-      setErrorMessage(error.message);
+      setErrorMessage(id.admin.forgotPasswordSent);
       setBusy(false);
       return;
     }
