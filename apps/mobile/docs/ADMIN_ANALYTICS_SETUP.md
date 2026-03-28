@@ -235,6 +235,24 @@ select public.is_admin() as is_admin_for_current_session;
 
 If that returns `false`, the logged-in user is not present in `public.admin_users` yet.
 
+### “Is this correct now?” quick validation
+
+Run this exact query:
+
+```sql
+select
+  u.email,
+  u.id as auth_user_id,
+  exists(select 1 from public.admin_users au where au.user_id = u.id) as is_admin
+from auth.users u
+where u.email = 'lumepoapp@gmail.com';
+```
+
+Interpretation:
+- 0 rows => auth account does not exist yet.
+- 1 row with `is_admin = false` => user exists but not yet promoted.
+- 1 row with `is_admin = true` => setup is correct; login should pass (with correct password).
+
 ---
 
 ## 6) Validate event ingestion quickly
