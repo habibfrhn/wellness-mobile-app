@@ -247,6 +247,34 @@ For early validation this trade-off is acceptable, but before wider team collabo
 
 ---
 
+## Admin analytics audit update (MVP hardening)
+
+What was wrong:
+- Dashboard queries were tied to static summary views with no time-range filtering.
+- “Audio completion vs abandonment” could appear blank when filtered data was sparse.
+- Aggregation logic was split across UI and SQL, making metric definitions less explicit.
+
+What was fixed:
+- Added admin-only RPC functions for KPI/funnel/audio summary and 12-month monthly trend.
+- Added reusable date-range filter (`7d`, `30d`, `90d`, `12m`, `all`) and made all dashboard sections use the same selected range.
+- Audio summary now includes both explicit abandons and a derived abandon metric (`plays - completes`) to keep completion/abandonment trustworthy even in edge cases.
+- Added robust empty states and consistent zero-value rendering.
+
+How admin security works now:
+- Auth identity remains in `auth.users`; admin role is mapped in `public.admin_users`.
+- Analytics read APIs are admin-only RPCs guarded by `public.is_admin()`.
+- Client uses anon/authenticated key only; no service-role key is exposed.
+- Direct authenticated select on old analytics views is revoked in favor of guarded RPCs.
+
+Metric definitions:
+- `audio_play`: playback started.
+- `audio_complete`: playback reached completed state.
+- `audio_abandon`: explicit abandon event.
+- Derived abandonment for reporting: `max(audio_play - audio_complete, 0)`.
+- Funnel progression is session-based and ordered by stage presence: view -> cta -> signup_start -> signup_complete.
+
+---
+
 ## Build and release overview
 
 - Expo app configuration lives in root/app-level `app.json` and `eas.json`.
@@ -257,6 +285,7 @@ For operational checklists, see:
 - `apps/mobile/docs/RELEASE_CHECKLIST.md`
 - `apps/mobile/docs/STORE_SUBMISSION_CHECKLIST.md`
 - `apps/mobile/docs/ADMIN_ANALYTICS_SETUP.md`
+- `apps/mobile/docs/ADMIN_ANALYTICS_AUDIT.md`
 
 ---
 
