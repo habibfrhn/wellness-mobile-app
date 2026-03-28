@@ -22,7 +22,6 @@ export type AdminAudioSummary = {
   plays: number;
   completes: number;
   abandons: number;
-  derived_abandons: number;
   completion_rate: number;
   abandon_rate: number;
 };
@@ -46,7 +45,15 @@ export async function fetchAdminFunnel(range: AdminAnalyticsRange) {
 
 export async function fetchAdminAudioSummary(range: AdminAnalyticsRange) {
   const { data, error } = await supabase.rpc("admin_analytics_audio_summary", { range_key: range });
-  return { data: (data as AdminAudioSummary[] | null) ?? [], error };
+  const normalizedRows = ((data as AdminAudioSummary[] | null) ?? []).map((row) => ({
+    audio_id: row.audio_id || "unknown_audio",
+    plays: Number(row.plays) || 0,
+    completes: Number(row.completes) || 0,
+    abandons: Number(row.abandons) || 0,
+    completion_rate: Number(row.completion_rate) || 0,
+    abandon_rate: Number(row.abandon_rate) || 0,
+  }));
+  return { data: normalizedRows, error };
 }
 
 export async function fetchAdminMonthly12m() {
