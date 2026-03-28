@@ -26,6 +26,32 @@ function mapLinkType(type: string | null): AuthLinkType {
   return "unknown";
 }
 
+export function isPotentialAuthLink(url: string) {
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(url);
+  } catch {
+    return false;
+  }
+
+  const pathname = parsedUrl.pathname.replace(/^\/+/, "").toLowerCase();
+  if (pathname === "auth/callback" || pathname === "auth/reset") {
+    return true;
+  }
+
+  const hashParams = new URLSearchParams(parsedUrl.hash.replace(/^#/, ""));
+  const hasParam = (key: string) => Boolean(parsedUrl.searchParams.get(key) || hashParams.get(key));
+  return (
+    hasParam("auth_flow") ||
+    hasParam("code") ||
+    hasParam("type") ||
+    hasParam("access_token") ||
+    hasParam("refresh_token") ||
+    hasParam("token_hash") ||
+    hasParam("token")
+  );
+}
+
 /**
  * Handles Supabase auth links for web and native.
  */

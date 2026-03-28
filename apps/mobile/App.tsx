@@ -7,7 +7,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { hasSupabaseEnv, missingSupabaseEnvMessage, supabase } from "./src/services/supabase";
-import { handleAuthLink } from "./src/services/authLinks";
+import { handleAuthLink, isPotentialAuthLink } from "./src/services/authLinks";
 import AuthStack from "./src/navigation/AuthStack";
 import AppStack from "./src/navigation/AppStack";
 import type { AuthStackParamList } from "./src/navigation/types";
@@ -283,13 +283,21 @@ export default function App() {
         setWebAuthStatus("loading");
       }
 
-      if (initialUrl) {
+      const shouldProcessInitialUrl =
+        typeof initialUrl === "string" &&
+        (Platform.OS !== "web" || Boolean(initialWebAuthPath) || isPotentialAuthLink(initialUrl));
+
+      if (typeof initialUrl === "string" && shouldProcessInitialUrl) {
         await processUrl(initialUrl);
       } else if (initialWebAuthPath) {
         setWebAuthStatus("missing");
       }
 
       linkSubscription = Linking.addEventListener("url", async ({ url }) => {
+        if (Platform.OS === "web" && !isPotentialAuthLink(url)) {
+          return;
+        }
+
         if (Platform.OS === "web") {
           setWebAuthStatus("loading");
         }
