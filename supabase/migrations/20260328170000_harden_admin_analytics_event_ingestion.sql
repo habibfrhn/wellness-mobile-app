@@ -44,6 +44,28 @@ alter table public.analytics_events
   add constraint analytics_events_event_props_shape_check
   check (public.analytics_event_props_are_valid(event_name, event_props)) not valid;
 
+-- Normalize legacy rows so the new constraint can be validated safely.
+update public.analytics_events
+set event_props = case
+  when event_name in ('audio_play', 'audio_complete', 'audio_abandon') then jsonb_build_object(
+    'audio_id',
+    coalesce(
+      nullif(
+        regexp_replace(
+          lower(trim(coalesce(event_props->>'audio_id', 'unknown_audio'))),
+          '[^a-z0-9_-]',
+          '',
+          'g'
+        ),
+        ''
+      ),
+      'unknown_audio'
+    )
+  )
+  else '{}'::jsonb
+end
+where not public.analytics_event_props_are_valid(event_name, event_props);
+
 alter table public.analytics_events
   validate constraint analytics_events_event_props_shape_check;
 
