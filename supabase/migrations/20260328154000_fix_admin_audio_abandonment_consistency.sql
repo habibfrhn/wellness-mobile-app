@@ -1,6 +1,8 @@
 -- Keep audio abandonment definitions consistent across KPI and table metrics.
 -- Also ensure rows still appear when older events are missing audio_id.
 
+drop function if exists public.admin_analytics_audio_summary(text);
+
 create or replace function public.admin_analytics_audio_summary(range_key text default '30d')
 returns table(
   audio_id text,
