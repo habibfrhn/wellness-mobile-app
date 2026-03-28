@@ -19,6 +19,7 @@ import { clearNextAuthRoute, getNextAuthRoute, setNextAuthRoute } from "./src/se
 import { clearPendingProfileName, getPendingProfileName } from "./src/services/pendingProfileName";
 import WebAuthStatusScreen from "./src/components/auth/WebAuthStatusScreen";
 import { getWebAuthPath, replaceWebUrl } from "./src/services/webAuth";
+import AdminDashboardScreen from "./src/screens/Admin/AdminDashboardScreen.web";
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
 
@@ -56,6 +57,7 @@ const WEB_ROUTE_TITLES: Record<string, string> = {
   NightStep2: "Sleep step 2",
   NightStep3: "Sleep step 3",
   NightCheckOut: "Check out",
+  Admin: "Admin Analytics",
 };
 
 const navigationRef = createNavigationContainerRef<RootStackParamList>();
@@ -71,6 +73,14 @@ function syncWebTitle(routeName?: string) {
   }
 
   document.title = formatWebTitle(routeName);
+}
+
+function isAdminRoutePath() {
+  if (Platform.OS !== "web" || typeof window === "undefined") {
+    return false;
+  }
+
+  return window.location.pathname.startsWith("/admin");
 }
 
 function isWebResetFlowActive() {
@@ -491,6 +501,17 @@ export default function App() {
         actionLabel={id.auth.callbackAction}
         onAction={onReturnToLogin}
       />
+    );
+  }
+
+  if (isAdminRoutePath()) {
+    syncWebTitle("Admin");
+    return (
+      <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+        <SafeAreaProvider>
+          <AdminDashboardScreen session={session} />
+        </SafeAreaProvider>
+      </View>
     );
   }
 

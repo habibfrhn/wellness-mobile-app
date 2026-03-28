@@ -20,6 +20,7 @@ import useViewportWidth from "../hooks/useViewportWidth";
 import WebResponsiveFrame from "../components/WebResponsiveFrame";
 import LandingMobileAuthMenu from "../components/landing/LandingMobileAuthMenu";
 import { id } from "../i18n/strings";
+import { trackEvent } from "../services/analytics";
 
 type RootStackParamList = {
   Landing: undefined;
@@ -92,10 +93,12 @@ export default function LandingScreen() {
   const heroTitleText = id.landing.heroTitle.replace(", ", ",\n");
 
   const goToLogin = () => {
+    void trackEvent("landing_cta_click", { cta: "login" });
     navigation.navigate("Auth", { screen: "Login" });
   };
 
   const goToSignUp = () => {
+    void trackEvent("landing_cta_click", { cta: "signup" });
     navigation.navigate("Auth", { screen: "SignUp" });
   };
 
@@ -147,6 +150,10 @@ export default function LandingScreen() {
     },
   ];
   const activeNavKey = activeSection === "faq" ? "faq" : "home";
+
+  useEffect(() => {
+    void trackEvent("landing_page_view", { surface: "landing_web" });
+  }, []);
 
   useEffect(() => {
     const hasObserver =

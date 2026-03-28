@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, Pressable, StyleSheet, Alert } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -14,6 +14,7 @@ import PasswordToggle from "../../components/PasswordToggle";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
 import AuthTextField from "../../components/auth/AuthTextField";
 import SignUpLoginPrompt from "../../components/auth/SignUpLoginPrompt";
+import { trackEvent } from "../../services/analytics";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "SignUp">;
 
@@ -32,6 +33,10 @@ export default function SignUpScreen({ navigation, route }: Props) {
   const [busyGoogle, setBusyGoogle] = useState(false);
 
   const canPress = useMemo(() => !busy, [busy]);
+
+  useEffect(() => {
+    void trackEvent("signup_start", { method: "email" });
+  }, []);
 
   function validate(): string[] {
     const issues: string[] = [];
@@ -72,6 +77,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
         return;
       }
 
+      void trackEvent("signup_complete", { method: "email" });
       navigation.replace("VerifyEmail", { email: e });
     } finally {
       setBusy(false);
