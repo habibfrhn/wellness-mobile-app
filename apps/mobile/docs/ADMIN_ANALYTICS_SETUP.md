@@ -33,6 +33,15 @@ Before admin analytics is fully usable, you must complete these manual steps:
 4. Open `/admin` and log in with that email/password user.
 5. Generate a few test events and verify dashboard views return rows.
 
+### Clean-start note (if you deleted all Auth users)
+
+If `Authentication > Users` is empty, then:
+- `auth.users` has 0 rows,
+- `insert into public.admin_users ... select id from auth.users ...` will insert 0 rows,
+- SQL Editor still shows `Success. No rows returned` because nothing matched.
+
+So you must create at least one email/password Auth user first, then map it into `public.admin_users`.
+
 ---
 
 ## 1) Push the migration without Docker
