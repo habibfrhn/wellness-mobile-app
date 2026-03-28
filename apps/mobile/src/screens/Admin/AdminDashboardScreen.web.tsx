@@ -112,6 +112,43 @@ export default function AdminDashboardScreen({ session }: Props) {
     setBusy(false);
   }, []);
 
+  const handleContinueWithGoogle = useCallback(async () => {
+    setBusy(true);
+    setErrorMessage(null);
+    const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/admin` : undefined;
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: redirectTo ? { redirectTo } : undefined,
+    });
+    if (error) {
+      setErrorMessage(error.message);
+      setBusy(false);
+      return;
+    }
+    setBusy(false);
+  }, []);
+
+  const handleForgotPassword = useCallback(async (email: string) => {
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail) {
+      setErrorMessage(id.admin.forgotPasswordNeedEmail);
+      return;
+    }
+
+    setBusy(true);
+    setErrorMessage(null);
+    const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/auth/reset` : undefined;
+    const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, redirectTo ? { redirectTo } : undefined);
+    if (error) {
+      setErrorMessage(error.message);
+      setBusy(false);
+      return;
+    }
+
+    setErrorMessage(id.admin.forgotPasswordSent);
+    setBusy(false);
+  }, []);
+
   const handleSignOut = useCallback(async () => {
     await supabase.auth.signOut();
     setIsAdmin(null);
@@ -124,7 +161,13 @@ export default function AdminDashboardScreen({ session }: Props) {
     <WebResponsiveFrame disableFrame>
       <View style={styles.screen}>
         {!session ? (
-          <AdminLoginForm busy={busy} errorMessage={errorMessage} onSubmit={handleLogin} />
+          <AdminLoginForm
+            busy={busy}
+            errorMessage={errorMessage}
+            onSubmit={handleLogin}
+            onContinueWithGoogle={handleContinueWithGoogle}
+            onForgotPassword={handleForgotPassword}
+          />
         ) : busy && isAdmin === null ? (
           <ActivityIndicator size="large" color={colors.primary} />
         ) : isAdmin !== true ? (

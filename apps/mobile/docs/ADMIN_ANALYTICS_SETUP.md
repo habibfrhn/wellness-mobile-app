@@ -36,6 +36,7 @@ If login says `Invalid login credentials`, do one of these:
 1. Create/sign up that exact email first (if account does not exist), or
 2. Reset password for that email via your app's **Forgot Password** flow, or
 3. In Supabase Dashboard → Authentication → Users, send a password reset / magic link.
+4. If the user was created with provider type **Social** (for example Google), use **Lanjutkan dengan Google** on admin login instead of password.
 
 ---
 
