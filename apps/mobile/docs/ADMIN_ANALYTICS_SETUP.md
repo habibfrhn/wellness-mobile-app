@@ -99,6 +99,29 @@ join auth.users u on u.id = au.user_id
 order by u.email;
 ```
 
+If you only see `user_id` UUID in table editor and want to verify the email mapping:
+
+```sql
+select au.user_id, u.email, u.raw_app_meta_data->>'provider' as provider
+from public.admin_users au
+join auth.users u on u.id = au.user_id
+order by au.added_at desc;
+```
+
+This explains why your insert can say “Success. No rows returned”:
+- the insert worked (or no-op due conflict),
+- table editor shows UUID only unless you join to `auth.users`.
+
+### About passwords
+
+- Do **not** store or “push” passwords into `public.admin_users`.
+- `public.admin_users` should only store `user_id` authorization mapping.
+- Passwords belong to Supabase Auth (`auth.users`) and are hashed/managed by GoTrue.
+- Best practice is:
+  1. Create email/password user in Auth (Dashboard or app signup),
+  2. Add that user ID to `public.admin_users`,
+  3. Use admin login form + reset-password flow for credential recovery.
+
 ---
 
 ## 5) Open the admin panel
