@@ -27,6 +27,16 @@ Use your app signup flow (or Supabase dashboard Auth UI) to ensure the admin acc
 Example admin email:
 - `admin@yourdomain.com`
 
+Important:
+- Inserting into `public.admin_users` only grants **admin authorization**.
+- It does **not** create/reset a password.
+- Login password is managed by Supabase Auth (`auth.users`) for that email.
+
+If login says `Invalid login credentials`, do one of these:
+1. Create/sign up that exact email first (if account does not exist), or
+2. Reset password for that email via your app's **Forgot Password** flow, or
+3. In Supabase Dashboard → Authentication → Users, send a password reset / magic link.
+
 ---
 
 ## 3) Grant admin access
