@@ -256,6 +256,7 @@ For early validation this trade-off is acceptable, but before wider team collabo
 For operational checklists, see:
 - `apps/mobile/docs/RELEASE_CHECKLIST.md`
 - `apps/mobile/docs/STORE_SUBMISSION_CHECKLIST.md`
+- `apps/mobile/docs/ADMIN_ANALYTICS_SETUP.md`
 
 ---
 
