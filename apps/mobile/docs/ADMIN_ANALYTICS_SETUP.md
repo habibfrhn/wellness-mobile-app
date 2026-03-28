@@ -2,6 +2,16 @@
 
 Use this guide when you want to finish the MVP admin analytics feature using a **remote Supabase project** only.
 
+## Manual completion checklist (required)
+
+Before admin analytics is fully usable, you must complete these manual steps:
+
+1. Link and push migrations to your Supabase project (`supabase db push`).
+2. Ensure your admin auth account exists as **email/password** user in Supabase Auth.
+3. Insert that user into `public.admin_users`.
+4. Open `/admin` and log in with that email/password user.
+5. Generate a few test events and verify dashboard views return rows.
+
 ---
 
 ## 1) Push the migration without Docker
