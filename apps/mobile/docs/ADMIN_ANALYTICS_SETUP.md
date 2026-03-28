@@ -90,6 +90,9 @@ pnpm -C apps/mobile web
 
 Visit:
 - `http://localhost:8081/admin` (or your Expo web port)
+- If your local server does not rewrite unknown paths (you see a 404), use:
+  - `http://localhost:8081/?admin=1`
+  - or `http://localhost:8081/#/admin`
 
 Login with the admin account from Step 2.
 

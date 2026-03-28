@@ -80,7 +80,18 @@ function isAdminRoutePath() {
     return false;
   }
 
-  return window.location.pathname.startsWith("/admin");
+  const { pathname, search, hash } = window.location;
+  if (pathname.startsWith("/admin") || pathname.startsWith("/--/admin")) {
+    return true;
+  }
+
+  const adminQuery = new URLSearchParams(search).get("admin");
+  if (adminQuery === "1" || adminQuery === "true") {
+    return true;
+  }
+
+  const normalizedHash = hash.replace(/^#/, "");
+  return normalizedHash.startsWith("/admin");
 }
 
 function isWebResetFlowActive() {
