@@ -6,20 +6,35 @@
 
 create or replace function public.analytics_event_props_are_valid(p_event_name text, p_event_props jsonb)
 returns boolean
-language sql
+language plpgsql
 immutable
 as $$
-  select case
-    when jsonb_typeof(coalesce(p_event_props, '{}'::jsonb)) <> 'object' then false
-    when jsonb_object_length(coalesce(p_event_props, '{}'::jsonb)) > 1 then false
-    when p_event_name in ('audio_play', 'audio_complete', 'audio_abandon') then (
-      coalesce(p_event_props ? 'audio_id', false)
-      and jsonb_typeof(p_event_props->'audio_id') = 'string'
-      and char_length(trim(p_event_props->>'audio_id')) between 1 and 120
-      and trim(p_event_props->>'audio_id') ~ '^[A-Za-z0-9_-]+$'
-    )
-    else jsonb_object_length(coalesce(p_event_props, '{}'::jsonb)) = 0
-  end;
+declare
+  v_props jsonb := coalesce(p_event_props, '{}'::jsonb);
+  v_key_count int := 0;
+begin
+  if jsonb_typeof(v_props) <> 'object' then
+    return false;
+  end if;
+
+  select count(*) into v_key_count
+  from jsonb_object_keys(v_props);
+
+  if v_key_count > 1 then
+    return false;
+  end if;
+
+  if p_event_name in ('audio_play', 'audio_complete', 'audio_abandon') then
+    return (
+      coalesce(v_props ? 'audio_id', false)
+      and jsonb_typeof(v_props->'audio_id') = 'string'
+      and char_length(trim(v_props->>'audio_id')) between 1 and 120
+      and trim(v_props->>'audio_id') ~ '^[A-Za-z0-9_-]+$'
+    );
+  end if;
+
+  return v_key_count = 0;
+end;
 $$;
 
 alter table public.analytics_events
