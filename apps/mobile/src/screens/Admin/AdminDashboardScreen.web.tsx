@@ -112,22 +112,6 @@ export default function AdminDashboardScreen({ session }: Props) {
     setBusy(false);
   }, []);
 
-  const handleContinueWithGoogle = useCallback(async () => {
-    setBusy(true);
-    setErrorMessage(null);
-    const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/admin` : undefined;
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: redirectTo ? { redirectTo } : undefined,
-    });
-    if (error) {
-      setErrorMessage(error.message);
-      setBusy(false);
-      return;
-    }
-    setBusy(false);
-  }, []);
-
   const handleForgotPassword = useCallback(async (email: string) => {
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail) {
@@ -165,7 +149,6 @@ export default function AdminDashboardScreen({ session }: Props) {
             busy={busy}
             errorMessage={errorMessage}
             onSubmit={handleLogin}
-            onContinueWithGoogle={handleContinueWithGoogle}
             onForgotPassword={handleForgotPassword}
           />
         ) : busy && isAdmin === null ? (

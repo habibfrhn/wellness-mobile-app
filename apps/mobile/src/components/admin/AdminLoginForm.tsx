@@ -8,11 +8,10 @@ type Props = {
   busy: boolean;
   errorMessage: string | null;
   onSubmit: (payload: { email: string; password: string }) => Promise<void>;
-  onContinueWithGoogle: () => Promise<void>;
   onForgotPassword: (email: string) => Promise<void>;
 };
 
-export default function AdminLoginForm({ busy, errorMessage, onSubmit, onContinueWithGoogle, onForgotPassword }: Props) {
+export default function AdminLoginForm({ busy, errorMessage, onSubmit, onForgotPassword }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -45,14 +44,6 @@ export default function AdminLoginForm({ busy, errorMessage, onSubmit, onContinu
         onPress={() => void onSubmit({ email, password })}
       >
         {busy ? <ActivityIndicator color={colors.primaryText} /> : <Text style={styles.ctaText}>{id.admin.loginCta}</Text>}
-      </Pressable>
-
-      <Pressable
-        disabled={busy}
-        style={({ pressed }) => [styles.secondaryCta, pressed && !busy && styles.ctaPressed, busy && styles.ctaDisabled]}
-        onPress={() => void onContinueWithGoogle()}
-      >
-        <Text style={styles.secondaryCtaText}>{id.admin.googleLoginCta}</Text>
       </Pressable>
 
       <Pressable disabled={busy} onPress={() => void onForgotPassword(email)} style={styles.linkButton}>
@@ -109,19 +100,6 @@ const styles = StyleSheet.create({
   },
   ctaText: {
     color: colors.primaryText,
-    fontSize: typography.body,
-    fontWeight: "600",
-  },
-  secondaryCta: {
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: colors.primary,
-    paddingVertical: spacing.sm,
-    alignItems: "center",
-    backgroundColor: colors.card,
-  },
-  secondaryCtaText: {
-    color: colors.primary,
     fontSize: typography.body,
     fontWeight: "600",
   },

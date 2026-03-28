@@ -456,7 +456,6 @@ export const id = {
     emailLabel: "Email admin",
     passwordLabel: "Password",
     loginCta: "Masuk admin",
-    googleLoginCta: "Lanjutkan dengan Google",
     forgotPasswordCta: "Lupa kata sandi",
     forgotPasswordNeedEmail: "Isi email dulu untuk kirim reset password.",
     forgotPasswordSent: "Email reset password sudah dikirim. Cek inbox/spam Anda.",
