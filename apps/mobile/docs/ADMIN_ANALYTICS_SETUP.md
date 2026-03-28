@@ -2,6 +2,27 @@
 
 Use this guide when you want to finish the MVP admin analytics feature using a **remote Supabase project** only.
 
+## How admin vs normal user is separated
+
+- **All accounts** (normal users and admin users) are stored in Supabase Auth: `auth.users`.
+- `auth.users` stores credential identity (email/password hash or social provider metadata).
+- **Admin status is not stored in password/email fields.**
+- Admin status is a separate mapping table: `public.admin_users(user_id uuid)`.
+- A user becomes admin only if their `auth.users.id` exists in `public.admin_users`.
+
+So there is no “mixed credential store”: credentials stay in Auth; authorization role mapping is in `admin_users`.
+
+Quick check:
+
+```sql
+select
+  u.id as user_id,
+  u.email,
+  exists(select 1 from public.admin_users au where au.user_id = u.id) as is_admin
+from auth.users u
+order by u.created_at desc;
+```
+
 ## Manual completion checklist (required)
 
 Before admin analytics is fully usable, you must complete these manual steps:
