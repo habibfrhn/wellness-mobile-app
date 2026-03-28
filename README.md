@@ -212,6 +212,41 @@ This script runs lint/typecheck and prints a manual QA checklist for auth, playb
 
 ---
 
+## Supabase CLI workflow without Docker Desktop (validation phase)
+
+If you are validating against a **hosted Supabase project only** (no local Supabase stack), skipping Docker Desktop is usually fine for MVP validation.
+
+### What still works without Docker
+- `supabase link`
+- `supabase migration list`
+- `supabase migration repair`
+- `supabase db push`
+- Running SQL directly in Supabase SQL Editor
+
+### What needs Docker
+- `supabase db pull` (uses a local shadow Postgres container)
+- Full local Supabase runtime workflows
+
+### Recommended remote-only flow
+Use this when your goal is to ship/validate quickly in remote dev/staging:
+
+```bash
+supabase link --project-ref <project-ref>
+supabase migration list
+supabase migration repair --status reverted <missing_remote_version_ids_if_any>
+supabase db push
+```
+
+After the migration is pushed, apply any environment-specific bootstrap SQL (for example: adding your admin user to `public.admin_users`) in the Supabase SQL Editor.
+
+### Trade-offs of skipping Docker (short-term)
+- **Pros:** faster setup, fewer local tooling dependencies, quicker validation loop.
+- **Cons:** no local reproducible DB sandbox and no `db pull` drift reconciliation on your machine.
+
+For early validation this trade-off is acceptable, but before wider team collaboration or release hardening, install Docker and add `db pull` + local schema checks to your regular workflow.
+
+---
+
 ## Build and release overview
 
 - Expo app configuration lives in root/app-level `app.json` and `eas.json`.
@@ -249,4 +284,3 @@ Guardrails:
 - Prefer shared strings from `src/i18n/strings.ts` for user-visible copy.
 - Prefer theme tokens from `src/theme/tokens.ts` over ad-hoc values.
 - If adding audio entries, ensure metadata (duration/category/cover-thumbnail pairing) stays accurate.
-
