@@ -135,7 +135,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
       resetSessionState();
     };
 
-    const unsubBeforeRemove = navigation.addListener(
+    const removeBeforeRemoveListener = navigation.addListener(
       "beforeRemove",
       (event) => {
         if (isExitingSessionRef.current) {
@@ -151,11 +151,11 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
         setIsExitModalVisible(true);
       },
     );
-    const unsubBlur = navigation.addListener("blur", stopPlayback);
+    const removeBlurListener = navigation.addListener("blur", stopPlayback);
 
     return () => {
-      unsubBeforeRemove();
-      unsubBlur();
+      removeBeforeRemoveListener();
+      removeBlurListener();
     };
   }, [navigation, resetSessionState, shouldConfirmExit]);
 

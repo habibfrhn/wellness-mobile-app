@@ -152,7 +152,7 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
       resetSessionState();
     };
 
-    const unsubBeforeRemove = navigation.addListener("beforeRemove", (event) => {
+    const removeBeforeRemoveListener = navigation.addListener("beforeRemove", (event) => {
       if (isExitingSessionRef.current) {
         return;
       }
@@ -166,11 +166,11 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
       blurWebActiveElement();
       setIsExitModalVisible(true);
     });
-    const unsubBlur = navigation.addListener("blur", stopPlayback);
+    const removeBlurListener = navigation.addListener("blur", stopPlayback);
 
     return () => {
-      unsubBeforeRemove();
-      unsubBlur();
+      removeBeforeRemoveListener();
+      removeBlurListener();
     };
   }, [navigation, resetSessionState]);
 
