@@ -11,6 +11,7 @@ const TAILORED_TRANSITION_FADE_OUT_MS = 160;
 const TAILORED_TRANSITION_FADE_IN_MS = 360;
 const VOLUME_TICK_MS = 40;
 const COMPLETION_THRESHOLD = 0.8;
+const TAILORED_SESSION_COMPLETE_THRESHOLD = 0.995;
 
 export const TIMER_OPTIONS = [
   { label: "5 min", seconds: 5 * 60 },
@@ -640,7 +641,7 @@ export function useWebAudioPlayerSession({
       isTailoredSession &&
       hasTrackedTailoredStartRef.current &&
       !hasTrackedTailoredEndRef.current &&
-      sessionProgressRatio < COMPLETION_THRESHOLD
+      sessionProgressRatio < TAILORED_SESSION_COMPLETE_THRESHOLD
     ) {
       hasTrackedTailoredEndRef.current = true;
       void trackEvent("tailored_session_dropoff", { session_mode: sleepMode });
@@ -679,7 +680,7 @@ export function useWebAudioPlayerSession({
       return;
     }
 
-    if (sessionProgressRatio >= COMPLETION_THRESHOLD) {
+    if (sessionProgressRatio >= TAILORED_SESSION_COMPLETE_THRESHOLD) {
       trackTailoredComplete();
     }
   }, [hasSessionStarted, isTailoredSession, sessionProgressRatio, trackTailoredComplete]);
@@ -691,7 +692,7 @@ export function useWebAudioPlayerSession({
         isTailoredSession &&
         hasTrackedTailoredStartRef.current &&
         !hasTrackedTailoredEndRef.current &&
-        sessionProgressRatio < COMPLETION_THRESHOLD
+        sessionProgressRatio < TAILORED_SESSION_COMPLETE_THRESHOLD
       ) {
         void trackEvent("tailored_session_dropoff", { session_mode: sleepMode });
       }

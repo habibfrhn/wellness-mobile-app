@@ -9,6 +9,7 @@ import { trackEvent } from "../services/analytics";
 const FADE_OUT_SECONDS = 5;
 const SOUNDSCAPE_LOOP_SECONDS = 20;
 const COMPLETION_THRESHOLD = 0.8;
+const TAILORED_SESSION_COMPLETE_THRESHOLD = 0.995;
 
 export const TIMER_OPTIONS = [
   { label: "5 min", seconds: 5 * 60 },
@@ -365,7 +366,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
       isTailoredSession &&
       hasTrackedTailoredStartRef.current &&
       !hasTrackedTailoredEndRef.current &&
-      sessionProgressRatio < COMPLETION_THRESHOLD
+      sessionProgressRatio < TAILORED_SESSION_COMPLETE_THRESHOLD
     ) {
       hasTrackedTailoredEndRef.current = true;
       void trackEvent("tailored_session_dropoff", {
@@ -474,7 +475,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
       return;
     }
 
-    if (sessionProgressRatio >= COMPLETION_THRESHOLD) {
+    if (sessionProgressRatio >= TAILORED_SESSION_COMPLETE_THRESHOLD) {
       hasTrackedTailoredEndRef.current = true;
       void trackEvent("tailored_session_complete", {
         session_mode: sleepMode,
@@ -599,7 +600,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
         isTailoredSession &&
         hasTrackedTailoredStartRef.current &&
         !hasTrackedTailoredEndRef.current &&
-        sessionProgressRatio < COMPLETION_THRESHOLD
+        sessionProgressRatio < TAILORED_SESSION_COMPLETE_THRESHOLD
       ) {
         void trackEvent("tailored_session_dropoff", {
           session_mode: sleepMode,
