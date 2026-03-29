@@ -86,16 +86,55 @@ type TrackAnalyticsEventPayload = {
   session_id: string;
 };
 
+type LegacyTrackAnalyticsEventPayload = {
+  eventName: AnalyticsEventName;
+  eventProps: Record<string, unknown>;
+  sessionId: string;
+};
+
+function toLegacyPayload(payload: TrackAnalyticsEventPayload): LegacyTrackAnalyticsEventPayload {
+  return {
+    eventName: payload.event_name,
+    eventProps: payload.event_props,
+    sessionId: payload.session_id,
+  };
+}
+
+function shouldRetryWithLegacyPayload(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const maybeError = error as { context?: { status?: number }; message?: string };
+  const status = maybeError.context?.status;
+  if (status === 400) {
+    return true;
+  }
+
+  return typeof maybeError.message === "string" && maybeError.message.includes("non-2xx");
+}
+
 async function invokeTrackAnalyticsEvent(payload: TrackAnalyticsEventPayload) {
   const { data: sessionData } = await supabase.auth.getSession();
   const accessToken = sessionData.session?.access_token;
+  const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined;
 
   const { error } = await supabase.functions.invoke<{ ok: boolean }>("track-analytics-event", {
-    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+    headers,
     body: payload,
   });
 
-  return error;
+  if (!error || !shouldRetryWithLegacyPayload(error)) {
+    return error;
+  }
+
+  const legacyPayload = toLegacyPayload(payload);
+  const { error: legacyError } = await supabase.functions.invoke<{ ok: boolean }>("track-analytics-event", {
+    headers,
+    body: legacyPayload,
+  });
+
+  return legacyError;
 }
 
 function createSessionId() {
