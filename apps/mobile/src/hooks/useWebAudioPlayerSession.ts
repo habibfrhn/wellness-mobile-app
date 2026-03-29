@@ -662,6 +662,14 @@ export function useWebAudioPlayerSession({
   }, [atEnd, progressRatio, trackTrackCompletion]);
 
   useEffect(() => {
+    if (!isPlaying || current <= 0) {
+      return;
+    }
+
+    trackTrackPlay();
+  }, [current, isPlaying, trackTrackPlay]);
+
+  useEffect(() => {
     if (
       !isTailoredSession ||
       !hasSessionStarted ||

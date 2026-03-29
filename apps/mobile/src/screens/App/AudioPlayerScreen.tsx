@@ -126,13 +126,13 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
       return;
     }
 
-    resetPlayers();
+    resetSessionState();
     navigation.goBack();
-  }, [navigation, resetPlayers, shouldConfirmExit]);
+  }, [navigation, resetSessionState, shouldConfirmExit]);
 
   useEffect(() => {
     const stopPlayback = () => {
-      resetPlayers();
+      resetSessionState();
     };
 
     const unsubBeforeRemove = navigation.addListener(
@@ -158,7 +158,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
       unsubBlur();
       stopPlayback();
     };
-  }, [navigation, resetPlayers, shouldConfirmExit]);
+  }, [navigation, resetSessionState, shouldConfirmExit]);
 
   useLayoutEffect(() => {
     navigation.setOptions({

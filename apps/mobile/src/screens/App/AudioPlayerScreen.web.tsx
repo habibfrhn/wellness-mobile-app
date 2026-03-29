@@ -143,13 +143,13 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
       return;
     }
 
-    resetPlayers();
+    resetSessionState();
     navigation.goBack();
-  }, [navigation, resetPlayers, shouldConfirmExit]);
+  }, [navigation, resetSessionState, shouldConfirmExit]);
 
   useEffect(() => {
     const stopPlayback = () => {
-      resetPlayers();
+      resetSessionState();
     };
 
     const unsubBeforeRemove = navigation.addListener("beforeRemove", (event) => {
@@ -173,7 +173,7 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
       unsubBlur();
       stopPlayback();
     };
-  }, [navigation, resetPlayers]);
+  }, [navigation, resetSessionState]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
