@@ -8,6 +8,7 @@ import { trackEvent } from "../services/analytics";
 
 const FADE_OUT_SECONDS = 5;
 const SOUNDSCAPE_LOOP_SECONDS = 20;
+const COMPLETION_THRESHOLD = 0.8;
 
 export const TIMER_OPTIONS = [
   { label: "5 min", seconds: 5 * 60 },
@@ -221,6 +222,12 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
           hasTrackedTailoredEndRef.current = false;
           setHasSessionStarted(true);
           setPendingTailoredAutoplay(false);
+          if (!hasTrackedTailoredStartRef.current) {
+            hasTrackedTailoredStartRef.current = true;
+            void trackEvent("tailored_session_start", {
+              session_mode: sleepMode,
+            });
+          }
           startPrimaryFromBeginning();
           return;
         }
@@ -252,6 +259,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     isTailoredSession,
     pauseAll,
     playWithRetry,
+    sleepMode,
     startPrimaryFromBeginning,
   ]);
 
@@ -262,6 +270,12 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
       setPlaylistIndex(0);
       setHasSessionStarted(true);
       setPendingTailoredAutoplay(true);
+      if (!hasTrackedTailoredStartRef.current) {
+        hasTrackedTailoredStartRef.current = true;
+        void trackEvent("tailored_session_start", {
+          session_mode: sleepMode,
+        });
+      }
       return;
     }
 
@@ -271,7 +285,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     } catch {
       // no-op
     }
-  }, [isTailoredSession, playWithRetry, primaryPlayer, resetPlayers]);
+  }, [isTailoredSession, playWithRetry, primaryPlayer, resetPlayers, sleepMode]);
 
   const onSeek = useCallback(
     (value: number) => {
@@ -318,6 +332,10 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     if (hasTrackedTrackEndRef.current || !hasTrackedTrackPlayRef.current) {
       return;
     }
+    if (progressRatio >= COMPLETION_THRESHOLD) {
+      trackTrackCompletion();
+      return;
+    }
     hasTrackedTrackEndRef.current = true;
 
     void trackEvent("audio_abandon", {
@@ -326,7 +344,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
       playlist_index: playlistIndex,
       progress_ratio: progressRatio,
     });
-  }, [currentAudioId, isTailoredSession, playlistIndex, progressRatio]);
+  }, [currentAudioId, isTailoredSession, playlistIndex, progressRatio, trackTrackCompletion]);
 
   const handleTimerSelect = useCallback((seconds: number) => {
     setTimerSeconds(seconds);
@@ -340,7 +358,12 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
 
   const resetSessionState = useCallback(() => {
     trackTrackAbandon();
-    if (isTailoredSession && hasTrackedTailoredStartRef.current && !hasTrackedTailoredEndRef.current) {
+    if (
+      isTailoredSession &&
+      hasTrackedTailoredStartRef.current &&
+      !hasTrackedTailoredEndRef.current &&
+      sessionProgressRatio < COMPLETION_THRESHOLD
+    ) {
       hasTrackedTailoredEndRef.current = true;
       void trackEvent("tailored_session_dropoff", {
         session_mode: sleepMode,
@@ -353,7 +376,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     setPlaylistIndex(0);
     hasTrackedTailoredStartRef.current = false;
     hasTrackedTailoredEndRef.current = false;
-  }, [isTailoredSession, pauseAll, resetPlayers, sleepMode, trackTrackAbandon]);
+  }, [isTailoredSession, pauseAll, resetPlayers, sessionProgressRatio, sleepMode, trackTrackAbandon]);
 
   useEffect(() => {
     if (showSoundscapeControls) {
@@ -398,10 +421,12 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     }
 
     trackTrackCompletion();
-    hasTrackedTailoredEndRef.current = true;
-    void trackEvent("tailored_session_complete", {
-      session_mode: sleepMode,
-    });
+    if (!hasTrackedTailoredEndRef.current) {
+      hasTrackedTailoredEndRef.current = true;
+      void trackEvent("tailored_session_complete", {
+        session_mode: sleepMode,
+      });
+    }
     handleSessionComplete();
     resetPlayers();
     setHasSessionStarted(false);
@@ -425,20 +450,34 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     }
 
     trackTrackPlay();
-    if (isTailoredSession && !hasTrackedTailoredStartRef.current) {
-      hasTrackedTailoredStartRef.current = true;
-      void trackEvent("tailored_session_start", {
+  }, [activeStatus.playing, current, trackTrackPlay]);
+
+  useEffect(() => {
+    if (hasTrackedTrackEndRef.current || !hasTrackedTrackPlayRef.current) {
+      return;
+    }
+    if (progressRatio >= COMPLETION_THRESHOLD || atEnd) {
+      trackTrackCompletion();
+    }
+  }, [atEnd, progressRatio, trackTrackCompletion]);
+
+  useEffect(() => {
+    if (
+      !isTailoredSession ||
+      !hasSessionStarted ||
+      hasTrackedTailoredEndRef.current ||
+      !hasTrackedTailoredStartRef.current
+    ) {
+      return;
+    }
+
+    if (sessionProgressRatio >= COMPLETION_THRESHOLD) {
+      hasTrackedTailoredEndRef.current = true;
+      void trackEvent("tailored_session_complete", {
         session_mode: sleepMode,
       });
     }
-  }, [activeStatus.playing, current, isTailoredSession, sleepMode, trackDurations.length, trackTrackPlay]);
-
-  useEffect(() => {
-    if (activeStatus.playing || !atEnd) {
-      return;
-    }
-    trackTrackCompletion();
-  }, [activeStatus.playing, atEnd, trackTrackCompletion]);
+  }, [hasSessionStarted, isTailoredSession, sessionProgressRatio, sleepMode]);
 
   useEffect(() => {
     if (!showSoundscapeControls || !activeStatus.playing || !duration) {
@@ -553,7 +592,12 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
   useEffect(() => {
     return () => {
       trackTrackAbandon();
-      if (isTailoredSession && hasTrackedTailoredStartRef.current && !hasTrackedTailoredEndRef.current) {
+      if (
+        isTailoredSession &&
+        hasTrackedTailoredStartRef.current &&
+        !hasTrackedTailoredEndRef.current &&
+        sessionProgressRatio < COMPLETION_THRESHOLD
+      ) {
         void trackEvent("tailored_session_dropoff", {
           session_mode: sleepMode,
         });
@@ -565,6 +609,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     clearFadeOutInterval,
     clearRetryTimeouts,
     isTailoredSession,
+    sessionProgressRatio,
     sleepMode,
     trackTrackAbandon,
   ]);
