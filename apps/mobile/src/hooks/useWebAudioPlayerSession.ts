@@ -4,11 +4,13 @@ import { Asset } from "expo-asset";
 import { getTrackById } from "../content/audioCatalog";
 import type { AudioId } from "../content/audioCatalog";
 import { saveNightSessionCompletion, type NightSessionMode } from "../services/nightSessions";
+import { trackEvent } from "../services/analytics";
 
 const FADE_OUT_SECONDS = 5;
 const TAILORED_TRANSITION_FADE_OUT_MS = 160;
 const TAILORED_TRANSITION_FADE_IN_MS = 360;
 const VOLUME_TICK_MS = 40;
+const COMPLETION_THRESHOLD = 0.8;
 
 export const TIMER_OPTIONS = [
   { label: "5 min", seconds: 5 * 60 },
@@ -59,6 +61,10 @@ export function useWebAudioPlayerSession({
   const playlistIndexRef = useRef(playlistIndex);
   const hasSessionStartedRef = useRef(hasSessionStarted);
   const transitionRequestRef = useRef(0);
+  const hasTrackedTrackPlayRef = useRef(false);
+  const hasTrackedTrackEndRef = useRef(false);
+  const hasTrackedTailoredStartRef = useRef(false);
+  const hasTrackedTailoredEndRef = useRef(false);
 
   const getOrCreateAudio = useCallback(() => {
     if (audioRef.current) {
@@ -241,6 +247,68 @@ export function useWebAudioPlayerSession({
     });
   }, [sleepMode]);
 
+  const trackTrackPlay = useCallback(() => {
+    if (hasTrackedTrackPlayRef.current) {
+      return;
+    }
+    hasTrackedTrackPlayRef.current = true;
+    hasTrackedTrackEndRef.current = false;
+
+    void trackEvent("audio_play", {
+      audio_id: currentAudioId,
+      is_tailored: isTailoredSession,
+      playlist_index: playlistIndex,
+    });
+  }, [currentAudioId, isTailoredSession, playlistIndex]);
+
+  const trackTrackCompletion = useCallback(() => {
+    if (hasTrackedTrackEndRef.current) {
+      return;
+    }
+    hasTrackedTrackEndRef.current = true;
+
+    void trackEvent("audio_complete", {
+      audio_id: currentAudioId,
+      is_tailored: isTailoredSession,
+      playlist_index: playlistIndex,
+    });
+  }, [currentAudioId, isTailoredSession, playlistIndex]);
+
+  const trackTrackAbandon = useCallback(() => {
+    if (hasTrackedTrackEndRef.current || !hasTrackedTrackPlayRef.current) {
+      return;
+    }
+    if (progressRatio >= COMPLETION_THRESHOLD) {
+      trackTrackCompletion();
+      return;
+    }
+    hasTrackedTrackEndRef.current = true;
+
+    void trackEvent("audio_abandon", {
+      audio_id: currentAudioId,
+      is_tailored: isTailoredSession,
+      playlist_index: playlistIndex,
+      progress_ratio: progressRatio,
+    });
+  }, [currentAudioId, isTailoredSession, playlistIndex, progressRatio, trackTrackCompletion]);
+
+  const trackTailoredStart = useCallback(() => {
+    if (!isTailoredSession || hasTrackedTailoredStartRef.current) {
+      return;
+    }
+    hasTrackedTailoredStartRef.current = true;
+    hasTrackedTailoredEndRef.current = false;
+    void trackEvent("tailored_session_start", { session_mode: sleepMode });
+  }, [isTailoredSession, sleepMode]);
+
+  const trackTailoredComplete = useCallback(() => {
+    if (!isTailoredSession || hasTrackedTailoredEndRef.current || !hasTrackedTailoredStartRef.current) {
+      return;
+    }
+    hasTrackedTailoredEndRef.current = true;
+    void trackEvent("tailored_session_complete", { session_mode: sleepMode });
+  }, [isTailoredSession, sleepMode]);
+
   const transitionToIndex = useCallback(
     async (nextIndex: number) => {
       const nextTrackId = normalizedPlaylistIds[nextIndex];
@@ -314,11 +382,16 @@ export function useWebAudioPlayerSession({
       const currentIndex = playlistIndexRef.current;
 
       if (isTailoredSession && hasSessionStartedRef.current && currentIndex < normalizedPlaylistIds.length - 1) {
+        trackTrackCompletion();
+        hasTrackedTrackPlayRef.current = false;
+        hasTrackedTrackEndRef.current = false;
         void transitionToIndex(currentIndex + 1);
         return;
       }
 
       if (isTailoredSession && hasSessionStartedRef.current) {
+        trackTrackCompletion();
+        trackTailoredComplete();
         handleSessionComplete();
         setHasSessionStarted(false);
         setPlaylistIndex(0);
@@ -358,6 +431,8 @@ export function useWebAudioPlayerSession({
     handleSessionComplete,
     isTailoredSession,
     normalizedPlaylistIds,
+    trackTailoredComplete,
+    trackTrackCompletion,
     transitionToIndex,
   ]);
 
@@ -383,6 +458,11 @@ export function useWebAudioPlayerSession({
       assignTrackSource(track);
     }
   }, [assignTrackSource, isTailoredSession, track]);
+
+  useEffect(() => {
+    hasTrackedTrackPlayRef.current = false;
+    hasTrackedTrackEndRef.current = false;
+  }, [currentAudioId]);
 
   useEffect(() => {
     const audio = getOrCreateAudio();
@@ -468,16 +548,20 @@ export function useWebAudioPlayerSession({
 
     if (audio.paused) {
       if (isTailoredSession && !hasSessionStarted) {
+        hasTrackedTailoredStartRef.current = false;
+        hasTrackedTailoredEndRef.current = false;
         setHasSessionStarted(true);
         setPlaylistIndex(0);
         const firstTrack = getTrackById(normalizedPlaylistIds[0] ?? audioId);
         assignTrackSource(firstTrack);
+        trackTailoredStart();
       }
 
       if (atEnd) {
         audio.currentTime = 0;
       }
 
+      trackTrackPlay();
       void playAudio();
       return;
     }
@@ -494,24 +578,41 @@ export function useWebAudioPlayerSession({
     normalizedPlaylistIds,
     pause,
     playAudio,
+    trackTailoredStart,
+    trackTrackPlay,
   ]);
 
   const onRestart = useCallback(() => {
     transitionRequestRef.current += 1;
 
     if (isTailoredSession) {
+      hasTrackedTailoredStartRef.current = false;
+      hasTrackedTailoredEndRef.current = false;
       setHasSessionStarted(true);
       setPlaylistIndex(0);
       const firstTrack = getTrackById(normalizedPlaylistIds[0] ?? audioId);
       assignTrackSource(firstTrack);
+      trackTailoredStart();
+      trackTrackPlay();
       void playAudio();
       return;
     }
 
     assignTrackSource(track);
     seekTo(0);
+    trackTrackPlay();
     void playAudio();
-  }, [assignTrackSource, audioId, isTailoredSession, normalizedPlaylistIds, playAudio, seekTo, track]);
+  }, [
+    assignTrackSource,
+    audioId,
+    isTailoredSession,
+    normalizedPlaylistIds,
+    playAudio,
+    seekTo,
+    track,
+    trackTailoredStart,
+    trackTrackPlay,
+  ]);
 
   const onSeek = useCallback(
     (value: number) => {
@@ -534,10 +635,60 @@ export function useWebAudioPlayerSession({
   }, [resetPlayers, timerSeconds]);
 
   const resetSessionState = useCallback(() => {
+    trackTrackAbandon();
+    if (
+      isTailoredSession &&
+      hasTrackedTailoredStartRef.current &&
+      !hasTrackedTailoredEndRef.current &&
+      sessionProgressRatio < COMPLETION_THRESHOLD
+    ) {
+      hasTrackedTailoredEndRef.current = true;
+      void trackEvent("tailored_session_dropoff", { session_mode: sleepMode });
+    }
     setHasSessionStarted(false);
     setPlaylistIndex(0);
     resetPlayers();
-  }, [resetPlayers]);
+    hasTrackedTailoredStartRef.current = false;
+    hasTrackedTailoredEndRef.current = false;
+  }, [isTailoredSession, resetPlayers, sessionProgressRatio, sleepMode, trackTrackAbandon]);
+
+  useEffect(() => {
+    if (hasTrackedTrackEndRef.current || !hasTrackedTrackPlayRef.current) {
+      return;
+    }
+    if (progressRatio >= COMPLETION_THRESHOLD || atEnd) {
+      trackTrackCompletion();
+    }
+  }, [atEnd, progressRatio, trackTrackCompletion]);
+
+  useEffect(() => {
+    if (
+      !isTailoredSession ||
+      !hasSessionStarted ||
+      hasTrackedTailoredEndRef.current ||
+      !hasTrackedTailoredStartRef.current
+    ) {
+      return;
+    }
+
+    if (sessionProgressRatio >= COMPLETION_THRESHOLD) {
+      trackTailoredComplete();
+    }
+  }, [hasSessionStarted, isTailoredSession, sessionProgressRatio, trackTailoredComplete]);
+
+  useEffect(() => {
+    return () => {
+      trackTrackAbandon();
+      if (
+        isTailoredSession &&
+        hasTrackedTailoredStartRef.current &&
+        !hasTrackedTailoredEndRef.current &&
+        sessionProgressRatio < COMPLETION_THRESHOLD
+      ) {
+        void trackEvent("tailored_session_dropoff", { session_mode: sleepMode });
+      }
+    };
+  }, [isTailoredSession, sessionProgressRatio, sleepMode, trackTrackAbandon]);
 
   return {
     track,
