@@ -121,6 +121,12 @@ type ConsoleWithPointerEventsGuard = Console & {
   __wellnessPointerEventsWarnGuard?: boolean;
 };
 
+const IGNORED_WEB_WARNINGS = [
+  "props.pointerEvents is deprecated. Use style.pointerEvents",
+  "Cannot record touch end without a touch start.",
+  "Node cannot be found in the current page.",
+];
+
 if (Platform.OS === "web") {
   const guardedConsole = console as ConsoleWithPointerEventsGuard;
 
@@ -128,10 +134,7 @@ if (Platform.OS === "web") {
     const originalWarn = console.warn;
     console.warn = (...args: unknown[]) => {
       const [firstArg] = args;
-      if (
-        typeof firstArg === "string" &&
-        firstArg.includes("props.pointerEvents is deprecated. Use style.pointerEvents")
-      ) {
+      if (typeof firstArg === "string" && IGNORED_WEB_WARNINGS.some((warning) => firstArg.includes(warning))) {
         return;
       }
 

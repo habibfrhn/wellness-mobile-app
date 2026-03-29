@@ -209,6 +209,20 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     });
   }, [sleepMode]);
 
+  const trackTrackPlay = useCallback(() => {
+    if (hasTrackedTrackPlayRef.current) {
+      return;
+    }
+    hasTrackedTrackPlayRef.current = true;
+    hasTrackedTrackEndRef.current = false;
+
+    void trackEvent("audio_play", {
+      audio_id: currentAudioId,
+      is_tailored: isTailoredSession,
+      playlist_index: playlistIndex,
+    });
+  }, [currentAudioId, isTailoredSession, playlistIndex]);
+
   const onTogglePlay = useCallback(() => {
     try {
       if (isTailoredSession) {
@@ -247,6 +261,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
       if (atEnd) {
         activePlayer.seekTo(0);
       }
+      trackTrackPlay();
       playWithRetry(activePlayer);
     } catch {
       // no-op
@@ -261,6 +276,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     playWithRetry,
     sleepMode,
     startPrimaryFromBeginning,
+    trackTrackPlay,
   ]);
 
   const onRestart = useCallback(() => {
@@ -281,11 +297,12 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
 
     try {
       resetPlayers();
+      trackTrackPlay();
       playWithRetry(primaryPlayer);
     } catch {
       // no-op
     }
-  }, [isTailoredSession, playWithRetry, primaryPlayer, resetPlayers, sleepMode]);
+  }, [isTailoredSession, playWithRetry, primaryPlayer, resetPlayers, sleepMode, trackTrackPlay]);
 
   const onSeek = useCallback(
     (value: number) => {
@@ -300,20 +317,6 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     },
     [activePlayer, isTailoredSession],
   );
-
-  const trackTrackPlay = useCallback(() => {
-    if (hasTrackedTrackPlayRef.current) {
-      return;
-    }
-    hasTrackedTrackPlayRef.current = true;
-    hasTrackedTrackEndRef.current = false;
-
-    void trackEvent("audio_play", {
-      audio_id: currentAudioId,
-      is_tailored: isTailoredSession,
-      playlist_index: playlistIndex,
-    });
-  }, [currentAudioId, isTailoredSession, playlistIndex]);
 
   const trackTrackCompletion = useCallback(() => {
     if (hasTrackedTrackEndRef.current) {
