@@ -171,7 +171,6 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
     return () => {
       unsubBeforeRemove();
       unsubBlur();
-      stopPlayback();
     };
   }, [navigation, resetSessionState]);
 

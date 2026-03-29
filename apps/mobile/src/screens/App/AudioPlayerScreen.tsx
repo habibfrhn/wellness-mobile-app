@@ -156,7 +156,6 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     return () => {
       unsubBeforeRemove();
       unsubBlur();
-      stopPlayback();
     };
   }, [navigation, resetSessionState, shouldConfirmExit]);
 
