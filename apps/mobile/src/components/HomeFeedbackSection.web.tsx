@@ -38,7 +38,6 @@ const styles = StyleSheet.create({
     fontSize: typography.small,
     fontWeight: "700",
     textAlign: "center",
-    textTransform: "lowercase",
   },
   description: {
     color: colors.mutedText,
@@ -46,7 +45,6 @@ const styles = StyleSheet.create({
     lineHeight: typography.small,
     textAlign: "center",
     maxWidth: 560,
-    textTransform: "lowercase",
   },
   ctaButton: {
     minHeight: 40,
@@ -63,6 +61,5 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: typography.caption,
     fontWeight: "600",
-    textTransform: "lowercase",
   },
 });
