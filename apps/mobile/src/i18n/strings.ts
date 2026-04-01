@@ -198,6 +198,10 @@ export const id = {
     pickWhatYouNeedTitle: "Temani sebelum tidur",
     soundscapeCarouselTitle: "Soundscape untuk tidur",
     soundscapeShortTitle: "Suara pengantar tidur",
+    feedbackCta: "beri masukan",
+    feedbackTitle: "bantu kami berkembang",
+    feedbackDescription:
+      "masukanmu membantu kami membuat pengalaman tidur yang lebih nyaman dan lebih jelas.",
   },
 
   player: {

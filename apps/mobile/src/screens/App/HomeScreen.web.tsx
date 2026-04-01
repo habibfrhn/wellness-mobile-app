@@ -10,6 +10,7 @@ import SleepOptionModal from "../../components/SleepOptionModal";
 import HomeGreetingTitle from "../../components/HomeGreetingTitle";
 import HomeScreenHeader from "../../components/HomeScreenHeader";
 import HomeNightSummary from "../../components/HomeNightSummary";
+import HomeFeedbackSection from "../../components/HomeFeedbackSection.web";
 import {
   getWebPageContainerStyle,
   getWebPageTopSpacing,
@@ -182,6 +183,9 @@ export default function HomeScreen({ navigation, route }: Props) {
                   streakState={streakState}
                 />
               </View>
+              <View style={styles.feedbackSectionWrap}>
+                <HomeFeedbackSection />
+              </View>
             </View>
           </View>
 
@@ -271,5 +275,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
     paddingVertical: 0,
     boxShadow: `0px 4px 16px ${colors.text}1F`,
+  },
+  feedbackSectionWrap: {
+    marginTop: spacing.md,
   },
 });
