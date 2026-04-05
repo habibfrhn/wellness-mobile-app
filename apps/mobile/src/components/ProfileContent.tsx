@@ -40,10 +40,11 @@ export default function ProfileContent({
         <Pressable
           onPress={onSaveName}
           disabled={isSaveDisabled}
-          style={({ pressed }) => [
+          style={({ hovered, pressed }: any) => [
             styles.primaryButton,
             isSaveDisabled && styles.primaryButtonDisabled,
-            pressed && !isSaveDisabled && styles.pressed,
+            hovered && !isSaveDisabled && styles.primaryButtonHover,
+            pressed && !isSaveDisabled && styles.primaryButtonPressed,
           ]}
         >
           <Text style={styles.primaryButtonText}>{saveLabel}</Text>
@@ -88,6 +89,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     borderRadius: radius.sm,
     backgroundColor: colors.primary,
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 2,
+    boxShadow: `0px 6px 14px ${colors.text}24`,
+  },
+  primaryButtonHover: {
+    backgroundColor: colors.secondary,
+  },
+  primaryButtonPressed: {
+    shadowOpacity: 0,
+    elevation: 0,
+    boxShadow: "none",
   },
   primaryButtonDisabled: {
     backgroundColor: colors.mutedText,

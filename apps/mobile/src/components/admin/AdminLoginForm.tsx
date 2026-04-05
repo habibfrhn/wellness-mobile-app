@@ -40,7 +40,12 @@ export default function AdminLoginForm({ busy, errorMessage, onSubmit, onForgotP
 
       <Pressable
         disabled={busy}
-        style={({ pressed }) => [styles.cta, pressed && !busy && styles.ctaPressed, busy && styles.ctaDisabled]}
+        style={({ hovered, pressed }: any) => [
+          styles.cta,
+          hovered && !busy && styles.ctaHover,
+          pressed && !busy && styles.ctaPressed,
+          busy && styles.ctaDisabled,
+        ]}
         onPress={() => void onSubmit({ email, password })}
       >
         {busy ? <ActivityIndicator color={colors.primaryText} /> : <Text style={styles.ctaText}>{id.admin.loginCta}</Text>}
@@ -91,9 +96,20 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     paddingVertical: spacing.sm,
     alignItems: "center",
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 2,
+    boxShadow: `0px 6px 14px ${colors.text}24`,
+  },
+  ctaHover: {
+    backgroundColor: colors.secondary,
   },
   ctaPressed: {
-    opacity: 0.88,
+    shadowOpacity: 0,
+    elevation: 0,
+    boxShadow: "none",
   },
   ctaDisabled: {
     opacity: 0.7,

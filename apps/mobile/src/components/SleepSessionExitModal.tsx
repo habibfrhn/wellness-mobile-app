@@ -21,7 +21,14 @@ export default function SleepSessionExitModal({ visible, onConfirmExit, onCancel
             <Pressable style={styles.secondaryBtn} onPress={onCancel}>
               <Text style={styles.secondaryText}>{id.player.sleepSessionExitNo}</Text>
             </Pressable>
-            <Pressable style={styles.primaryBtn} onPress={onConfirmExit}>
+            <Pressable
+              onPress={onConfirmExit}
+              style={({ hovered, pressed }: any) => [
+                styles.primaryBtn,
+                hovered && styles.primaryBtnHover,
+                pressed && styles.primaryBtnPressed,
+              ]}
+            >
               <Text style={styles.primaryText}>{id.player.sleepSessionExitYes}</Text>
             </Pressable>
           </View>
@@ -63,6 +70,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: spacing.sm,
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 2,
+    boxShadow: `0px 6px 14px ${colors.text}24`,
+  },
+  primaryBtnHover: {
+    backgroundColor: colors.secondary,
+  },
+  primaryBtnPressed: {
+    shadowOpacity: 0,
+    elevation: 0,
+    boxShadow: "none",
   },
   primaryText: {
     color: colors.primaryText,

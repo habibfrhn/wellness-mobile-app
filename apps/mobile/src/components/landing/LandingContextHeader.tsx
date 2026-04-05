@@ -69,7 +69,14 @@ export default function LandingContextHeader({
               <Pressable onPress={onPressLogin} style={styles.textButton}>
                 <Text style={styles.textButtonLabel}>Masuk</Text>
               </Pressable>
-              <Pressable onPress={onPressSignUp} style={styles.primaryButton}>
+              <Pressable
+                onPress={onPressSignUp}
+                style={({ hovered, pressed }: any) => [
+                  styles.primaryButton,
+                  hovered && styles.primaryButtonHover,
+                  pressed && styles.primaryButtonPressed,
+                ]}
+              >
                 <Text style={styles.primaryButtonLabel}>Buat akun</Text>
               </Pressable>
             </>
@@ -162,6 +169,13 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 20,
     backgroundColor: colors.primary,
+    boxShadow: `0px 6px 14px ${colors.text}24`,
+  },
+  primaryButtonHover: {
+    backgroundColor: colors.secondary,
+  },
+  primaryButtonPressed: {
+    boxShadow: "none",
   },
   primaryButtonLabel: {
     fontSize: typography.body,

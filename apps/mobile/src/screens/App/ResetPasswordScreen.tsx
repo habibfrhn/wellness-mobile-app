@@ -189,10 +189,11 @@ export default function ResetPasswordScreen({ navigation }: Props) {
         <Pressable
           onPress={onSubmit}
           disabled={!canSubmit}
-          style={({ pressed }) => [
+          style={({ hovered, pressed }: any) => [
             styles.primaryButton,
             (!canSubmit || busy) && styles.disabled,
-            pressed && canSubmit && styles.pressed,
+            hovered && canSubmit && styles.primaryButtonHover,
+            pressed && canSubmit && styles.primaryButtonPressed,
           ]}
         >
           <Text style={styles.primaryButtonText}>
@@ -244,6 +245,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     borderRadius: radius.sm,
     backgroundColor: colors.primary,
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 2,
+    boxShadow: `0px 6px 14px ${colors.text}24`,
+  },
+  primaryButtonHover: {
+    backgroundColor: colors.secondary,
+  },
+  primaryButtonPressed: {
+    shadowOpacity: 0,
+    elevation: 0,
+    boxShadow: "none",
   },
   primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
   secondaryButton: {
