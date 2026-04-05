@@ -11,8 +11,8 @@ export const colors = {
   secondary: "#3E497A",
   secondaryText: "#1F2A37",
   accent: "#FACC15",
-  webButtonHoverBg: "#E5E7EB",
-  webButtonPressedBg: "#6B7280",
+  webButtonHoverBg: "#F3F4F6",
+  webButtonPressedBg: "#4B5563",
 
   danger: "#B00020",
 };
