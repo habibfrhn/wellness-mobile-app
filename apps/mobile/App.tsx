@@ -192,6 +192,15 @@ export default function App() {
       [tabindex="1"]:active,
       [data-focusable="true"]:active {
         background-color: ${colors.webButtonPressedBg} !important;
+        color: ${colors.primary} !important;
+      }
+
+      button:active *,
+      [role="button"]:active *,
+      [tabindex="0"]:active *,
+      [tabindex="1"]:active *,
+      [data-focusable="true"]:active * {
+        color: ${colors.primary} !important;
       }
 
       @media (min-width: ${WEB_TABLET_BREAKPOINT + 1}px) {
@@ -201,6 +210,15 @@ export default function App() {
         [tabindex="1"]:hover,
         [data-focusable="true"]:hover {
           background-color: ${colors.webButtonHoverBg} !important;
+          color: ${colors.primary} !important;
+        }
+
+        button:hover *,
+        [role="button"]:hover *,
+        [tabindex="0"]:hover *,
+        [tabindex="1"]:hover *,
+        [data-focusable="true"]:hover * {
+          color: ${colors.primary} !important;
         }
       }
     `;
