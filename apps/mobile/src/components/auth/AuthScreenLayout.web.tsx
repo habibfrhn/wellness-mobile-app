@@ -170,6 +170,13 @@ export const authSharedStyles = StyleSheet.create({
     backgroundColor: colors.primary,
     justifyContent: "center",
     alignItems: "center",
+    boxShadow: `0px 6px 14px ${colors.text}24`,
+  },
+  primaryButtonHover: {
+    backgroundColor: colors.secondary,
+  },
+  primaryButtonPressed: {
+    boxShadow: "none",
   },
   primaryButtonText: {
     color: colors.primaryText,

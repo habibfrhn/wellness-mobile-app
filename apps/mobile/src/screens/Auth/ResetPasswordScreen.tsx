@@ -99,10 +99,11 @@ export default function ResetPasswordScreen({ navigation }: Props) {
           <Pressable
             onPress={onSubmit}
             disabled={!canSubmit}
-            style={({ pressed }) => [
+            style={({ hovered, pressed }: any) => [
               authSharedStyles.primaryButton,
               (!canSubmit || busy) && authSharedStyles.disabled,
-              pressed && canSubmit && authSharedStyles.pressed,
+              hovered && authSharedStyles.primaryButtonHover,
+              pressed && canSubmit && authSharedStyles.primaryButtonPressed,
             ]}
           >
             <Text style={authSharedStyles.primaryButtonText}>{busy ? id.reset.saving : id.reset.set}</Text>

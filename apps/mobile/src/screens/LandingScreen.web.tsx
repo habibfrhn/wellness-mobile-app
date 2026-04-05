@@ -91,6 +91,9 @@ export default function LandingScreen() {
   const isDesktop = viewport === "desktop";
   const isTablet = viewport === "tablet";
   const heroTitleText = id.landing.heroTitle.replace(", ", ",\n");
+  const heroSubtitleText = id.landing.heroSubtitle.endsWith(".")
+    ? id.landing.heroSubtitle
+    : `${id.landing.heroSubtitle}.`;
 
   const goToLogin = () => {
     void trackEvent("landing_cta_click", { cta: "login" });
@@ -297,13 +300,15 @@ export default function LandingScreen() {
                   ) : null}
                   <Pressable
                     onPress={goToSignUp}
-                    style={[
+                    style={({ hovered, pressed }: any) => [
                       styles.landingButtonBase,
                       styles.landingButtonPrimary,
                       isDesktop || isTablet
                         ? styles.landingButtonSizeDesktop
                         : styles.landingButtonSizeMobile,
                       (isDesktop || isTablet) && styles.headerPrimaryButtonCompact,
+                      hovered && styles.landingButtonPrimaryHover,
+                      pressed && styles.landingButtonPrimaryPressed,
                     ]}
                   >
                     <Text style={styles.landingButtonPrimaryText}>Buat akun</Text>
@@ -355,7 +360,7 @@ export default function LandingScreen() {
                     isDesktop && styles.heroDescriptionDesktop,
                   ]}
                 >
-                  {id.landing.heroSubtitle}
+                  {heroSubtitleText}
                 </Text>
                 <View
                   style={[
@@ -367,7 +372,7 @@ export default function LandingScreen() {
                 >
                   <Pressable
                     onPress={goToSignUp}
-                    style={[
+                    style={({ hovered, pressed }: any) => [
                       styles.landingButtonBase,
                       styles.landingButtonPrimary,
                       isDesktop || isTablet
@@ -375,6 +380,8 @@ export default function LandingScreen() {
                         : styles.landingButtonSizeMobile,
                       styles.heroCtaButton,
                       isTablet && styles.heroCtaButtonTablet,
+                      hovered && styles.landingButtonPrimaryHover,
+                      pressed && styles.landingButtonPrimaryPressed,
                     ]}
                   >
                     <Text style={styles.landingButtonPrimaryText}>
@@ -691,11 +698,13 @@ export default function LandingScreen() {
                     </Text>
                     <Pressable
                       onPress={goToSignUp}
-                      style={[
+                      style={({ hovered, pressed }: any) => [
                         styles.landingButtonBase,
                         styles.landingButtonPrimary,
                         styles.landingButtonSizeMobile,
                         styles.closingCtaButton,
+                        hovered && styles.landingButtonPrimaryHover,
+                        pressed && styles.landingButtonPrimaryPressed,
                       ]}
                     >
                       <Text style={styles.landingButtonPrimaryText}>
@@ -740,11 +749,13 @@ export default function LandingScreen() {
                     </Text>
                     <Pressable
                       onPress={goToSignUp}
-                      style={[
+                      style={({ hovered, pressed }: any) => [
                         styles.landingButtonBase,
                         styles.landingButtonPrimary,
                         styles.landingButtonSizeDesktop,
                         styles.closingCtaButton,
+                        hovered && styles.landingButtonPrimaryHover,
+                        pressed && styles.landingButtonPrimaryPressed,
                       ]}
                     >
                       <Text style={styles.landingButtonPrimaryText}>
@@ -1452,6 +1463,13 @@ const styles = StyleSheet.create({
   },
   landingButtonPrimary: {
     backgroundColor: colors.primary,
+    boxShadow: `0px 6px 16px ${colors.text}26`,
+  },
+  landingButtonPrimaryHover: {
+    backgroundColor: colors.secondary,
+  },
+  landingButtonPrimaryPressed: {
+    boxShadow: "none",
   },
   landingButtonPrimaryText: {
     fontSize: typography.body,

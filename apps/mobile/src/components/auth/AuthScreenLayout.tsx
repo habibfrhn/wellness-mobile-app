@@ -99,6 +99,20 @@ export const authSharedStyles = StyleSheet.create({
     backgroundColor: colors.primary,
     justifyContent: "center",
     alignItems: "center",
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 2,
+    boxShadow: `0px 6px 14px ${colors.text}24`,
+  },
+  primaryButtonHover: {
+    backgroundColor: colors.secondary,
+  },
+  primaryButtonPressed: {
+    shadowOpacity: 0,
+    elevation: 0,
+    boxShadow: "none",
   },
   primaryButtonText: {
     color: colors.primaryText,

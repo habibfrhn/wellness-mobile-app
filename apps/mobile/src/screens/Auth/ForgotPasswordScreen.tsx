@@ -67,10 +67,11 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
           <Pressable
             onPress={onSubmit}
             disabled={!canSubmit}
-            style={({ pressed }) => [
+            style={({ hovered, pressed }: any) => [
               authSharedStyles.primaryButton,
               (!canSubmit || busy) && authSharedStyles.disabled,
-              pressed && canSubmit && authSharedStyles.pressed,
+              hovered && authSharedStyles.primaryButtonHover,
+              pressed && canSubmit && authSharedStyles.primaryButtonPressed,
             ]}
           >
             <Text style={authSharedStyles.primaryButtonText}>{busy ? id.forgot.sending : id.forgot.send}</Text>

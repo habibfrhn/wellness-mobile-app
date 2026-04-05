@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     paddingHorizontal: 0,
     paddingVertical: 0,
-    boxShadow: `0px 4px 16px ${colors.text}1F`,
+    boxShadow: `0px 4px 12px ${colors.text}14`,
   },
   feedbackSectionWrap: {
     marginTop: spacing.md,

@@ -84,7 +84,11 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
         </Text>
 
         <View style={authSharedStyles.actionsStack}>
-          <Pressable onPress={openEmailInbox} style={({ pressed }) => [authSharedStyles.primaryButton, pressed && authSharedStyles.pressed]}>
+          <Pressable onPress={openEmailInbox} style={({ hovered, pressed }: any) => [
+            authSharedStyles.primaryButton,
+            hovered && authSharedStyles.primaryButtonHover,
+            pressed && authSharedStyles.primaryButtonPressed,
+          ]}>
             <Text style={authSharedStyles.primaryButtonText}>{id.verify.openEmail}</Text>
           </Pressable>
 

@@ -262,8 +262,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     shadowColor: colors.text,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 3,
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 2,
   },
 });

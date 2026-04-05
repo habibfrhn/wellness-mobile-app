@@ -42,10 +42,11 @@ export default function NormalAudioControls({
 
         <Pressable
           onPress={onTogglePlay}
-          style={({ pressed }) => [
+          style={({ hovered, pressed }: any) => [
             styles.primaryBtn,
             compact && styles.primaryBtnCompact,
-            pressed && styles.pressed,
+            hovered && styles.primaryBtnHover,
+            pressed && styles.primaryBtnPressed,
           ]}
         >
           <Text
@@ -75,6 +76,20 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     alignItems: "center",
     justifyContent: "center",
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 2,
+    boxShadow: `0px 6px 14px ${colors.text}24`,
+  },
+  primaryBtnHover: {
+    backgroundColor: colors.secondary,
+  },
+  primaryBtnPressed: {
+    shadowOpacity: 0,
+    elevation: 0,
+    boxShadow: "none",
   },
   primaryBtnCompact: { paddingVertical: spacing.xs + 2 },
   primaryText: {

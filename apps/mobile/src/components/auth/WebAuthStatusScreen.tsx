@@ -19,7 +19,14 @@ export default function WebAuthStatusScreen({ title, body, actionLabel, onAction
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.body}>{body}</Text>
         {actionLabel && onAction ? (
-          <Pressable onPress={onAction} style={({ pressed }) => [styles.button, pressed && styles.pressed]}>
+          <Pressable
+            onPress={onAction}
+            style={({ hovered, pressed }: any) => [
+              styles.button,
+              hovered && styles.buttonHover,
+              pressed && styles.buttonPressed,
+            ]}
+          >
             <Text style={styles.buttonText}>{actionLabel}</Text>
           </Pressable>
         ) : null}
@@ -68,14 +75,25 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 2,
+    boxShadow: `0px 6px 14px ${colors.text}24`,
+  },
+  buttonHover: {
+    backgroundColor: colors.secondary,
+  },
+  buttonPressed: {
+    shadowOpacity: 0,
+    elevation: 0,
+    boxShadow: "none",
   },
   buttonText: {
     color: colors.primaryText,
     fontSize: typography.body,
     fontWeight: "700",
     textAlign: "center",
-  },
-  pressed: {
-    opacity: 0.82,
   },
 });

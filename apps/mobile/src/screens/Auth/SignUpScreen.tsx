@@ -161,10 +161,11 @@ export default function SignUpScreen({ navigation, route }: Props) {
           <Pressable
             onPress={onSubmit}
             disabled={!canPress || busyGoogle}
-            style={({ pressed }) => [
+            style={({ hovered, pressed }: any) => [
               authSharedStyles.primaryButton,
               (!canPress || busyGoogle) && authSharedStyles.disabled,
-              pressed && canPress && !busyGoogle && authSharedStyles.pressed,
+              hovered && authSharedStyles.primaryButtonHover,
+              pressed && canPress && !busyGoogle && authSharedStyles.primaryButtonPressed,
             ]}
           >
             <Text style={authSharedStyles.primaryButtonText}>{busy ? id.signup.busyCta : id.signup.primaryCta}</Text>

@@ -19,7 +19,14 @@ export default function HomeNightSummary({ onPressPrimary, streakState }: Props)
       <Text style={styles.title}>{id.home.primaryCardTitle}</Text>
       <Text style={styles.body}>{id.home.primaryCardBody}</Text>
 
-      <Pressable onPress={onPressPrimary} style={styles.primaryButton}>
+      <Pressable
+        onPress={onPressPrimary}
+        style={({ hovered, pressed }: any) => [
+          styles.primaryButton,
+          hovered && styles.primaryButtonHover,
+          pressed && styles.primaryButtonPressed,
+        ]}
+      >
         <Text style={styles.primaryButtonText}>{id.home.primarySleepCta}</Text>
       </Pressable>
     </View>
@@ -55,6 +62,20 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     alignItems: "center",
     justifyContent: "center",
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 2,
+    boxShadow: `0px 6px 14px ${colors.text}24`,
+  },
+  primaryButtonHover: {
+    backgroundColor: colors.secondary,
+  },
+  primaryButtonPressed: {
+    shadowOpacity: 0,
+    elevation: 0,
+    boxShadow: "none",
   },
   primaryButtonText: {
     color: colors.white,

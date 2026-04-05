@@ -217,7 +217,12 @@ export default function LoginScreen({ navigation, route }: Props) {
           <Pressable
             onPress={onSubmit}
             disabled={busy || busyGoogle}
-            style={({ pressed }) => [styles.primaryButton, (busy || busyGoogle) && styles.disabled, pressed && !busy && !busyGoogle && styles.pressed]}
+            style={({ hovered, pressed }: any) => [
+              styles.primaryButton,
+              (busy || busyGoogle) && styles.disabled,
+              hovered && styles.primaryButtonHover,
+              pressed && !busy && !busyGoogle && styles.primaryButtonPressed,
+            ]}
           >
             {busy ? (
               <ActivityIndicator color={colors.primaryText} />
@@ -379,6 +384,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     minHeight: 52,
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 2,
+    boxShadow: `0px 6px 14px ${colors.text}24`,
+  },
+  primaryButtonHover: {
+    backgroundColor: colors.secondary,
+  },
+  primaryButtonPressed: {
+    shadowOpacity: 0,
+    elevation: 0,
+    boxShadow: "none",
   },
   primaryButtonText: {
     color: colors.primaryText,
