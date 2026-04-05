@@ -190,6 +190,7 @@ export default function App() {
       [tabindex="0"],
       [tabindex="1"],
       [data-focusable="true"] {
+        box-shadow: 0px 4px 12px ${colors.text}1F;
         transition: background-color 120ms ease;
       }
 
@@ -199,7 +200,8 @@ export default function App() {
       [tabindex="1"]:active,
       [data-focusable="true"]:active,
       [data-web-pressed="true"] {
-        background-color: ${colors.webButtonPressedBg} !important;
+        background-color: ${colors.secondary} !important;
+        box-shadow: none !important;
       }
 
       button:active *,
@@ -217,7 +219,15 @@ export default function App() {
         [tabindex="0"]:hover,
         [tabindex="1"]:hover,
         [data-focusable="true"]:hover {
-          background-color: ${colors.webButtonHoverBg} !important;
+          background-color: ${colors.secondary} !important;
+        }
+
+        button:hover *,
+        [role="button"]:hover *,
+        [tabindex="0"]:hover *,
+        [tabindex="1"]:hover *,
+        [data-focusable="true"]:hover * {
+          color: ${colors.white} !important;
         }
       }
     `;
