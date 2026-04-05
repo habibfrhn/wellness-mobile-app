@@ -33,6 +33,16 @@ type Props = NativeStackScreenProps<AppStackParamList, "Home">;
 
 const DESKTOP_PAGE_MAX_WIDTH = 1120;
 const TABLET_PAGE_MAX_WIDTH = 820;
+const sectionCardShadowStyle =
+  Platform.OS === "web"
+    ? { boxShadow: `0px 4px 12px ${colors.text}14` }
+    : {
+        shadowColor: colors.text,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 10,
+        elevation: 2,
+      };
 
 export default function HomeScreen({ navigation, route }: Props) {
   const insets = useSafeAreaInsets();
@@ -160,7 +170,7 @@ export default function HomeScreen({ navigation, route }: Props) {
           <View style={styles.sectionBlock}>
             <HomeGreetingTitle />
             <View style={[styles.primaryActionCardWrap, { marginTop: sectionGap }]}>
-              <View style={styles.primaryActionCard}>
+              <View style={[styles.primaryActionCard, styles.primaryActionCardShadow]}>
                 <HomeNightSummary
                   onPressPrimary={() => {
                     void trackEvent("home_sleep_cta_click");
@@ -260,10 +270,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: WEB_SECTION_CONTENT_INSET,
     paddingVertical: spacing.sm,
     gap: spacing.sm,
-    shadowColor: colors.text,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 3,
   },
+  primaryActionCardShadow: sectionCardShadowStyle,
 });
