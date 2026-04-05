@@ -65,7 +65,12 @@ export default function NightStep3Screen({ navigation, route }: Props) {
             <Pressable
               key={trackId}
               onPress={() => setSelectedTrackId(trackId)}
-              style={[styles.trackButton, selected ? styles.trackButtonSelected : null]}
+              style={({ hovered, pressed }: any) => [
+                styles.trackButton,
+                selected ? styles.trackButtonSelected : null,
+                selected && hovered ? styles.trackButtonSelectedHover : null,
+                selected && pressed ? styles.trackButtonSelectedPressed : null,
+              ]}
             >
               <Text style={[styles.trackText, selected ? styles.trackTextSelected : null]}>{track.title}</Text>
             </Pressable>
@@ -110,6 +115,20 @@ const styles = StyleSheet.create({
   },
   trackButtonSelected: {
     backgroundColor: colors.primary,
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 2,
+    boxShadow: `0px 6px 14px ${colors.text}24`,
+  },
+  trackButtonSelectedHover: {
+    backgroundColor: colors.secondary,
+  },
+  trackButtonSelectedPressed: {
+    shadowOpacity: 0,
+    elevation: 0,
+    boxShadow: "none",
   },
   trackText: {
     color: colors.text,

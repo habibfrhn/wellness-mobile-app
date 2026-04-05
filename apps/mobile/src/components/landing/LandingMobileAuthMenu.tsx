@@ -37,6 +37,7 @@ export default function LandingMobileAuthMenu({
         style={({ pressed }) => [
           styles.menuButton,
           isOpen && styles.menuButtonActive,
+          isOpen && pressed && styles.menuButtonActivePressed,
           pressed && styles.menuButtonPressed,
         ]}
       >
@@ -100,6 +101,10 @@ const styles = StyleSheet.create({
   menuButtonActive: {
     backgroundColor: colors.primary,
     borderColor: colors.primary,
+  },
+  menuButtonActivePressed: {
+    boxShadow: "none",
+    elevation: 0,
   },
   menuButtonPressed: {
     opacity: 0.85,

@@ -66,7 +66,12 @@ export default function NightCheckOutScreen({ navigation, route }: Props) {
             <Pressable
               key={level}
               onPress={() => setStressAfter(level)}
-              style={[styles.levelButton, selected ? styles.levelButtonSelected : null]}
+              style={({ hovered, pressed }: any) => [
+                styles.levelButton,
+                selected ? styles.levelButtonSelected : null,
+                selected && hovered ? styles.levelButtonSelectedHover : null,
+                selected && pressed ? styles.levelButtonSelectedPressed : null,
+              ]}
             >
               <Text style={[styles.levelText, selected ? styles.levelTextSelected : null]}>{level}</Text>
             </Pressable>
@@ -110,6 +115,20 @@ const styles = StyleSheet.create({
   },
   levelButtonSelected: {
     backgroundColor: colors.primary,
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 2,
+    boxShadow: `0px 6px 14px ${colors.text}24`,
+  },
+  levelButtonSelectedHover: {
+    backgroundColor: colors.secondary,
+  },
+  levelButtonSelectedPressed: {
+    shadowOpacity: 0,
+    elevation: 0,
+    boxShadow: "none",
   },
   levelText: {
     color: colors.text,

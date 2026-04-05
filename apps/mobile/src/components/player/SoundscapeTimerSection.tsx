@@ -99,10 +99,16 @@ export default function SoundscapeTimerSection({
             {timerOptions.map((option) => (
               <Pressable
                 key={option.seconds}
-                style={({ pressed }) => [
+                style={({ hovered, pressed }: any) => [
                   styles.timerPill,
                   compact && styles.timerPillCompact,
                   timerSeconds === option.seconds && styles.timerPillActive,
+                  timerSeconds === option.seconds &&
+                    hovered &&
+                    styles.timerPillActiveHover,
+                  timerSeconds === option.seconds &&
+                    pressed &&
+                    styles.timerPillActivePressed,
                   pressed && styles.pressed,
                 ]}
                 onPress={() => onSelectTimer(option.seconds)}
@@ -212,6 +218,20 @@ const styles = StyleSheet.create({
   },
   timerPillActive: {
     backgroundColor: colors.primary,
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 2,
+    boxShadow: `0px 6px 14px ${colors.text}24`,
+  },
+  timerPillActiveHover: {
+    backgroundColor: colors.secondary,
+  },
+  timerPillActivePressed: {
+    shadowOpacity: 0,
+    elevation: 0,
+    boxShadow: "none",
   },
   timerText: {
     fontSize: typography.tiny,
