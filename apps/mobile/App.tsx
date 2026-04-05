@@ -21,6 +21,7 @@ import WebAuthStatusScreen from "./src/components/auth/WebAuthStatusScreen";
 import { getWebAuthPath, replaceWebUrl } from "./src/services/webAuth";
 import AdminDashboardScreen from "./src/screens/Admin/AdminDashboardScreen.web";
 import { colors } from "./src/theme/tokens";
+import { WEB_TABLET_BREAKPOINT } from "./src/constants/webLayout";
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
 
@@ -193,7 +194,7 @@ export default function App() {
         background-color: ${colors.webButtonPressedBg} !important;
       }
 
-      @media (hover: hover) and (pointer: fine) {
+      @media (min-width: ${WEB_TABLET_BREAKPOINT + 1}px) {
         button:hover,
         [role="button"]:hover,
         [tabindex="0"]:hover,
