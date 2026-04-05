@@ -67,10 +67,11 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
           <Pressable
             onPress={onSubmit}
             disabled={!canSubmit}
-            style={({ pressed }) => [
+            style={({ hovered, pressed }: any) => [
               authSharedStyles.primaryButton,
               (!canSubmit || busy) && authSharedStyles.disabled,
-              pressed && canSubmit && authSharedStyles.pressed,
+              hovered && canSubmit && !busy && authSharedStyles.primaryButtonHover,
+              pressed && canSubmit && authSharedStyles.primaryButtonPressed,
             ]}
           >
             <Text style={authSharedStyles.primaryButtonText}>{busy ? id.forgot.sending : id.forgot.send}</Text>
@@ -78,9 +79,23 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
 
           <Pressable
             onPress={() => navigation.replace("Login", { initialEmail: email.trim() })}
-            style={({ pressed }) => [authSharedStyles.secondaryButton, pressed && authSharedStyles.pressed]}
+            style={({ hovered, pressed }: any) => [
+              authSharedStyles.secondaryButton,
+              hovered && authSharedStyles.secondaryButtonHover,
+              pressed && authSharedStyles.secondaryButtonPressed,
+            ]}
           >
-            <Text style={authSharedStyles.secondaryButtonText}>{id.forgot.backToLogin}</Text>
+            {({ hovered, pressed }: any) => (
+              <Text
+                style={[
+                  authSharedStyles.secondaryButtonText,
+                  hovered && authSharedStyles.secondaryButtonHoverText,
+                  pressed && authSharedStyles.secondaryButtonPressedText,
+                ]}
+              >
+                {id.forgot.backToLogin}
+              </Text>
+            )}
           </Pressable>
         </View>
       </View>

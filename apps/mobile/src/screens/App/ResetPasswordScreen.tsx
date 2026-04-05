@@ -189,10 +189,11 @@ export default function ResetPasswordScreen({ navigation }: Props) {
         <Pressable
           onPress={onSubmit}
           disabled={!canSubmit}
-          style={({ pressed }) => [
+          style={({ hovered, pressed }: any) => [
             styles.primaryButton,
             (!canSubmit || busy) && styles.disabled,
-            pressed && canSubmit && styles.pressed,
+            hovered && canSubmit && !busy && styles.primaryButtonHover,
+            pressed && canSubmit && styles.primaryButtonPressed,
           ]}
         >
           <Text style={styles.primaryButtonText}>
@@ -202,9 +203,23 @@ export default function ResetPasswordScreen({ navigation }: Props) {
 
         <Pressable
           onPress={() => navigation.goBack()}
-          style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+          style={({ hovered, pressed }: any) => [
+            styles.secondaryButton,
+            hovered && styles.secondaryButtonHover,
+            pressed && styles.secondaryButtonPressed,
+          ]}
         >
-          <Text style={styles.secondaryButtonText}>{id.account.resetBack}</Text>
+          {({ hovered, pressed }: any) => (
+            <Text
+              style={[
+                styles.secondaryButtonText,
+                hovered && styles.secondaryButtonHoverText,
+                pressed && styles.secondaryButtonPressedText,
+              ]}
+            >
+              {id.account.resetBack}
+            </Text>
+          )}
         </Pressable>
       </View>
     </View>
@@ -245,19 +260,33 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     backgroundColor: colors.primary,
   },
+  primaryButtonHover: { backgroundColor: colors.primaryHover },
+  primaryButtonPressed: { backgroundColor: colors.primaryPressed },
   primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
   secondaryButton: {
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     borderRadius: radius.sm,
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.secondaryBorder,
   },
   secondaryButtonText: {
-    color: colors.secondaryText,
+    color: colors.secondaryBorder,
     fontSize: typography.body,
     fontWeight: "700",
     textAlign: "center",
   },
+  secondaryButtonHover: {
+    backgroundColor: colors.secondaryHover,
+    borderColor: colors.secondaryHoverBorder,
+  },
+  secondaryButtonPressed: {
+    backgroundColor: colors.secondaryPressed,
+    borderColor: colors.secondaryPressedBorder,
+  },
+  secondaryButtonHoverText: { color: colors.secondaryHoverText },
+  secondaryButtonPressedText: { color: colors.secondaryPressedText },
   disabled: { opacity: 0.6 },
   pressed: { opacity: 0.85 },
 });

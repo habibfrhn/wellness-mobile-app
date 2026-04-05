@@ -13,16 +13,34 @@ export default function WelcomeScreen({ navigation }: Props) {
       <View style={authSharedStyles.actionsStack}>
         <Pressable
           onPress={() => navigation.navigate("SignUp")}
-          style={({ pressed }) => [authSharedStyles.primaryButton, pressed && authSharedStyles.pressed]}
+          style={({ hovered, pressed }: any) => [
+            authSharedStyles.primaryButton,
+            hovered && authSharedStyles.primaryButtonHover,
+            pressed && authSharedStyles.primaryButtonPressed,
+          ]}
         >
           <Text style={authSharedStyles.primaryButtonText}>{id.welcome.primaryCta}</Text>
         </Pressable>
 
         <Pressable
           onPress={() => navigation.navigate("Login")}
-          style={({ pressed }) => [authSharedStyles.secondaryButton, pressed && authSharedStyles.pressed]}
+          style={({ hovered, pressed }: any) => [
+            authSharedStyles.secondaryButton,
+            hovered && authSharedStyles.secondaryButtonHover,
+            pressed && authSharedStyles.secondaryButtonPressed,
+          ]}
         >
-          <Text style={authSharedStyles.secondaryButtonText}>{id.welcome.secondaryCta}</Text>
+          {({ hovered, pressed }: any) => (
+            <Text
+              style={[
+                authSharedStyles.secondaryButtonText,
+                hovered && authSharedStyles.secondaryButtonHoverText,
+                pressed && authSharedStyles.secondaryButtonPressedText,
+              ]}
+            >
+              {id.welcome.secondaryCta}
+            </Text>
+          )}
         </Pressable>
       </View>
     </AuthScreenLayout>

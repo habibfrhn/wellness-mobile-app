@@ -45,11 +45,45 @@ export default function AdminDashboardView({
           <Text style={styles.subtitle}>{id.admin.dashboardSubtitle}</Text>
         </View>
         <View style={styles.headerActions}>
-          <Pressable style={styles.secondaryButton} onPress={() => void onRefresh()}>
-            <Text style={styles.secondaryButtonText}>{busy ? id.admin.loadingLabel : id.admin.refreshCta}</Text>
+          <Pressable
+            style={({ hovered, pressed }: any) => [
+              styles.secondaryButton,
+              hovered && styles.secondaryButtonHover,
+              pressed && styles.secondaryButtonPressed,
+            ]}
+            onPress={() => void onRefresh()}
+          >
+            {({ hovered, pressed }: any) => (
+              <Text
+                style={[
+                  styles.secondaryButtonText,
+                  hovered && styles.secondaryButtonHoverText,
+                  pressed && styles.secondaryButtonPressedText,
+                ]}
+              >
+                {busy ? id.admin.loadingLabel : id.admin.refreshCta}
+              </Text>
+            )}
           </Pressable>
-          <Pressable style={styles.secondaryButton} onPress={() => void onSignOut()}>
-            <Text style={styles.secondaryButtonText}>{id.admin.signOutCta}</Text>
+          <Pressable
+            style={({ hovered, pressed }: any) => [
+              styles.secondaryButton,
+              hovered && styles.secondaryButtonHover,
+              pressed && styles.secondaryButtonPressed,
+            ]}
+            onPress={() => void onSignOut()}
+          >
+            {({ hovered, pressed }: any) => (
+              <Text
+                style={[
+                  styles.secondaryButtonText,
+                  hovered && styles.secondaryButtonHoverText,
+                  pressed && styles.secondaryButtonPressedText,
+                ]}
+              >
+                {id.admin.signOutCta}
+              </Text>
+            )}
           </Pressable>
         </View>
       </View>
@@ -97,15 +131,27 @@ const styles = StyleSheet.create({
   },
   secondaryButton: {
     borderRadius: radius.sm,
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.secondaryBorder,
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.sm,
   },
   secondaryButtonText: {
-    color: colors.white,
+    color: colors.secondaryBorder,
     fontSize: typography.small,
     fontWeight: "600",
   },
+  secondaryButtonHover: {
+    backgroundColor: colors.secondaryHover,
+    borderColor: colors.secondaryHoverBorder,
+  },
+  secondaryButtonPressed: {
+    backgroundColor: colors.secondaryPressed,
+    borderColor: colors.secondaryPressedBorder,
+  },
+  secondaryButtonHoverText: { color: colors.secondaryHoverText },
+  secondaryButtonPressedText: { color: colors.secondaryPressedText },
   errorText: {
     color: colors.danger,
     fontSize: typography.small,

@@ -40,10 +40,11 @@ export default function ProfileContent({
         <Pressable
           onPress={onSaveName}
           disabled={isSaveDisabled}
-          style={({ pressed }) => [
+          style={({ hovered, pressed }: any) => [
             styles.primaryButton,
             isSaveDisabled && styles.primaryButtonDisabled,
-            pressed && !isSaveDisabled && styles.pressed,
+            hovered && !isSaveDisabled && styles.primaryButtonHover,
+            pressed && !isSaveDisabled && styles.primaryButtonPressed,
           ]}
         >
           <Text style={styles.primaryButtonText}>{saveLabel}</Text>
@@ -55,8 +56,25 @@ export default function ProfileContent({
         <Text style={styles.email}>{email || "-"}</Text>
       </View>
 
-      <Pressable onPress={onLogout} style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
-        <Text style={styles.secondaryButtonText}>{id.account.logout}</Text>
+      <Pressable
+        onPress={onLogout}
+        style={({ hovered, pressed }: any) => [
+          styles.secondaryButton,
+          hovered && styles.secondaryButtonHover,
+          pressed && styles.secondaryButtonPressed,
+        ]}
+      >
+        {({ hovered, pressed }: any) => (
+          <Text
+            style={[
+              styles.secondaryButtonText,
+              hovered && styles.secondaryButtonHoverText,
+              pressed && styles.secondaryButtonPressedText,
+            ]}
+          >
+            {id.account.logout}
+          </Text>
+        )}
       </Pressable>
     </ScrollView>
   );
@@ -89,6 +107,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     backgroundColor: colors.primary,
   },
+  primaryButtonHover: { backgroundColor: colors.primaryHover },
+  primaryButtonPressed: { backgroundColor: colors.primaryPressed },
   primaryButtonDisabled: {
     backgroundColor: colors.mutedText,
   },
@@ -103,14 +123,26 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     borderRadius: radius.sm,
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.secondaryBorder,
   },
   secondaryButtonText: {
-    color: colors.secondaryText,
+    color: colors.secondaryBorder,
     fontSize: typography.body,
     fontWeight: "800",
     textAlign: "center",
   },
+  secondaryButtonHover: {
+    backgroundColor: colors.secondaryHover,
+    borderColor: colors.secondaryHoverBorder,
+  },
+  secondaryButtonPressed: {
+    backgroundColor: colors.secondaryPressed,
+    borderColor: colors.secondaryPressedBorder,
+  },
+  secondaryButtonHoverText: { color: colors.secondaryHoverText },
+  secondaryButtonPressedText: { color: colors.secondaryPressedText },
 
   pressed: { opacity: 0.85 },
 });

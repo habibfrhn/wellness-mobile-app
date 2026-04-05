@@ -21,7 +21,12 @@ export default function HomeNightSummary({ onPressPrimary }: Props) {
 
       <Pressable
         onPress={onPressPrimary}
-        style={[styles.primaryButton, isDesktop ? styles.primaryButtonDesktop : styles.primaryButtonCompact]}
+        style={({ hovered, pressed }: any) => [
+          styles.primaryButton,
+          isDesktop ? styles.primaryButtonDesktop : styles.primaryButtonCompact,
+          hovered && styles.primaryButtonHover,
+          pressed && styles.primaryButtonPressed,
+        ]}
       >
         <Text numberOfLines={1} style={styles.primaryButtonText}>
           {id.home.primarySleepCta}
@@ -64,6 +69,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  primaryButtonHover: { backgroundColor: colors.primaryHover },
+  primaryButtonPressed: { backgroundColor: colors.primaryPressed },
   primaryButtonCompact: {
     marginTop: spacing.md,
     paddingVertical: spacing.sm,

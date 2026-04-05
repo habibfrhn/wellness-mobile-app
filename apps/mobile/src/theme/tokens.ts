@@ -8,8 +8,17 @@ export const colors = {
   // Brand
   primary: "#21325E",
   primaryText: "#FFFFFF",
+  primaryHover: "#1E2D55",
+  primaryPressed: "#1A284B",
   secondary: "#3E497A",
   secondaryText: "#1F2A37",
+  secondaryBorder: "#21325E",
+  secondaryHover: "#F3F6FB",
+  secondaryHoverText: "#21325E",
+  secondaryHoverBorder: "#21325E",
+  secondaryPressed: "#E8EDF7",
+  secondaryPressedText: "#1A284B",
+  secondaryPressedBorder: "#1A284B",
   accent: "#FACC15",
 
   danger: "#B00020",

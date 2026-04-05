@@ -84,7 +84,14 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
         </Text>
 
         <View style={authSharedStyles.actionsStack}>
-          <Pressable onPress={openEmailInbox} style={({ pressed }) => [authSharedStyles.primaryButton, pressed && authSharedStyles.pressed]}>
+          <Pressable
+            onPress={openEmailInbox}
+            style={({ hovered, pressed }: any) => [
+              authSharedStyles.primaryButton,
+              hovered && authSharedStyles.primaryButtonHover,
+              pressed && authSharedStyles.primaryButtonPressed,
+            ]}
+          >
             <Text style={authSharedStyles.primaryButtonText}>{id.verify.openEmail}</Text>
           </Pressable>
 
@@ -95,19 +102,45 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
           <Pressable
             onPress={resend}
             disabled={!canResend}
-            style={({ pressed }) => [
+            style={({ hovered, pressed }: any) => [
               authSharedStyles.secondaryButton,
               !canResend && authSharedStyles.disabled,
-              pressed && canResend && authSharedStyles.pressed,
+              hovered && canResend && authSharedStyles.secondaryButtonHover,
+              pressed && canResend && authSharedStyles.secondaryButtonPressed,
             ]}
           >
-            <Text style={authSharedStyles.secondaryButtonText}>
-              {busy ? id.verify.resendBusy : cooldown > 0 ? `${id.verify.resendWait} ${cooldown}s` : id.verify.resend}
-            </Text>
+            {({ hovered, pressed }: any) => (
+              <Text
+                style={[
+                  authSharedStyles.secondaryButtonText,
+                  hovered && canResend && authSharedStyles.secondaryButtonHoverText,
+                  pressed && canResend && authSharedStyles.secondaryButtonPressedText,
+                ]}
+              >
+                {busy ? id.verify.resendBusy : cooldown > 0 ? `${id.verify.resendWait} ${cooldown}s` : id.verify.resend}
+              </Text>
+            )}
           </Pressable>
 
-          <Pressable onPress={changeEmail} style={({ pressed }) => [authSharedStyles.secondaryButton, pressed && authSharedStyles.pressed]}>
-            <Text style={authSharedStyles.secondaryButtonText}>{id.verify.changeEmail}</Text>
+          <Pressable
+            onPress={changeEmail}
+            style={({ hovered, pressed }: any) => [
+              authSharedStyles.secondaryButton,
+              hovered && authSharedStyles.secondaryButtonHover,
+              pressed && authSharedStyles.secondaryButtonPressed,
+            ]}
+          >
+            {({ hovered, pressed }: any) => (
+              <Text
+                style={[
+                  authSharedStyles.secondaryButtonText,
+                  hovered && authSharedStyles.secondaryButtonHoverText,
+                  pressed && authSharedStyles.secondaryButtonPressedText,
+                ]}
+              >
+                {id.verify.changeEmail}
+              </Text>
+            )}
           </Pressable>
 
           <Pressable onPress={() => navigation.replace("Login", { initialEmail: email })} style={({ pressed }) => [styles.linkButton, pressed && authSharedStyles.pressed]}>
