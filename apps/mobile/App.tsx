@@ -169,6 +169,13 @@ export default function App() {
     }
 
     const styleId = "lumepo-web-button-interaction-states";
+    const webButtonSelector = [
+      "button",
+      "[role=\"button\"]",
+      "[tabindex=\"0\"]",
+      "[tabindex=\"1\"]",
+      "[data-focusable=\"true\"]",
+    ].join(", ");
     let styleTag = document.getElementById(styleId) as HTMLStyleElement | null;
 
     if (!styleTag) {
@@ -190,7 +197,8 @@ export default function App() {
       [role="button"]:active,
       [tabindex="0"]:active,
       [tabindex="1"]:active,
-      [data-focusable="true"]:active {
+      [data-focusable="true"]:active,
+      [data-web-pressed="true"] {
         background-color: ${colors.webButtonPressedBg} !important;
       }
 
@@ -198,7 +206,8 @@ export default function App() {
       [role="button"]:active *,
       [tabindex="0"]:active *,
       [tabindex="1"]:active *,
-      [data-focusable="true"]:active * {
+      [data-focusable="true"]:active *,
+      [data-web-pressed="true"] * {
         color: ${colors.white} !important;
       }
 
@@ -212,6 +221,56 @@ export default function App() {
         }
       }
     `;
+
+    let pressedElement: HTMLElement | null = null;
+
+    const clearPressedElement = () => {
+      if (!pressedElement) {
+        return;
+      }
+      pressedElement.removeAttribute("data-web-pressed");
+      pressedElement = null;
+    };
+
+    const resolveButtonElement = (target: EventTarget | null) => {
+      if (!(target instanceof Element)) {
+        return null;
+      }
+      return target.closest<HTMLElement>(webButtonSelector);
+    };
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const nextPressedElement = resolveButtonElement(event.target);
+      if (!nextPressedElement) {
+        clearPressedElement();
+        return;
+      }
+      if (pressedElement === nextPressedElement) {
+        return;
+      }
+      clearPressedElement();
+      pressedElement = nextPressedElement;
+      pressedElement.setAttribute("data-web-pressed", "true");
+    };
+
+    const handlePointerRelease = () => {
+      clearPressedElement();
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown, true);
+    document.addEventListener("pointerup", handlePointerRelease, true);
+    document.addEventListener("pointercancel", handlePointerRelease, true);
+    document.addEventListener("dragend", handlePointerRelease, true);
+    document.addEventListener("visibilitychange", handlePointerRelease, true);
+
+    return () => {
+      clearPressedElement();
+      document.removeEventListener("pointerdown", handlePointerDown, true);
+      document.removeEventListener("pointerup", handlePointerRelease, true);
+      document.removeEventListener("pointercancel", handlePointerRelease, true);
+      document.removeEventListener("dragend", handlePointerRelease, true);
+      document.removeEventListener("visibilitychange", handlePointerRelease, true);
+    };
   }, []);
 
   const isVerified = useMemo(() => {
