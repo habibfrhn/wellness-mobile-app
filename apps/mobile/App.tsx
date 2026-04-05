@@ -178,22 +178,27 @@ export default function App() {
 
     styleTag.textContent = `
       button,
-      [role="button"] {
+      [role="button"],
+      [tabindex="0"],
+      [tabindex="1"],
+      [data-focusable="true"] {
         transition: background-color 120ms ease;
       }
 
       button:active,
       [role="button"]:active,
-      button[data-focusable="true"]:active,
-      [role="button"][data-focusable="true"]:active {
+      [tabindex="0"]:active,
+      [tabindex="1"]:active,
+      [data-focusable="true"]:active {
         background-color: ${colors.webButtonPressedBg} !important;
       }
 
       @media (hover: hover) and (pointer: fine) {
         button:hover,
         [role="button"]:hover,
-        button[data-focusable="true"]:hover,
-        [role="button"][data-focusable="true"]:hover {
+        [tabindex="0"]:hover,
+        [tabindex="1"]:hover,
+        [data-focusable="true"]:hover {
           background-color: ${colors.webButtonHoverBg} !important;
         }
       }
