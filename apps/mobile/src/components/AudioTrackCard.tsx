@@ -1,6 +1,7 @@
 import React from "react";
-import { View, Text, Pressable, StyleSheet, Image, Platform } from "react-native";
+import { View, Text, Pressable, StyleSheet, Image } from "react-native";
 import { colors, spacing, radius, typography, lineHeights } from "../theme/tokens";
+import { sharedCardShadowStyle } from "../theme/shadows";
 import type { AudioTrack } from "../content/audioCatalog";
 
 function formatTime(sec: number) {
@@ -37,17 +38,6 @@ export default function AudioTrackCard({ track, onPress, showDuration = true }: 
   );
 }
 
-const cardShadowStyle =
-  Platform.OS === "web"
-    ? { boxShadow: `0px 4px 12px ${colors.text}14` }
-    : {
-        shadowColor: colors.text,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.08,
-        shadowRadius: 10,
-        elevation: 2,
-      };
-
 const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
@@ -56,7 +46,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     overflow: "hidden",
   },
-  cardShadow: cardShadowStyle,
+  cardShadow: sharedCardShadowStyle,
   thumbnail: {
     width: 72,
     height: 72,

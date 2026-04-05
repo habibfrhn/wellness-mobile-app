@@ -28,6 +28,7 @@ import {
 } from "../../services/nightStreak";
 import { trackEvent } from "../../services/analytics";
 import { colors, radius, spacing } from "../../theme/tokens";
+import { sharedCardShadowStyle } from "../../theme/shadows";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Home">;
 
@@ -174,7 +175,7 @@ export default function HomeScreen({ navigation, route }: Props) {
             <View
               style={[styles.primaryActionCardWrap, { marginTop: sectionGap }]}
             >
-              <View style={styles.primaryActionCard}>
+              <View style={[styles.primaryActionCard, styles.primaryActionCardShadow]}>
                 <HomeNightSummary
                   onPressPrimary={() => {
                     void trackEvent("home_sleep_cta_click");
@@ -274,8 +275,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     paddingHorizontal: 0,
     paddingVertical: 0,
-    boxShadow: `0px 4px 16px ${colors.text}1F`,
   },
+  primaryActionCardShadow: sharedCardShadowStyle,
   feedbackSectionWrap: {
     marginTop: spacing.md,
   },

@@ -28,22 +28,12 @@ import {
 } from "../../services/nightStreak";
 import { trackEvent } from "../../services/analytics";
 import { colors, radius, spacing } from "../../theme/tokens";
+import { sharedCardShadowStyle } from "../../theme/shadows";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Home">;
 
 const DESKTOP_PAGE_MAX_WIDTH = 1120;
 const TABLET_PAGE_MAX_WIDTH = 820;
-const sectionCardShadowStyle =
-  Platform.OS === "web"
-    ? { boxShadow: `0px 4px 12px ${colors.text}14` }
-    : {
-        shadowColor: colors.text,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.08,
-        shadowRadius: 10,
-        elevation: 2,
-      };
-
 export default function HomeScreen({ navigation, route }: Props) {
   const insets = useSafeAreaInsets();
   const viewportWidth = useViewportWidth();
@@ -271,5 +261,5 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     gap: spacing.sm,
   },
-  primaryActionCardShadow: sectionCardShadowStyle,
+  primaryActionCardShadow: sharedCardShadowStyle,
 });
