@@ -370,7 +370,9 @@ export default function LandingScreen() {
                     style={[
                       styles.landingButtonBase,
                       styles.landingButtonPrimary,
-                      styles.heroCtaButtonSize,
+                      isDesktop || isTablet
+                        ? styles.landingButtonSizeDesktop
+                        : styles.landingButtonSizeMobile,
                       styles.heroCtaButton,
                       isTablet && styles.heroCtaButtonTablet,
                     ]}
@@ -1209,9 +1211,6 @@ const styles = StyleSheet.create({
     minWidth: 0,
     width: "auto",
     alignSelf: "center",
-  },
-  heroCtaButtonSize: {
-    padding: spacing.sm,
   },
   heroCtaButtonTablet: {
     alignSelf: "center",

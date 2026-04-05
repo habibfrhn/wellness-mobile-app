@@ -170,11 +170,11 @@ export default function App() {
 
     const styleId = "lumepo-web-button-interaction-states";
     const webButtonSelector = [
-      "button",
-      "[role=\"button\"]",
-      "[tabindex=\"0\"]",
-      "[tabindex=\"1\"]",
-      "[data-focusable=\"true\"]",
+      "button:not([data-no-web-interaction=\"true\"])",
+      "[role=\"button\"]:not([data-no-web-interaction=\"true\"])",
+      "[tabindex=\"0\"]:not([data-no-web-interaction=\"true\"])",
+      "[tabindex=\"1\"]:not([data-no-web-interaction=\"true\"])",
+      "[data-focusable=\"true\"]:not([data-no-web-interaction=\"true\"])",
     ].join(", ");
     let styleTag = document.getElementById(styleId) as HTMLStyleElement | null;
 
@@ -185,52 +185,72 @@ export default function App() {
     }
 
     styleTag.textContent = `
-      button,
-      [role="button"],
-      [tabindex="0"],
-      [tabindex="1"],
-      [data-focusable="true"] {
+      button:not([data-no-web-interaction="true"]),
+      [role="button"]:not([data-no-web-interaction="true"]),
+      [tabindex="0"]:not([data-no-web-interaction="true"]),
+      [tabindex="1"]:not([data-no-web-interaction="true"]),
+      [data-focusable="true"]:not([data-no-web-interaction="true"]) {
         box-shadow: 0px 4px 12px ${colors.text}1F;
         transition: background-color 120ms ease;
       }
 
-      button:active,
-      [role="button"]:active,
-      [tabindex="0"]:active,
-      [tabindex="1"]:active,
-      [data-focusable="true"]:active,
+      button:not([data-no-web-interaction="true"]):active,
+      [role="button"]:not([data-no-web-interaction="true"]):active,
+      [tabindex="0"]:not([data-no-web-interaction="true"]):active,
+      [tabindex="1"]:not([data-no-web-interaction="true"]):active,
+      [data-focusable="true"]:not([data-no-web-interaction="true"]):active,
       [data-web-pressed="true"] {
         background-color: ${colors.secondary} !important;
         box-shadow: none !important;
       }
 
-      button:active *,
-      [role="button"]:active *,
-      [tabindex="0"]:active *,
-      [tabindex="1"]:active *,
-      [data-focusable="true"]:active *,
+      button:not([data-no-web-interaction="true"]):active *,
+      [role="button"]:not([data-no-web-interaction="true"]):active *,
+      [tabindex="0"]:not([data-no-web-interaction="true"]):active *,
+      [tabindex="1"]:not([data-no-web-interaction="true"]):active *,
+      [data-focusable="true"]:not([data-no-web-interaction="true"]):active *,
       [data-web-pressed="true"] * {
         color: ${colors.white} !important;
       }
 
       @media (min-width: ${WEB_TABLET_BREAKPOINT + 1}px) {
-        button:hover,
-        [role="button"]:hover,
-        [tabindex="0"]:hover,
-        [tabindex="1"]:hover,
-        [data-focusable="true"]:hover {
+        button:not([data-no-web-interaction="true"]):hover,
+        [role="button"]:not([data-no-web-interaction="true"]):hover,
+        [tabindex="0"]:not([data-no-web-interaction="true"]):hover,
+        [tabindex="1"]:not([data-no-web-interaction="true"]):hover,
+        [data-focusable="true"]:not([data-no-web-interaction="true"]):hover {
           background-color: ${colors.secondary} !important;
         }
 
-        button:hover *,
-        [role="button"]:hover *,
-        [tabindex="0"]:hover *,
-        [tabindex="1"]:hover *,
-        [data-focusable="true"]:hover * {
+        button:not([data-no-web-interaction="true"]):hover *,
+        [role="button"]:not([data-no-web-interaction="true"]):hover *,
+        [tabindex="0"]:not([data-no-web-interaction="true"]):hover *,
+        [tabindex="1"]:not([data-no-web-interaction="true"]):hover *,
+        [data-focusable="true"]:not([data-no-web-interaction="true"]):hover * {
           color: ${colors.white} !important;
         }
       }
     `;
+
+    const markHeaderButtonsNoInteraction = () => {
+      const headerButtonElements = document.querySelectorAll<HTMLElement>(
+        "#beranda button, #beranda [role=\"button\"], #beranda [tabindex=\"0\"], #beranda [tabindex=\"1\"], #beranda [data-focusable=\"true\"]",
+      );
+      headerButtonElements.forEach((element) => {
+        element.setAttribute("data-no-web-interaction", "true");
+      });
+    };
+    markHeaderButtonsNoInteraction();
+
+    const headerInteractionObserver = new MutationObserver(() => {
+      markHeaderButtonsNoInteraction();
+    });
+    if (document.body) {
+      headerInteractionObserver.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+    }
 
     let pressedElement: HTMLElement | null = null;
 
@@ -275,6 +295,7 @@ export default function App() {
 
     return () => {
       clearPressedElement();
+      headerInteractionObserver.disconnect();
       document.removeEventListener("pointerdown", handlePointerDown, true);
       document.removeEventListener("pointerup", handlePointerRelease, true);
       document.removeEventListener("pointercancel", handlePointerRelease, true);
