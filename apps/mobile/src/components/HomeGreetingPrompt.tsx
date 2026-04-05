@@ -20,9 +20,9 @@ const styles = StyleSheet.create({
   button: {
     alignSelf: "flex-start",
     marginTop: spacing.xs / 2,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs / 2,
-    borderRadius: radius.full,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+    borderRadius: radius.sm,
     backgroundColor: colors.card,
   },
   label: {
