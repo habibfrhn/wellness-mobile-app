@@ -20,6 +20,7 @@ import { clearPendingProfileName, getPendingProfileName } from "./src/services/p
 import WebAuthStatusScreen from "./src/components/auth/WebAuthStatusScreen";
 import { getWebAuthPath, replaceWebUrl } from "./src/services/webAuth";
 import AdminDashboardScreen from "./src/screens/Admin/AdminDashboardScreen.web";
+import { colors } from "./src/theme/tokens";
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
 
@@ -160,6 +161,44 @@ export default function App() {
   const [webAuthStatus, setWebAuthStatus] = useState<"idle" | "loading" | "error" | "missing">("idle");
 
   const didCheckUpdatesRef = useRef(false);
+
+  useEffect(() => {
+    if (Platform.OS !== "web" || typeof document === "undefined") {
+      return;
+    }
+
+    const styleId = "lumepo-web-button-interaction-states";
+    let styleTag = document.getElementById(styleId) as HTMLStyleElement | null;
+
+    if (!styleTag) {
+      styleTag = document.createElement("style");
+      styleTag.id = styleId;
+      document.head.appendChild(styleTag);
+    }
+
+    styleTag.textContent = `
+      button,
+      [role="button"] {
+        transition: background-color 120ms ease;
+      }
+
+      button:active,
+      [role="button"]:active,
+      button[data-focusable="true"]:active,
+      [role="button"][data-focusable="true"]:active {
+        background-color: ${colors.webButtonPressedBg} !important;
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        button:hover,
+        [role="button"]:hover,
+        button[data-focusable="true"]:hover,
+        [role="button"][data-focusable="true"]:hover {
+          background-color: ${colors.webButtonHoverBg} !important;
+        }
+      }
+    `;
+  }, []);
 
   const isVerified = useMemo(() => {
     const user = session?.user;
