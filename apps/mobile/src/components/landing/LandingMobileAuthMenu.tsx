@@ -8,11 +8,13 @@ import { colors, radius, spacing, typography } from "../../theme/tokens";
 type LandingMobileAuthMenuProps = {
   onPressLogin: () => void;
   onPressSignUp: () => void;
+  supportsHover?: boolean;
 };
 
 export default function LandingMobileAuthMenu({
   onPressLogin,
   onPressSignUp,
+  supportsHover = false,
 }: LandingMobileAuthMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -57,22 +59,34 @@ export default function LandingMobileAuthMenu({
           <View style={styles.dropdown}>
             <Pressable
               onPress={handlePressSignUp}
-              style={({ pressed }) => [
-                styles.menuItem,
-                pressed && styles.menuItemPressed,
+              style={({ hovered, pressed }: any) => [
+                styles.primaryMenuItem,
+                supportsHover && hovered && styles.primaryMenuItemHover,
+                pressed && styles.primaryMenuItemPressed,
               ]}
             >
-              <Text style={styles.menuText}>{id.signup.primaryCta}</Text>
+              <Text style={styles.primaryMenuText}>{id.signup.primaryCta}</Text>
             </Pressable>
 
             <Pressable
               onPress={handlePressLogin}
-              style={({ pressed }) => [
-                styles.menuItem,
-                pressed && styles.menuItemPressed,
+              style={({ hovered, pressed }: any) => [
+                styles.secondaryMenuItem,
+                supportsHover && hovered && styles.secondaryMenuItemHover,
+                pressed && styles.secondaryMenuItemPressed,
               ]}
             >
-              <Text style={styles.menuText}>{id.login.primaryCta}</Text>
+              {({ hovered, pressed }: any) => (
+                <Text
+                  style={[
+                    styles.secondaryMenuText,
+                    supportsHover && hovered && styles.secondaryMenuTextHover,
+                    pressed && styles.secondaryMenuTextPressed,
+                  ]}
+                >
+                  {id.login.primaryCta}
+                </Text>
+              )}
             </Pressable>
           </View>
         </Pressable>
@@ -120,18 +134,50 @@ const styles = StyleSheet.create({
     boxShadow: `0px 14px 34px ${colors.text}18`,
     elevation: Platform.OS === "android" ? 3 : 0,
   },
-  menuItem: {
+  primaryMenuItem: {
     borderRadius: radius.sm,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    backgroundColor: colors.primary,
   },
-  menuItemPressed: {
-    backgroundColor: colors.bg,
+  primaryMenuItemHover: {
+    backgroundColor: colors.primaryHover,
   },
-  menuText: {
+  primaryMenuItemPressed: {
+    backgroundColor: colors.primaryPressed,
+  },
+  primaryMenuText: {
     fontSize: typography.body,
     lineHeight: 22,
     fontWeight: "700",
-    color: colors.text,
+    color: colors.white,
+  },
+  secondaryMenuItem: {
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.secondaryBorder,
+    backgroundColor: colors.white,
+  },
+  secondaryMenuItemHover: {
+    backgroundColor: "#F2F4F8",
+    borderColor: "#3A4563",
+  },
+  secondaryMenuItemPressed: {
+    backgroundColor: "#E3E7EF",
+    borderColor: "#1E2843",
+  },
+  secondaryMenuText: {
+    fontSize: typography.body,
+    lineHeight: 22,
+    fontWeight: "700",
+    color: colors.secondaryBorder,
+  },
+  secondaryMenuTextHover: {
+    color: "#2B3550",
+  },
+  secondaryMenuTextPressed: {
+    color: "#1E2843",
   },
 });

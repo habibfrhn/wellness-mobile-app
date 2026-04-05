@@ -76,6 +76,7 @@ export default function LandingScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const scrollRef = useRef<ScrollView | null>(null);
   const [activeSection, setActiveSection] = useState<SectionKey>("beranda");
+  const [supportsHover, setSupportsHover] = useState(false);
   const viewportWidth = useViewportWidth();
   const sectionOffsets = useRef<Record<SectionKey, number>>({
     beranda: 0,
@@ -153,6 +154,24 @@ export default function LandingScreen() {
 
   useEffect(() => {
     void trackEvent("landing_page_view", { surface: "landing_web" });
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia("(hover: hover)");
+    const updateHoverSupport = () => {
+      setSupportsHover(mediaQuery.matches);
+    };
+
+    updateHoverSupport();
+    mediaQuery.addEventListener("change", updateHoverSupport);
+
+    return () => {
+      mediaQuery.removeEventListener("change", updateHoverSupport);
+    };
   }, []);
 
   useEffect(() => {
@@ -284,26 +303,44 @@ export default function LandingScreen() {
                 <LandingMobileAuthMenu
                   onPressLogin={goToLogin}
                   onPressSignUp={goToSignUp}
+                  supportsHover={supportsHover}
                 />
               ) : (
                 <>
                   {isDesktop || isTablet ? (
                     <Pressable
                       onPress={goToLogin}
-                      style={[styles.textButton, styles.headerTextButton]}
+                      style={({ hovered, pressed }: any) => [
+                        styles.textButton,
+                        styles.headerTextButton,
+                        supportsHover && hovered && styles.headerTextButtonHover,
+                        pressed && styles.headerTextButtonPressed,
+                      ]}
                     >
-                      <Text style={styles.textButtonLabel}>Masuk</Text>
+                      {({ hovered, pressed }: any) => (
+                        <Text
+                          style={[
+                            styles.textButtonLabel,
+                            supportsHover && hovered && styles.textButtonLabelHover,
+                            pressed && styles.textButtonLabelPressed,
+                          ]}
+                        >
+                          Masuk
+                        </Text>
+                      )}
                     </Pressable>
                   ) : null}
                   <Pressable
                     onPress={goToSignUp}
-                    style={[
+                    style={({ hovered, pressed }: any) => [
                       styles.landingButtonBase,
                       styles.landingButtonPrimary,
                       isDesktop || isTablet
                         ? styles.landingButtonSizeDesktop
                         : styles.landingButtonSizeMobile,
                       (isDesktop || isTablet) && styles.headerPrimaryButtonCompact,
+                      supportsHover && hovered && styles.landingButtonPrimaryHover,
+                      pressed && styles.landingButtonPrimaryPressed,
                     ]}
                   >
                     <Text style={styles.landingButtonPrimaryText}>Buat akun</Text>
@@ -367,7 +404,7 @@ export default function LandingScreen() {
                 >
                   <Pressable
                     onPress={goToSignUp}
-                    style={[
+                    style={({ hovered, pressed }: any) => [
                       styles.landingButtonBase,
                       styles.landingButtonPrimary,
                       isDesktop || isTablet
@@ -375,6 +412,8 @@ export default function LandingScreen() {
                         : styles.landingButtonSizeMobile,
                       styles.heroCtaButton,
                       isTablet && styles.heroCtaButtonTablet,
+                      supportsHover && hovered && styles.landingButtonPrimaryHover,
+                      pressed && styles.landingButtonPrimaryPressed,
                     ]}
                   >
                     <Text style={styles.landingButtonPrimaryText}>
@@ -691,11 +730,13 @@ export default function LandingScreen() {
                     </Text>
                     <Pressable
                       onPress={goToSignUp}
-                      style={[
+                      style={({ hovered, pressed }: any) => [
                         styles.landingButtonBase,
                         styles.landingButtonPrimary,
                         styles.landingButtonSizeMobile,
                         styles.closingCtaButton,
+                        supportsHover && hovered && styles.landingButtonPrimaryHover,
+                        pressed && styles.landingButtonPrimaryPressed,
                       ]}
                     >
                       <Text style={styles.landingButtonPrimaryText}>
@@ -740,11 +781,13 @@ export default function LandingScreen() {
                     </Text>
                     <Pressable
                       onPress={goToSignUp}
-                      style={[
+                      style={({ hovered, pressed }: any) => [
                         styles.landingButtonBase,
                         styles.landingButtonPrimary,
                         styles.landingButtonSizeDesktop,
                         styles.closingCtaButton,
+                        supportsHover && hovered && styles.landingButtonPrimaryHover,
+                        pressed && styles.landingButtonPrimaryPressed,
                       ]}
                     >
                       <Text style={styles.landingButtonPrimaryText}>
@@ -1094,16 +1137,34 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
   },
   headerTextButton: {
-    height: 32,
+    minHeight: 32,
     justifyContent: "center",
     paddingHorizontal: spacing.sm,
     paddingVertical: 0,
     marginVertical: 0,
+    borderRadius: BUTTON_BORDER_RADIUS,
+    borderWidth: 1,
+    borderColor: colors.secondaryBorder,
+    backgroundColor: colors.white,
+  },
+  headerTextButtonHover: {
+    backgroundColor: "#F2F4F8",
+    borderColor: "#3A4563",
+  },
+  headerTextButtonPressed: {
+    backgroundColor: "#E3E7EF",
+    borderColor: "#1E2843",
   },
   textButtonLabel: {
     fontSize: typography.small,
-    color: colors.text,
+    color: colors.secondaryBorder,
     fontWeight: "700",
+  },
+  textButtonLabelHover: {
+    color: "#2B3550",
+  },
+  textButtonLabelPressed: {
+    color: "#1E2843",
   },
   headerPrimaryButtonCompact: {
     paddingVertical: 10,
@@ -1452,6 +1513,12 @@ const styles = StyleSheet.create({
   },
   landingButtonPrimary: {
     backgroundColor: colors.primary,
+  },
+  landingButtonPrimaryHover: {
+    backgroundColor: "#2B3550",
+  },
+  landingButtonPrimaryPressed: {
+    backgroundColor: "#1A233B",
   },
   landingButtonPrimaryText: {
     fontSize: typography.body,
