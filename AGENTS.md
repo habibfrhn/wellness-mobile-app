@@ -1,49 +1,83 @@
-# Agent Guide
+# Agent Playbook (Lumepo / wellness-mobile-app)
 
-## Audio catalog defaults
-- When adding a new audio file to the audio catalog:
-  - `creator` defaults to **"Lumepo"**.
-  - Choose a **matching cover + thumbnail pair** that share the same number (they are the same image at different sizes).
-  - Set `durationSec` to the **actual file duration**.
-  - If the file is `.m4a`, `category` defaults to **"audio"**.
-  - `title` can match the **file name**.
+Use this guide for safe, MVP-aligned contributions.
 
-## UI composition rules
-- UI components must be created **as separate components** (not inline in screens).
-- When asked to edit or improve a component used on a screen, **update the component file** and have the screen **reference it**.
-- Keep screens thin and focused on layout/composition; keep visuals inside reusable components.
+## 1) Project context
+- Product: sleep-focused wellness MVP with auth-gated audio experience, nightly check-in/check-out flow, and admin analytics.
+- Primary app: `apps/mobile` (Expo + React Native + web target).
+- Backend dependencies: Supabase Auth, Postgres migrations/RPCs, Edge Functions in `supabase/functions`.
 
-## Strings & theme usage
-- Use `apps/mobile/src/i18n/strings.ts` for user-visible copy whenever practical.
-- Use `apps/mobile/src/theme/tokens.ts` for colors, spacing, radius, and typography values.
-- If a `theme.ts` file is introduced later, keep it consistent with `tokens.ts` and prefer tokens for raw values.
+## 2) Architecture map
+- App bootstrap/routing: `apps/mobile/App.tsx`
+- Navigation: `apps/mobile/src/navigation/*`
+- Screens: `apps/mobile/src/screens/*`
+- Reusable UI: `apps/mobile/src/components/*`
+- Business/services layer: `apps/mobile/src/services/*`
+- Strings: `apps/mobile/src/i18n/strings.ts`
+- Design tokens: `apps/mobile/src/theme/tokens.ts`
+- Supabase SQL and policies: `supabase/migrations/*`
+- Edge functions: `supabase/functions/*`
 
-## Token safety & exports
-- Only add **top-level** token exports in `apps/mobile/src/theme/tokens.ts` (avoid nested token objects that require extra lookups).
-- If you introduce a new token, update all consumers in the same change.
-- Run `rg` to confirm no references remain to old token shapes.
+## 3) Core guardrails (do not break)
+- Preserve auth/session flow and deep-link reset/callback handling.
+- Keep admin access server-enforced (RLS/RPC-based), not UI-only.
+- Do not expose secrets or service-role credentials in client code.
+- Keep event tracking schema consistent with edge/database validation.
+- Do not change native iOS/Android behavior when making web-only responsiveness updates.
 
-## Web responsive layout rules
-- Do **not** use user-agent detection.
-- Do **not** use `Platform.OS` alone to branch responsive layout.
-- For web responsiveness, use viewport width (`window.innerWidth`) via `apps/mobile/src/hooks/useViewportWidth.ts`.
-- Use a breakpoint of **640px** for mobile-like vs framed web layout.
-- Apply framed desktop web layout with `apps/mobile/src/components/WebResponsiveFrame.tsx`.
-- Keep changes scoped to `.web.tsx` screens so native iOS/Android UI remains unchanged.
+## 4) Code quality rules
+- Keep screens thin; move reusable visuals to components and logic to hooks/services.
+- Target screen files under ~400 lines (prefer ~300).
+- Remove dead code/state/imports while touching related areas.
+- Avoid drive-by refactors outside task scope.
+- Never add try/catch around imports.
 
-## Codex workflow best practices
-- Before editing, inspect existing patterns in nearby files and reuse existing tokens/strings/components.
-- Keep business logic and navigation behavior unchanged unless explicitly requested.
-- Prefer minimal, targeted diffs; avoid drive-by refactors.
-- Run relevant checks after changes (`pnpm typecheck`, `pnpm lint`, and targeted runtime validation when possible).
-- If repo-wide checks fail for pre-existing reasons, clearly report that they are unrelated.
-- For visual web UI changes, run the app and capture a screenshot artifact when tooling is available.
-- Commit only the intended files; verify with `git status` and `git diff --staged`.
+## 5) UI consistency rules
+- Prefer `strings.ts` for user-visible copy.
+- Prefer `tokens.ts` for colors/spacing/radius/typography.
+- If adding tokens, use top-level exports and update all consumers in same change.
+- For web responsiveness, use viewport width utilities (`useViewportWidth`, `constants/webLayout`) and `.web.tsx` wrappers.
+- Do not use user-agent detection for layout.
 
-## Screen size & refactor discipline
-- Keep screen components under **400 lines** (target **300** when practical).
-- Split UI-heavy screens into smaller presentation components plus focused hooks.
-- When a screen needs web-specific responsiveness, add or update a `.web.tsx` screen wrapper and keep native screen behavior unchanged.
-- During refactors, remove unused animation systems, stale state, and dead UI logic.
-- Keep player/session business logic separate from UI rendering components.
+## 6) Auth / admin / analytics specifics
 
+### Auth
+- Keep Supabase auth behavior centralized in services (`supabase.ts`, `authLinks.ts`, `webAuth.ts`, `authOAuth.ts`).
+- Maintain verification gating (`email_confirmed_at`) and reset-link flows.
+
+### Admin
+- Admin route is web-only (`/admin` patterns handled in `App.tsx`).
+- Keep admin dashboard dependent on backend `is_admin()` and admin RPCs.
+- Never bypass backend admin checks in client code.
+
+### Analytics
+- Client tracking in `src/services/analytics.ts`.
+- Ingestion constraints/rate limiting in `supabase/functions/track-analytics-event` + SQL constraints.
+- If event schema changes, update client + function + SQL constraints/RPC consumers together.
+
+## 7) Backend/security rules
+- Edge functions must validate method, auth, payload, and rate limits.
+- Keep CORS and origin handling explicit for browser-invoked functions.
+- Do not leak raw internal errors to end users.
+- Preserve/strengthen RLS and privilege boundaries in migrations.
+
+## 8) Audio catalog defaults
+When adding new audio entries in `src/content/audioCatalog.ts`:
+- `creator`: use `Lumepo` unless task says otherwise.
+- Match cover + thumbnail numbers.
+- `durationSec`: actual duration.
+- `.m4a` content defaults to category `audio` unless specified.
+- `title` may follow file name.
+
+## 9) Deployment-related changes
+- Web deploy config: `apps/mobile/vercel.json` + `apps/mobile/DEPLOY_WEB.md`
+- Mobile release docs: `apps/mobile/docs/RELEASE_CHECKLIST.md` and store checklist.
+- Keep README and SECURITY_AUDIT in sync when changing architecture/security/deploy behavior.
+
+## 10) Validation workflow
+Before finishing:
+1. Review nearby patterns and reuse existing conventions.
+2. Run relevant checks (`pnpm typecheck`, `pnpm lint`, targeted checks).
+3. If checks fail for pre-existing reasons, state that clearly.
+4. For visible web UI changes, capture a screenshot when tooling allows.
+5. Stage only intended files (`git status`, `git diff --staged`).

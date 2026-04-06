@@ -1,316 +1,222 @@
-# wellness-mobile-app
+# Lumepo (wellness-mobile-app)
 
-Sleep-first wellness MVP built as a mobile app with authenticated access, verified email onboarding, offline-friendly audio playback, and managed backend services via Supabase.
+Sleep-focused wellness MVP built with Expo (React Native) and Supabase.
 
----
+The app helps users build a nightly wind-down ritual with guided audio content, simple night check-in/check-out flows, and lightweight behavior analytics for product validation.
 
-## What this project is
+## What exists today
 
-This repository contains a **React Native + Expo** mobile app for guided sleep content (soundscapes, guided sleep sessions, and affirmations), plus its backend integration and deployment configuration.
+### Product purpose
+- Help users close the day calmly through short, structured night routines.
+- Offer curated audio tracks (guided sessions, affirmations, and soundscapes).
+- Track high-level behavioral events to support product decisions.
 
-At a high level:
-- Users sign up/login with Supabase Auth.
-- Email verification is required before entering the main app.
-- Users browse curated audio sessions and play them in-app.
-- Playback state/progress is managed in the app layer.
-- Account actions include password reset and account deletion.
-- Account deletion is handled by a Supabase Edge Function.
+### Platforms
+- **Native:** iOS and Android via Expo.
+- **Web:** Expo web export deployed as SPA (Vercel config in `apps/mobile/vercel.json`).
 
----
+### Current top-level user flows
+1. **Landing (web)** → user can explore marketing-style landing content and enter auth.
+2. **Auth**
+   - Email/password signup + login.
+   - Google OAuth continuation.
+   - Email verification gate before entering the app flow.
+   - Forgot/reset password via Supabase auth links.
+3. **Main app**
+   - Home feed with greeting, sleep CTA, audio lists, and (web) feedback CTA.
+   - Tailored night flow (`NightMode` → `NightCheckIn` → steps → `NightCheckOut`).
+   - Audio player flow (single track and small playlist variants for tailored sessions).
+4. **Account/settings**
+   - Profile/account screen, settings, reminder settings, privacy policy, terms.
+   - Delete account (via Supabase Edge Function).
+5. **Admin analytics (web)**
+   - `/admin` route (and related admin query/hash paths) shows admin login/access check and dashboard if user is authorized.
+
+## Important screens and routes
+
+### Root behavior (`apps/mobile/App.tsx`)
+- Bootstraps session, auth-link handling, splash/update behavior, and root routing.
+- Web root can render `Landing`, `Auth`, `App`, or admin dashboard depending on route/session state.
+- `AuthStack` and `AppStack` remain separate and strongly typed.
+
+### Auth stack (`apps/mobile/src/navigation/AuthStack.tsx`)
+- `Welcome` (native only in normal flow)
+- `SignUp`
+- `Login`
+- `VerifyEmail`
+- `ForgotPassword`
+- `ResetPassword`
+
+### App stack (`apps/mobile/src/navigation/AppStack.tsx`)
+- `Home`
+- `Player`
+- `NightMode`, `NightCheckIn`, `NightStep1`, `NightStep2`, `NightStep3`, `NightCheckOut`
+- `Account`, `Settings`, `ReminderSettings`
+- `PrivacyPolicy`, `TermsConditions`, `ResetPassword`
 
 ## Tech stack
 
-### Frontend (mobile client)
-- **Framework:** React Native (via **Expo SDK 54**)
-- **UI runtime:** React 19 + React Native 0.81
-- **Language:** TypeScript
-- **Navigation:** React Navigation (native stack)
-- **State approach:** Screen/local React state + service modules (no global Redux-style store)
-- **Local persistence:**
-  - AsyncStorage (Supabase auth session persistence on native)
-  - Expo SecureStore (chunked helper for larger secure values)
-- **Audio:** `expo-audio`
-- **Build/OTA pipeline:** EAS Build + Expo Updates
+### Client
+- Expo SDK 54 + React Native 0.81 + React 19
+- TypeScript
+- React Navigation (native stack)
+- Supabase JS client (`@supabase/supabase-js`)
+- Expo modules: audio, linking, notifications, updates, secure store
+- AsyncStorage for local persistence and some cached progress
 
-### Backend / platform
-- **Primary backend platform:** Supabase
-  - Supabase Auth for signup/login/session
-  - Supabase project configuration managed in `supabase/config.toml`
-- **Custom backend logic:** Supabase Edge Function (`delete-account`)
-  - Runtime: Deno
-  - Language: TypeScript
-  - Responsibility: Validate caller JWT and delete the user through Supabase Admin API
+### Backend / data platform
+- Supabase Auth (email/password + OAuth provider support)
+- Supabase Postgres + RLS/RPC policies (via migrations in `supabase/migrations`)
+- Supabase Edge Functions:
+  - `record-night-session`
+  - `track-analytics-event`
+  - `delete-user-account`
 
-### Tooling
-- **Monorepo/workspace manager:** pnpm workspaces
-- **Linting:** Expo ESLint config
-- **Type checking:** TypeScript (`tsc --noEmit`)
-- **Release checks:** shell-based pre-release script (`apps/mobile/scripts/pre-release.sh`)
-
----
-
-## Repository layout
+## Project structure
 
 ```text
 .
-├── apps/mobile                  # Expo React Native application
-│   ├── App.tsx                  # App bootstrap, auth gating, update checks, deep-link handling
-│   ├── src/
-│   │   ├── components/          # Reusable UI components
-│   │   ├── content/             # Local audio catalog metadata
-│   │   ├── i18n/                # User-facing strings
-│   │   ├── navigation/          # Auth stack + app stack
-│   │   ├── screens/             # Route-level screen composition
-│   │   ├── services/            # Supabase client, deep links, secure storage, startup helpers
-│   │   └── theme/               # Design tokens
-│   ├── assets/                  # Audio + image assets bundled with app
-│   ├── scripts/                 # Local automation scripts
-│   └── docs/                    # Release/store checklists
-├── supabase/
-│   ├── config.toml              # Supabase local/dev config
-│   └── functions/
-│       └── delete-account/      # Edge function for account deletion
-├── package.json                 # Workspace-level scripts
-└── pnpm-workspace.yaml          # Workspace package definitions
+├── apps/mobile
+│   ├── App.tsx
+│   ├── app.config.ts
+│   ├── index.html
+│   ├── vercel.json
+│   ├── docs/
+│   ├── scripts/
+│   └── src/
+│       ├── components/
+│       ├── constants/
+│       ├── content/
+│       ├── hooks/
+│       ├── i18n/
+│       ├── navigation/
+│       ├── screens/
+│       ├── services/
+│       └── theme/
+├── supabase
+│   ├── config.toml
+│   ├── functions/
+│   └── migrations/
+├── AGENTS.md
+└── SECURITY_AUDIT.md
 ```
 
----
-
-## Application architecture
-
-## 1) App bootstrap and session gate
-`apps/mobile/App.tsx` is the composition root and startup orchestrator:
-- Prevents splash auto-hide, then hides splash after initialization.
-- Reads initial deep links and subscribes to incoming auth links.
-- Hydrates Supabase session and subscribes to auth state changes.
-- Computes whether user should see auth flow or in-app flow.
-- Checks for OTA updates (when enabled) and prompts user to apply.
-
-This means there is a single top-level decision point:
-- **AuthStack** if no valid verified session (or reset-password deep-link override).
-- **AppStack** if authenticated and verified.
-
-## 2) Navigation model
-Two explicit stack navigators:
-- `AuthStack` for onboarding/auth routes (welcome, signup, login, verify, forgot/reset password).
-- `AppStack` for post-login routes (home, player, profile/account, settings).
-
-Route types are strongly typed via TypeScript in `src/navigation/types.ts`, reducing runtime navigation mistakes.
-
-## 3) Service layer pattern
-Cross-cutting logic is extracted from screens into `src/services/*`:
-- Supabase client creation and auth refresh behavior.
-- Auth deep-link parsing/handling.
-- Startup routing hints for auth entry points.
-- Chunked secure storage helper.
-- Update-pending state helper.
-
-This keeps screens focused on UI composition and user interaction rather than infrastructure concerns.
-
-## 4) Content model
-Audio metadata is defined in `src/content/audioCatalog.ts`:
-- Each track has ID, title/subtitle, creator, duration, asset reference, image references, premium flag, and type.
-- `AudioId` union type provides compile-time safety for routes and lookups.
-- Catalog helper functions support favorites toggling and deterministic lookup.
-
-## 5) Theming + strings
-- Tokens live in `src/theme/tokens.ts`.
-- User-facing strings live in `src/i18n/strings.ts` (Indonesian copy currently).
-
-This separation supports consistent styling and easier localization updates.
-
----
-
-## Backend architecture details
-
-This project uses a **managed backend architecture** rather than a traditional always-on custom API server.
-
-### Supabase Auth integration
-Mobile app uses `@supabase/supabase-js` with:
-- URL + anon key from Expo public env vars.
-- Session persistence enabled.
-- Token auto-refresh enabled.
-- Native storage bridge via AsyncStorage (non-web platforms).
-
-### Edge Function: delete-account
-`supabase/functions/delete-account/index.ts` handles account deletion:
-1. Accepts only `POST`.
-2. Requires `x-user-jwt` header.
-3. Validates the JWT by calling `auth.getUser()` using anon-key client.
-4. Uses service-role client to delete the authenticated user by ID.
-5. Returns JSON response with appropriate status codes.
-
-This splits trust correctly between user context validation and privileged admin operation.
-
----
-
-## Runtime/data flow (request-level view)
-
-1. User opens app.
-2. App initializes services and loads current auth session.
-3. If deep link indicates reset flow, auth route is overridden to reset screen.
-4. User signs in/up via Supabase Auth.
-5. Verified users land in app stack and browse/play local bundled audio content.
-6. Sensitive local values (when used) can be persisted via secure chunked storage helper.
-7. If user requests deletion, app calls `delete-account` function with user JWT.
-8. Edge function validates + deletes user and returns status.
-
----
-
-## Environment variables
-
-For local development (typically in `apps/mobile/.env`):
-
-- `EXPO_PUBLIC_SUPABASE_URL`
-- `EXPO_PUBLIC_SUPABASE_ANON_KEY`
-
-For deployed builds (EAS preview/production), set the same variables in EAS environment configuration.
-
----
-
-## Getting started
+## Setup (local development)
 
 ### Prerequisites
-- Node.js (LTS recommended)
-- pnpm (workspace uses pnpm)
-- Expo tooling (via `npx expo`/project scripts)
+- Node.js LTS
+- pnpm (repo uses `pnpm@10`)
+- Expo CLI via package scripts
 - Supabase project credentials
 
-### Install dependencies
+### Install
 ```bash
 pnpm install
 ```
 
-### Run mobile app (from repo root)
+### Required environment variables
+Create `apps/mobile/.env` for local development:
+
+```bash
+EXPO_PUBLIC_SUPABASE_URL=...
+EXPO_PUBLIC_SUPABASE_ANON_KEY=...
+# optional (recommended for web auth redirects)
+EXPO_PUBLIC_WEB_ORIGIN=http://localhost:8081
+```
+
+Notes:
+- `EXPO_PUBLIC_*` values are bundled client-side. Never place server secrets here.
+- Service-role keys must stay in Supabase function secrets only.
+
+### Run
+From repo root:
+
 ```bash
 pnpm -C apps/mobile start
 ```
 
-Useful variants:
+Platform shortcuts:
+
 ```bash
-pnpm -C apps/mobile android
 pnpm -C apps/mobile ios
+pnpm -C apps/mobile android
 pnpm -C apps/mobile web
 ```
 
----
+## Auth flow details
+
+- Supabase session is hydrated on app start.
+- Email verification is checked via `session.user.email_confirmed_at`.
+- Deep links and web callback/reset paths are normalized through auth link services.
+- Web auth callback/reset UI states are handled explicitly to avoid raw auth errors in-route.
+
+## Database/backend dependencies
+
+### Tables/functions used by app flows (non-exhaustive)
+- `night_streak_progress` for streak state.
+- `night_sessions` writes via `record-night-session` function.
+- Analytics ingestion and admin analytics RPCs/tables from migrations.
+- `admin_users` + `is_admin()` for admin access control.
+
+### Edge function behavior
+- `record-night-session`: authenticated session required; validates payload and rate limits before writing.
+- `track-analytics-event`: accepts approved event schema, supports auth/anon ingestion, rate limited.
+- `delete-user-account`: requires bearer token, validates user, rate limits, then deletes via service-role admin API.
+
+## Admin features
+
+- Admin dashboard is web-only and route-driven (`/admin` variants).
+- Access is enforced by backend `is_admin()` checks and admin analytics RPC restrictions.
+- Client never includes service-role credentials.
+- Setup/bootstrap instructions for admin data are in `apps/mobile/docs/ADMIN_ANALYTICS_SETUP.md`.
+
+## Analytics & event tracking
+
+- Client events are sent through `src/services/analytics.ts`.
+- Current tracked categories include landing funnel, audio engagement, and tailored session behavior.
+- Event payloads are sanitized client-side, validated again in edge function/database constraints, and rate limited.
+
+## Feedback form integration
+
+- Web home screen includes a feedback CTA component (`HomeFeedbackSection.web.tsx`).
+- It opens an external Jotform URL in the browser.
+- No backend proxy is used in this repo for feedback submission.
+
+## UI and responsive behavior
+
+- Design tokens: `apps/mobile/src/theme/tokens.ts`
+- Shared strings: `apps/mobile/src/i18n/strings.ts`
+- Web responsiveness uses viewport width hooks/utilities (`useViewportWidth`, `constants/webLayout`) and `.web.tsx` screen variants.
+- `WebResponsiveFrame` is used to keep desktop web layout framed while preserving native behavior.
+
+## Deployment notes
+
+### Web deployment
+- Static export output: `apps/mobile/dist`
+- Build command: `pnpm export:web` (inside `apps/mobile`)
+- Vercel headers/rewrites are defined in `apps/mobile/vercel.json`.
+- Additional web deploy notes: `apps/mobile/DEPLOY_WEB.md`
+
+### Mobile release process
+- App config: `apps/mobile/app.config.ts`
+- EAS profiles/config: `apps/mobile/eas.json` (and root `eas.json`)
+- Checklists:
+  - `apps/mobile/docs/RELEASE_CHECKLIST.md`
+  - `apps/mobile/docs/STORE_SUBMISSION_CHECKLIST.md`
 
 ## Quality checks
 
 From repo root:
+
 ```bash
 pnpm lint
 pnpm typecheck
+pnpm pre-release
 ```
 
-Pre-release flow (mobile app scope):
-```bash
-pnpm -C apps/mobile pre-release
-```
+If lint/typecheck fail, verify whether failures are from current changes or existing repo issues before release decisions.
 
-This script runs lint/typecheck and prints a manual QA checklist for auth, playback, UI, and env readiness.
+## Security and operational docs
 
----
-
-## Supabase CLI workflow without Docker Desktop (validation phase)
-
-If you are validating against a **hosted Supabase project only** (no local Supabase stack), skipping Docker Desktop is usually fine for MVP validation.
-
-### What still works without Docker
-- `supabase link`
-- `supabase migration list`
-- `supabase migration repair`
-- `supabase db push`
-- Running SQL directly in Supabase SQL Editor
-
-### What needs Docker
-- `supabase db pull` (uses a local shadow Postgres container)
-- Full local Supabase runtime workflows
-
-### Recommended remote-only flow
-Use this when your goal is to ship/validate quickly in remote dev/staging:
-
-```bash
-supabase link --project-ref <project-ref>
-supabase migration list
-supabase migration repair --status reverted <missing_remote_version_ids_if_any>
-supabase db push
-```
-
-After the migration is pushed, apply any environment-specific bootstrap SQL (for example: adding your admin user to `public.admin_users`) in the Supabase SQL Editor.
-
-### Trade-offs of skipping Docker (short-term)
-- **Pros:** faster setup, fewer local tooling dependencies, quicker validation loop.
-- **Cons:** no local reproducible DB sandbox and no `db pull` drift reconciliation on your machine.
-
-For early validation this trade-off is acceptable, but before wider team collaboration or release hardening, install Docker and add `db pull` + local schema checks to your regular workflow.
-
----
-
-## Admin analytics audit update (MVP hardening)
-
-What was wrong:
-- Dashboard queries were tied to static summary views with no time-range filtering.
-- “Audio completion vs abandonment” could appear blank when filtered data was sparse.
-- Aggregation logic was split across UI and SQL, making metric definitions less explicit.
-
-What was fixed:
-- Added admin-only RPC functions for KPI/funnel/audio summary and 12-month monthly trend.
-- Added reusable date-range filter (`7d`, `30d`, `90d`, `12m`, `all`) and made all dashboard sections use the same selected range.
-- Audio summary now includes both explicit abandons and a derived abandon metric (`plays - completes`) to keep completion/abandonment trustworthy even in edge cases.
-- Added robust empty states and consistent zero-value rendering.
-
-How admin security works now:
-- Auth identity remains in `auth.users`; admin role is mapped in `public.admin_users`.
-- Analytics read APIs are admin-only RPCs guarded by `public.is_admin()`.
-- Client uses anon/authenticated key only; no service-role key is exposed.
-- Direct authenticated select on old analytics views is revoked in favor of guarded RPCs.
-
-Metric definitions:
-- `audio_play`: playback started.
-- `audio_complete`: playback reached completed state.
-- `audio_abandon`: explicit abandon event.
-- Derived abandonment for reporting: `max(audio_play - audio_complete, 0)`.
-- Funnel progression is session-based and ordered by stage presence: view -> cta -> signup_start -> signup_complete.
-
----
-
-## Build and release overview
-
-- Expo app configuration lives in root/app-level `app.json` and `eas.json`.
-- EAS profiles include development, preview, and production variants.
-- OTA update checks are integrated in app startup logic (when Expo Updates is enabled).
-
-For operational checklists, see:
-- `apps/mobile/docs/RELEASE_CHECKLIST.md`
-- `apps/mobile/docs/STORE_SUBMISSION_CHECKLIST.md`
-- `apps/mobile/docs/ADMIN_ANALYTICS_SETUP.md`
-- `apps/mobile/docs/ADMIN_ANALYTICS_AUDIT.md`
-
----
-
-## Web responsive layout policy
-
-The app now uses a viewport-based responsive wrapper for select **web-only** screens.
-
-- `apps/mobile/src/hooks/useViewportWidth.ts` tracks `window.innerWidth` and updates on resize (SSR-safe with `typeof window !== "undefined"`).
-- `apps/mobile/src/components/WebResponsiveFrame.tsx` applies breakpoint behavior:
-  - `Platform.OS !== "web"` → render children unchanged.
-  - `window.innerWidth <= 640` → render children unchanged (mobile-like web).
-  - `window.innerWidth > 640` → render children in a centered frame (`maxWidth: 480`, padding, neutral background, subtle elevation).
-- Applied in web screens only:
-  - `apps/mobile/src/screens/LandingScreen.web.tsx`
-  - `apps/mobile/src/screens/App/HomeScreen.web.tsx`
-  - `apps/mobile/src/screens/Auth/LoginScreen.web.tsx`
-
-Guardrails:
-- Do not use user-agent detection for layout decisions.
-- Do not change native iOS/Android layout behavior when improving web layout.
-- Prefer `.web.tsx` entry points for web-specific presentation changes.
-
-## Notes for contributors
-
-- Keep screens focused on composition; place reusable visuals in `src/components`.
-- Prefer shared strings from `src/i18n/strings.ts` for user-visible copy.
-- Prefer theme tokens from `src/theme/tokens.ts` over ad-hoc values.
-- If adding audio entries, ensure metadata (duration/category/cover-thumbnail pairing) stays accurate.
+- `SECURITY_AUDIT.md` contains the latest pre-deployment security review notes and required environment/infrastructure follow-ups.
+- For Supabase deployment hardening, keep function secrets, auth redirect URLs, and admin bootstrap SQL aligned with deployed domains.
