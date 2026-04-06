@@ -126,7 +126,7 @@ export default function AdminDashboardScreen({ session }: Props) {
           <AdminDashboardView
             busy={analyticsBusy}
             errorMessage={analyticsError}
-            productActions={productActions}
+            homeSleepClicks={productActions?.home_sleep_clicks ?? 0}
             audioRows={audioRows}
             tailoredRows={tailoredRows}
             onRefresh={reload}

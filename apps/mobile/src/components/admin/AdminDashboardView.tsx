@@ -4,20 +4,18 @@ import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-n
 import { id } from "../../i18n/strings";
 import type {
   AdminAudioEngagementRow,
-  AdminProductActions,
   AdminTailoredSessionRow,
 } from "../../services/adminAnalytics";
 import { colors, radius, spacing, typography } from "../../theme/tokens";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { WEB_TABLET_BREAKPOINT } from "../../constants/webLayout";
 import AdminAudioSummaryPanel from "./AdminAudioSummaryPanel";
-import AdminProductActionsPanel from "./AdminProductActionsPanel";
 import AdminTailoredSessionsPanel from "./AdminTailoredSessionsPanel";
 
 type Props = {
   busy: boolean;
   errorMessage: string | null;
-  productActions: AdminProductActions | null;
+  homeSleepClicks: number;
   audioRows: AdminAudioEngagementRow[];
   tailoredRows: AdminTailoredSessionRow[];
   onRefresh: () => Promise<void>;
@@ -27,7 +25,7 @@ type Props = {
 export default function AdminDashboardView({
   busy,
   errorMessage,
-  productActions,
+  homeSleepClicks,
   audioRows,
   tailoredRows,
   onRefresh,
@@ -55,14 +53,7 @@ export default function AdminDashboardView({
 
       {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
-      <View style={[styles.summaryPanels, isDesktopWeb && styles.summaryPanelsDesktop]}>
-        <View style={styles.summaryPanelItem}>
-          <AdminProductActionsPanel actions={productActions} />
-        </View>
-        <View style={styles.summaryPanelItem}>
-          <AdminTailoredSessionsPanel rows={tailoredRows} />
-        </View>
-      </View>
+      <AdminTailoredSessionsPanel rows={tailoredRows} homeSleepClicks={homeSleepClicks} />
       <AdminAudioSummaryPanel rows={audioRows} />
     </ScrollView>
   );
@@ -124,17 +115,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderRadius: radius.sm,
     padding: spacing.sm,
-  },
-  summaryPanels: {
-    gap: spacing.md,
-  },
-  summaryPanelsDesktop: {
-    flexDirection: "row",
-    gap: spacing.lg,
-    alignItems: "stretch",
-  },
-  summaryPanelItem: {
-    flex: 1,
-    minWidth: 0,
   },
 });

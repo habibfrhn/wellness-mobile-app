@@ -7,6 +7,7 @@ import { colors, radius, spacing, typography } from "../../theme/tokens";
 
 type Props = {
   rows: AdminTailoredSessionRow[];
+  homeSleepClicks: number;
 };
 
 const SESSION_LABELS: Record<AdminTailoredSessionRow["session_mode"], string> = {
@@ -14,11 +15,16 @@ const SESSION_LABELS: Record<AdminTailoredSessionRow["session_mode"], string> = 
   release_accept: id.admin.tailoredReleaseAcceptLabel,
 };
 
-export default function AdminTailoredSessionsPanel({ rows }: Props) {
+export default function AdminTailoredSessionsPanel({ rows, homeSleepClicks }: Props) {
   return (
     <View style={styles.panel}>
       <Text style={styles.panelTitle}>{id.admin.tailoredUsageTitle}</Text>
       <Text style={styles.panelSubtitle}>{id.admin.tailoredUsageSubtitle}</Text>
+
+      <View style={styles.startSleepCard}>
+        <Text style={styles.startSleepLabel}>{id.admin.homeSleepClickLabel}</Text>
+        <Text style={styles.startSleepValue}>{homeSleepClicks}</Text>
+      </View>
 
       {rows.map((row) => (
         <View key={row.session_mode} style={styles.sessionCard}>
@@ -64,6 +70,23 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     padding: spacing.md,
     gap: spacing.sm,
+  },
+  startSleepCard: {
+    backgroundColor: colors.bg,
+    borderRadius: radius.sm,
+    padding: spacing.md,
+    gap: spacing.xs,
+  },
+  startSleepLabel: {
+    color: colors.mutedText,
+    fontSize: typography.caption,
+    fontWeight: "600",
+    textTransform: "uppercase",
+  },
+  startSleepValue: {
+    color: colors.primary,
+    fontSize: typography.h2,
+    fontWeight: "700",
   },
   sessionTitle: {
     color: colors.text,
