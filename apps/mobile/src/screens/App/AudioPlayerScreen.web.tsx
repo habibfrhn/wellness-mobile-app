@@ -54,7 +54,16 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
   const { audioId, playlistIds, sleepMode } = route.params;
   const viewportWidth = useViewportWidth();
   const webViewport = getWebViewport(viewportWidth);
-  const playerContentWidth = 320;
+  const isCompactPlayerUi = webViewport === "mobile";
+  const playerContentWidth = useMemo(() => {
+    if (webViewport === "desktop") {
+      return 460;
+    }
+    if (webViewport === "tablet") {
+      return 420;
+    }
+    return 320;
+  }, [webViewport]);
   const sectionGap = getWebSectionSpacing(webViewport);
   const [progressWidth, setProgressWidth] = useState(0);
   const [favorite, setFavorite] = useState(() => isFavorite(audioId));
@@ -230,7 +239,7 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
               cover={sessionArtwork?.cover ?? track.cover}
               isFavorite={favorite}
               onToggleFavorite={() => setFavorite(toggleFavorite(track.id))}
-              compact
+              compact={isCompactPlayerUi}
             />
           </View>
 
@@ -238,7 +247,7 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
             <SleepSessionProgressHeader
               title={isPlaylistSession ? sleepSessionTitle : track.title}
               subtitle={isPlaylistSession ? sleepSessionPhase : track.creator}
-              compact
+              compact={isCompactPlayerUi}
             />
 
             {showSoundscapeControls ? (
@@ -248,7 +257,7 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
                 timerRemaining={timerRemaining}
                 isSessionActive={isSessionActive}
                 onSelectTimer={handleTimerSelect}
-                compact
+                compact={isCompactPlayerUi}
               />
             ) : playbackMode === "tailored_session" ? (
               <SleepSessionProgressSection
@@ -257,7 +266,7 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
                 sessionProgressRatio={sessionProgressRatio}
                 onLayoutWidth={setProgressWidth}
                 progressWidth={progressWidth}
-                compact
+                compact={isCompactPlayerUi}
               />
             ) : (
               <PlayerProgressSection
@@ -267,7 +276,7 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
                 onLayoutWidth={setProgressWidth}
                 onSeek={onSeekBarPress}
                 progressWidth={progressWidth}
-                compact
+                compact={isCompactPlayerUi}
               />
             )}
 
@@ -276,21 +285,21 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
                 isPlaying={activeStatus.playing}
                 onStop={handleStop}
                 onTogglePlay={onTogglePlay}
-                compact
+                compact={isCompactPlayerUi}
               />
             ) : playbackMode === "tailored_session" ? (
               <TailoredSessionControls
                 isPlaying={activeStatus.playing}
                 onRestart={onRestart}
                 onTogglePlay={onTogglePlay}
-                compact
+                compact={isCompactPlayerUi}
               />
             ) : (
               <NormalAudioControls
                 isPlaying={activeStatus.playing}
                 onRestart={onRestart}
                 onTogglePlay={onTogglePlay}
-                compact
+                compact={isCompactPlayerUi}
               />
             )}
           </View>
