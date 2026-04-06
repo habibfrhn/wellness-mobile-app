@@ -18,7 +18,7 @@ type DeleteAccountFailure = {
   error: string | null;
 };
 
-const DELETE_ACCOUNT_FUNCTION_NAME = "delete-user-account";
+const DELETE_ACCOUNT_FUNCTION_NAME = "delete-account-v2";
 
 function isMissingSessionError(error: unknown) {
   return error instanceof AuthError && error.name === "AuthSessionMissingError";
@@ -193,7 +193,7 @@ async function requestDeleteAccountViaFetch(accessToken: string) {
       "Content-Type": "application/json",
       Authorization: `Bearer ${accessToken}`,
       apikey: getAnonKey(),
-      "x-client-info": "wellness-mobile-app/delete-account",
+      "x-client-info": "wellness-mobile-app/delete-account-v2",
     },
     body: JSON.stringify({}),
   });
@@ -234,7 +234,7 @@ async function requestDeleteAccountViaInvoke(accessToken: string) {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       apikey: getAnonKey(),
-      "x-client-info": "wellness-mobile-app/delete-account",
+      "x-client-info": "wellness-mobile-app/delete-account-v2",
     },
   });
 
