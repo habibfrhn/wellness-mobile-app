@@ -82,6 +82,7 @@ export const id = {
     hasAccountPrefix: "Sudah punya akun?",
     loginLink: "Masuk",
     finePrint: "Dengan melanjutkan, Anda menyetujui S&K dan Kebijakan Privasi.",
+    emailAlreadyUsedError: "Email ini sudah terdaftar dan tidak bisa digunakan lagi. Silakan gunakan email lain.",
   },
 
   login: {
