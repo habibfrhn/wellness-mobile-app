@@ -31,3 +31,16 @@ Keep `apps/mobile/vercel.json` rewrite enabled so client-side routes work after 
 ```json
 { "rewrites": [{ "source": "/(.*)", "destination": "/" }] }
 ```
+
+## Audio cache headers (recommended)
+To minimize repeated audio bandwidth usage, keep long-lived cache headers for audio assets in `apps/mobile/vercel.json`:
+
+```json
+{
+  "source": "/assets/(.*)\\.(m4a|mp3|aac|wav|ogg|webm)",
+  "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+}
+```
+
+Apply this **before deployment** so every new deploy immediately serves audio with CDN/browser caching.
+
