@@ -129,8 +129,16 @@ Deno.serve(async (req: Request) => {
   const { error: deleteError } = await adminClient.auth.admin.deleteUser(userData.user.id);
 
   if (deleteError) {
-    console.error("delete-user-account: failed to delete user", deleteError);
-    return error(500, "Failed to delete account", "DELETE_FAILED", requestCorsHeaders);
+    // Fallback to soft-delete for projects that still have FK constraints
+    // to auth.users that block hard deletion.
+    const { error: softDeleteError } = await adminClient.auth.admin.deleteUser(userData.user.id, true);
+    if (softDeleteError) {
+      console.error("delete-user-account: failed to delete user (hard + soft)", {
+        hardDeleteError: deleteError,
+        softDeleteError,
+      });
+      return error(500, "Failed to delete account", "DELETE_FAILED", requestCorsHeaders);
+    }
   }
 
   return json(200, { ok: true }, requestCorsHeaders);

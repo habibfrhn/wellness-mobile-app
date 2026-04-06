@@ -110,11 +110,14 @@ async function requestDeleteAccount(accessToken: string) {
   }
 
   if (!response.ok || !payload?.ok) {
-    if (response.status === 404) {
+    if (response.status === 404 || response.status === 403) {
       throw new Error(id.account.deleteUnavailable);
     }
     if (payload?.code === "RATE_LIMITED") {
       throw new Error(id.common.tryAgain);
+    }
+    if (payload?.code === "SERVER_MISCONFIGURATION" || payload?.code === "METHOD_NOT_ALLOWED") {
+      throw new Error(id.account.deleteUnavailable);
     }
     if (payload?.code === "INVALID_SESSION" || payload?.code === "MISSING_USER_TOKEN") {
       throw new Error(id.account.sessionMissing);
