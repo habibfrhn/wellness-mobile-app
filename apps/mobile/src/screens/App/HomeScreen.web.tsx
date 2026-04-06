@@ -8,7 +8,7 @@ import { AUDIO_TRACKS } from "../../content/audioCatalog";
 import AudioTrackListSection from "../../components/AudioTrackListSection";
 import SleepOptionModal from "../../components/SleepOptionModal";
 import HomeGreetingTitle from "../../components/HomeGreetingTitle";
-import HomeScreenHeader from "../../components/HomeScreenHeader";
+import HomeScreenHeader from "../../components/HomeScreenHeader.web";
 import HomeNightSummary from "../../components/HomeNightSummary";
 import HomeFeedbackSection from "../../components/HomeFeedbackSection.web";
 import {

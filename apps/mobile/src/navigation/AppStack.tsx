@@ -36,7 +36,7 @@ export default function AppStack() {
     <Stack.Navigator
       screenOptions={{
         headerTitleAlign: "center",
-        headerStyle: { backgroundColor: isDesktopWeb ? colors.white : colors.bg, height: 32 },
+        headerStyle: { backgroundColor: isDesktopWeb ? colors.white : colors.bg },
         headerShadowVisible: false,
       }}
     >
@@ -60,7 +60,6 @@ export default function AppStack() {
         name="Account"
         options={{
           headerTitle: "",
-          headerBackTitleVisible: false,
         }}
       >
         {(props) => <ProfileScreen {...props} />}
@@ -70,7 +69,6 @@ export default function AppStack() {
         name="Settings"
         options={{
           headerTitle: "",
-          headerBackTitleVisible: false,
         }}
       >
         {(props) => <SettingsScreen {...props} />}
@@ -80,7 +78,6 @@ export default function AppStack() {
         name="PrivacyPolicy"
         options={{
           title: id.account.privacyPolicyScreenTitle,
-          headerBackTitleVisible: false,
         }}
       >
         {(props) => <PrivacyPolicyScreen {...props} />}
@@ -90,7 +87,6 @@ export default function AppStack() {
         name="TermsConditions"
         options={{
           title: id.account.termsScreenTitle,
-          headerBackTitleVisible: false,
         }}
       >
         {(props) => <TermsConditionsScreen {...props} />}
@@ -100,7 +96,6 @@ export default function AppStack() {
         name="ReminderSettings"
         options={{
           title: id.account.reminderScreenTitle,
-          headerBackTitleVisible: false,
         }}
       >
         {(props) => <ReminderSettingsScreen {...props} />}

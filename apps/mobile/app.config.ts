@@ -50,7 +50,7 @@ const config: ExpoConfig = {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#ffffff',
     },
-    edgeToEdgeEnabled: false,
+    edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
   },
   updates: {

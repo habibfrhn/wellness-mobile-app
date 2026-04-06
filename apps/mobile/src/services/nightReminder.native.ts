@@ -103,7 +103,6 @@ export async function syncNightReminderSchedule(settings: NightReminderSettings)
     trigger: {
       hour: normalized.hour,
       minute: normalized.minute,
-      repeats: true,
       type: Notifications.SchedulableTriggerInputTypes.DAILY,
     },
   });
