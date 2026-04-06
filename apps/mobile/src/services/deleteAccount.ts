@@ -124,6 +124,9 @@ async function requestDeleteAccount(accessToken: string) {
       payloadCode: payload?.code ?? null,
       payloadError: payload?.error ?? null,
     });
+    if (response.status === 401) {
+      throw new Error(id.account.sessionMissing);
+    }
     if (response.status === 404 || response.status === 403) {
       throw new Error(id.account.deleteUnavailable);
     }
