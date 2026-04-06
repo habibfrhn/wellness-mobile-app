@@ -29,18 +29,32 @@ Set the project configuration in Vercel to:
 Keep `apps/mobile/vercel.json` rewrite enabled so client-side routes work after deploy:
 
 ```json
-{ "rewrites": [{ "source": "/(.*)", "destination": "/" }] }
+{ "rewrites": [{ "source": "/((?!api/|.*\..*).*)", "destination": "/" }] }
 ```
 
-## Audio cache headers (recommended)
-To minimize repeated audio bandwidth usage, keep long-lived cache headers for audio assets in `apps/mobile/vercel.json`:
+## Cache policy baseline (recommended)
+For safe SPA updates + low bandwidth usage:
+
+- Keep HTML/app shell revalidating (`max-age=0, must-revalidate`).
+- Cache versioned static assets under `/assets/*` and `/_expo/static/*` with long-lived immutable caching.
+
+`apps/mobile/vercel.json` should include:
 
 ```json
 {
-  "source": "/assets/(.*)\\.(m4a|mp3|aac|wav|ogg|webm)",
-  "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+  "headers": [
+    { "source": "/", "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }] },
+    { "source": "/index.html", "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }] },
+    { "source": "/assets/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] },
+    { "source": "/_expo/static/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] }
+  ]
 }
 ```
 
-Apply this **before deployment** so every new deploy immediately serves audio with CDN/browser caching.
+## SPA rewrite safety
+Use a rewrite that only targets extensionless app routes, so static files (audio/js/css/images) are never rewritten to `/`:
+
+```json
+{ "rewrites": [{ "source": "/((?!api/|.*\\..*).*)", "destination": "/" }] }
+```
 
