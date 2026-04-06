@@ -306,8 +306,8 @@ export const id = {
     resetPasswordButton: "Ubah kata sandi",
 
     logout: "Keluar",
-    confirmLogoutTitle: "Keluar dari akun?",
-    confirmLogoutBody: "Anda akan keluar dari akun ini dan perlu masuk kembali untuk melanjutkan.",
+    confirmLogoutTitle: "Yakin ingin keluar?",
+    confirmLogoutBody: "Anda akan keluar dan perlu masuk kembali untuk melanjutkan.",
     cancel: "Batal",
 
     deleteTitle: "Hapus akun secara permanen?",
