@@ -62,8 +62,8 @@ function getDeleteAccountFunctionUrl() {
   return `${supabaseUrl.replace(/\/$/, "")}/functions/v1/${DELETE_ACCOUNT_FUNCTION_NAME}`;
 }
 
-async function getCurrentAccessToken() {
-  console.log("delete-account: fetching current session token");
+async function getCurrentAccessToken(forceRefresh = false) {
+  console.log("delete-account: fetching current session token", { forceRefresh });
   const {
     data: { session },
     error: sessionError,
@@ -73,12 +73,12 @@ async function getCurrentAccessToken() {
     throw sessionError;
   }
 
-  if (session?.access_token) {
+  if (session?.access_token && !forceRefresh) {
     console.log("delete-account: found active access token in session");
     return session.access_token;
   }
 
-  console.log("delete-account: no access token, refreshing session");
+  console.log("delete-account: refreshing session token");
   const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
   if (refreshError) {
     throw refreshError;
@@ -158,7 +158,7 @@ async function deleteAccountViaFunction() {
     }
 
     console.warn("delete-account: session missing, refreshing and retrying once");
-    accessToken = await getCurrentAccessToken();
+    accessToken = await getCurrentAccessToken(true);
     await requestDeleteAccount(accessToken);
   }
 }
