@@ -38,6 +38,7 @@ export default function LoginScreen({ navigation, route }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [busyGoogle, setBusyGoogle] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [errors, setErrors] = useState<FieldErrors>({});
 
   useLayoutEffect(() => {
@@ -96,6 +97,7 @@ export default function LoginScreen({ navigation, route }: Props) {
     }
 
     setErrors({});
+    setFormError(null);
     setBusy(true);
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -105,6 +107,7 @@ export default function LoginScreen({ navigation, route }: Props) {
 
       if (error) {
         setErrors({ password: id.login.errorInvalidCredentials });
+        setFormError(id.common.genericAuthError);
         return;
       }
 
@@ -129,6 +132,7 @@ export default function LoginScreen({ navigation, route }: Props) {
       await continueWithGoogle({ nextRoute: "Login" });
     } catch {
       Alert.alert(id.common.errorTitle, id.common.genericAuthError);
+      setFormError(id.common.genericAuthError);
       setBusyGoogle(false);
     }
   }
@@ -153,12 +157,17 @@ export default function LoginScreen({ navigation, route }: Props) {
               value={email}
               onChangeText={(value) => {
                 setEmail(value);
+                if (formError) {
+                  setFormError(null);
+                }
                 if (errors.email) {
                   setErrors((prev) => ({ ...prev, email: undefined }));
                 }
               }}
               autoCapitalize="none"
               autoCorrect={false}
+              autoComplete="email"
+              textContentType="emailAddress"
               keyboardType="email-address"
               placeholder={id.login.emailPlaceholder}
               placeholderTextColor={colors.mutedText}
@@ -175,12 +184,17 @@ export default function LoginScreen({ navigation, route }: Props) {
                 value={password}
                 onChangeText={(value) => {
                   setPassword(value);
+                  if (formError) {
+                    setFormError(null);
+                  }
                   if (errors.password) {
                     setErrors((prev) => ({ ...prev, password: undefined }));
                   }
                 }}
                 autoCapitalize="none"
                 autoCorrect={false}
+                autoComplete="password"
+                textContentType="password"
                 secureTextEntry={!showPassword}
                 placeholder={id.login.passwordPlaceholder}
                 placeholderTextColor={colors.mutedText}
@@ -200,13 +214,13 @@ export default function LoginScreen({ navigation, route }: Props) {
         </View>
 
         <View style={styles.metaRow}>
-          <View />
           <Pressable onPress={() => navigation.navigate("ForgotPassword", { initialEmail: email.trim() })}>
             <Text style={styles.metaLink}>Lupa password?</Text>
           </Pressable>
         </View>
 
         <View style={styles.actionsStack}>
+          {formError ? <Text style={styles.formError}>{formError}</Text> : null}
           <Pressable
             onPress={onSubmit}
             disabled={busy || busyGoogle}
@@ -326,7 +340,7 @@ const styles = StyleSheet.create({
   metaRow: {
     marginTop: spacing.sm,
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
     alignItems: "center",
     gap: spacing.sm,
   },
@@ -338,6 +352,11 @@ const styles = StyleSheet.create({
   actionsStack: {
     marginTop: spacing.md,
     gap: spacing.sm,
+  },
+  formError: {
+    color: colors.danger,
+    fontSize: typography.caption,
+    textAlign: "left",
   },
   primaryButton: {
     width: "100%",

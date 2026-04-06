@@ -10,13 +10,17 @@ type Props = TextInputProps & {
   errorText?: string;
 };
 
-export default function AuthTextField({ label, rightNode, style, errorText, ...inputProps }: Props) {
+const AuthTextField = React.forwardRef<TextInput, Props>(function AuthTextField(
+  { label, rightNode, style, errorText, ...inputProps },
+  ref,
+) {
   return (
     <View>
       <Text style={authSharedStyles.label}>{label}</Text>
       {rightNode ? (
         <View style={authSharedStyles.inputWrap}>
           <TextInput
+            ref={ref}
             {...inputProps}
             placeholderTextColor={inputProps.placeholderTextColor ?? colors.mutedText}
             style={[authSharedStyles.input, styles.inputWithAccessory, errorText && styles.inputError, style]}
@@ -25,6 +29,7 @@ export default function AuthTextField({ label, rightNode, style, errorText, ...i
         </View>
       ) : (
         <TextInput
+          ref={ref}
           {...inputProps}
           placeholderTextColor={inputProps.placeholderTextColor ?? colors.mutedText}
           style={[authSharedStyles.input, errorText && styles.inputError, style]}
@@ -33,7 +38,9 @@ export default function AuthTextField({ label, rightNode, style, errorText, ...i
       {errorText ? <Text style={styles.errorText}>{errorText}</Text> : null}
     </View>
   );
-}
+});
+
+export default AuthTextField;
 
 const styles = StyleSheet.create({
   inputWithAccessory: {

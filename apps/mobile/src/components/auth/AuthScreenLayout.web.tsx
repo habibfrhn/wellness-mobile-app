@@ -4,7 +4,6 @@ import { useNavigation } from "@react-navigation/native";
 
 import {
   getWebPageHorizontalPadding,
-  getWebPageTopSpacing,
   getWebViewport,
 } from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
