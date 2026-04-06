@@ -3,6 +3,7 @@ import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-n
 
 import { id } from "../../i18n/strings";
 import type {
+  AdminAnalyticsRange,
   AdminAudioEngagementRow,
   AdminTailoredSessionRow,
 } from "../../services/adminAnalytics";
@@ -10,11 +11,14 @@ import { colors, radius, spacing, typography } from "../../theme/tokens";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { WEB_TABLET_BREAKPOINT } from "../../constants/webLayout";
 import AdminAudioSummaryPanel from "./AdminAudioSummaryPanel";
+import AdminDateRangeFilter from "./AdminDateRangeFilter";
 import AdminTailoredSessionsPanel from "./AdminTailoredSessionsPanel";
 
 type Props = {
   busy: boolean;
   errorMessage: string | null;
+  range: AdminAnalyticsRange;
+  onRangeChange: (next: AdminAnalyticsRange) => void;
   homeSleepClicks: number;
   audioRows: AdminAudioEngagementRow[];
   tailoredRows: AdminTailoredSessionRow[];
@@ -25,6 +29,8 @@ type Props = {
 export default function AdminDashboardView({
   busy,
   errorMessage,
+  range,
+  onRangeChange,
   homeSleepClicks,
   audioRows,
   tailoredRows,
@@ -55,9 +61,11 @@ export default function AdminDashboardView({
 
       <View style={[styles.sectionGrid, isDesktopWeb && styles.sectionGridDesktop]}>
         <View style={styles.sectionCol}>
+          <AdminDateRangeFilter value={range} onChange={onRangeChange} />
           <AdminTailoredSessionsPanel rows={tailoredRows} homeSleepClicks={homeSleepClicks} />
         </View>
         <View style={styles.sectionCol}>
+          <AdminDateRangeFilter value={range} onChange={onRangeChange} />
           <AdminAudioSummaryPanel rows={audioRows} />
         </View>
       </View>
@@ -137,5 +145,6 @@ const styles = StyleSheet.create({
   sectionCol: {
     flex: 1,
     minWidth: 0,
+    gap: spacing.sm,
   },
 });
