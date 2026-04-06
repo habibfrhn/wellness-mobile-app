@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Alert, Modal, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
@@ -7,6 +7,7 @@ import { id } from "../i18n/strings";
 import type { AppStackParamList } from "../navigation/types";
 import { signOutToLogin } from "../services/authSession";
 import { colors, radius, spacing, typography } from "../theme/tokens";
+import AppActionModal from "./common/AppActionModal";
 
 type Props = {
   navigation: NativeStackNavigationProp<AppStackParamList>;
@@ -34,17 +35,12 @@ function blurWebActiveElement() {
   }
 }
 
-function confirmOnWeb(title: string, message: string) {
-  if (Platform.OS === "web" && typeof window !== "undefined") {
-    return window.confirm(`${title}\n\n${message}`);
-  }
-
-  return null;
-}
-
 export default function HomeHeaderMobileMenuButton({ navigation }: Props) {
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [busyLogout, setBusyLogout] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
   const triggerWrapRef = useRef<View>(null);
 
   const closeMenu = () => setIsMenuVisible(false);
@@ -108,36 +104,17 @@ export default function HomeHeaderMobileMenuButton({ navigation }: Props) {
   const handleLogoutPress = async () => {
     blurWebActiveElement();
     closeMenu();
+    setShowLogoutModal(true);
+  };
 
-    const logoutAction = async () => {
-      const { error } = await signOutToLogin();
-      if (error) {
-        Alert.alert(id.common.errorTitle, error.message);
-      }
-    };
-
-    const approvedOnWeb = confirmOnWeb(
-      id.account.confirmLogoutTitle,
-      id.account.confirmLogoutBody,
-    );
-
-    if (approvedOnWeb !== null) {
-      if (approvedOnWeb) {
-        await logoutAction();
-      }
-      return;
+  const confirmLogout = async () => {
+    setBusyLogout(true);
+    const { error } = await signOutToLogin();
+    if (error) {
+      setNotice(error.message);
     }
-
-    Alert.alert(id.account.confirmLogoutTitle, id.account.confirmLogoutBody, [
-      { text: id.account.cancel, style: "cancel" },
-      {
-        text: id.account.logout,
-        style: "destructive",
-        onPress: () => {
-          void logoutAction();
-        },
-      },
-    ]);
+    setBusyLogout(false);
+    setShowLogoutModal(false);
   };
 
   return (
@@ -198,6 +175,32 @@ export default function HomeHeaderMobileMenuButton({ navigation }: Props) {
           ) : null}
         </View>
       </Modal>
+
+      <AppActionModal
+        visible={showLogoutModal}
+        title={id.account.confirmLogoutTitle}
+        description={id.account.confirmLogoutBody}
+        confirmLabel={busyLogout ? id.login.busyCta : id.account.logout}
+        cancelLabel={id.account.cancel}
+        busy={busyLogout}
+        onCancel={() => {
+          if (!busyLogout) {
+            setShowLogoutModal(false);
+          }
+        }}
+        onConfirm={() => {
+          void confirmLogout();
+        }}
+      />
+
+      <AppActionModal
+        visible={Boolean(notice)}
+        title={id.common.errorTitle}
+        description={notice ?? ""}
+        confirmLabel={id.common.ok}
+        onCancel={() => setNotice(null)}
+        onConfirm={() => setNotice(null)}
+      />
     </View>
   );
 }

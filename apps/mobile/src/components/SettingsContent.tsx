@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput } from "react-native";
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput } from "react-native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { id } from "../i18n/strings";
@@ -10,6 +10,7 @@ import { supabase } from "../services/supabase";
 import { colors, lineHeights, radius, spacing, typography } from "../theme/tokens";
 import SettingsRow from "./settings/SettingsRow";
 import SettingsSection from "./settings/SettingsSection";
+import AppActionModal from "./common/AppActionModal";
 
 const SUPPORT_EMAIL = "habibfrhn@gmail.com";
 
@@ -67,25 +68,6 @@ async function safeOpenUrl(url: string) {
   }
 }
 
-function showMessage(title: string, message: string) {
-  if (Platform.OS === "web" && typeof window !== "undefined") {
-    window.alert(`${title}
-
-${message}`);
-    return;
-  }
-
-  Alert.alert(title, message);
-}
-
-function confirmOnWeb(title: string, message: string) {
-  if (Platform.OS === "web" && typeof window !== "undefined") {
-    return window.confirm(`${title}\n\n${message}`);
-  }
-
-  return null;
-}
-
 type Props = {
   navigation: NativeStackNavigationProp<AppStackParamList, "Settings">;
 };
@@ -96,6 +78,8 @@ export default function SettingsContent({ navigation }: Props) {
   const [initialName, setInitialName] = useState("");
   const [busyDelete, setBusyDelete] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [noticeModal, setNoticeModal] = useState<{ title: string; message: string } | null>(null);
 
   const appVersion = useMemo(() => readAppVersionFromAppJson(), []);
 
@@ -145,37 +129,21 @@ export default function SettingsContent({ navigation }: Props) {
   }
 
   async function onDeleteAccount() {
-    const deleteAction = async () => {
-      setBusyDelete(true);
-      try {
-        await deleteCurrentAccount();
-        showMessage(id.account.deletedTitle, id.account.deletedBody);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : id.common.tryAgain;
-        showMessage(id.common.errorTitle, message);
-      } finally {
-        setBusyDelete(false);
-      }
-    };
+    setShowDeleteModal(true);
+  }
 
-    const approvedOnWeb = confirmOnWeb(id.account.deleteTitle, id.account.deleteWarning);
-    if (approvedOnWeb !== null) {
-      if (approvedOnWeb) {
-        await deleteAction();
-      }
-      return;
+  async function onConfirmDeleteAccount() {
+    setBusyDelete(true);
+    try {
+      await deleteCurrentAccount();
+      setNoticeModal({ title: id.account.deletedTitle, message: id.account.deletedBody });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : id.common.tryAgain;
+      setNoticeModal({ title: id.common.errorTitle, message });
+    } finally {
+      setBusyDelete(false);
+      setShowDeleteModal(false);
     }
-
-    Alert.alert(id.account.deleteTitle, id.account.deleteWarning, [
-      { text: id.account.cancel, style: "cancel" },
-      {
-        text: id.account.deleteContinue,
-        style: "destructive",
-        onPress: () => {
-          void deleteAction();
-        },
-      },
-    ]);
   }
 
   function openHelp() {
@@ -247,6 +215,33 @@ export default function SettingsContent({ navigation }: Props) {
           <Text style={styles.dangerButtonText}>{busyDelete ? id.account.deleting : id.account.deleteFinal}</Text>
         </Pressable>
       </SettingsSection>
+
+      <AppActionModal
+        visible={showDeleteModal}
+        title={id.account.deleteTitle}
+        description={id.account.deleteWarning}
+        confirmLabel={busyDelete ? id.account.deleting : id.account.deleteContinue}
+        cancelLabel={id.account.cancel}
+        destructive
+        busy={busyDelete}
+        onCancel={() => {
+          if (!busyDelete) {
+            setShowDeleteModal(false);
+          }
+        }}
+        onConfirm={() => {
+          void onConfirmDeleteAccount();
+        }}
+      />
+
+      <AppActionModal
+        visible={Boolean(noticeModal)}
+        title={noticeModal?.title ?? id.common.ok}
+        description={noticeModal?.message ?? ""}
+        confirmLabel={id.common.ok}
+        onCancel={() => setNoticeModal(null)}
+        onConfirm={() => setNoticeModal(null)}
+      />
     </ScrollView>
   );
 }

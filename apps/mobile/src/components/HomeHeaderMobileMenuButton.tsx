@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Alert, Modal, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
@@ -11,14 +11,6 @@ import { colors, radius, spacing, typography } from "../theme/tokens";
 type Props = {
   navigation: NativeStackNavigationProp<AppStackParamList>;
 };
-
-function confirmOnWeb(title: string, message: string) {
-  if (Platform.OS === "web" && typeof window !== "undefined") {
-    return window.confirm(`${title}\n\n${message}`);
-  }
-
-  return null;
-}
 
 export default function HomeHeaderMobileMenuButton({ navigation }: Props) {
   const [isMenuVisible, setIsMenuVisible] = useState(false);
@@ -89,18 +81,6 @@ export default function HomeHeaderMobileMenuButton({ navigation }: Props) {
         Alert.alert(id.common.errorTitle, error.message);
       }
     };
-
-    const approvedOnWeb = confirmOnWeb(
-      id.account.confirmLogoutTitle,
-      id.account.confirmLogoutBody,
-    );
-
-    if (approvedOnWeb !== null) {
-      if (approvedOnWeb) {
-        await logoutAction();
-      }
-      return;
-    }
 
     Alert.alert(id.account.confirmLogoutTitle, id.account.confirmLogoutBody, [
       { text: id.account.cancel, style: "cancel" },

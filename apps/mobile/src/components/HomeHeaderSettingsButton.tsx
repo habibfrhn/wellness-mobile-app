@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
@@ -12,14 +12,6 @@ type Props = {
   navigation: NativeStackNavigationProp<AppStackParamList>;
 };
 
-function confirmOnWeb(title: string, message: string) {
-  if (Platform.OS === "web" && typeof window !== "undefined") {
-    return window.confirm(`${title}\n\n${message}`);
-  }
-
-  return null;
-}
-
 export default function HomeHeaderSettingsButton({ navigation }: Props) {
   const onLogout = async () => {
     const logoutAction = async () => {
@@ -28,14 +20,6 @@ export default function HomeHeaderSettingsButton({ navigation }: Props) {
         Alert.alert(id.common.errorTitle, error.message);
       }
     };
-
-    const approvedOnWeb = confirmOnWeb(id.account.confirmLogoutTitle, id.account.confirmLogoutBody);
-    if (approvedOnWeb !== null) {
-      if (approvedOnWeb) {
-        await logoutAction();
-      }
-      return;
-    }
 
     Alert.alert(id.account.confirmLogoutTitle, id.account.confirmLogoutBody, [
       { text: id.account.cancel, style: "cancel" },
