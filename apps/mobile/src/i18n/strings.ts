@@ -306,15 +306,15 @@ export const id = {
     resetPasswordButton: "Ubah kata sandi",
 
     logout: "Keluar",
-    confirmLogoutTitle: "Keluar?",
-    confirmLogoutBody: "Anda yakin ingin keluar?",
+    confirmLogoutTitle: "Keluar dari akun?",
+    confirmLogoutBody: "Anda akan keluar dari akun ini dan perlu masuk kembali untuk melanjutkan.",
     cancel: "Batal",
 
-    deleteTitle: "Hapus akun",
-    deleteWarning: "Aksi ini permanen. Data akun Anda akan dihapus dan tidak dapat dipulihkan.",
+    deleteTitle: "Hapus akun secara permanen?",
+    deleteWarning: "Akun dan seluruh data Anda akan dihapus permanen dan tidak dapat dipulihkan.",
     deleteTypeLabel: 'Ketik "HAPUS" untuk konfirmasi',
     deletePlaceholder: "HAPUS",
-    deleteFinal: "Hapus akun permanen",
+    deleteFinal: "Hapus akun",
     deleting: "Menghapus...",
     deletedTitle: "Akun dihapus",
     deletedBody: "Akun Anda berhasil dihapus.",
@@ -322,7 +322,7 @@ export const id = {
     deleteUnavailable:
       "Layanan hapus akun belum aktif. Deploy Supabase Edge Function delete-user-account lalu coba lagi.",
 
-    deleteContinue: "Lanjut",
+    deleteContinue: "Hapus akun",
     deleteConfirmTitle: "Konfirmasi belum valid",
     deleteConfirmBody: 'Ketik "HAPUS" untuk melanjutkan.',
     sessionMissing: "Sesi tidak ditemukan. Silakan masuk kembali.",

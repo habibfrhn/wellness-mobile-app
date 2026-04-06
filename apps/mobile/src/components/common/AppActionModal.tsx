@@ -127,9 +127,12 @@ const styles = StyleSheet.create({
   },
   actions: {
     marginTop: spacing.sm,
+    flexDirection: "row",
+    alignItems: "stretch",
     gap: spacing.xs,
   },
   secondaryButton: {
+    flex: 1,
     minHeight: 48,
     borderRadius: radius.sm,
     borderWidth: 1,
@@ -144,6 +147,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   primaryButton: {
+    flex: 1,
     minHeight: 48,
     borderRadius: radius.sm,
     alignItems: "center",
