@@ -135,7 +135,7 @@ export default function LandingScreen() {
     },
     {
       key: "faq",
-      label: "Faq",
+      label: "FAQ",
       onPress: () => goToSection("faq"),
     },
     {
@@ -297,13 +297,15 @@ export default function LandingScreen() {
                   ) : null}
                   <Pressable
                     onPress={goToSignUp}
-                    style={[
+                    style={({ hovered, pressed }: any) => [
                       styles.landingButtonBase,
                       styles.landingButtonPrimary,
                       isDesktop || isTablet
                         ? styles.landingButtonSizeDesktop
                         : styles.landingButtonSizeMobile,
                       (isDesktop || isTablet) && styles.headerPrimaryButtonCompact,
+                      hovered && isDesktop && styles.landingButtonPrimaryHover,
+                      pressed && styles.landingButtonPrimaryPressed,
                     ]}
                   >
                     <Text style={styles.landingButtonPrimaryText}>Buat akun</Text>
@@ -367,7 +369,7 @@ export default function LandingScreen() {
                 >
                   <Pressable
                     onPress={goToSignUp}
-                    style={[
+                    style={({ hovered, pressed }: any) => [
                       styles.landingButtonBase,
                       styles.landingButtonPrimary,
                       isDesktop || isTablet
@@ -375,6 +377,8 @@ export default function LandingScreen() {
                         : styles.landingButtonSizeMobile,
                       styles.heroCtaButton,
                       isTablet && styles.heroCtaButtonTablet,
+                      hovered && isDesktop && styles.landingButtonPrimaryHover,
+                      pressed && styles.landingButtonPrimaryPressed,
                     ]}
                   >
                     <Text style={styles.landingButtonPrimaryText}>
@@ -691,11 +695,13 @@ export default function LandingScreen() {
                     </Text>
                     <Pressable
                       onPress={goToSignUp}
-                      style={[
+                      style={({ hovered, pressed }: any) => [
                         styles.landingButtonBase,
                         styles.landingButtonPrimary,
                         styles.landingButtonSizeMobile,
                         styles.closingCtaButton,
+                        hovered && isDesktop && styles.landingButtonPrimaryHover,
+                        pressed && styles.landingButtonPrimaryPressed,
                       ]}
                     >
                       <Text style={styles.landingButtonPrimaryText}>
@@ -740,11 +746,13 @@ export default function LandingScreen() {
                     </Text>
                     <Pressable
                       onPress={goToSignUp}
-                      style={[
+                      style={({ hovered, pressed }: any) => [
                         styles.landingButtonBase,
                         styles.landingButtonPrimary,
                         styles.landingButtonSizeDesktop,
                         styles.closingCtaButton,
+                        hovered && isDesktop && styles.landingButtonPrimaryHover,
+                        pressed && styles.landingButtonPrimaryPressed,
                       ]}
                     >
                       <Text style={styles.landingButtonPrimaryText}>
@@ -789,7 +797,7 @@ export default function LandingScreen() {
                 styles.faqSectionTitle,
               ]}
             >
-              Faq
+              FAQ
             </Text>
 
             <View style={styles.faqList}>
@@ -881,7 +889,7 @@ export default function LandingScreen() {
                     hovered && styles.footerLinkPressableHover,
                   ]}
                 >
-                  <Text style={styles.footerLinkText}>Faq</Text>
+                  <Text style={styles.footerLinkText}>FAQ</Text>
                 </Pressable>
                 <Pressable
                   onPress={goToPrivacyPolicy}
@@ -1452,6 +1460,12 @@ const styles = StyleSheet.create({
   },
   landingButtonPrimary: {
     backgroundColor: colors.primary,
+  },
+  landingButtonPrimaryHover: {
+    backgroundColor: colors.primaryHover,
+  },
+  landingButtonPrimaryPressed: {
+    backgroundColor: colors.primaryPressed,
   },
   landingButtonPrimaryText: {
     fontSize: typography.body,

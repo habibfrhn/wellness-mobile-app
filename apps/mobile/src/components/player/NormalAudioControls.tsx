@@ -1,6 +1,8 @@
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 
+import { getWebViewport } from "../../constants/webLayout";
+import useViewportWidth from "../../hooks/useViewportWidth";
 import { id } from "../../i18n/strings";
 import { colors, radius, spacing, typography } from "../../theme/tokens";
 
@@ -17,6 +19,9 @@ export default function NormalAudioControls({
   onTogglePlay,
   compact = false,
 }: NormalAudioControlsProps) {
+  const viewportWidth = useViewportWidth();
+  const isDesktopWeb = Platform.OS === "web" && getWebViewport(viewportWidth) === "desktop";
+
   return (
     <View
       style={[styles.controlsTapArea, compact && styles.controlsTapAreaCompact]}
@@ -24,10 +29,11 @@ export default function NormalAudioControls({
       <View style={[styles.controlsRow, compact && styles.controlsRowCompact]}>
         <Pressable
           onPress={onRestart}
-          style={({ pressed }) => [
+          style={({ hovered, pressed }: any) => [
             styles.secondaryBtn,
             compact && styles.secondaryBtnCompact,
-            pressed && styles.pressed,
+            hovered && isDesktopWeb && styles.secondaryBtnHover,
+            pressed && styles.secondaryBtnPressed,
           ]}
         >
           <Text
@@ -42,10 +48,11 @@ export default function NormalAudioControls({
 
         <Pressable
           onPress={onTogglePlay}
-          style={({ pressed }) => [
+          style={({ hovered, pressed }: any) => [
             styles.primaryBtn,
             compact && styles.primaryBtnCompact,
-            pressed && styles.pressed,
+            hovered && isDesktopWeb && styles.primaryBtnHover,
+            pressed && styles.primaryBtnPressed,
           ]}
         >
           <Text
@@ -77,6 +84,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   primaryBtnCompact: { paddingVertical: spacing.xs + 2 },
+  primaryBtnHover: { backgroundColor: colors.primaryHover },
+  primaryBtnPressed: { backgroundColor: colors.primaryPressed },
   primaryText: {
     color: colors.primaryText,
     fontSize: typography.body,
@@ -94,6 +103,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   secondaryBtnCompact: { paddingVertical: spacing.xs + 2 },
+  secondaryBtnHover: { backgroundColor: colors.secondaryHover, borderColor: colors.secondaryHover },
+  secondaryBtnPressed: { backgroundColor: colors.secondaryPressed, borderColor: colors.secondaryPressed },
   secondaryText: {
     color: colors.text,
     fontSize: typography.caption,
@@ -101,5 +112,4 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   secondaryTextCompact: { fontSize: typography.caption },
-  pressed: { opacity: 0.85 },
 });

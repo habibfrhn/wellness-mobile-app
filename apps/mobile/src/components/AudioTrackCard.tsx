@@ -39,11 +39,11 @@ export default function AudioTrackCard({ track, onPress, showDuration = true }: 
 
 const cardShadowStyle =
   Platform.OS === "web"
-    ? { boxShadow: `0px 4px 12px ${colors.text}14` }
+    ? { boxShadow: "0px 2px 10px rgba(33,50,94,0.10)" }
     : {
         shadowColor: colors.text,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.08,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
         shadowRadius: 10,
         elevation: 2,
       };

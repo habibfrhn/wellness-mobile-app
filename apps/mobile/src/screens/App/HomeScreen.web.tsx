@@ -274,9 +274,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     paddingHorizontal: 0,
     paddingVertical: 0,
-    boxShadow: `0px 4px 16px ${colors.text}1F`,
+    boxShadow: "0px 2px 10px rgba(33,50,94,0.10)",
   },
   feedbackSectionWrap: {
     marginTop: spacing.md,
+    boxShadow: "0px 2px 10px rgba(33,50,94,0.10)",
+    borderRadius: radius.md,
   },
 });

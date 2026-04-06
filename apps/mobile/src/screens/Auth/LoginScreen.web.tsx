@@ -56,6 +56,7 @@ export default function LoginScreen({ navigation, route }: Props) {
   const viewport = getWebViewport(viewportWidth);
   const isMobileWeb = viewport === "mobile";
   const isTabletWeb = viewport === "tablet";
+  const isDesktopWeb = viewport === "desktop";
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -302,15 +303,16 @@ export default function LoginScreen({ navigation, route }: Props) {
           </View>
 
           <View style={styles.actionsStack}>
-            <Pressable
-              onPress={onSubmit}
-              disabled={busy || busyGoogle}
-              style={({ pressed }) => [
-                styles.primaryButton,
-                (busy || busyGoogle) && styles.disabled,
-                pressed && !busy && !busyGoogle && styles.pressed,
-              ]}
-            >
+          <Pressable
+            onPress={onSubmit}
+            disabled={busy || busyGoogle}
+            style={({ hovered, pressed }: any) => [
+              styles.primaryButton,
+              (busy || busyGoogle) && styles.disabled,
+              hovered && isDesktopWeb && !busy && !busyGoogle && styles.primaryButtonHover,
+              pressed && !busy && !busyGoogle && styles.primaryButtonPressed,
+            ]}
+          >
               {busy ? (
                 <ActivityIndicator color={colors.primaryText} />
               ) : (
@@ -522,6 +524,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     minHeight: 52,
   },
+  primaryButtonHover: { backgroundColor: colors.primaryHover },
+  primaryButtonPressed: { backgroundColor: colors.primaryPressed },
   primaryButtonText: {
     color: colors.primaryText,
     fontSize: typography.body,

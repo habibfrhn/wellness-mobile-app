@@ -56,7 +56,7 @@ export const id = {
     badge: "Ritual Malam Harian",
     heroIntro: "Introducing a Smarter Night Routine",
     heroTitle: "Kamu tinggal rebahan, kami yang pilihkan",
-    heroSubtitle: "Lumepo aku menyiapkan sesi tidur buat kamu",
+    heroSubtitle: "Lumepo aku menyiapkan sesi tidur buat kamu.",
     secondaryHeroCta: "Coba Demo",
     mobileMenuLabel: "Buka menu navigasi",
     mobileMenuHint: "Pilih untuk masuk atau membuat akun",

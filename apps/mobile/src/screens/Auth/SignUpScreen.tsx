@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View, Text, Pressable, StyleSheet, Alert } from "react-native";
+import { View, Text, Pressable, StyleSheet, Alert, Platform } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AuthStackParamList } from "../../navigation/types";
+import { getWebViewport } from "../../constants/webLayout";
+import useViewportWidth from "../../hooks/useViewportWidth";
 import { colors, spacing, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import GoogleAuthButton from "../../components/auth/GoogleAuthButton";
@@ -17,6 +19,11 @@ import SignUpLoginPrompt from "../../components/auth/SignUpLoginPrompt";
 import { trackEvent } from "../../services/analytics";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "SignUp">;
+type FieldErrors = {
+  email?: string;
+  password?: string;
+  confirm?: string;
+};
 
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim().toLowerCase());
@@ -31,6 +38,9 @@ export default function SignUpScreen({ navigation, route }: Props) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
   const [busyGoogle, setBusyGoogle] = useState(false);
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const viewportWidth = useViewportWidth();
+  const isDesktopWeb = Platform.OS === "web" && getWebViewport(viewportWidth) === "desktop";
 
   const canPress = useMemo(() => !busy, [busy]);
 
@@ -38,24 +48,40 @@ export default function SignUpScreen({ navigation, route }: Props) {
     void trackEvent("signup_start", { method: "email" });
   }, []);
 
-  function validate(): string[] {
-    const issues: string[] = [];
+  function validate(): FieldErrors {
+    const nextErrors: FieldErrors = {};
     const e = email.trim().toLowerCase();
 
-    if (!isValidEmail(e)) issues.push("Email tidak valid.");
-    if (password.length < 8) issues.push("Kata sandi minimal 8 karakter.");
-    if (confirm.length < 8) issues.push("Ulangi kata sandi minimal 8 karakter.");
-    if (password && confirm && password !== confirm) issues.push("Kata sandi dan konfirmasi tidak sama.");
+    if (!e) {
+      nextErrors.email = id.login.errorEmailRequired;
+    } else if (!isValidEmail(e)) {
+      nextErrors.email = id.common.invalidEmail;
+    }
 
-    return issues;
+    if (!password) {
+      nextErrors.password = id.login.errorPasswordRequired;
+    } else if (password.length < 8) {
+      nextErrors.password = "Kata sandi minimal 8 karakter.";
+    }
+
+    if (!confirm) {
+      nextErrors.confirm = "Ulangi kata sandi belum diisi";
+    } else if (confirm.length < 8) {
+      nextErrors.confirm = "Ulangi kata sandi minimal 8 karakter.";
+    } else if (password && password !== confirm) {
+      nextErrors.confirm = "Kata sandi dan konfirmasi tidak sama.";
+    }
+
+    return nextErrors;
   }
 
   async function onSubmit() {
-    const issues = validate();
-    if (issues.length > 0) {
-      Alert.alert("Periksa kembali", issues.map((x) => `• ${x}`).join("\n"));
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
+    setErrors({});
 
     const e = email.trim().toLowerCase();
     const trimmedName = name.trim();
@@ -114,21 +140,33 @@ export default function SignUpScreen({ navigation, route }: Props) {
         <AuthTextField
           label={id.signup.emailLabel}
           value={email}
-          onChangeText={setEmail}
+          onChangeText={(value) => {
+            setEmail(value);
+            if (errors.email) {
+              setErrors((prev) => ({ ...prev, email: undefined }));
+            }
+          }}
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="email-address"
           placeholder={id.signup.emailPlaceholder}
+          errorText={errors.email}
         />
 
         <AuthTextField
           label={id.signup.passwordLabel}
           value={password}
-          onChangeText={setPassword}
+          onChangeText={(value) => {
+            setPassword(value);
+            if (errors.password || errors.confirm) {
+              setErrors((prev) => ({ ...prev, password: undefined, confirm: undefined }));
+            }
+          }}
           autoCapitalize="none"
           autoCorrect={false}
           secureTextEntry={!showPassword}
           placeholder={id.signup.passwordPlaceholder}
+          errorText={errors.password}
           rightNode={
             <PasswordToggle
               visible={showPassword}
@@ -142,11 +180,17 @@ export default function SignUpScreen({ navigation, route }: Props) {
         <AuthTextField
           label={id.signup.confirmPasswordLabel}
           value={confirm}
-          onChangeText={setConfirm}
+          onChangeText={(value) => {
+            setConfirm(value);
+            if (errors.confirm) {
+              setErrors((prev) => ({ ...prev, confirm: undefined }));
+            }
+          }}
           autoCapitalize="none"
           autoCorrect={false}
           secureTextEntry={!showConfirm}
           placeholder={id.signup.confirmPasswordPlaceholder}
+          errorText={errors.confirm}
           rightNode={
             <PasswordToggle
               visible={showConfirm}
@@ -161,10 +205,11 @@ export default function SignUpScreen({ navigation, route }: Props) {
           <Pressable
             onPress={onSubmit}
             disabled={!canPress || busyGoogle}
-            style={({ pressed }) => [
+            style={({ hovered, pressed }: any) => [
               authSharedStyles.primaryButton,
               (!canPress || busyGoogle) && authSharedStyles.disabled,
-              pressed && canPress && !busyGoogle && authSharedStyles.pressed,
+              hovered && isDesktopWeb && canPress && !busyGoogle && styles.primaryButtonHover,
+              pressed && canPress && !busyGoogle && styles.primaryButtonPressed,
             ]}
           >
             <Text style={authSharedStyles.primaryButtonText}>{busy ? id.signup.busyCta : id.signup.primaryCta}</Text>
@@ -194,5 +239,11 @@ const styles = StyleSheet.create({
     fontSize: typography.caption,
     textAlign: "center",
     marginTop: spacing.xs,
+  },
+  primaryButtonHover: {
+    backgroundColor: colors.primaryHover,
+  },
+  primaryButtonPressed: {
+    backgroundColor: colors.primaryPressed,
   },
 });

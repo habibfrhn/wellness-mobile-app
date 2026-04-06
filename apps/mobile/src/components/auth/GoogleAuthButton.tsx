@@ -1,7 +1,9 @@
 import React from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
+import { getWebViewport } from "../../constants/webLayout";
+import useViewportWidth from "../../hooks/useViewportWidth";
 import { id } from "../../i18n/strings";
 import { colors, radius, spacing, typography } from "../../theme/tokens";
 
@@ -11,11 +13,19 @@ type Props = {
 };
 
 export default function GoogleAuthButton({ busy = false, onPress }: Props) {
+  const viewportWidth = useViewportWidth();
+  const isDesktopWeb = Platform.OS === "web" && getWebViewport(viewportWidth) === "desktop";
+
   return (
     <Pressable
       onPress={onPress}
       disabled={busy}
-      style={({ pressed }) => [styles.button, busy && styles.disabled, pressed && !busy && styles.pressed]}
+      style={({ hovered, pressed }: any) => [
+        styles.button,
+        busy && styles.disabled,
+        hovered && isDesktopWeb && !busy && styles.hovered,
+        pressed && !busy && styles.pressed,
+      ]}
     >
       <View style={styles.content}>
         {busy ? (
@@ -57,7 +67,6 @@ const styles = StyleSheet.create({
   disabled: {
     opacity: 0.6,
   },
-  pressed: {
-    opacity: 0.82,
-  },
+  hovered: { backgroundColor: colors.secondaryHover, borderColor: colors.secondaryHover },
+  pressed: { backgroundColor: colors.secondaryPressed, borderColor: colors.secondaryPressed },
 });

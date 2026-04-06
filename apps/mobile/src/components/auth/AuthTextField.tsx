@@ -2,14 +2,15 @@ import React from "react";
 import { StyleSheet, Text, TextInput, type TextInputProps, View } from "react-native";
 
 import { authSharedStyles } from "./AuthScreenLayout";
-import { colors, spacing } from "../../theme/tokens";
+import { colors, spacing, typography } from "../../theme/tokens";
 
 type Props = TextInputProps & {
   label: string;
   rightNode?: React.ReactNode;
+  errorText?: string;
 };
 
-export default function AuthTextField({ label, rightNode, style, ...inputProps }: Props) {
+export default function AuthTextField({ label, rightNode, style, errorText, ...inputProps }: Props) {
   return (
     <View>
       <Text style={authSharedStyles.label}>{label}</Text>
@@ -18,7 +19,7 @@ export default function AuthTextField({ label, rightNode, style, ...inputProps }
           <TextInput
             {...inputProps}
             placeholderTextColor={inputProps.placeholderTextColor ?? colors.mutedText}
-            style={[authSharedStyles.input, styles.inputWithAccessory, style]}
+            style={[authSharedStyles.input, styles.inputWithAccessory, errorText && styles.inputError, style]}
           />
           {rightNode}
         </View>
@@ -26,9 +27,10 @@ export default function AuthTextField({ label, rightNode, style, ...inputProps }
         <TextInput
           {...inputProps}
           placeholderTextColor={inputProps.placeholderTextColor ?? colors.mutedText}
-          style={[authSharedStyles.input, style]}
+          style={[authSharedStyles.input, errorText && styles.inputError, style]}
         />
       )}
+      {errorText ? <Text style={styles.errorText}>{errorText}</Text> : null}
     </View>
   );
 }
@@ -36,5 +38,13 @@ export default function AuthTextField({ label, rightNode, style, ...inputProps }
 const styles = StyleSheet.create({
   inputWithAccessory: {
     paddingRight: spacing.xl,
+  },
+  inputError: {
+    borderColor: colors.danger,
+  },
+  errorText: {
+    marginTop: spacing.xs,
+    color: colors.danger,
+    fontSize: typography.caption,
   },
 });

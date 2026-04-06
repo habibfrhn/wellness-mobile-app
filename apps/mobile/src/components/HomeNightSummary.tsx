@@ -1,6 +1,8 @@
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 
+import { getWebViewport } from "../constants/webLayout";
+import useViewportWidth from "../hooks/useViewportWidth";
 import { id } from "../i18n/strings";
 import type { NightStreakHeroState } from "../services/nightStreak";
 import { colors, radius, spacing, typography } from "../theme/tokens";
@@ -12,6 +14,9 @@ type Props = {
 };
 
 export default function HomeNightSummary({ onPressPrimary, streakState }: Props) {
+  const viewportWidth = useViewportWidth();
+  const isDesktopWeb = Platform.OS === "web" && getWebViewport(viewportWidth) === "desktop";
+
   return (
     <View style={styles.container}>
       <HomeStreakHero state={streakState} />
@@ -19,7 +24,14 @@ export default function HomeNightSummary({ onPressPrimary, streakState }: Props)
       <Text style={styles.title}>{id.home.primaryCardTitle}</Text>
       <Text style={styles.body}>{id.home.primaryCardBody}</Text>
 
-      <Pressable onPress={onPressPrimary} style={styles.primaryButton}>
+      <Pressable
+        onPress={onPressPrimary}
+        style={({ hovered, pressed }: any) => [
+          styles.primaryButton,
+          hovered && isDesktopWeb && styles.primaryButtonHover,
+          pressed && styles.primaryButtonPressed,
+        ]}
+      >
         <Text style={styles.primaryButtonText}>{id.home.primarySleepCta}</Text>
       </Pressable>
     </View>
@@ -55,6 +67,12 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     alignItems: "center",
     justifyContent: "center",
+  },
+  primaryButtonHover: {
+    backgroundColor: colors.primaryHover,
+  },
+  primaryButtonPressed: {
+    backgroundColor: colors.primaryPressed,
   },
   primaryButtonText: {
     color: colors.white,
