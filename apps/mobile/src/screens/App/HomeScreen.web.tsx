@@ -158,7 +158,7 @@ export default function HomeScreen({ navigation, route }: Props) {
           paddingTop: isMobileWeb
             ? spacing.md
             : getWebPageTopSpacing(webViewport),
-          paddingBottom: spacing.sm + insets.bottom,
+          paddingBottom: spacing.xl + insets.bottom,
         },
       ]}
       showsVerticalScrollIndicator={false}
