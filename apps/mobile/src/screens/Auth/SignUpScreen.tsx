@@ -124,7 +124,6 @@ export default function SignUpScreen({ navigation, route }: Props) {
       if (error) {
         if (isEmailAlreadyRegisteredError(error.message)) {
           setErrors((prev) => ({ ...prev, email: id.signup.emailAlreadyUsedError }));
-          setFormError(id.signup.emailAlreadyUsedError);
           emailInputRef.current?.focus();
           return;
         }
@@ -138,7 +137,6 @@ export default function SignUpScreen({ navigation, route }: Props) {
 
       if (isExistingUserSignupResponse(data.user?.identities)) {
         setErrors((prev) => ({ ...prev, email: id.signup.emailAlreadyUsedError }));
-        setFormError(id.signup.emailAlreadyUsedError);
         emailInputRef.current?.focus();
         return;
       }
