@@ -10,23 +10,50 @@ type ErrorCode =
   | "DELETE_FAILED";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Vary": "Origin",
 };
 
 const ACTION_NAME = "delete_user_account";
 const MAX_REQUESTS_PER_HOUR = 3;
 
-function json(status: number, body: Record<string, unknown>) {
+function json(status: number, body: Record<string, unknown>, requestCorsHeaders: Record<string, string>) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { "Content-Type": "application/json", ...corsHeaders },
+    headers: { "Content-Type": "application/json", ...requestCorsHeaders },
   });
 }
 
-function error(status: number, message: string, code: ErrorCode) {
-  return json(status, { ok: false, error: message, code });
+function error(status: number, message: string, code: ErrorCode, requestCorsHeaders: Record<string, string>) {
+  return json(status, { ok: false, error: message, code }, requestCorsHeaders);
+}
+
+function getAllowedCorsOrigin(req: Request): string | null {
+  const origin = req.headers.get("origin");
+  if (!origin) {
+    return null;
+  }
+
+  const allowedOriginsRaw = Deno.env.get("CORS_ALLOWED_ORIGINS")?.trim();
+  if (!allowedOriginsRaw) {
+    return "*";
+  }
+
+  const allowedOrigins = allowedOriginsRaw
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  return allowedOrigins.includes(origin) ? origin : null;
+}
+
+function buildCorsHeaders(req: Request) {
+  const allowedOrigin = getAllowedCorsOrigin(req);
+  return {
+    ...corsHeaders,
+    ...(allowedOrigin ? { "Access-Control-Allow-Origin": allowedOrigin } : {}),
+  };
 }
 
 function getAuthorizationToken(req: Request) {
@@ -45,11 +72,20 @@ function getHourBucket(date: Date): string {
 }
 
 Deno.serve(async (req: Request) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  if (req.method !== "POST") return error(405, "Method not allowed", "METHOD_NOT_ALLOWED");
+  const requestCorsHeaders = buildCorsHeaders(req);
+
+  if (req.headers.get("origin") && !requestCorsHeaders["Access-Control-Allow-Origin"]) {
+    return new Response(
+      JSON.stringify({ ok: false, error: "Origin not allowed", code: "METHOD_NOT_ALLOWED" }),
+      { status: 403, headers: { "Content-Type": "application/json", ...requestCorsHeaders } },
+    );
+  }
+
+  if (req.method === "OPTIONS") return new Response("ok", { headers: requestCorsHeaders });
+  if (req.method !== "POST") return error(405, "Method not allowed", "METHOD_NOT_ALLOWED", requestCorsHeaders);
 
   const token = getAuthorizationToken(req);
-  if (!token) return error(401, "Missing user token", "MISSING_USER_TOKEN");
+  if (!token) return error(401, "Missing user token", "MISSING_USER_TOKEN", requestCorsHeaders);
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
@@ -57,7 +93,7 @@ Deno.serve(async (req: Request) => {
 
   if (!supabaseUrl || !anonKey || !serviceRoleKey) {
     console.error("delete-user-account: missing environment variables");
-    return error(500, "Server misconfiguration", "SERVER_MISCONFIGURATION");
+    return error(500, "Server misconfiguration", "SERVER_MISCONFIGURATION", requestCorsHeaders);
   }
 
   const userClient = createClient(supabaseUrl, anonKey, {
@@ -67,7 +103,7 @@ Deno.serve(async (req: Request) => {
   const { data: userData, error: userErr } = await userClient.auth.getUser();
   if (userErr || !userData?.user) {
     console.error("delete-user-account: invalid user session", userErr);
-    return error(401, "Invalid user session", "INVALID_SESSION");
+    return error(401, "Invalid user session", "INVALID_SESSION", requestCorsHeaders);
   }
 
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
@@ -83,19 +119,19 @@ Deno.serve(async (req: Request) => {
 
   if (rateLimitError || typeof incrementedCount !== "number") {
     console.error("delete-user-account: rate limit increment failed", rateLimitError);
-    return error(500, "Failed to process rate limit", "RATE_LIMIT_FAILED");
+    return error(500, "Failed to process rate limit", "RATE_LIMIT_FAILED", requestCorsHeaders);
   }
 
   if (incrementedCount > MAX_REQUESTS_PER_HOUR) {
-    return error(429, "Too many requests", "RATE_LIMITED");
+    return error(429, "Too many requests", "RATE_LIMITED", requestCorsHeaders);
   }
 
   const { error: deleteError } = await adminClient.auth.admin.deleteUser(userData.user.id);
 
   if (deleteError) {
     console.error("delete-user-account: failed to delete user", deleteError);
-    return error(500, "Failed to delete account", "DELETE_FAILED");
+    return error(500, "Failed to delete account", "DELETE_FAILED", requestCorsHeaders);
   }
 
-  return json(200, { ok: true });
+  return json(200, { ok: true }, requestCorsHeaders);
 });

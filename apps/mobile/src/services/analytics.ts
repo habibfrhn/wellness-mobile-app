@@ -21,6 +21,12 @@ const MAX_STRING_PROP_LENGTH = 120;
 const AUDIO_ID_PROP_KEY = "audio_id";
 const SESSION_MODE_PROP_KEY = "session_mode";
 
+function logAnalyticsWarning(message: string, ...context: unknown[]) {
+  if (__DEV__) {
+    console.warn(message, ...context);
+  }
+}
+
 function normalizeSessionMode(value: unknown) {
   if (value === "calm_mind" || value === "release_accept") {
     return value;
@@ -156,7 +162,7 @@ export function getAnalyticsSessionId() {
 export async function trackEvent(eventName: AnalyticsEventName, properties: Record<string, unknown> = {}) {
   const sanitizedProps = sanitizeEventProps(eventName, properties);
   if (exceedsEventPropsLimit(sanitizedProps)) {
-    console.warn("Dropped analytics event due to oversized payload", eventName);
+    logAnalyticsWarning("Dropped analytics event due to oversized payload", eventName);
     return;
   }
 
@@ -168,6 +174,6 @@ export async function trackEvent(eventName: AnalyticsEventName, properties: Reco
 
   const error = await invokeTrackAnalyticsEvent(payload);
   if (error) {
-    console.warn("Failed to track analytics event", eventName, error.message);
+    logAnalyticsWarning("Failed to track analytics event", eventName, error.message);
   }
 }

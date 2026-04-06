@@ -36,9 +36,9 @@ const MAX_REQUESTS_PER_MINUTE_ANON = 45;
 const MAX_REQUESTS_PER_MINUTE_AUTH = 90;
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Vary": "Origin",
 };
 
 const EVENT_NAMES: AnalyticsEventName[] = [
@@ -57,15 +57,42 @@ const EVENT_NAMES: AnalyticsEventName[] = [
   "tailored_session_dropoff",
 ];
 
-function json(status: number, body: Record<string, unknown>) {
+function json(status: number, body: Record<string, unknown>, requestCorsHeaders: Record<string, string>) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { "Content-Type": "application/json", ...corsHeaders },
+    headers: { "Content-Type": "application/json", ...requestCorsHeaders },
   });
 }
 
-function error(status: number, message: string, code: ErrorCode) {
-  return json(status, { ok: false, error: message, code });
+function error(status: number, message: string, code: ErrorCode, requestCorsHeaders: Record<string, string>) {
+  return json(status, { ok: false, error: message, code }, requestCorsHeaders);
+}
+
+function getAllowedCorsOrigin(req: Request): string | null {
+  const origin = req.headers.get("origin");
+  if (!origin) {
+    return null;
+  }
+
+  const allowedOriginsRaw = Deno.env.get("CORS_ALLOWED_ORIGINS")?.trim();
+  if (!allowedOriginsRaw) {
+    return "*";
+  }
+
+  const allowedOrigins = allowedOriginsRaw
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  return allowedOrigins.includes(origin) ? origin : null;
+}
+
+function buildCorsHeaders(req: Request) {
+  const allowedOrigin = getAllowedCorsOrigin(req);
+  return {
+    ...corsHeaders,
+    ...(allowedOrigin ? { "Access-Control-Allow-Origin": allowedOrigin } : {}),
+  };
 }
 
 function getAuthorizationToken(req: Request): string {
@@ -144,12 +171,21 @@ async function getAnonPrincipalKey(req: Request) {
 }
 
 Deno.serve(async (req: Request) => {
+  const requestCorsHeaders = buildCorsHeaders(req);
+
+  if (req.headers.get("origin") && !requestCorsHeaders["Access-Control-Allow-Origin"]) {
+    return new Response(
+      JSON.stringify({ ok: false, error: "Origin not allowed", code: "METHOD_NOT_ALLOWED" }),
+      { status: 403, headers: { "Content-Type": "application/json", ...requestCorsHeaders } },
+    );
+  }
+
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response("ok", { headers: requestCorsHeaders });
   }
 
   if (req.method !== "POST") {
-    return error(405, "Method not allowed", "METHOD_NOT_ALLOWED");
+    return error(405, "Method not allowed", "METHOD_NOT_ALLOWED", requestCorsHeaders);
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
@@ -158,18 +194,18 @@ Deno.serve(async (req: Request) => {
 
   if (!supabaseUrl || !anonKey || !serviceRoleKey) {
     console.error("track-analytics-event: missing environment variables");
-    return error(500, "Server misconfiguration", "SERVER_MISCONFIGURATION");
+    return error(500, "Server misconfiguration", "SERVER_MISCONFIGURATION", requestCorsHeaders);
   }
 
   let payload: unknown;
   try {
     payload = await req.json();
   } catch {
-    return error(400, "Invalid JSON body", "INVALID_JSON");
+    return error(400, "Invalid JSON body", "INVALID_JSON", requestCorsHeaders);
   }
 
   if (!isValidPayload(payload)) {
-    return error(400, "Invalid request payload", "INVALID_PAYLOAD");
+    return error(400, "Invalid request payload", "INVALID_PAYLOAD", requestCorsHeaders);
   }
 
   const token = getAuthorizationToken(req);
@@ -181,7 +217,7 @@ Deno.serve(async (req: Request) => {
   if (token) {
     const { data: userData, error: userError } = await userClient.auth.getUser();
     if (userError || !userData.user?.id) {
-      return error(401, "Invalid user session", "INVALID_SESSION");
+      return error(401, "Invalid user session", "INVALID_SESSION", requestCorsHeaders);
     }
 
     userId = userData.user.id;
@@ -202,12 +238,12 @@ Deno.serve(async (req: Request) => {
 
   if (rateLimitError || typeof incrementedCount !== "number") {
     console.error("track-analytics-event: rate limit increment failed", rateLimitError);
-    return error(500, "Failed to process rate limit", "RATE_LIMIT_FAILED");
+    return error(500, "Failed to process rate limit", "RATE_LIMIT_FAILED", requestCorsHeaders);
   }
 
   const maxPerMinute = userId ? MAX_REQUESTS_PER_MINUTE_AUTH : MAX_REQUESTS_PER_MINUTE_ANON;
   if (incrementedCount > maxPerMinute) {
-    return error(429, "Too many requests", "RATE_LIMITED");
+    return error(429, "Too many requests", "RATE_LIMITED", requestCorsHeaders);
   }
 
   const { error: insertError } = await adminClient.from("analytics_events").insert({
@@ -219,8 +255,8 @@ Deno.serve(async (req: Request) => {
 
   if (insertError) {
     console.error("track-analytics-event: insert failed", insertError);
-    return error(500, "Failed to track event", "INSERT_FAILED");
+    return error(500, "Failed to track event", "INSERT_FAILED", requestCorsHeaders);
   }
 
-  return json(200, { ok: true });
+  return json(200, { ok: true }, requestCorsHeaders);
 });

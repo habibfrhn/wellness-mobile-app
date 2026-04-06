@@ -1,24 +1,97 @@
-# Security Audit (Repository + Git History)
+# Pre-Deployment Security & Launch Audit
 
-Date: 2026-02-11
+Date: 2026-04-06
+Scope: `apps/mobile` web app + Supabase edge functions + deployment config in this repository.
 
-## Scope
-- Verify no real `.env` files were committed.
-- Verify no exposed API keys in current files.
-- Verify no leaked Supabase anon/service/public keys in current files or git history.
+## What was audited
 
-## Commands used
-- `git ls-files | rg -n '(^|/)\.env($|\.|/)|(^|/)\.envrc$|(^|/)\.direnv/'`
-- `git log --all --name-only --pretty=format: | rg -n '(^|/)\.env($|\.|/)|(^|/)\.envrc$|(^|/)\.direnv/'`
-- `rg -n --hidden --glob '!.git' --glob '!pnpm-lock.yaml' --glob '!**/*.svg' "(AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z\-_]{35}|xox[baprs]-[0-9A-Za-z-]{10,}|ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{20,}|sk_live_[0-9a-zA-Z]{20,}|SUPABASE_(ANON|SERVICE_ROLE|SECRET|API)_KEY\\s*=\\s*['\\\"]?[A-Za-z0-9\\-_=\\.]{20,}|eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\\.[A-Za-z0-9_-]{20,}\\.[A-Za-z0-9_-]{20,})"`
-- `git rev-list --all | xargs -I{} git grep -n -I -E "(AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z\-_]{35}|xox[baprs]-[0-9A-Za-z-]{10,}|ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{20,}|sk_live_[0-9a-zA-Z]{20,}|SUPABASE_ANON_KEY\\s*=\\s*['\\\"][A-Za-z0-9\\-_=\\.]{20,}|SUPABASE_SERVICE_ROLE_KEY\\s*=\\s*['\\\"][A-Za-z0-9\\-_=\\.]{20,}|EXPO_PUBLIC_SUPABASE_ANON_KEY\\s*=\\s*['\\\"][A-Za-z0-9\\-_=\\.]{20,}|eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\\.[A-Za-z0-9_-]{20,}\\.[A-Za-z0-9_-]{20,})" {} -- . 2>/dev/null`
+### 1) Security and secret exposure
+- Searched for hard-coded credentials, API tokens, JWTs, and private key patterns in tracked files.
+- Reviewed client-side environment variable usage (`EXPO_PUBLIC_*`) and ensured no server-only secrets are referenced from web client code.
+- Reviewed public web metadata and removed placeholder production URL metadata that could leak incorrect deployment info.
+- Reviewed error handling to avoid exposing backend internals to end users in admin analytics UI.
 
-## Findings
-- Tracked env-like files: none.
-- Env-like files in full git history: `.env.example` was present historically.
-- No high-risk API key patterns detected in current files.
-- No high-risk API key patterns detected across all commits.
-- One non-secret env variable usage exists in source code (`process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY`), but no literal key value is committed.
+### 2) Backend / database protection
+- Reviewed Supabase Edge Functions (`delete-user-account`, `track-analytics-event`, `record-night-session`) for:
+  - auth requirements,
+  - rate limiting,
+  - misuse/abuse controls,
+  - and response safety.
+- Reviewed SQL hardening migrations for admin gating (`is_admin()`), RLS policies, analytics constraints, and anti-spoofing triggers.
 
-## Conclusion
-No committed `.env` secrets or exposed Supabase anon/service/public key values were found in repository history based on this scan set.
+### 3) Deployment / infrastructure readiness
+- Reviewed `apps/mobile/vercel.json` security headers and SPA rewrites.
+- Added additional browser hardening headers and indexing controls for preview domains.
+- Confirmed deployment documentation still matches static export flow.
+
+### 4) Frontend / UX quality
+- Scanned for debug logging and reduced production-facing analytics logging noise.
+- Confirmed admin-facing runtime errors are mapped to safe generic user-facing copy.
+
+## Fixes applied in this audit
+
+1. **Restricted CORS behavior for sensitive Supabase functions**
+   - Added `CORS_ALLOWED_ORIGINS` allowlist support for:
+     - `supabase/functions/delete-user-account/index.ts`
+     - `supabase/functions/track-analytics-event/index.ts`
+   - Behavior:
+     - If `CORS_ALLOWED_ORIGINS` is set, only listed origins are allowed.
+     - If not set, falls back to permissive `*` for backward compatibility.
+     - Requests from disallowed browser origins now receive `403`.
+
+2. **Reduced internal error leakage in admin analytics UI**
+   - `useAdminAnalytics` now returns a safe generic message (`id.common.tryAgain`) instead of surfacing raw backend error text.
+
+3. **Hardened web auth redirect origin handling**
+   - `getWebAppOrigin()` now accepts only:
+     - `https://...` origins, or
+     - local HTTP origins (`localhost` / `127.0.0.1`) for development.
+   - Invalid configured origins are ignored.
+
+4. **Improved production security headers for web hosting**
+   - Added:
+     - `X-DNS-Prefetch-Control: off`
+     - `Cross-Origin-Opener-Policy: same-origin`
+     - `Cross-Origin-Resource-Policy: same-site`
+   - Added `X-Robots-Tag: noindex, nofollow, noarchive` for `*.vercel.app` preview deployments.
+
+5. **Removed placeholder Open Graph URL from public HTML template**
+   - Deleted `og:url` placeholder (`wellnessapp.example`) from `apps/mobile/index.html`.
+
+6. **Limited production analytics console noise**
+   - Analytics warning logs now emit only in development mode.
+
+## Commands run for this audit
+
+- `rg -n "(SUPABASE|API_KEY|SECRET|TOKEN|PASSWORD|PRIVATE|sk_live|sk_test|BEGIN RSA|DATABASE_URL|JWT|AUTH)" apps/mobile/src supabase apps/mobile/app.config.ts apps/mobile/index.html --glob '!**/*.png' --glob '!**/*.jpg'`
+- `rg -n "console\.(log|debug|info|warn|error)|TODO|FIXME|__DEV__|test flag|debug" apps/mobile/src supabase/functions`
+- `rg -n "process\.env|EXPO_PUBLIC|import\.meta\.env|Deno\.env|get\(" apps/mobile/src supabase/functions apps/mobile/app.config.ts`
+- `pnpm --filter mobile lint`
+- `pnpm --filter mobile typecheck`
+
+## Remaining launch checks (must be verified in live infra)
+
+The following cannot be fully proven from repo-only review and should be validated in deployed environments (staging + production):
+
+1. **Domain / redirect correctness**
+   - Verify canonical production domain redirects and TLS certificate chain in hosting platform.
+2. **Webhook integrations**
+   - Validate webhook signature verification and retry behavior for each external integration.
+3. **Runtime monitoring and alerting**
+   - Confirm SLO dashboards, on-call alert routing, and error budget thresholds are configured.
+4. **Rollback drills**
+   - Validate one-click rollback and database migration rollback strategy on real deployment pipeline.
+5. **Staging hardening**
+   - Confirm staging environment uses non-production credentials and remains non-indexable.
+
+## Recommended env configuration updates
+
+- In Supabase function secrets, set:
+  - `CORS_ALLOWED_ORIGINS=https://<your-production-domain>,https://<your-staging-domain>`
+- In web client env, ensure:
+  - `EXPO_PUBLIC_WEB_ORIGIN=https://<your-production-domain>`
+
+## Launch-blocking status (repo scope)
+
+- **No critical launch blockers found in repository code after applied fixes.**
+- **Deployment/environment verifications above remain required before production launch sign-off.**

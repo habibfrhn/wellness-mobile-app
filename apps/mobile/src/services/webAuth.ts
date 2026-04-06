@@ -9,14 +9,25 @@ function normalizeOrigin(origin: string) {
   return origin.endsWith("/") ? origin.slice(0, -1) : origin;
 }
 
+function isAllowedWebOrigin(origin: string) {
+  if (origin.startsWith("https://")) {
+    return true;
+  }
+
+  return /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin);
+}
+
 export function getWebAppOrigin() {
   const configuredOrigin = process.env.EXPO_PUBLIC_WEB_ORIGIN?.trim();
-  if (configuredOrigin) {
+  if (configuredOrigin && isAllowedWebOrigin(configuredOrigin)) {
     return normalizeOrigin(configuredOrigin);
   }
 
   if (typeof window !== "undefined" && window.location?.origin) {
-    return normalizeOrigin(window.location.origin);
+    const detectedOrigin = normalizeOrigin(window.location.origin);
+    if (isAllowedWebOrigin(detectedOrigin)) {
+      return detectedOrigin;
+    }
   }
 
   return DEFAULT_LOCAL_WEB_ORIGIN;

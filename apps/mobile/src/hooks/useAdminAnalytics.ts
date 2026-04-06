@@ -36,7 +36,7 @@ export function useAdminAnalytics(enabled: boolean) {
 
       const firstError = actionsRes.error ?? audioRes.error ?? tailoredRes.error;
       if (firstError) {
-        setErrorMessage(firstError.message ?? id.common.tryAgain);
+        setErrorMessage(id.common.tryAgain);
         setBusy(false);
         return;
       }
