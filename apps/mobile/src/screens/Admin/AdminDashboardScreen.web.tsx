@@ -18,8 +18,17 @@ export default function AdminDashboardScreen({ session }: Props) {
   const [busy, setBusy] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const { range, setRange, busy: analyticsBusy, errorMessage: analyticsError, productActions, audioRows, tailoredRows, reload } =
-    useAdminAnalytics(Boolean(session) && isAdmin === true);
+  const {
+    range,
+    setRange,
+    busy: analyticsBusy,
+    errorMessage: analyticsError,
+    productActions,
+    audioRows,
+    tailoredRows,
+    monthlyRows,
+    reload,
+  } = useAdminAnalytics(Boolean(session) && isAdmin === true);
 
   const getSafeAuthErrorMessage = useCallback((message: string) => {
     const normalized = message.toLowerCase();
@@ -131,6 +140,7 @@ export default function AdminDashboardScreen({ session }: Props) {
             productActions={productActions}
             audioRows={audioRows}
             tailoredRows={tailoredRows}
+            monthlyRows={monthlyRows}
             onRefresh={reload}
             onSignOut={handleSignOut}
           />
@@ -143,8 +153,7 @@ export default function AdminDashboardScreen({ session }: Props) {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     padding: spacing.lg,
     width: "100%",
   },

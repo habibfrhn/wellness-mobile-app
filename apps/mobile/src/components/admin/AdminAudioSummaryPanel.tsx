@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderBottomWidth: 1,
     borderBottomColor: colors.bg,
-    paddingBottom: spacing.xs,
+    paddingBottom: spacing.sm,
   },
   headerCell: {
     flex: 1,
@@ -100,12 +100,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderBottomWidth: 1,
     borderBottomColor: colors.bg,
-    paddingVertical: spacing.xs,
+    paddingVertical: spacing.sm,
   },
   valueCell: {
     flex: 1,
     color: colors.text,
-    fontSize: typography.caption,
+    fontSize: typography.small,
   },
   audioCol: {
     flex: 2,

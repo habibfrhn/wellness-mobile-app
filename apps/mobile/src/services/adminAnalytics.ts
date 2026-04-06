@@ -1,11 +1,9 @@
 import { supabase } from "./supabase";
 
-export type AdminAnalyticsRange = "7d" | "30d" | "90d" | "12m" | "all";
+export type AdminAnalyticsRange = "1d" | "7d" | "30d";
 
 export type AdminProductActions = {
   home_sleep_clicks: number;
-  tailored_session_selections: number;
-  tailored_session_starts: number;
 };
 
 export type AdminAudioEngagementRow = {
@@ -22,8 +20,15 @@ export type AdminTailoredSessionRow = {
   selections: number;
   starts: number;
   completes: number;
-  dropoffs: number;
-  completion_rate: number;
+};
+
+export type AdminMonthlyComparisonRow = {
+  month_start: string;
+  home_sleep_clicks: number;
+  audio_starts: number;
+  audio_completes: number;
+  tailored_starts: number;
+  tailored_completes: number;
 };
 
 export async function fetchAdminProductActions(range: AdminAnalyticsRange) {
@@ -49,9 +54,29 @@ export async function fetchAdminAudioEngagement(range: AdminAnalyticsRange) {
 export async function fetchAdminTailoredSessions(range: AdminAnalyticsRange) {
   const { data, error } = await supabase.rpc("admin_analytics_tailored_sessions", { range_key: range });
 
-  const normalizedRows = ((data as AdminTailoredSessionRow[] | null) ?? []).filter(
-    (row): row is AdminTailoredSessionRow => row.session_mode === "calm_mind" || row.session_mode === "release_accept",
-  );
+  const normalizedRows = ((data as AdminTailoredSessionRow[] | null) ?? [])
+    .filter((row): row is AdminTailoredSessionRow => row.session_mode === "calm_mind" || row.session_mode === "release_accept")
+    .map((row) => ({
+      session_mode: row.session_mode,
+      selections: Number(row.selections) || 0,
+      starts: Number(row.starts) || 0,
+      completes: Number(row.completes) || 0,
+    }));
+
+  return { data: normalizedRows, error };
+}
+
+export async function fetchAdminMonthlyComparison(monthsBack: number) {
+  const { data, error } = await supabase.rpc("admin_analytics_monthly_comparison", { months_back: monthsBack });
+
+  const normalizedRows = ((data as AdminMonthlyComparisonRow[] | null) ?? []).map((row) => ({
+    month_start: row.month_start,
+    home_sleep_clicks: Number(row.home_sleep_clicks) || 0,
+    audio_starts: Number(row.audio_starts) || 0,
+    audio_completes: Number(row.audio_completes) || 0,
+    tailored_starts: Number(row.tailored_starts) || 0,
+    tailored_completes: Number(row.tailored_completes) || 0,
+  }));
 
   return { data: normalizedRows, error };
 }

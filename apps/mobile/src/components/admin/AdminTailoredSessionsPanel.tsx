@@ -9,10 +9,6 @@ type Props = {
   rows: AdminTailoredSessionRow[];
 };
 
-function percent(value: number) {
-  return `${Math.round(value * 100)}%`;
-}
-
 const SESSION_LABELS: Record<AdminTailoredSessionRow["session_mode"], string> = {
   calm_mind: id.admin.tailoredCalmMindLabel,
   release_accept: id.admin.tailoredReleaseAcceptLabel,
@@ -24,14 +20,19 @@ export default function AdminTailoredSessionsPanel({ rows }: Props) {
       <Text style={styles.panelTitle}>{id.admin.tailoredUsageTitle}</Text>
       <Text style={styles.panelSubtitle}>{id.admin.tailoredUsageSubtitle}</Text>
 
+      <View style={styles.tableHeader}>
+        <Text style={[styles.headerCell, styles.modeCell]}>{id.admin.tailoredSessionModeLabel}</Text>
+        <Text style={styles.headerCell}>{id.admin.tailoredSelectionsLabel}</Text>
+        <Text style={styles.headerCell}>{id.admin.tailoredStartsLabel}</Text>
+        <Text style={styles.headerCell}>{id.admin.tailoredCompletesLabel}</Text>
+      </View>
+
       {rows.map((row) => (
-        <View key={row.session_mode} style={styles.sessionCard}>
-          <Text style={styles.sessionTitle}>{SESSION_LABELS[row.session_mode]}</Text>
-          <Text style={styles.sessionMeta}>{`${id.admin.tailoredSelectionsLabel}: ${row.selections}`}</Text>
-          <Text style={styles.sessionMeta}>{`${id.admin.tailoredStartsLabel}: ${row.starts}`}</Text>
-          <Text style={styles.sessionMeta}>{`${id.admin.tailoredCompletesLabel}: ${row.completes}`}</Text>
-          <Text style={styles.sessionMeta}>{`${id.admin.tailoredDropoffsLabel}: ${row.dropoffs}`}</Text>
-          <Text style={styles.sessionRate}>{`${id.admin.tailoredCompletionRateLabel}: ${percent(row.completion_rate)}`}</Text>
+        <View key={row.session_mode} style={styles.tableRow}>
+          <Text style={[styles.valueCell, styles.modeCell]}>{SESSION_LABELS[row.session_mode]}</Text>
+          <Text style={styles.valueCell}>{row.selections}</Text>
+          <Text style={styles.valueCell}>{row.starts}</Text>
+          <Text style={styles.valueCell}>{row.completes}</Text>
         </View>
       ))}
     </View>
@@ -54,24 +55,32 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
     fontSize: typography.small,
   },
-  sessionCard: {
-    backgroundColor: colors.bg,
-    borderRadius: radius.sm,
-    padding: spacing.sm,
-    gap: spacing.xs,
+  tableHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: colors.bg,
+    paddingBottom: spacing.sm,
   },
-  sessionTitle: {
-    color: colors.text,
-    fontSize: typography.body,
-    fontWeight: "700",
+  headerCell: {
+    flex: 1,
+    color: colors.mutedText,
+    fontSize: typography.caption,
+    fontWeight: "600",
   },
-  sessionMeta: {
+  tableRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: colors.bg,
+    paddingVertical: spacing.sm,
+  },
+  valueCell: {
+    flex: 1,
     color: colors.text,
     fontSize: typography.small,
   },
-  sessionRate: {
-    color: colors.primary,
-    fontSize: typography.small,
-    fontWeight: "700",
+  modeCell: {
+    flex: 2,
   },
 });

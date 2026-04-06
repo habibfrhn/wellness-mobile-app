@@ -3,9 +3,11 @@ import { useCallback, useEffect, useState } from "react";
 import {
   type AdminAnalyticsRange,
   type AdminAudioEngagementRow,
+  type AdminMonthlyComparisonRow,
   type AdminProductActions,
   type AdminTailoredSessionRow,
   fetchAdminAudioEngagement,
+  fetchAdminMonthlyComparison,
   fetchAdminProductActions,
   fetchAdminTailoredSessions,
 } from "../services/adminAnalytics";
@@ -18,6 +20,7 @@ export function useAdminAnalytics(enabled: boolean) {
   const [productActions, setProductActions] = useState<AdminProductActions | null>(null);
   const [audioRows, setAudioRows] = useState<AdminAudioEngagementRow[]>([]);
   const [tailoredRows, setTailoredRows] = useState<AdminTailoredSessionRow[]>([]);
+  const [monthlyRows, setMonthlyRows] = useState<AdminMonthlyComparisonRow[]>([]);
 
   const load = useCallback(
     async (nextRange: AdminAnalyticsRange = range) => {
@@ -28,13 +31,14 @@ export function useAdminAnalytics(enabled: boolean) {
       setBusy(true);
       setErrorMessage(null);
 
-      const [actionsRes, audioRes, tailoredRes] = await Promise.all([
+      const [actionsRes, audioRes, tailoredRes, monthlyRes] = await Promise.all([
         fetchAdminProductActions(nextRange),
         fetchAdminAudioEngagement(nextRange),
         fetchAdminTailoredSessions(nextRange),
+        fetchAdminMonthlyComparison(6),
       ]);
 
-      const firstError = actionsRes.error ?? audioRes.error ?? tailoredRes.error;
+      const firstError = actionsRes.error ?? audioRes.error ?? tailoredRes.error ?? monthlyRes.error;
       if (firstError) {
         setErrorMessage(id.common.tryAgain);
         setBusy(false);
@@ -44,6 +48,7 @@ export function useAdminAnalytics(enabled: boolean) {
       setProductActions(actionsRes.data);
       setAudioRows(audioRes.data);
       setTailoredRows(tailoredRes.data);
+      setMonthlyRows(monthlyRes.data);
       setBusy(false);
     },
     [enabled, range],
@@ -56,6 +61,7 @@ export function useAdminAnalytics(enabled: boolean) {
       setProductActions(null);
       setAudioRows([]);
       setTailoredRows([]);
+      setMonthlyRows([]);
       return;
     }
 
@@ -70,6 +76,7 @@ export function useAdminAnalytics(enabled: boolean) {
     productActions,
     audioRows,
     tailoredRows,
+    monthlyRows,
     reload: load,
   };
 }
