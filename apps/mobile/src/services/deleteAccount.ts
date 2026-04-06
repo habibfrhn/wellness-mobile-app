@@ -37,13 +37,11 @@ async function clearPersistedSession() {
 async function signOutAfterDeletion() {
   await setNextAuthRoute("Login");
 
-  const { error } = await supabase.auth.signOut({ scope: "local" });
-  if (!error) {
-    return;
-  }
-
-  if (!isMissingSessionError(error)) {
-    throw error;
+  const { error } = await supabase.auth.signOut({ scope: "global" });
+  if (error && !isMissingSessionError(error)) {
+    // Continue with local cleanup so users are never left logged in on-device
+    // even if global sign-out fails after account deletion.
+    console.warn("delete-account: global sign-out failed after deletion", error.message);
   }
 
   await clearPersistedSession();
@@ -61,7 +59,7 @@ function getDeleteAccountFunctionUrl() {
   return `${supabaseUrl.replace(/\/$/, "")}/functions/v1/${DELETE_ACCOUNT_FUNCTION_NAME}`;
 }
 
-async function deleteAccountViaFunction() {
+async function getCurrentAccessToken() {
   const {
     data: { session },
     error: sessionError,
@@ -71,11 +69,24 @@ async function deleteAccountViaFunction() {
     throw sessionError;
   }
 
-  const accessToken = session?.access_token;
-  if (!accessToken) {
+  if (session?.access_token) {
+    return session.access_token;
+  }
+
+  const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
+  if (refreshError) {
+    throw refreshError;
+  }
+
+  const refreshedAccessToken = refreshed.session?.access_token;
+  if (!refreshedAccessToken) {
     throw new Error(id.account.sessionMissing);
   }
 
+  return refreshedAccessToken;
+}
+
+async function requestDeleteAccount(accessToken: string) {
   let response: Response;
   try {
     response = await fetch(getDeleteAccountFunctionUrl(), {
@@ -99,6 +110,9 @@ async function deleteAccountViaFunction() {
   }
 
   if (!response.ok || !payload?.ok) {
+    if (response.status === 404) {
+      throw new Error(id.account.deleteUnavailable);
+    }
     if (payload?.code === "RATE_LIMITED") {
       throw new Error(id.common.tryAgain);
     }
@@ -109,20 +123,22 @@ async function deleteAccountViaFunction() {
   }
 }
 
+async function deleteAccountViaFunction() {
+  let accessToken = await getCurrentAccessToken();
+  try {
+    await requestDeleteAccount(accessToken);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    if (message !== id.account.sessionMissing) {
+      throw error;
+    }
+
+    accessToken = await getCurrentAccessToken();
+    await requestDeleteAccount(accessToken);
+  }
+}
+
 export async function deleteCurrentAccount() {
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession();
-
-  if (sessionError) {
-    throw sessionError;
-  }
-
-  if (!session?.access_token) {
-    throw new Error(id.account.sessionMissing);
-  }
-
   await deleteAccountViaFunction();
   await signOutAfterDeletion();
 }
