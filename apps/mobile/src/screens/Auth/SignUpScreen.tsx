@@ -35,6 +35,10 @@ function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim().toLowerCase());
 }
 
+function isExistingUserSignupResponse(identities: unknown) {
+  return Array.isArray(identities) && identities.length === 0;
+}
+
 export default function SignUpScreen({ navigation, route }: Props) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState(route.params?.initialEmail ?? "");
@@ -90,6 +94,10 @@ export default function SignUpScreen({ navigation, route }: Props) {
   }
 
   async function onSubmit() {
+    if (busy || busyGoogle) {
+      return;
+    }
+
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -104,7 +112,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
     setBusy(true);
     try {
       await clearPendingProfileName();
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: e,
         password,
         options: {
@@ -128,8 +136,17 @@ export default function SignUpScreen({ navigation, route }: Props) {
         return;
       }
 
+      if (isExistingUserSignupResponse(data.user?.identities)) {
+        setErrors((prev) => ({ ...prev, email: id.signup.emailAlreadyUsedError }));
+        setFormError(id.signup.emailAlreadyUsedError);
+        emailInputRef.current?.focus();
+        return;
+      }
+
       void trackEvent("signup_complete", { method: "email" });
       navigation.replace("VerifyEmail", { email: e });
+    } catch {
+      setFormError(id.common.genericAuthError);
     } finally {
       setBusy(false);
     }
