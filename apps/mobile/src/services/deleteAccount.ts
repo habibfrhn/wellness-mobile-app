@@ -12,6 +12,12 @@ type DeleteAccountResponse = {
   code?: string;
 };
 
+type DeleteAccountFailure = {
+  status: number | null;
+  code: string | null;
+  error: string | null;
+};
+
 const DELETE_ACCOUNT_FUNCTION_NAME = "delete-user-account";
 
 function isMissingSessionError(error: unknown) {
@@ -33,27 +39,21 @@ async function clearPersistedSession() {
 }
 
 async function signOutAfterDeletion() {
-  console.log("delete-account: signOutAfterDeletion() started");
   await setNextAuthRoute("Login");
 
   const { error } = await supabase.auth.signOut({ scope: "global" });
   if (error && !isMissingSessionError(error)) {
-    // Continue with local cleanup so users are never left logged in on-device
-    // even if global sign-out fails after account deletion.
     console.warn("delete-account: global sign-out failed after deletion", error.message);
   }
 
   await clearPersistedSession();
-  console.log("delete-account: local persisted session cleared");
 
   if (Platform.OS === "web" && typeof window !== "undefined") {
-    console.log("delete-account: redirecting web user to root after deletion");
     window.location.assign("/");
   }
 }
 
 async function getCurrentAccessToken(forceRefresh = false) {
-  console.log("delete-account: fetching current session token", { forceRefresh });
   const {
     data: { session },
     error: sessionError,
@@ -64,11 +64,9 @@ async function getCurrentAccessToken(forceRefresh = false) {
   }
 
   if (session?.access_token && !forceRefresh) {
-    console.log("delete-account: found active access token in session");
     return session.access_token;
   }
 
-  console.log("delete-account: refreshing session token");
   const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
   if (refreshError) {
     throw refreshError;
@@ -76,86 +74,111 @@ async function getCurrentAccessToken(forceRefresh = false) {
 
   const refreshedAccessToken = refreshed.session?.access_token;
   if (!refreshedAccessToken) {
-    console.error("delete-account: refresh succeeded but access token is still missing");
     throw new Error(id.account.sessionMissing);
   }
 
-  console.log("delete-account: obtained refreshed access token");
   return refreshedAccessToken;
 }
 
-async function requestDeleteAccount() {
-  console.log("delete-account: calling delete-user-account edge function");
-  const { data, error } = await supabase.functions.invoke<DeleteAccountResponse>(DELETE_ACCOUNT_FUNCTION_NAME, {
-    body: {},
+function getFunctionUrl() {
+  const baseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+  if (!baseUrl) {
+    throw new Error(id.account.deleteUnavailable);
+  }
+
+  return `${baseUrl}/functions/v1/${DELETE_ACCOUNT_FUNCTION_NAME}`;
+}
+
+function getAnonKey() {
+  const anonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+  if (!anonKey) {
+    throw new Error(id.account.deleteUnavailable);
+  }
+
+  return anonKey;
+}
+
+async function parseFailure(response: Response): Promise<DeleteAccountFailure> {
+  let payload: DeleteAccountResponse | null = null;
+
+  try {
+    payload = (await response.json()) as DeleteAccountResponse;
+  } catch {
+    payload = null;
+  }
+
+  return {
+    status: response.status,
+    code: payload?.code ?? null,
+    error: payload?.error ?? null,
+  };
+}
+
+function mapDeleteFailureToMessage(failure: DeleteAccountFailure) {
+  if (failure.status === 401 || failure.code === "INVALID_SESSION" || failure.code === "MISSING_USER_TOKEN") {
+    return id.account.sessionMissing;
+  }
+
+  if (
+    failure.status === 403 ||
+    failure.status === 404 ||
+    failure.code === "SERVER_MISCONFIGURATION" ||
+    failure.code === "METHOD_NOT_ALLOWED"
+  ) {
+    return id.account.deleteUnavailable;
+  }
+
+  if (failure.status === 429 || failure.code === "RATE_LIMITED") {
+    return id.common.tryAgain;
+  }
+
+  return id.account.deleteFailed;
+}
+
+async function requestDeleteAccount(accessToken: string) {
+  const response = await fetch(getFunctionUrl(), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+      apikey: getAnonKey(),
+    },
+    body: JSON.stringify({}),
   });
 
-  let status: number | null = null;
-  let payloadCode: string | null = null;
-  let payloadError: string | null = null;
-
-  if (error) {
-    const httpContext = (error as { context?: { status?: number; json?: () => Promise<DeleteAccountResponse> } }).context;
-    status = typeof httpContext?.status === "number" ? httpContext.status : null;
-    if (httpContext?.json) {
-      try {
-        const payload = await httpContext.json();
-        payloadCode = payload?.code ?? null;
-        payloadError = payload?.error ?? null;
-      } catch {
-        payloadCode = null;
-        payloadError = null;
-      }
-    }
-  } else {
-    payloadCode = data?.code ?? null;
-    payloadError = data?.error ?? null;
+  if (!response.ok) {
+    const failure = await parseFailure(response);
+    throw new Error(mapDeleteFailureToMessage(failure));
   }
 
-  if (error || !data?.ok) {
-    console.error("delete-account: edge function returned failure", {
-      status,
-      payloadCode,
-      payloadError,
-    });
+  let payload: DeleteAccountResponse | null = null;
+  try {
+    payload = (await response.json()) as DeleteAccountResponse;
+  } catch {
+    payload = null;
+  }
 
-    if (status === 401 || payloadCode === "INVALID_SESSION" || payloadCode === "MISSING_USER_TOKEN") {
-      throw new Error(id.account.sessionMissing);
-    }
-    if (status === 404 || status === 403 || payloadCode === "SERVER_MISCONFIGURATION" || payloadCode === "METHOD_NOT_ALLOWED") {
-      throw new Error(id.account.deleteUnavailable);
-    }
-    if (payloadCode === "RATE_LIMITED") {
-      throw new Error(id.common.tryAgain);
-    }
-
+  if (!payload?.ok) {
     throw new Error(id.account.deleteFailed);
   }
-
-  console.log("delete-account: edge function deletion succeeded");
 }
 
 async function deleteAccountViaFunction() {
-  console.log("delete-account: deleteAccountViaFunction() started");
-  await getCurrentAccessToken();
   try {
-    await requestDeleteAccount();
+    const accessToken = await getCurrentAccessToken(false);
+    await requestDeleteAccount(accessToken);
   } catch (error) {
     const message = error instanceof Error ? error.message : "";
     if (message !== id.account.sessionMissing) {
-      console.error("delete-account: non-session failure, aborting retry", { message, error });
       throw error;
     }
 
-    console.warn("delete-account: session missing, refreshing and retrying once");
-    await getCurrentAccessToken(true);
-    await requestDeleteAccount();
+    const refreshedAccessToken = await getCurrentAccessToken(true);
+    await requestDeleteAccount(refreshedAccessToken);
   }
 }
 
 export async function deleteCurrentAccount() {
-  console.log("delete-account: deleteCurrentAccount() started");
   await deleteAccountViaFunction();
   await signOutAfterDeletion();
-  console.log("delete-account: deleteCurrentAccount() finished");
 }

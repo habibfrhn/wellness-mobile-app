@@ -1,16 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput } from "react-native";
+import { Alert, Linking, ScrollView, StyleSheet, TextInput } from "react-native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { id } from "../i18n/strings";
 import type { AppStackParamList } from "../navigation/types";
 import { canManagePassword } from "../services/authProviders";
-import { deleteCurrentAccount } from "../services/deleteAccount";
 import { supabase } from "../services/supabase";
-import { colors, lineHeights, radius, spacing, typography } from "../theme/tokens";
+import { colors, radius, spacing, typography } from "../theme/tokens";
 import SettingsRow from "./settings/SettingsRow";
 import SettingsSection from "./settings/SettingsSection";
-import AppActionModal from "./common/AppActionModal";
+import DeleteAccountSection from "./settings/DeleteAccountSection";
 
 const SUPPORT_EMAIL = "habibfrhn@gmail.com";
 
@@ -38,7 +37,6 @@ function blurWebActiveElement() {
 
 function readAppVersionFromAppJson(): string {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const cfg = require("../../app.json") as any;
     const v = cfg?.expo?.version;
     if (typeof v === "string" && v.trim().length > 0) {
@@ -76,10 +74,7 @@ export default function SettingsContent({ navigation }: Props) {
   const [emailValue, setEmailValue] = useState("");
   const [nameValue, setNameValue] = useState("");
   const [initialName, setInitialName] = useState("");
-  const [busyDelete, setBusyDelete] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [noticeModal, setNoticeModal] = useState<{ title: string; message: string } | null>(null);
 
   const appVersion = useMemo(() => readAppVersionFromAppJson(), []);
 
@@ -126,29 +121,6 @@ export default function SettingsContent({ navigation }: Props) {
     }
 
     setInitialName(trimmedName);
-  }
-
-  async function onDeleteAccount() {
-    console.log("[delete-account] Delete button tapped: opening confirmation modal");
-    setShowDeleteModal(true);
-  }
-
-  async function onConfirmDeleteAccount() {
-    console.log("[delete-account] Confirm delete tapped: starting deleteCurrentAccount()");
-    setBusyDelete(true);
-    try {
-      await deleteCurrentAccount();
-      console.log("[delete-account] deleteCurrentAccount() completed successfully");
-      setNoticeModal({ title: id.account.deletedTitle, message: id.account.deletedBody });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : id.common.tryAgain;
-      console.error("[delete-account] deleteCurrentAccount() failed", { message, error });
-      setNoticeModal({ title: id.common.errorTitle, message });
-    } finally {
-      console.log("[delete-account] Closing delete modal and clearing busy state");
-      setBusyDelete(false);
-      setShowDeleteModal(false);
-    }
   }
 
   function openHelp() {
@@ -208,45 +180,7 @@ export default function SettingsContent({ navigation }: Props) {
         <SettingsRow label={id.account.terms} onPress={() => navigateFromSettings("TermsConditions")} showChevron showDivider={false} />
       </SettingsSection>
 
-      <SettingsSection title={id.account.dangerSectionTitle}>
-        <Text style={styles.dangerText}>{id.account.deleteWarning}</Text>
-        <Pressable
-          onPress={() => {
-            void onDeleteAccount();
-          }}
-          disabled={busyDelete}
-          style={({ pressed }) => [styles.dangerButton, busyDelete && styles.disabled, pressed && !busyDelete && styles.pressedRow]}
-        >
-          <Text style={styles.dangerButtonText}>{busyDelete ? id.account.deleting : id.account.deleteFinal}</Text>
-        </Pressable>
-      </SettingsSection>
-
-      <AppActionModal
-        visible={showDeleteModal}
-        title={id.account.deleteTitle}
-        description={id.account.deleteWarning}
-        confirmLabel={busyDelete ? id.account.deleting : id.account.deleteContinue}
-        cancelLabel={id.account.cancel}
-        destructive
-        busy={busyDelete}
-        onCancel={() => {
-          if (!busyDelete) {
-            setShowDeleteModal(false);
-          }
-        }}
-        onConfirm={() => {
-          void onConfirmDeleteAccount();
-        }}
-      />
-
-      <AppActionModal
-        visible={Boolean(noticeModal)}
-        title={noticeModal?.title ?? id.common.ok}
-        description={noticeModal?.message ?? ""}
-        confirmLabel={id.common.ok}
-        onCancel={() => setNoticeModal(null)}
-        onConfirm={() => setNoticeModal(null)}
-      />
+      <DeleteAccountSection />
     </ScrollView>
   );
 }
@@ -277,31 +211,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xs,
     borderRadius: radius.xs,
     backgroundColor: colors.bg,
-  },
-  dangerText: {
-    color: colors.mutedText,
-    fontSize: typography.small,
-    lineHeight: lineHeights.normal,
-    marginBottom: spacing.sm,
-  },
-  dangerButton: {
-    width: "100%",
-    backgroundColor: colors.danger,
-    borderRadius: radius.sm,
-    paddingVertical: spacing.sm,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  dangerButtonText: {
-    color: colors.primaryText,
-    fontSize: typography.body,
-    fontWeight: "700",
-    textAlign: "center",
-  },
-  disabled: {
-    opacity: 0.55,
-  },
-  pressedRow: {
-    opacity: 0.82,
   },
 });
