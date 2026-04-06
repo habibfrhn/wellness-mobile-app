@@ -36,7 +36,7 @@ export default function HomeFeedbackSection() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: `${colors.card}CC`,
+    backgroundColor: colors.white,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: `${colors.mutedText}33`,

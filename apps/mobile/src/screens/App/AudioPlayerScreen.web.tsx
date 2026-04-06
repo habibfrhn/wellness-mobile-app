@@ -54,7 +54,8 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
   const { audioId, playlistIds, sleepMode } = route.params;
   const viewportWidth = useViewportWidth();
   const webViewport = getWebViewport(viewportWidth);
-  const playerContentWidth = 320;
+  const isTabletWeb = webViewport === "tablet";
+  const playerContentWidth = isTabletWeb ? 440 : 320;
   const sectionGap = getWebSectionSpacing(webViewport);
   const [progressWidth, setProgressWidth] = useState(0);
   const [favorite, setFavorite] = useState(() => isFavorite(audioId));
@@ -230,7 +231,7 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
               cover={sessionArtwork?.cover ?? track.cover}
               isFavorite={favorite}
               onToggleFavorite={() => setFavorite(toggleFavorite(track.id))}
-              compact
+              compact={!isTabletWeb}
             />
           </View>
 
@@ -238,7 +239,7 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
             <SleepSessionProgressHeader
               title={isPlaylistSession ? sleepSessionTitle : track.title}
               subtitle={isPlaylistSession ? sleepSessionPhase : track.creator}
-              compact
+              compact={!isTabletWeb}
             />
 
             {showSoundscapeControls ? (
@@ -248,7 +249,7 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
                 timerRemaining={timerRemaining}
                 isSessionActive={isSessionActive}
                 onSelectTimer={handleTimerSelect}
-                compact
+                compact={!isTabletWeb}
               />
             ) : playbackMode === "tailored_session" ? (
               <SleepSessionProgressSection
@@ -257,7 +258,7 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
                 sessionProgressRatio={sessionProgressRatio}
                 onLayoutWidth={setProgressWidth}
                 progressWidth={progressWidth}
-                compact
+                compact={!isTabletWeb}
               />
             ) : (
               <PlayerProgressSection
@@ -267,7 +268,7 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
                 onLayoutWidth={setProgressWidth}
                 onSeek={onSeekBarPress}
                 progressWidth={progressWidth}
-                compact
+                compact={!isTabletWeb}
               />
             )}
 
@@ -276,21 +277,21 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
                 isPlaying={activeStatus.playing}
                 onStop={handleStop}
                 onTogglePlay={onTogglePlay}
-                compact
+                compact={!isTabletWeb}
               />
             ) : playbackMode === "tailored_session" ? (
               <TailoredSessionControls
                 isPlaying={activeStatus.playing}
                 onRestart={onRestart}
                 onTogglePlay={onTogglePlay}
-                compact
+                compact={!isTabletWeb}
               />
             ) : (
               <NormalAudioControls
                 isPlaying={activeStatus.playing}
                 onRestart={onRestart}
                 onTogglePlay={onTogglePlay}
-                compact
+                compact={!isTabletWeb}
               />
             )}
           </View>
