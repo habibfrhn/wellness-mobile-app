@@ -6,6 +6,7 @@ import { colors, lineHeights, spacing, typography, radius } from "../../theme/to
 import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
+import { isRateLimitedError } from "../../services/authSecurity";
 
 const FLAG_ACTIVITY_NEW_TASK = 0x10000000;
 
@@ -55,7 +56,12 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
     try {
       const { error } = await supabase.auth.resend({ type: "signup", email });
       if (error) {
-        Alert.alert(id.common.errorTitle, error.message);
+        if (isRateLimitedError(error.message)) {
+          Alert.alert(id.common.errorTitle, id.common.authRateLimited);
+          return;
+        }
+
+        Alert.alert(id.common.errorTitle, id.common.genericAuthError);
         return;
       }
       setCooldown(30);

@@ -7,6 +7,7 @@ import { colors } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase, AUTH_RESET } from "../../services/supabase";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
+import { isRateLimitedError } from "../../services/authSecurity";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "ForgotPassword">;
 
@@ -34,7 +35,14 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
       });
 
       if (error) {
-        Alert.alert(id.common.errorTitle, error.message);
+        if (isRateLimitedError(error.message)) {
+          Alert.alert(id.common.errorTitle, id.common.authRateLimited);
+          return;
+        }
+
+        Alert.alert(id.forgot.successTitle, id.forgot.successBody, [
+          { text: id.common.ok, onPress: () => navigation.replace("Login", { initialEmail: e }) },
+        ]);
         return;
       }
 

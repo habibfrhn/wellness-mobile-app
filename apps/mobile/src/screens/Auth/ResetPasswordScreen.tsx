@@ -8,6 +8,7 @@ import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
 import PasswordToggle from "../../components/PasswordToggle";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
+import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH, isRateLimitedError } from "../../services/authSecurity";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "ResetPassword">;
 
@@ -19,12 +20,23 @@ export default function ResetPasswordScreen({ navigation }: Props) {
   const [busy, setBusy] = useState(false);
 
   const canSubmit = useMemo(() => {
-    return password.length >= 8 && confirm.length >= 8 && password === confirm && !busy;
+    return (
+      password.length >= PASSWORD_MIN_LENGTH &&
+      password.length <= PASSWORD_MAX_LENGTH &&
+      confirm.length >= PASSWORD_MIN_LENGTH &&
+      confirm.length <= PASSWORD_MAX_LENGTH &&
+      password === confirm &&
+      !busy
+    );
   }, [password, confirm, busy]);
 
   async function onSubmit() {
-    if (password.length < 8) {
+    if (password.length < PASSWORD_MIN_LENGTH) {
       Alert.alert(id.common.weakPassword, id.common.weakPasswordBody);
+      return;
+    }
+    if (password.length > PASSWORD_MAX_LENGTH) {
+      Alert.alert(id.common.weakPassword, id.common.weakPasswordLongBody);
       return;
     }
     if (password !== confirm) {
@@ -37,7 +49,12 @@ export default function ResetPasswordScreen({ navigation }: Props) {
       const { error } = await supabase.auth.updateUser({ password });
 
       if (error) {
-        Alert.alert(id.common.errorTitle, error.message);
+        if (isRateLimitedError(error.message)) {
+          Alert.alert(id.common.errorTitle, id.common.authRateLimited);
+          return;
+        }
+
+        Alert.alert(id.common.errorTitle, id.common.genericAuthError);
         return;
       }
 

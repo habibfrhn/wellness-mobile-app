@@ -10,6 +10,16 @@ function normalizeOrigin(origin: string) {
 }
 
 function isAllowedWebOrigin(origin: string) {
+  const configuredOrigins = (process.env.EXPO_PUBLIC_WEB_ALLOWED_ORIGINS ?? "")
+    .split(",")
+    .map((value: string) => value.trim())
+    .filter(Boolean)
+    .map((value: string) => normalizeOrigin(value.toLowerCase()));
+
+  if (configuredOrigins.length > 0) {
+    return configuredOrigins.includes(normalizeOrigin(origin.toLowerCase()));
+  }
+
   if (origin.startsWith("https://")) {
     return true;
   }

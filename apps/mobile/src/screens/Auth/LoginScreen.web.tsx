@@ -50,7 +50,6 @@ export default function LoginScreen({ navigation, route }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [busyGoogle, setBusyGoogle] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   const viewportWidth = useViewportWidth();
   const viewport = getWebViewport(viewportWidth);
@@ -148,11 +147,8 @@ export default function LoginScreen({ navigation, route }: Props) {
     try {
       await clearPendingProfileName();
       await continueWithGoogle({ nextRoute: "Login" });
-    } catch (error) {
-      Alert.alert(
-        id.common.errorTitle,
-        error instanceof Error ? error.message : id.common.tryAgain,
-      );
+    } catch {
+      Alert.alert(id.common.errorTitle, id.common.genericAuthError);
       setBusyGoogle(false);
     }
   }
@@ -279,17 +275,7 @@ export default function LoginScreen({ navigation, route }: Props) {
           </View>
 
           <View style={styles.metaRow}>
-            <Pressable
-              onPress={() => setRememberMe((v) => !v)}
-              style={styles.rememberWrap}
-            >
-              <View
-                style={[styles.checkbox, rememberMe && styles.checkboxChecked]}
-              >
-                {rememberMe ? <View style={styles.checkboxInner} /> : null}
-              </View>
-              <Text style={styles.metaText}>Ingat saya</Text>
-            </Pressable>
+            <View />
 
             <Pressable
               onPress={() =>
@@ -476,34 +462,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.sm,
     flexWrap: "wrap",
-  },
-  rememberWrap: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xs,
-  },
-  checkbox: {
-    width: 18,
-    height: 18,
-    borderRadius: radius.xs,
-    borderWidth: 1,
-    borderColor: colors.mutedText,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: colors.white,
-  },
-  checkboxChecked: {
-    borderColor: colors.primary,
-  },
-  checkboxInner: {
-    width: 10,
-    height: 10,
-    borderRadius: radius.xs,
-    backgroundColor: colors.primary,
-  },
-  metaText: {
-    fontSize: typography.small,
-    color: colors.text,
   },
   metaLink: {
     fontSize: typography.small,

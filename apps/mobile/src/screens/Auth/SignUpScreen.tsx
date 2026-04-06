@@ -8,15 +8,21 @@ import useViewportWidth from "../../hooks/useViewportWidth";
 import { colors, spacing, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import GoogleAuthButton from "../../components/auth/GoogleAuthButton";
-import { clearPendingProfileName } from "../../services/pendingProfileName";
+import { clearPendingProfileName, setPendingProfileName } from "../../services/pendingProfileName";
 import { supabase, AUTH_CALLBACK } from "../../services/supabase";
 import { continueWithGoogle } from "../../services/authOAuth";
-import { setPendingProfileName } from "../../services/pendingProfileName";
 import PasswordToggle from "../../components/PasswordToggle";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
 import AuthTextField from "../../components/auth/AuthTextField";
 import SignUpLoginPrompt from "../../components/auth/SignUpLoginPrompt";
 import { trackEvent } from "../../services/analytics";
+import {
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+  getSafeAuthErrorMessage,
+  isEmailAlreadyRegisteredError,
+  isRateLimitedError,
+} from "../../services/authSecurity";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "SignUp">;
 type FieldErrors = {
@@ -60,14 +66,18 @@ export default function SignUpScreen({ navigation, route }: Props) {
 
     if (!password) {
       nextErrors.password = id.login.errorPasswordRequired;
-    } else if (password.length < 8) {
-      nextErrors.password = "Kata sandi minimal 8 karakter.";
+    } else if (password.length < PASSWORD_MIN_LENGTH) {
+      nextErrors.password = id.common.weakPasswordBody;
+    } else if (password.length > PASSWORD_MAX_LENGTH) {
+      nextErrors.password = id.common.weakPasswordLongBody;
     }
 
     if (!confirm) {
       nextErrors.confirm = "Ulangi kata sandi belum diisi";
-    } else if (confirm.length < 8) {
-      nextErrors.confirm = "Ulangi kata sandi minimal 8 karakter.";
+    } else if (confirm.length < PASSWORD_MIN_LENGTH) {
+      nextErrors.confirm = id.common.weakPasswordBody;
+    } else if (confirm.length > PASSWORD_MAX_LENGTH) {
+      nextErrors.confirm = id.common.weakPasswordLongBody;
     } else if (password && password !== confirm) {
       nextErrors.confirm = "Kata sandi dan konfirmasi tidak sama.";
     }
@@ -99,7 +109,15 @@ export default function SignUpScreen({ navigation, route }: Props) {
       });
 
       if (error) {
-        Alert.alert(id.common.errorTitle, error.message);
+        if (isEmailAlreadyRegisteredError(error.message)) {
+          navigation.replace("VerifyEmail", { email: e });
+          return;
+        }
+
+        const safeMessage = isRateLimitedError(error.message)
+          ? id.common.authRateLimited
+          : getSafeAuthErrorMessage(error.message, id.common.genericAuthError);
+        Alert.alert(id.common.errorTitle, safeMessage);
         return;
       }
 
@@ -119,8 +137,8 @@ export default function SignUpScreen({ navigation, route }: Props) {
     try {
       await setPendingProfileName(name);
       await continueWithGoogle({ nextRoute: "SignUp" });
-    } catch (error) {
-      Alert.alert(id.common.errorTitle, error instanceof Error ? error.message : id.common.tryAgain);
+    } catch {
+      Alert.alert(id.common.errorTitle, id.common.genericAuthError);
       setBusyGoogle(false);
     }
   }
