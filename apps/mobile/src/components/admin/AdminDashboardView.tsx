@@ -3,7 +3,6 @@ import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-n
 
 import { id } from "../../i18n/strings";
 import type {
-  AdminAnalyticsRange,
   AdminAudioEngagementRow,
   AdminProductActions,
   AdminTailoredSessionRow,
@@ -12,13 +11,10 @@ import { colors, radius, spacing, typography } from "../../theme/tokens";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { WEB_TABLET_BREAKPOINT } from "../../constants/webLayout";
 import AdminAudioSummaryPanel from "./AdminAudioSummaryPanel";
-import AdminDateRangeFilter from "./AdminDateRangeFilter";
 import AdminProductActionsPanel from "./AdminProductActionsPanel";
 import AdminTailoredSessionsPanel from "./AdminTailoredSessionsPanel";
 
 type Props = {
-  range: AdminAnalyticsRange;
-  onRangeChange: (next: AdminAnalyticsRange) => void;
   busy: boolean;
   errorMessage: string | null;
   productActions: AdminProductActions | null;
@@ -29,8 +25,6 @@ type Props = {
 };
 
 export default function AdminDashboardView({
-  range,
-  onRangeChange,
   busy,
   errorMessage,
   productActions,
@@ -58,8 +52,6 @@ export default function AdminDashboardView({
           </Pressable>
         </View>
       </View>
-
-      <AdminDateRangeFilter value={range} onChange={onRangeChange} />
 
       {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
