@@ -60,6 +60,8 @@ const styles = StyleSheet.create({
   },
   ctaButton: {
     minHeight: 52,
+    minWidth: 220,
+    maxWidth: 280,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radius.sm,
@@ -69,7 +71,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginTop: spacing.xs,
-    width: "100%",
+    alignSelf: "center",
   },
   ctaButtonHover: { backgroundColor: colors.secondaryHover, borderColor: colors.secondaryHover },
   ctaButtonPressed: { backgroundColor: colors.secondaryPressed, borderColor: colors.secondaryPressed },
@@ -77,5 +79,8 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: typography.body,
     fontWeight: "700",
+    textAlign: "center",
+    lineHeight: 20,
+    flexShrink: 1,
   },
 });
