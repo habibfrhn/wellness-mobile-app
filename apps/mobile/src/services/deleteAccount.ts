@@ -73,6 +73,26 @@ function collectResponseDebug(response: Response) {
   };
 }
 
+
+function stringifyDebug(data: unknown) {
+  try {
+    return JSON.stringify(data);
+  } catch {
+    return "<unserializable>";
+  }
+}
+
+function logDebug(label: string, data: unknown) {
+  console.log(`${label} ${stringifyDebug(data)}`);
+}
+
+function warnDebug(label: string, data: unknown) {
+  console.warn(`${label} ${stringifyDebug(data)}`);
+}
+
+function errorDebug(label: string, data: unknown) {
+  console.error(`${label} ${stringifyDebug(data)}`);
+}
 async function clearPersistedSession() {
   const storageKey = (supabase.auth as unknown as { storageKey?: string }).storageKey;
   if (!storageKey) {
@@ -126,7 +146,7 @@ async function getCurrentAccessToken(forceRefresh = false) {
     const claims = decodeJwtClaims(session.access_token);
     const projectRef = process.env.EXPO_PUBLIC_SUPABASE_URL ? getProjectRefFromUrl(process.env.EXPO_PUBLIC_SUPABASE_URL) : null;
 
-    console.log("delete-account: using existing session token", {
+    logDebug("delete-account: using existing session token", {
       tokenPreview: maskToken(session.access_token),
       expiresAt: session.expires_at ?? null,
       tokenSub: claims?.sub ?? null,
@@ -134,6 +154,13 @@ async function getCurrentAccessToken(forceRefresh = false) {
       tokenIss: claims?.iss ?? null,
       projectRefFromEnv: projectRef,
     });
+    const tokenIss = typeof claims?.iss === "string" ? claims.iss : "";
+    if (projectRef && tokenIss && !tokenIss.includes(projectRef)) {
+      warnDebug("delete-account: token issuer does not match EXPO_PUBLIC_SUPABASE_URL project ref", {
+        tokenIss,
+        projectRefFromEnv: projectRef,
+      });
+    }
     return session.access_token;
   }
 
@@ -153,7 +180,7 @@ async function getCurrentAccessToken(forceRefresh = false) {
   const refreshedClaims = decodeJwtClaims(refreshedAccessToken);
   const projectRef = process.env.EXPO_PUBLIC_SUPABASE_URL ? getProjectRefFromUrl(process.env.EXPO_PUBLIC_SUPABASE_URL) : null;
 
-  console.log("delete-account: received refreshed token", {
+  logDebug("delete-account: received refreshed token", {
     tokenPreview: maskToken(refreshedAccessToken),
     expiresAt: refreshed.session?.expires_at ?? null,
     tokenSub: refreshedClaims?.sub ?? null,
@@ -161,6 +188,13 @@ async function getCurrentAccessToken(forceRefresh = false) {
     tokenIss: refreshedClaims?.iss ?? null,
     projectRefFromEnv: projectRef,
   });
+  const refreshedTokenIss = typeof refreshedClaims?.iss === "string" ? refreshedClaims.iss : "";
+  if (projectRef && refreshedTokenIss && !refreshedTokenIss.includes(projectRef)) {
+    warnDebug("delete-account: refreshed token issuer does not match EXPO_PUBLIC_SUPABASE_URL project ref", {
+      tokenIss: refreshedTokenIss,
+      projectRefFromEnv: projectRef,
+    });
+  }
   return refreshedAccessToken;
 }
 
@@ -193,7 +227,7 @@ async function parseFailure(response: Response): Promise<DeleteAccountFailure> {
     payload = null;
   }
 
-  console.error("delete-account: parseFailure()", {
+  errorDebug("delete-account: parseFailure()", {
     ...collectResponseDebug(response),
     rawBody,
   });
@@ -229,14 +263,14 @@ function mapDeleteFailureToMessage(failure: DeleteAccountFailure) {
 async function validateTokenLocally(accessToken: string) {
   const { data, error } = await supabase.auth.getUser(accessToken);
   if (error || !data.user) {
-    console.warn("delete-account: local token validation failed", {
+    warnDebug("delete-account: local token validation failed", {
       error: error?.message ?? "missing-user",
       tokenPreview: maskToken(accessToken),
     });
     throw new Error(id.account.sessionMissing);
   }
 
-  console.log("delete-account: local token validation passed", {
+  logDebug("delete-account: local token validation passed", {
     userId: data.user.id,
     email: data.user.email ?? null,
   });
@@ -246,7 +280,7 @@ async function requestDeleteAccountViaFetch(accessToken: string) {
   const functionUrl = getFunctionUrl();
   const anonKey = getAnonKey();
 
-  console.log("delete-account: requestDeleteAccountViaFetch() start", {
+  logDebug("delete-account: requestDeleteAccountViaFetch() start", {
     functionUrl,
     tokenPreview: maskToken(accessToken),
     anonKeyLength: anonKey.length,
@@ -264,11 +298,11 @@ async function requestDeleteAccountViaFetch(accessToken: string) {
     body: JSON.stringify({}),
   });
 
-  console.log("delete-account: fetch response received", collectResponseDebug(response));
+  logDebug("delete-account: fetch response received", collectResponseDebug(response));
 
   if (!response.ok) {
     const failure = await parseFailure(response);
-    console.error("delete-account: fetch delete function failed", {
+    errorDebug("delete-account: fetch delete function failed", {
       status: failure.status,
       code: failure.code,
       error: failure.error,
@@ -294,7 +328,7 @@ async function requestDeleteAccountViaFetch(accessToken: string) {
 async function requestDeleteAccountViaInvoke(accessToken: string) {
   const anonKey = getAnonKey();
 
-  console.log("delete-account: requestDeleteAccountViaInvoke() start", {
+  logDebug("delete-account: requestDeleteAccountViaInvoke() start", {
     functionName: DELETE_ACCOUNT_FUNCTION_NAME,
     functionUrl: getFunctionUrl(),
     tokenPreview: maskToken(accessToken),
@@ -318,7 +352,7 @@ async function requestDeleteAccountViaInvoke(accessToken: string) {
       error: data?.error ?? error?.message ?? null,
     };
 
-    console.error("delete-account: invoke delete function failed", {
+    errorDebug("delete-account: invoke delete function failed", {
       ...failure,
       invokeErrorName: error?.name ?? null,
       invokeErrorMessage: error?.message ?? null,
@@ -334,7 +368,7 @@ async function requestDeleteAccount(accessToken: string) {
     await requestDeleteAccountViaFetch(accessToken);
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown-error";
-    console.warn("delete-account: fetch path failed, retrying with invoke path", { message });
+    warnDebug("delete-account: fetch path failed, retrying with invoke path", { message });
     await requestDeleteAccountViaInvoke(accessToken);
   }
 }
