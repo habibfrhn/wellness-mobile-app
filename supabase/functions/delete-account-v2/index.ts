@@ -12,7 +12,7 @@ const ACTION_NAME = "delete_user_account";
 const MAX_REQUESTS_PER_HOUR = 3;
 
 const baseCorsHeaders = {
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-user-jwt",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   Vary: "Origin",
 };
@@ -57,7 +57,12 @@ function buildCorsHeaders(req: Request) {
   };
 }
 
-function getBearerToken(req: Request) {
+function getUserJwt(req: Request) {
+  const explicitUserJwt = req.headers.get("x-user-jwt")?.trim() ?? "";
+  if (explicitUserJwt.length > 0) {
+    return explicitUserJwt;
+  }
+
   const authorization = req.headers.get("authorization") ?? req.headers.get("Authorization") ?? "";
   if (!authorization.startsWith("Bearer ")) {
     return "";
@@ -127,19 +132,20 @@ Deno.serve(async (req: Request) => {
     return fail(500, "Server misconfiguration", "SERVER_MISCONFIGURATION", corsHeaders);
   }
 
-  const bearerToken = getBearerToken(req);
-  if (!bearerToken) {
-    console.error("delete-account-v2: missing bearer token after header parse");
+  const userJwt = getUserJwt(req);
+  if (!userJwt) {
+    console.error("delete-account-v2: missing user jwt after header parse");
     return fail(401, "Missing user token", "MISSING_USER_TOKEN", corsHeaders);
   }
 
-  console.log("delete-account-v2: bearer token parsed", {
-    tokenPreview: maskToken(bearerToken),
+  console.log("delete-account-v2: user jwt parsed", {
+    tokenPreview: maskToken(userJwt),
+    fromCustomHeader: Boolean(req.headers.get("x-user-jwt")),
   });
 
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-  const { data: userData, error: userError } = await adminClient.auth.getUser(bearerToken);
+  const { data: userData, error: userError } = await adminClient.auth.getUser(userJwt);
   const user = userData?.user;
   if (userError || !user) {
     console.error("delete-account-v2: invalid user session", userError?.message ?? "missing-user");
