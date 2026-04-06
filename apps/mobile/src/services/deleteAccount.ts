@@ -13,8 +13,6 @@ type DeleteAccountResponse = {
 };
 
 const DELETE_ACCOUNT_FUNCTION_NAME = "delete-user-account";
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
 function isMissingSessionError(error: unknown) {
   return error instanceof AuthError && error.name === "AuthSessionMissingError";
@@ -54,24 +52,6 @@ async function signOutAfterDeletion() {
   }
 }
 
-function getDeleteAccountFunctionUrl() {
-  if (!supabaseUrl) {
-    throw new Error(id.account.deleteUnavailable);
-  }
-
-  return `${supabaseUrl.replace(/\/$/, "")}/functions/v1/${DELETE_ACCOUNT_FUNCTION_NAME}`;
-}
-
-function getRequestApiKey() {
-  const keyFromClient = (supabase as unknown as { supabaseKey?: string }).supabaseKey;
-  const resolvedKey = supabaseAnonKey ?? keyFromClient;
-  if (!resolvedKey) {
-    throw new Error(id.account.deleteUnavailable);
-  }
-
-  return resolvedKey;
-}
-
 async function getCurrentAccessToken(forceRefresh = false) {
   console.log("delete-account: fetching current session token", { forceRefresh });
   const {
@@ -104,52 +84,51 @@ async function getCurrentAccessToken(forceRefresh = false) {
   return refreshedAccessToken;
 }
 
-async function requestDeleteAccount(accessToken: string) {
+async function requestDeleteAccount() {
   console.log("delete-account: calling delete-user-account edge function");
-  const apiKey = getRequestApiKey();
-  let response: Response;
-  try {
-    response = await fetch(getDeleteAccountFunctionUrl(), {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        apikey: apiKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({}),
-    });
-  } catch {
-    throw new Error(id.account.deleteUnavailable);
+  const { data, error } = await supabase.functions.invoke<DeleteAccountResponse>(DELETE_ACCOUNT_FUNCTION_NAME, {
+    body: {},
+  });
+
+  let status: number | null = null;
+  let payloadCode: string | null = null;
+  let payloadError: string | null = null;
+
+  if (error) {
+    const httpContext = (error as { context?: { status?: number; json?: () => Promise<DeleteAccountResponse> } }).context;
+    status = typeof httpContext?.status === "number" ? httpContext.status : null;
+    if (httpContext?.json) {
+      try {
+        const payload = await httpContext.json();
+        payloadCode = payload?.code ?? null;
+        payloadError = payload?.error ?? null;
+      } catch {
+        payloadCode = null;
+        payloadError = null;
+      }
+    }
+  } else {
+    payloadCode = data?.code ?? null;
+    payloadError = data?.error ?? null;
   }
 
-  let payload: DeleteAccountResponse | null = null;
-  try {
-    payload = (await response.json()) as DeleteAccountResponse;
-  } catch {
-    payload = null;
-  }
-
-  if (!response.ok || !payload?.ok) {
+  if (error || !data?.ok) {
     console.error("delete-account: edge function returned failure", {
-      status: response.status,
-      payloadCode: payload?.code ?? null,
-      payloadError: payload?.error ?? null,
+      status,
+      payloadCode,
+      payloadError,
     });
-    if (response.status === 401) {
+
+    if (status === 401 || payloadCode === "INVALID_SESSION" || payloadCode === "MISSING_USER_TOKEN") {
       throw new Error(id.account.sessionMissing);
     }
-    if (response.status === 404 || response.status === 403) {
+    if (status === 404 || status === 403 || payloadCode === "SERVER_MISCONFIGURATION" || payloadCode === "METHOD_NOT_ALLOWED") {
       throw new Error(id.account.deleteUnavailable);
     }
-    if (payload?.code === "RATE_LIMITED") {
+    if (payloadCode === "RATE_LIMITED") {
       throw new Error(id.common.tryAgain);
     }
-    if (payload?.code === "SERVER_MISCONFIGURATION" || payload?.code === "METHOD_NOT_ALLOWED") {
-      throw new Error(id.account.deleteUnavailable);
-    }
-    if (payload?.code === "INVALID_SESSION" || payload?.code === "MISSING_USER_TOKEN") {
-      throw new Error(id.account.sessionMissing);
-    }
+
     throw new Error(id.account.deleteFailed);
   }
 
@@ -158,9 +137,9 @@ async function requestDeleteAccount(accessToken: string) {
 
 async function deleteAccountViaFunction() {
   console.log("delete-account: deleteAccountViaFunction() started");
-  let accessToken = await getCurrentAccessToken();
+  await getCurrentAccessToken();
   try {
-    await requestDeleteAccount(accessToken);
+    await requestDeleteAccount();
   } catch (error) {
     const message = error instanceof Error ? error.message : "";
     if (message !== id.account.sessionMissing) {
@@ -169,8 +148,8 @@ async function deleteAccountViaFunction() {
     }
 
     console.warn("delete-account: session missing, refreshing and retrying once");
-    accessToken = await getCurrentAccessToken(true);
-    await requestDeleteAccount(accessToken);
+    await getCurrentAccessToken(true);
+    await requestDeleteAccount();
   }
 }
 
