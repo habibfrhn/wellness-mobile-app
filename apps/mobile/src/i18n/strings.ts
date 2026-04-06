@@ -481,7 +481,6 @@ export const id = {
       "7d": "7d",
       "30d": "30d",
       "90d": "90d",
-      "12m": "12m",
       all: "All",
     },
     productSignalsTitle: "Sinyal produk utama",

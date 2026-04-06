@@ -1,6 +1,6 @@
 import { supabase } from "./supabase";
 
-export type AdminAnalyticsRange = "7d" | "30d" | "90d" | "12m" | "all";
+export type AdminAnalyticsRange = "7d" | "30d" | "90d" | "all";
 
 export type AdminProductActions = {
   home_sleep_clicks: number;

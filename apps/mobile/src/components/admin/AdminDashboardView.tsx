@@ -57,15 +57,15 @@ export default function AdminDashboardView({
         </View>
       </View>
 
+      <AdminDateRangeFilter value={range} onChange={onRangeChange} />
+
       {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
       <View style={[styles.sectionGrid, isDesktopWeb && styles.sectionGridDesktop]}>
         <View style={styles.sectionCol}>
-          <AdminDateRangeFilter value={range} onChange={onRangeChange} />
           <AdminTailoredSessionsPanel rows={tailoredRows} homeSleepClicks={homeSleepClicks} />
         </View>
         <View style={styles.sectionCol}>
-          <AdminDateRangeFilter value={range} onChange={onRangeChange} />
           <AdminAudioSummaryPanel rows={audioRows} />
         </View>
       </View>
