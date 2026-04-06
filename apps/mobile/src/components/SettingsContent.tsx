@@ -129,18 +129,23 @@ export default function SettingsContent({ navigation }: Props) {
   }
 
   async function onDeleteAccount() {
+    console.log("[delete-account] Delete button tapped: opening confirmation modal");
     setShowDeleteModal(true);
   }
 
   async function onConfirmDeleteAccount() {
+    console.log("[delete-account] Confirm delete tapped: starting deleteCurrentAccount()");
     setBusyDelete(true);
     try {
       await deleteCurrentAccount();
+      console.log("[delete-account] deleteCurrentAccount() completed successfully");
       setNoticeModal({ title: id.account.deletedTitle, message: id.account.deletedBody });
     } catch (error) {
       const message = error instanceof Error ? error.message : id.common.tryAgain;
+      console.error("[delete-account] deleteCurrentAccount() failed", { message, error });
       setNoticeModal({ title: id.common.errorTitle, message });
     } finally {
+      console.log("[delete-account] Closing delete modal and clearing busy state");
       setBusyDelete(false);
       setShowDeleteModal(false);
     }

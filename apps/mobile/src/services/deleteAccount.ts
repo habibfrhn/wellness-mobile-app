@@ -35,6 +35,7 @@ async function clearPersistedSession() {
 }
 
 async function signOutAfterDeletion() {
+  console.log("delete-account: signOutAfterDeletion() started");
   await setNextAuthRoute("Login");
 
   const { error } = await supabase.auth.signOut({ scope: "global" });
@@ -45,8 +46,10 @@ async function signOutAfterDeletion() {
   }
 
   await clearPersistedSession();
+  console.log("delete-account: local persisted session cleared");
 
   if (Platform.OS === "web" && typeof window !== "undefined") {
+    console.log("delete-account: redirecting web user to root after deletion");
     window.location.assign("/");
   }
 }
@@ -60,6 +63,7 @@ function getDeleteAccountFunctionUrl() {
 }
 
 async function getCurrentAccessToken() {
+  console.log("delete-account: fetching current session token");
   const {
     data: { session },
     error: sessionError,
@@ -70,9 +74,11 @@ async function getCurrentAccessToken() {
   }
 
   if (session?.access_token) {
+    console.log("delete-account: found active access token in session");
     return session.access_token;
   }
 
+  console.log("delete-account: no access token, refreshing session");
   const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
   if (refreshError) {
     throw refreshError;
@@ -80,13 +86,16 @@ async function getCurrentAccessToken() {
 
   const refreshedAccessToken = refreshed.session?.access_token;
   if (!refreshedAccessToken) {
+    console.error("delete-account: refresh succeeded but access token is still missing");
     throw new Error(id.account.sessionMissing);
   }
 
+  console.log("delete-account: obtained refreshed access token");
   return refreshedAccessToken;
 }
 
 async function requestDeleteAccount(accessToken: string) {
+  console.log("delete-account: calling delete-user-account edge function");
   let response: Response;
   try {
     response = await fetch(getDeleteAccountFunctionUrl(), {
@@ -110,6 +119,11 @@ async function requestDeleteAccount(accessToken: string) {
   }
 
   if (!response.ok || !payload?.ok) {
+    console.error("delete-account: edge function returned failure", {
+      status: response.status,
+      payloadCode: payload?.code ?? null,
+      payloadError: payload?.error ?? null,
+    });
     if (response.status === 404 || response.status === 403) {
       throw new Error(id.account.deleteUnavailable);
     }
@@ -124,24 +138,31 @@ async function requestDeleteAccount(accessToken: string) {
     }
     throw new Error(id.account.deleteFailed);
   }
+
+  console.log("delete-account: edge function deletion succeeded");
 }
 
 async function deleteAccountViaFunction() {
+  console.log("delete-account: deleteAccountViaFunction() started");
   let accessToken = await getCurrentAccessToken();
   try {
     await requestDeleteAccount(accessToken);
   } catch (error) {
     const message = error instanceof Error ? error.message : "";
     if (message !== id.account.sessionMissing) {
+      console.error("delete-account: non-session failure, aborting retry", { message, error });
       throw error;
     }
 
+    console.warn("delete-account: session missing, refreshing and retrying once");
     accessToken = await getCurrentAccessToken();
     await requestDeleteAccount(accessToken);
   }
 }
 
 export async function deleteCurrentAccount() {
+  console.log("delete-account: deleteCurrentAccount() started");
   await deleteAccountViaFunction();
   await signOutAfterDeletion();
+  console.log("delete-account: deleteCurrentAccount() finished");
 }
