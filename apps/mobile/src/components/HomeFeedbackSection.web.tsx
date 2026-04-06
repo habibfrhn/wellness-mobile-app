@@ -60,8 +60,6 @@ const styles = StyleSheet.create({
   },
   ctaButton: {
     minHeight: 56,
-    maxWidth: 280,
-    width: "100%",
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.md,
     borderRadius: radius.sm,
@@ -77,10 +75,8 @@ const styles = StyleSheet.create({
   ctaButtonPressed: { backgroundColor: colors.secondaryPressed, borderColor: colors.secondaryPressed },
   ctaText: {
     color: colors.text,
-    fontSize: typography.body,
     fontWeight: "600",
     textAlign: "center",
-    lineHeight: typography.body,
     flexShrink: 1,
   },
 });
