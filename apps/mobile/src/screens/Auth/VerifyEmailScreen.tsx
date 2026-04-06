@@ -4,7 +4,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../../navigation/types";
 import { colors, lineHeights, spacing, typography, radius } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
-import { supabase } from "../../services/supabase";
+import { AUTH_CALLBACK, supabase } from "../../services/supabase";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
 import { isRateLimitedError } from "../../services/authSecurity";
 
@@ -54,7 +54,13 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
   async function resend() {
     setBusy(true);
     try {
-      const { error } = await supabase.auth.resend({ type: "signup", email });
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email,
+        options: {
+          emailRedirectTo: AUTH_CALLBACK,
+        },
+      });
       if (error) {
         if (isRateLimitedError(error.message)) {
           Alert.alert(id.common.errorTitle, id.common.authRateLimited);

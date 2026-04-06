@@ -91,7 +91,7 @@ export default function AdminDashboardScreen({ session }: Props) {
     const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/auth/reset` : undefined;
     const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, redirectTo ? { redirectTo } : undefined);
     if (error) {
-      setErrorMessage(id.admin.forgotPasswordSent);
+      setErrorMessage(id.common.tryAgain);
       setBusy(false);
       return;
     }
