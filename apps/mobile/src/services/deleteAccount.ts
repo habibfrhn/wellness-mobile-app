@@ -32,6 +32,47 @@ function maskToken(token: string) {
   return `${token.slice(0, 7)}...${token.slice(-5)}`;
 }
 
+function decodeJwtClaims(token: string): Record<string, unknown> | null {
+  const parts = token.split(".");
+  if (parts.length < 2) {
+    return null;
+  }
+
+  try {
+    const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+
+    if (typeof atob === "function") {
+      return JSON.parse(atob(padded)) as Record<string, unknown>;
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function getProjectRefFromUrl(url: string) {
+  try {
+    const hostname = new URL(url).hostname;
+    return hostname.split(".")[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function collectResponseDebug(response: Response) {
+  return {
+    url: response.url,
+    status: response.status,
+    statusText: response.statusText,
+    wwwAuthenticate: response.headers.get("www-authenticate"),
+    contentType: response.headers.get("content-type"),
+    xSbErrorCode: response.headers.get("x-sb-error-code"),
+    xRequestId: response.headers.get("x-request-id"),
+  };
+}
+
 async function clearPersistedSession() {
   const storageKey = (supabase.auth as unknown as { storageKey?: string }).storageKey;
   if (!storageKey) {
@@ -82,9 +123,16 @@ async function getCurrentAccessToken(forceRefresh = false) {
   }
 
   if (session?.access_token && !forceRefresh) {
+    const claims = decodeJwtClaims(session.access_token);
+    const projectRef = process.env.EXPO_PUBLIC_SUPABASE_URL ? getProjectRefFromUrl(process.env.EXPO_PUBLIC_SUPABASE_URL) : null;
+
     console.log("delete-account: using existing session token", {
       tokenPreview: maskToken(session.access_token),
       expiresAt: session.expires_at ?? null,
+      tokenSub: claims?.sub ?? null,
+      tokenAud: claims?.aud ?? null,
+      tokenIss: claims?.iss ?? null,
+      projectRefFromEnv: projectRef,
     });
     return session.access_token;
   }
@@ -102,9 +150,16 @@ async function getCurrentAccessToken(forceRefresh = false) {
     throw new Error(id.account.sessionMissing);
   }
 
+  const refreshedClaims = decodeJwtClaims(refreshedAccessToken);
+  const projectRef = process.env.EXPO_PUBLIC_SUPABASE_URL ? getProjectRefFromUrl(process.env.EXPO_PUBLIC_SUPABASE_URL) : null;
+
   console.log("delete-account: received refreshed token", {
     tokenPreview: maskToken(refreshedAccessToken),
     expiresAt: refreshed.session?.expires_at ?? null,
+    tokenSub: refreshedClaims?.sub ?? null,
+    tokenAud: refreshedClaims?.aud ?? null,
+    tokenIss: refreshedClaims?.iss ?? null,
+    projectRefFromEnv: projectRef,
   });
   return refreshedAccessToken;
 }
@@ -129,12 +184,19 @@ function getAnonKey() {
 
 async function parseFailure(response: Response): Promise<DeleteAccountFailure> {
   let payload: DeleteAccountResponse | null = null;
+  let rawBody = "";
 
   try {
-    payload = (await response.json()) as DeleteAccountResponse;
+    rawBody = await response.text();
+    payload = rawBody ? (JSON.parse(rawBody) as DeleteAccountResponse) : null;
   } catch {
     payload = null;
   }
+
+  console.error("delete-account: parseFailure()", {
+    ...collectResponseDebug(response),
+    rawBody,
+  });
 
   return {
     status: response.status,
@@ -182,9 +244,13 @@ async function validateTokenLocally(accessToken: string) {
 
 async function requestDeleteAccountViaFetch(accessToken: string) {
   const functionUrl = getFunctionUrl();
+  const anonKey = getAnonKey();
+
   console.log("delete-account: requestDeleteAccountViaFetch() start", {
     functionUrl,
     tokenPreview: maskToken(accessToken),
+    anonKeyLength: anonKey.length,
+    projectRefFromEnv: getProjectRefFromUrl(functionUrl),
   });
 
   const response = await fetch(functionUrl, {
@@ -192,11 +258,13 @@ async function requestDeleteAccountViaFetch(accessToken: string) {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${accessToken}`,
-      apikey: getAnonKey(),
+      apikey: anonKey,
       "x-client-info": "wellness-mobile-app/delete-account-v2",
     },
     body: JSON.stringify({}),
   });
+
+  console.log("delete-account: fetch response received", collectResponseDebug(response));
 
   if (!response.ok) {
     const failure = await parseFailure(response);
@@ -224,16 +292,20 @@ async function requestDeleteAccountViaFetch(accessToken: string) {
 }
 
 async function requestDeleteAccountViaInvoke(accessToken: string) {
+  const anonKey = getAnonKey();
+
   console.log("delete-account: requestDeleteAccountViaInvoke() start", {
     functionName: DELETE_ACCOUNT_FUNCTION_NAME,
+    functionUrl: getFunctionUrl(),
     tokenPreview: maskToken(accessToken),
+    projectRefFromEnv: process.env.EXPO_PUBLIC_SUPABASE_URL ? getProjectRefFromUrl(process.env.EXPO_PUBLIC_SUPABASE_URL) : null,
   });
 
   const { data, error } = await supabase.functions.invoke<DeleteAccountResponse>(DELETE_ACCOUNT_FUNCTION_NAME, {
     body: {},
     headers: {
       Authorization: `Bearer ${accessToken}`,
-      apikey: getAnonKey(),
+      apikey: anonKey,
       "x-client-info": "wellness-mobile-app/delete-account-v2",
     },
   });
@@ -246,7 +318,11 @@ async function requestDeleteAccountViaInvoke(accessToken: string) {
       error: data?.error ?? error?.message ?? null,
     };
 
-    console.error("delete-account: invoke delete function failed", failure);
+    console.error("delete-account: invoke delete function failed", {
+      ...failure,
+      invokeErrorName: error?.name ?? null,
+      invokeErrorMessage: error?.message ?? null,
+    });
     throw new Error(mapDeleteFailureToMessage(failure));
   }
 
