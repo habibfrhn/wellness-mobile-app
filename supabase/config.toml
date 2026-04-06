@@ -192,9 +192,8 @@ web3 = 30
 
 # Configure one of the supported captcha providers: `hcaptcha`, `turnstile`.
 [auth.captcha]
-enabled = true
-provider = "turnstile"
-secret = "env(SUPABASE_AUTH_CAPTCHA_SECRET)"
+enabled = false
+# provider/secret intentionally disabled for MVP while no captcha provider is configured
 
 [auth.email]
 # Allow/disallow new user signups via email to your project.
@@ -386,5 +385,7 @@ s3_secret_key = "env(S3_SECRET_KEY)"
 
 [functions.delete-user-account]
 verify_jwt = true
+[functions.delete-account-v2]
+verify_jwt = false
 [functions.record-night-session]
 verify_jwt = true
