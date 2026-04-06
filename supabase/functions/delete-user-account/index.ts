@@ -88,25 +88,20 @@ Deno.serve(async (req: Request) => {
   if (!token) return error(401, "Missing user token", "MISSING_USER_TOKEN", requestCorsHeaders);
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
-  const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-  if (!supabaseUrl || !anonKey || !serviceRoleKey) {
+  if (!supabaseUrl || !serviceRoleKey) {
     console.error("delete-user-account: missing environment variables");
     return error(500, "Server misconfiguration", "SERVER_MISCONFIGURATION", requestCorsHeaders);
   }
 
-  const userClient = createClient(supabaseUrl, anonKey, {
-    global: { headers: { Authorization: `Bearer ${token}` } },
-  });
-
-  const { data: userData, error: userErr } = await userClient.auth.getUser();
-  if (userErr || !userData?.user) {
+  const adminClient = createClient(supabaseUrl, serviceRoleKey);
+  const { data: userData, error: userErr } = await adminClient.auth.getUser(token);
+  if (userErr || !userData.user) {
     console.error("delete-user-account: invalid user session", userErr);
     return error(401, "Invalid user session", "INVALID_SESSION", requestCorsHeaders);
   }
 
-  const adminClient = createClient(supabaseUrl, serviceRoleKey);
   const rateLimitBucket = getHourBucket(new Date());
   const { data: incrementedCount, error: rateLimitError } = await adminClient.rpc(
     "increment_rate_limit",
