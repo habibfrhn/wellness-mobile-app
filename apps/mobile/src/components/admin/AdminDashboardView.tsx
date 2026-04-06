@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { id } from "../../i18n/strings";
 import type {
@@ -9,6 +9,8 @@ import type {
   AdminTailoredSessionRow,
 } from "../../services/adminAnalytics";
 import { colors, radius, spacing, typography } from "../../theme/tokens";
+import useViewportWidth from "../../hooks/useViewportWidth";
+import { WEB_TABLET_BREAKPOINT } from "../../constants/webLayout";
 import AdminAudioSummaryPanel from "./AdminAudioSummaryPanel";
 import AdminDateRangeFilter from "./AdminDateRangeFilter";
 import AdminProductActionsPanel from "./AdminProductActionsPanel";
@@ -37,8 +39,11 @@ export default function AdminDashboardView({
   onRefresh,
   onSignOut,
 }: Props) {
+  const viewportWidth = useViewportWidth();
+  const isDesktopWeb = Platform.OS === "web" && viewportWidth > WEB_TABLET_BREAKPOINT;
+
   return (
-    <ScrollView contentContainerStyle={styles.content}>
+    <ScrollView contentContainerStyle={[styles.content, isDesktopWeb && styles.desktopContent]}>
       <View style={styles.headerRow}>
         <View style={styles.headerTitleWrap}>
           <Text style={styles.title}>{id.admin.dashboardTitle}</Text>
@@ -58,17 +63,32 @@ export default function AdminDashboardView({
 
       {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
-      <AdminProductActionsPanel actions={productActions} />
+      <View style={[styles.summaryPanels, isDesktopWeb && styles.summaryPanelsDesktop]}>
+        <View style={styles.summaryPanelItem}>
+          <AdminProductActionsPanel actions={productActions} />
+        </View>
+        <View style={styles.summaryPanelItem}>
+          <AdminTailoredSessionsPanel rows={tailoredRows} />
+        </View>
+      </View>
       <AdminAudioSummaryPanel rows={audioRows} />
-      <AdminTailoredSessionsPanel rows={tailoredRows} />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   content: {
+    width: "100%",
+    maxWidth: 1120,
+    alignSelf: "center",
     padding: spacing.lg,
     gap: spacing.md,
+  },
+  desktopContent: {
+    maxWidth: 1460,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.xl,
+    gap: spacing.lg,
   },
   headerRow: {
     flexDirection: "row",
@@ -112,5 +132,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderRadius: radius.sm,
     padding: spacing.sm,
+  },
+  summaryPanels: {
+    gap: spacing.md,
+  },
+  summaryPanelsDesktop: {
+    flexDirection: "row",
+    gap: spacing.lg,
+    alignItems: "stretch",
+  },
+  summaryPanelItem: {
+    flex: 1,
+    minWidth: 0,
   },
 });

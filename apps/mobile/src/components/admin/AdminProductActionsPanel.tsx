@@ -19,14 +19,6 @@ export default function AdminProductActionsPanel({ actions }: Props) {
         <Text style={styles.label}>{id.admin.homeSleepClickLabel}</Text>
         <Text style={styles.value}>{actions?.home_sleep_clicks ?? 0}</Text>
       </View>
-      <View style={styles.row}>
-        <Text style={styles.label}>{id.admin.tailoredSelectionsTotalLabel}</Text>
-        <Text style={styles.value}>{actions?.tailored_session_selections ?? 0}</Text>
-      </View>
-      <View style={styles.row}>
-        <Text style={styles.label}>{id.admin.tailoredStartsTotalLabel}</Text>
-        <Text style={styles.value}>{actions?.tailored_session_starts ?? 0}</Text>
-      </View>
     </View>
   );
 }
@@ -35,7 +27,7 @@ const styles = StyleSheet.create({
   panel: {
     backgroundColor: colors.card,
     borderRadius: radius.md,
-    padding: spacing.md,
+    padding: spacing.lg,
     gap: spacing.sm,
   },
   panelTitle: {
@@ -51,6 +43,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    backgroundColor: colors.bg,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
   label: {
     color: colors.text,

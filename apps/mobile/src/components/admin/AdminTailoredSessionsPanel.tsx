@@ -9,10 +9,6 @@ type Props = {
   rows: AdminTailoredSessionRow[];
 };
 
-function percent(value: number) {
-  return `${Math.round(value * 100)}%`;
-}
-
 const SESSION_LABELS: Record<AdminTailoredSessionRow["session_mode"], string> = {
   calm_mind: id.admin.tailoredCalmMindLabel,
   release_accept: id.admin.tailoredReleaseAcceptLabel,
@@ -27,11 +23,20 @@ export default function AdminTailoredSessionsPanel({ rows }: Props) {
       {rows.map((row) => (
         <View key={row.session_mode} style={styles.sessionCard}>
           <Text style={styles.sessionTitle}>{SESSION_LABELS[row.session_mode]}</Text>
-          <Text style={styles.sessionMeta}>{`${id.admin.tailoredSelectionsLabel}: ${row.selections}`}</Text>
-          <Text style={styles.sessionMeta}>{`${id.admin.tailoredStartsLabel}: ${row.starts}`}</Text>
-          <Text style={styles.sessionMeta}>{`${id.admin.tailoredCompletesLabel}: ${row.completes}`}</Text>
-          <Text style={styles.sessionMeta}>{`${id.admin.tailoredDropoffsLabel}: ${row.dropoffs}`}</Text>
-          <Text style={styles.sessionRate}>{`${id.admin.tailoredCompletionRateLabel}: ${percent(row.completion_rate)}`}</Text>
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Text style={styles.statLabel}>{id.admin.tailoredSelectionsLabel}</Text>
+              <Text style={styles.statValue}>{row.selections}</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statLabel}>{id.admin.tailoredStartsLabel}</Text>
+              <Text style={styles.statValue}>{row.starts}</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statLabel}>{id.admin.tailoredCompletesLabel}</Text>
+              <Text style={styles.statValue}>{row.completes}</Text>
+            </View>
+          </View>
         </View>
       ))}
     </View>
@@ -42,8 +47,8 @@ const styles = StyleSheet.create({
   panel: {
     backgroundColor: colors.card,
     borderRadius: radius.md,
-    padding: spacing.md,
-    gap: spacing.sm,
+    padding: spacing.lg,
+    gap: spacing.md,
   },
   panelTitle: {
     color: colors.primary,
@@ -57,21 +62,32 @@ const styles = StyleSheet.create({
   sessionCard: {
     backgroundColor: colors.bg,
     borderRadius: radius.sm,
-    padding: spacing.sm,
-    gap: spacing.xs,
+    padding: spacing.md,
+    gap: spacing.sm,
   },
   sessionTitle: {
     color: colors.text,
     fontSize: typography.body,
     fontWeight: "700",
   },
-  sessionMeta: {
-    color: colors.text,
-    fontSize: typography.small,
+  statsRow: {
+    flexDirection: "row",
+    gap: spacing.md,
+    flexWrap: "wrap",
   },
-  sessionRate: {
+  statItem: {
+    minWidth: 100,
+    gap: spacing.xs,
+  },
+  statLabel: {
+    color: colors.mutedText,
+    fontSize: typography.caption,
+    fontWeight: "600",
+    textTransform: "uppercase",
+  },
+  statValue: {
     color: colors.primary,
-    fontSize: typography.small,
+    fontSize: typography.title,
     fontWeight: "700",
   },
 });
