@@ -53,8 +53,14 @@ export default function AdminDashboardView({
 
       {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
-      <AdminTailoredSessionsPanel rows={tailoredRows} homeSleepClicks={homeSleepClicks} />
-      <AdminAudioSummaryPanel rows={audioRows} />
+      <View style={[styles.sectionGrid, isDesktopWeb && styles.sectionGridDesktop]}>
+        <View style={styles.sectionCol}>
+          <AdminTailoredSessionsPanel rows={tailoredRows} homeSleepClicks={homeSleepClicks} />
+        </View>
+        <View style={styles.sectionCol}>
+          <AdminAudioSummaryPanel rows={audioRows} />
+        </View>
+      </View>
     </ScrollView>
   );
 }
@@ -119,5 +125,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderRadius: radius.sm,
     padding: spacing.sm,
+  },
+  sectionGrid: {
+    gap: spacing.md,
+  },
+  sectionGridDesktop: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: spacing.lg,
+  },
+  sectionCol: {
+    flex: 1,
+    minWidth: 0,
   },
 });
