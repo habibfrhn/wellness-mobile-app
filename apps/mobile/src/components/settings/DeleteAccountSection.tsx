@@ -18,21 +18,30 @@ export default function DeleteAccountSection() {
   const isConfirmValid = useMemo(() => deleteConfirmation.trim().toUpperCase() === DELETE_CONFIRM_TEXT, [deleteConfirmation]);
 
   function onOpenDeleteModal() {
+    console.log("[delete-account] open delete modal tapped");
     setDeleteConfirmation("");
     setShowDeleteModal(true);
   }
 
   function onCloseDeleteModal() {
     if (busyDelete) {
+      console.log("[delete-account] close ignored while busy");
       return;
     }
 
+    console.log("[delete-account] closing delete modal");
     setShowDeleteModal(false);
     setDeleteConfirmation("");
   }
 
   async function onConfirmDeleteAccount() {
+    console.log("[delete-account] confirm delete tapped", {
+      typedValue: deleteConfirmation,
+      isConfirmValid,
+    });
+
     if (!isConfirmValid) {
+      console.warn("[delete-account] confirmation text mismatch");
       setNoticeModal({ title: id.account.deleteConfirmTitle, message: id.account.deleteConfirmBody });
       return;
     }
@@ -40,11 +49,14 @@ export default function DeleteAccountSection() {
     setBusyDelete(true);
     try {
       await deleteCurrentAccount();
+      console.log("[delete-account] deleteCurrentAccount() completed");
       setNoticeModal({ title: id.account.deletedTitle, message: id.account.deletedBody });
     } catch (error) {
       const message = error instanceof Error ? error.message : id.common.tryAgain;
+      console.error("[delete-account] deleteCurrentAccount() failed", { message, error });
       setNoticeModal({ title: id.common.errorTitle, message });
     } finally {
+      console.log("[delete-account] resetting modal state");
       setBusyDelete(false);
       setShowDeleteModal(false);
       setDeleteConfirmation("");

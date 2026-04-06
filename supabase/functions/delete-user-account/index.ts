@@ -66,6 +66,14 @@ function getBearerToken(req: Request) {
   return authorization.slice(7);
 }
 
+function maskToken(token: string) {
+  if (token.length <= 14) {
+    return `${token.slice(0, 3)}...`;
+  }
+
+  return `${token.slice(0, 7)}...${token.slice(-5)}`;
+}
+
 function getHourBucket() {
   const date = new Date();
   date.setUTCMinutes(0, 0, 0);
@@ -92,12 +100,19 @@ async function applyRateLimit(adminClient: ReturnType<typeof createClient>, user
 
 Deno.serve(async (req: Request) => {
   const corsHeaders = buildCorsHeaders(req);
+  console.log("delete-user-account: request received", {
+    method: req.method,
+    origin: req.headers.get("origin"),
+    hasAuthorizationHeader: Boolean(req.headers.get("authorization") ?? req.headers.get("Authorization")),
+    hasApiKeyHeader: Boolean(req.headers.get("apikey")),
+  });
 
   if (req.headers.get("origin") && !corsHeaders["Access-Control-Allow-Origin"]) {
     return fail(403, "Origin not allowed", "METHOD_NOT_ALLOWED", corsHeaders);
   }
 
   if (req.method === "OPTIONS") {
+    console.log("delete-user-account: OPTIONS preflight accepted");
     return new Response("ok", { headers: corsHeaders });
   }
 
@@ -114,8 +129,13 @@ Deno.serve(async (req: Request) => {
 
   const bearerToken = getBearerToken(req);
   if (!bearerToken) {
+    console.error("delete-user-account: missing bearer token after header parse");
     return fail(401, "Missing user token", "MISSING_USER_TOKEN", corsHeaders);
   }
+
+  console.log("delete-user-account: bearer token parsed", {
+    tokenPreview: maskToken(bearerToken),
+  });
 
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
@@ -125,6 +145,11 @@ Deno.serve(async (req: Request) => {
     console.error("delete-user-account: invalid user session", userError?.message ?? "missing-user");
     return fail(401, "Invalid user session", "INVALID_SESSION", corsHeaders);
   }
+
+  console.log("delete-user-account: session validated", {
+    userId: user.id,
+    email: user.email ?? null,
+  });
 
   try {
     await applyRateLimit(adminClient, user.id);
@@ -151,5 +176,6 @@ Deno.serve(async (req: Request) => {
     }
   }
 
+  console.log("delete-user-account: account deletion succeeded", { userId: user.id });
   return json(200, { ok: true }, corsHeaders);
 });
