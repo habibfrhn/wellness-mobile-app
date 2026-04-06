@@ -62,6 +62,16 @@ function getDeleteAccountFunctionUrl() {
   return `${supabaseUrl.replace(/\/$/, "")}/functions/v1/${DELETE_ACCOUNT_FUNCTION_NAME}`;
 }
 
+function getRequestApiKey() {
+  const keyFromClient = (supabase as unknown as { supabaseKey?: string }).supabaseKey;
+  const resolvedKey = supabaseAnonKey ?? keyFromClient;
+  if (!resolvedKey) {
+    throw new Error(id.account.deleteUnavailable);
+  }
+
+  return resolvedKey;
+}
+
 async function getCurrentAccessToken(forceRefresh = false) {
   console.log("delete-account: fetching current session token", { forceRefresh });
   const {
@@ -96,13 +106,14 @@ async function getCurrentAccessToken(forceRefresh = false) {
 
 async function requestDeleteAccount(accessToken: string) {
   console.log("delete-account: calling delete-user-account edge function");
+  const apiKey = getRequestApiKey();
   let response: Response;
   try {
     response = await fetch(getDeleteAccountFunctionUrl(), {
       method: "POST",
       headers: {
         Authorization: `Bearer ${accessToken}`,
-        ...(supabaseAnonKey ? { apikey: supabaseAnonKey } : {}),
+        apikey: apiKey,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({}),
