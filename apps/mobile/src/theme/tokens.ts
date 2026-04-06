@@ -7,7 +7,7 @@ export const colors = {
 
   // Brand
   primary: "#21325E",
-  primaryHover: "#3D5799",
+  primaryHover: "#3E497A",
   primaryPressed: "#142C66",
   primaryText: "#FFFFFF",
   secondary: "#3E497A",
