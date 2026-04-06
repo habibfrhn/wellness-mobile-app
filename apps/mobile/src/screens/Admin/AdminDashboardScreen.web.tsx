@@ -123,15 +123,17 @@ export default function AdminDashboardScreen({ session }: Props) {
             <Text style={styles.unauthorizedBody}>{id.admin.unauthorizedBody}</Text>
           </View>
         ) : (
-          <AdminDashboardView
-            busy={analyticsBusy}
-            errorMessage={analyticsError}
-            homeSleepClicks={productActions?.home_sleep_clicks ?? 0}
-            audioRows={audioRows}
-            tailoredRows={tailoredRows}
-            onRefresh={reload}
-            onSignOut={handleSignOut}
-          />
+          <View style={styles.dashboardWrap}>
+            <AdminDashboardView
+              busy={analyticsBusy}
+              errorMessage={analyticsError}
+              homeSleepClicks={productActions?.home_sleep_clicks ?? 0}
+              audioRows={audioRows}
+              tailoredRows={tailoredRows}
+              onRefresh={reload}
+              onSignOut={handleSignOut}
+            />
+          </View>
         )}
       </View>
     </WebResponsiveFrame>
@@ -145,6 +147,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: spacing.lg,
     width: "100%",
+  },
+  dashboardWrap: {
+    width: "100%",
+    flex: 1,
   },
   unauthorizedCard: {
     width: "100%",

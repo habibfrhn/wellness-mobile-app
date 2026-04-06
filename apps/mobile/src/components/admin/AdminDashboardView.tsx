@@ -35,7 +35,7 @@ export default function AdminDashboardView({
   const isDesktopWeb = Platform.OS === "web" && viewportWidth > WEB_TABLET_BREAKPOINT;
 
   return (
-    <ScrollView contentContainerStyle={[styles.content, isDesktopWeb && styles.desktopContent]}>
+    <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, isDesktopWeb && styles.desktopContent]}>
       <View style={styles.headerRow}>
         <View style={styles.headerTitleWrap}>
           <Text style={styles.title}>{id.admin.dashboardTitle}</Text>
@@ -60,16 +60,20 @@ export default function AdminDashboardView({
 }
 
 const styles = StyleSheet.create({
+  scroll: {
+    width: "100%",
+    alignSelf: "stretch",
+  },
   content: {
     width: "100%",
-    maxWidth: 1120,
+    maxWidth: 1240,
     alignSelf: "center",
     padding: spacing.lg,
     gap: spacing.md,
   },
   desktopContent: {
-    maxWidth: 1460,
-    paddingHorizontal: spacing.xl,
+    maxWidth: 1720,
+    paddingHorizontal: spacing.xl + spacing.md,
     paddingVertical: spacing.xl,
     gap: spacing.lg,
   },
