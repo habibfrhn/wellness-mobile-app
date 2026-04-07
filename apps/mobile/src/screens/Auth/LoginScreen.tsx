@@ -125,6 +125,7 @@ export default function LoginScreen({ navigation, route }: Props) {
 
       const verified = Boolean(data.user?.email_confirmed_at);
       if (!verified) {
+        await supabase.auth.signOut();
         navigation.replace("VerifyEmail", { email: e, context: "login_unverified" });
         return;
       }

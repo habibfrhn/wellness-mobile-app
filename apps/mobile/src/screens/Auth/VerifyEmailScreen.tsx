@@ -18,6 +18,8 @@ const RESEND_COOLDOWN_SECONDS = 60;
 export default function VerifyEmailScreen({ route, navigation }: Props) {
   const email = route.params.email;
   const isRecoveryFlow = route.params.context === "recovery" || route.params.context === "login_unverified";
+  const recoveryHelpText =
+    route.params.context === "login_unverified" ? id.verify.loginRecoveryNotice : id.verify.recoveryNotice;
   const [busy, setBusy] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const viewportWidth = useViewportWidth();
@@ -92,7 +94,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
         <Text style={styles.email}>{email}</Text>
 
         <Text style={styles.help}>
-          {isRecoveryFlow ? id.verify.recoveryNotice : id.verify.help}
+          {isRecoveryFlow ? recoveryHelpText : id.verify.help}
         </Text>
 
         <View style={authSharedStyles.actionsStack}>

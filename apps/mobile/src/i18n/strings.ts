@@ -129,6 +129,7 @@ export const id = {
     backToLogin: "Kembali ke masuk",
     help: "Jika tidak masuk, cek folder Spam/Promosi dan tunggu 1–2 menit.",
     recoveryNotice: "Jika email ini terdaftar, kami akan mengirim ulang tautan verifikasi. Cek Inbox/Spam lalu verifikasi akun Anda.",
+    loginRecoveryNotice: "Email Anda belum terverifikasi. Verifikasi email terlebih dahulu sebelum masuk, lalu coba login kembali.",
     useDifferentEmail: "Gunakan email lain",
   },
 
