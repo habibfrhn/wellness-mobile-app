@@ -385,8 +385,8 @@ const styles = StyleSheet.create({
   passwordStrengthRow: {
     flexDirection: "row",
     gap: spacing.xs,
-    marginTop: spacing.xs,
-    marginBottom: spacing.xs,
+    marginTop: spacing.sm,
+    marginBottom: spacing.sm,
   },
   passwordInput: {
     paddingRight: spacing.xl + spacing.sm,
