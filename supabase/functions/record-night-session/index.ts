@@ -23,6 +23,7 @@ type ErrorCode =
 
 const DATE_KEY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const ACTION_NAME = "record_night_session";
+const RATE_LIMIT_WINDOW_LIMIT = 3;
 
 function json(status: number, body: Record<string, unknown>) {
   return new Response(JSON.stringify(body), {
@@ -84,6 +85,10 @@ function getTenMinuteBucket(date: Date): string {
   return `10min:${bucketDate.toISOString().replace(/\.\d{3}Z$/, "Z")}`;
 }
 
+function logRateLimitEvent(payload: Record<string, unknown>) {
+  console.warn(JSON.stringify({ event: "rate_limit_429", surface: "record-night-session", ...payload }));
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") {
     return error(405, "Method not allowed", "METHOD_NOT_ALLOWED");
@@ -127,6 +132,38 @@ Deno.serve(async (req: Request) => {
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
   const bucket = getTenMinuteBucket(new Date());
 
+  const { data: existingSession, error: existingSessionError } = await adminClient
+    .from("night_sessions")
+    .select("mode, stress_before, stress_after, date_key")
+    .eq("user_id", userId)
+    .eq("date_key", payload.date_key)
+    .maybeSingle();
+
+  if (existingSessionError) {
+    console.error("record-night-session: failed to read existing session", existingSessionError);
+  }
+
+  if (
+    existingSession &&
+    existingSession.mode === payload.mode &&
+    existingSession.stress_before === payload.stress_before &&
+    existingSession.stress_after === payload.stress_after
+  ) {
+    const { data: streakData, error: streakError } = await userClient.rpc(
+      "record_night_streak_completion",
+      {
+        p_completion_date: payload.date_key,
+      }
+    );
+
+    if (streakError) {
+      console.error("record-night-session: streak update failed after idempotent hit", streakError);
+      return error(500, "Failed to update streak", "STREAK_UPDATE_FAILED");
+    }
+
+    return json(200, { ok: true, streak: streakData ?? null, idempotent: true });
+  }
+
   const { data: incrementedCount, error: rateLimitError } = await adminClient.rpc(
     "increment_rate_limit",
     {
@@ -141,7 +178,14 @@ Deno.serve(async (req: Request) => {
     return error(500, "Failed to process rate limit", "RATE_LIMIT_FAILED");
   }
 
-  if (incrementedCount > 3) {
+  if (incrementedCount > RATE_LIMIT_WINDOW_LIMIT) {
+    logRateLimitEvent({
+      user_id: userId,
+      action: ACTION_NAME,
+      bucket,
+      incremented_count: incrementedCount,
+      limit: RATE_LIMIT_WINDOW_LIMIT,
+    });
     return error(429, "Too many requests", "RATE_LIMITED");
   }
 

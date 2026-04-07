@@ -136,6 +136,20 @@ function shouldRetryWithLegacyPayload(error: unknown) {
   return typeof maybeError.message === "string" && maybeError.message.includes("non-2xx");
 }
 
+function isRateLimitedInvokeError(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const maybeError = error as { context?: { status?: number }; message?: string };
+  if (maybeError.context?.status === 429) {
+    return true;
+  }
+
+  const normalized = (maybeError.message ?? "").toLowerCase();
+  return normalized.includes("rate_limited") || normalized.includes("too many requests");
+}
+
 async function getAccessTokenCached() {
   const now = Date.now();
   if (inMemoryAccessToken && now - accessTokenFetchedAt < ACCESS_TOKEN_CACHE_MS) {
@@ -211,6 +225,9 @@ async function flushAnalyticsQueue() {
     const payload = batch.length === 1 ? batch[0] : batch;
     const error = await invokeTrackAnalyticsEvent(payload);
     if (error) {
+      if (isRateLimitedInvokeError(error)) {
+        return;
+      }
       logAnalyticsWarning("Failed to track analytics event batch", error.message);
     }
   })().finally(() => {

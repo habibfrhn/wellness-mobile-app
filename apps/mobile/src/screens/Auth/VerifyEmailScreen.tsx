@@ -8,7 +8,7 @@ import { colors, lineHeights, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { AUTH_CALLBACK, supabase } from "../../services/supabase";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
-import { isRateLimitedError } from "../../services/authSecurity";
+import { isRateLimitedError, logAuthRateLimitEvent } from "../../services/authSecurity";
 
 const FLAG_ACTIVITY_NEW_TASK = 0x10000000;
 
@@ -67,6 +67,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
       });
       if (error) {
         if (isRateLimitedError(error.message)) {
+          logAuthRateLimitEvent("verify_email_resend", { screen: "VerifyEmail", email_domain: email.split("@")[1] ?? "unknown" });
           Alert.alert(id.common.errorTitle, id.common.authRateLimited);
           return;
         }
@@ -74,7 +75,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
         Alert.alert(id.common.errorTitle, id.common.genericAuthError);
         return;
       }
-      setCooldown(30);
+      setCooldown(60);
     } finally {
       setBusy(false);
     }

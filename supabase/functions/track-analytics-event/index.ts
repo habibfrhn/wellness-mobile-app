@@ -98,6 +98,10 @@ function buildCorsHeaders(req: Request) {
   };
 }
 
+function logRateLimitEvent(payload: Record<string, unknown>) {
+  console.warn(JSON.stringify({ event: "rate_limit_429", surface: "track-analytics-event", ...payload }));
+}
+
 function getAuthorizationToken(req: Request): string {
   const authorization = req.headers.get("Authorization") ?? req.headers.get("authorization") ?? "";
   if (authorization.startsWith("Bearer ")) {
@@ -267,6 +271,15 @@ Deno.serve(async (req: Request) => {
 
   const maxPerMinute = userId ? MAX_REQUESTS_PER_MINUTE_AUTH : MAX_REQUESTS_PER_MINUTE_ANON;
   if (incrementedCount > maxPerMinute) {
+    logRateLimitEvent({
+      principal_key: principalKey,
+      action: ACTION_NAME,
+      bucket,
+      incremented_count: incrementedCount,
+      limit: maxPerMinute,
+      event_count: events.length,
+      auth: Boolean(userId),
+    });
     return error(429, "Too many requests", "RATE_LIMITED", requestCorsHeaders);
   }
 

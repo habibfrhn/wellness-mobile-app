@@ -129,6 +129,10 @@ function mapDeleteFailureToMessage(failure: DeleteAccountFailure) {
     return id.common.tryAgain;
   }
 
+  if (failure.status === 500 && failure.code === "RATE_LIMIT_FAILED") {
+    return id.common.tryAgain;
+  }
+
   return id.account.deleteFailed;
 }
 

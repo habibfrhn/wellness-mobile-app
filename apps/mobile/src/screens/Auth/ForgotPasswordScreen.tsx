@@ -7,7 +7,7 @@ import { colors } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase, AUTH_RESET } from "../../services/supabase";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
-import { isRateLimitedError } from "../../services/authSecurity";
+import { isRateLimitedError, logAuthRateLimitEvent } from "../../services/authSecurity";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "ForgotPassword">;
 
@@ -36,6 +36,7 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
 
       if (error) {
         if (isRateLimitedError(error.message)) {
+          logAuthRateLimitEvent("forgot_password", { screen: "ForgotPassword", email_domain: e.split("@")[1] ?? "unknown" });
           Alert.alert(id.common.errorTitle, id.common.authRateLimited);
           return;
         }

@@ -37,6 +37,17 @@ export function isRateLimitedError(message: string | null | undefined) {
   return RATE_LIMIT_MARKERS.some((marker) => normalized.includes(marker));
 }
 
+export function logAuthRateLimitEvent(context: string, details?: Record<string, unknown>) {
+  const payload = {
+    event: "rate_limit_429",
+    surface: "supabase-auth",
+    context,
+    ...details,
+  };
+
+  console.warn(JSON.stringify(payload));
+}
+
 export function isNetworkLikeError(message: string | null | undefined) {
   const normalized = (message ?? "").toLowerCase();
   return NETWORK_MARKERS.some((marker) => normalized.includes(marker));

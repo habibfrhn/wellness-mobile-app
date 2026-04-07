@@ -24,6 +24,7 @@ import {
   isEmailAlreadyRegisteredError,
   isRateLimitedError,
   isWeakPasswordError,
+  logAuthRateLimitEvent,
 } from "../../services/authSecurity";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "SignUp">;
@@ -186,6 +187,9 @@ export default function SignUpScreen({ navigation, route }: Props) {
         const safeMessage = isRateLimitedError(error.message)
           ? id.common.authRateLimited
           : getSafeAuthErrorMessage(error.message, id.common.genericAuthError);
+        if (isRateLimitedError(error.message)) {
+          logAuthRateLimitEvent("sign_up", { screen: "SignUp", email_domain: e.split("@")[1] ?? "unknown" });
+        }
         setFormError(safeMessage);
         return;
       }

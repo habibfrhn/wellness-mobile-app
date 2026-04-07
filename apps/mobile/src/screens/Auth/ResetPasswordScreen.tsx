@@ -8,7 +8,7 @@ import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
 import PasswordToggle from "../../components/PasswordToggle";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
-import { PASSWORD_MAX_LENGTH, isRateLimitedError, isValidPassword } from "../../services/authSecurity";
+import { PASSWORD_MAX_LENGTH, isRateLimitedError, isValidPassword, logAuthRateLimitEvent } from "../../services/authSecurity";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "ResetPassword">;
 
@@ -45,6 +45,7 @@ export default function ResetPasswordScreen({ navigation }: Props) {
 
       if (error) {
         if (isRateLimitedError(error.message)) {
+          logAuthRateLimitEvent("reset_password_update", { screen: "ResetPassword" });
           Alert.alert(id.common.errorTitle, id.common.authRateLimited);
           return;
         }

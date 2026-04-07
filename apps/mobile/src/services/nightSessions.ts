@@ -18,6 +18,23 @@ type RecordNightSessionPayload = {
 };
 
 export async function recordNightSession(payload: RecordNightSessionPayload): Promise<boolean> {
+  const maxAttempts = 2;
+
+  function isRetryableInvokeError(error: unknown) {
+    if (!error || typeof error !== "object") {
+      return false;
+    }
+
+    const maybeError = error as { context?: { status?: number }; message?: string };
+    const status = maybeError.context?.status;
+    if (typeof status === "number") {
+      return status >= 500;
+    }
+
+    const normalized = (maybeError.message ?? "").toLowerCase();
+    return normalized.includes("network") || normalized.includes("timeout") || normalized.includes("fetch");
+  }
+
   try {
     const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
     const accessToken = sessionData.session?.access_token;
@@ -25,14 +42,27 @@ export async function recordNightSession(payload: RecordNightSessionPayload): Pr
       return false;
     }
 
-    const { error } = await supabase.functions.invoke<{ ok: boolean }>("record-night-session", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: payload,
-    });
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      const { error } = await supabase.functions.invoke<{ ok: boolean }>("record-night-session", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: payload,
+      });
 
-    return !error;
+      if (!error) {
+        return true;
+      }
+
+      const shouldRetry = attempt < maxAttempts && isRetryableInvokeError(error);
+      if (!shouldRetry) {
+        return false;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 250 * attempt));
+    }
+
+    return false;
   } catch {
     return false;
   }
