@@ -16,6 +16,8 @@ import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthSc
 import AuthTextField from "../../components/auth/AuthTextField";
 import SignUpLoginPrompt from "../../components/auth/SignUpLoginPrompt";
 import { trackEvent } from "../../services/analytics";
+import TurnstileCaptcha from "../../components/auth/TurnstileCaptcha";
+import { isTurnstileEnabled } from "../../services/authCaptcha";
 import {
   PASSWORD_MAX_LENGTH,
   getPasswordRequirementChecks,
@@ -52,11 +54,14 @@ export default function SignUpScreen({ navigation, route }: Props) {
   const [busyGoogle, setBusyGoogle] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaResetNonce, setCaptchaResetNonce] = useState(0);
   const emailInputRef = useRef<TextInput>(null);
   const passwordInputRef = useRef<TextInput>(null);
   const confirmInputRef = useRef<TextInput>(null);
   const viewportWidth = useViewportWidth();
   const isDesktopWeb = Platform.OS === "web" && getWebViewport(viewportWidth) === "desktop";
+  const captchaEnabled = isTurnstileEnabled();
 
   const canPress = useMemo(() => !busy, [busy]);
   const passwordChecks = useMemo(() => getPasswordRequirementChecks(password), [password]);
@@ -152,6 +157,11 @@ export default function SignUpScreen({ navigation, route }: Props) {
     setErrors({});
     setFormError(null);
 
+    if (captchaEnabled && !captchaToken) {
+      setFormError(id.common.captchaRequired);
+      return;
+    }
+
     const e = email.trim().toLowerCase();
     const trimmedName = name.trim();
 
@@ -164,6 +174,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
         options: {
           emailRedirectTo: AUTH_CALLBACK,
           data: trimmedName ? { full_name: trimmedName } : undefined,
+          captchaToken: captchaToken ?? undefined,
         },
       });
 
@@ -202,6 +213,9 @@ export default function SignUpScreen({ navigation, route }: Props) {
       setFormError(id.common.genericAuthError);
     } finally {
       setBusy(false);
+      if (captchaEnabled) {
+        setCaptchaResetNonce((value) => value + 1);
+      }
     }
   }
 
@@ -343,6 +357,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
         />
 
         <View style={authSharedStyles.actionsStack}>
+          {captchaEnabled ? <TurnstileCaptcha onTokenChange={setCaptchaToken} resetNonce={captchaResetNonce} /> : null}
           {formError ? <Text style={styles.formError}>{formError}</Text> : null}
           <Pressable
             onPress={onSubmit}

@@ -8,6 +8,8 @@ import { id } from "../../i18n/strings";
 import { supabase, AUTH_RESET } from "../../services/supabase";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
 import { isRateLimitedError } from "../../services/authSecurity";
+import TurnstileCaptcha from "../../components/auth/TurnstileCaptcha";
+import { isTurnstileEnabled } from "../../services/authCaptcha";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "ForgotPassword">;
 
@@ -18,6 +20,9 @@ function isValidEmail(email: string) {
 export default function ForgotPasswordScreen({ navigation, route }: Props) {
   const [email, setEmail] = useState(route.params?.initialEmail ?? "");
   const [busy, setBusy] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaResetNonce, setCaptchaResetNonce] = useState(0);
+  const captchaEnabled = isTurnstileEnabled();
 
   const canSubmit = useMemo(() => isValidEmail(email) && !busy, [email, busy]);
 
@@ -27,11 +32,16 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
       Alert.alert(id.common.invalidEmail, id.common.invalidEmailBody);
       return;
     }
+    if (captchaEnabled && !captchaToken) {
+      Alert.alert(id.common.errorTitle, id.common.captchaRequired);
+      return;
+    }
 
     setBusy(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(e, {
         redirectTo: AUTH_RESET,
+        captchaToken: captchaToken ?? undefined,
       });
 
       if (error) {
@@ -51,6 +61,9 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
       ]);
     } finally {
       setBusy(false);
+      if (captchaEnabled) {
+        setCaptchaResetNonce((value) => value + 1);
+      }
     }
   }
 
@@ -72,6 +85,7 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
         </View>
 
         <View style={authSharedStyles.actionsStack}>
+          {captchaEnabled ? <TurnstileCaptcha onTokenChange={setCaptchaToken} resetNonce={captchaResetNonce} /> : null}
           <Pressable
             onPress={onSubmit}
             disabled={!canSubmit}

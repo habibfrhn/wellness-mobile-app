@@ -6,6 +6,7 @@ type ErrorCode =
   | "SERVER_MISCONFIGURATION"
   | "INVALID_SESSION"
   | "RATE_LIMITED"
+  | "RATE_LIMIT_CHECK_FAILED"
   | "DELETE_FAILED";
 
 const ACTION_NAME = "delete_user_account";
@@ -88,9 +89,7 @@ async function applyRateLimit(adminClient: ReturnType<typeof createClient>, user
   });
 
   if (error) {
-    // Keep deletion available even if rate limiter isn't deployed yet.
-    console.warn("delete-user-account: rate-limit rpc unavailable, continuing", error.message);
-    return;
+    throw new Error("RATE_LIMIT_CHECK_FAILED");
   }
 
   if (typeof data === "number" && data > MAX_REQUESTS_PER_HOUR) {
@@ -158,7 +157,8 @@ Deno.serve(async (req: Request) => {
       return fail(429, "Too many requests", "RATE_LIMITED", corsHeaders);
     }
 
-    console.warn("delete-user-account: unexpected rate-limit error", error);
+    console.error("delete-user-account: rate-limit check failed", error);
+    return fail(503, "Rate limit service unavailable", "RATE_LIMIT_CHECK_FAILED", corsHeaders);
   }
 
   // Soft-delete first: this works for both email/password and OAuth users,

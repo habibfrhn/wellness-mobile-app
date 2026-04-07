@@ -13,7 +13,7 @@ export const id = {
     errorTitle: "Terjadi kesalahan",
     tryAgain: "Silakan coba lagi.",
     genericAuthError: "Permintaan tidak dapat diproses. Periksa data Anda atau coba lagi sebentar lagi.",
-    authRateLimited: "Terlalu banyak percobaan. Coba lagi dalam beberapa menit.",
+    authRateLimited: "Terlalu banyak percobaan. Coba lagi dalam 60 detik.",
     menu: "Menu",
     linkExpiredTitle: "Tautan kedaluwarsa",
     linkExpiredBody: "Tautan sudah kedaluwarsa. Silakan minta tautan baru.",
@@ -23,6 +23,7 @@ export const id = {
     linkAlreadyUsedBody: "Akun ini sudah terverifikasi. Silakan masuk.",
     showPassword: "Lihat",
     hidePassword: "Sembunyikan",
+    captchaRequired: "Selesaikan verifikasi keamanan terlebih dahulu.",
   },
 
   auth: {
@@ -121,7 +122,7 @@ export const id = {
     iHaveVerified: "Saya sudah verifikasi",
     resend: "Kirim ulang email",
     resendBusy: "Mengirim ulang...",
-    resendWait: "Tunggu",
+    resendWait: "Tunggu 60 detik sebelum kirim ulang.",
     changeEmail: "Ganti email",
     backToLogin: "Kembali ke masuk",
     help: "Jika tidak masuk, cek folder Spam/Promosi dan tunggu 1–2 menit.",

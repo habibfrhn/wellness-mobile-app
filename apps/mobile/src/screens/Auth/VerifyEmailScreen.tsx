@@ -74,7 +74,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
         Alert.alert(id.common.errorTitle, id.common.genericAuthError);
         return;
       }
-      setCooldown(30);
+      setCooldown(60);
     } finally {
       setBusy(false);
     }
@@ -133,7 +133,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
             ]}
           >
             <Text style={authSharedStyles.secondaryButtonText}>
-              {busy ? id.verify.resendBusy : cooldown > 0 ? `${id.verify.resendWait} ${cooldown}s` : id.verify.resend}
+              {busy ? id.verify.resendBusy : cooldown > 0 ? `${id.verify.resendWait} (${cooldown}s)` : id.verify.resend}
             </Text>
           </Pressable>
 

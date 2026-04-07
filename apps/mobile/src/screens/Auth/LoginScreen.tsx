@@ -20,6 +20,8 @@ import { supabase } from "../../services/supabase";
 import { continueWithGoogle } from "../../services/authOAuth";
 import PasswordToggle from "../../components/PasswordToggle";
 import LoginSignUpPrompt from "../../components/auth/LoginSignUpPrompt";
+import TurnstileCaptcha from "../../components/auth/TurnstileCaptcha";
+import { isTurnstileEnabled } from "../../services/authCaptcha";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
@@ -40,7 +42,10 @@ export default function LoginScreen({ navigation, route }: Props) {
   const [busyGoogle, setBusyGoogle] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaResetNonce, setCaptchaResetNonce] = useState(0);
   const passwordInputRef = useRef<TextInput>(null);
+  const captchaEnabled = isTurnstileEnabled();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -104,11 +109,18 @@ export default function LoginScreen({ navigation, route }: Props) {
 
     setErrors({});
     setFormError(null);
+    if (captchaEnabled && !captchaToken) {
+      setFormError(id.common.captchaRequired);
+      return;
+    }
     setBusy(true);
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: e,
         password: p,
+        options: {
+          captchaToken: captchaToken ?? undefined,
+        },
       });
 
       if (error) {
@@ -124,6 +136,9 @@ export default function LoginScreen({ navigation, route }: Props) {
       }
     } finally {
       setBusy(false);
+      if (captchaEnabled) {
+        setCaptchaResetNonce((value) => value + 1);
+      }
     }
   }
 
@@ -227,6 +242,7 @@ export default function LoginScreen({ navigation, route }: Props) {
         </View>
 
         <View style={styles.actionsStack}>
+          {captchaEnabled ? <TurnstileCaptcha onTokenChange={setCaptchaToken} resetNonce={captchaResetNonce} /> : null}
           {formError ? <Text style={styles.formError}>{formError}</Text> : null}
           <Pressable
             onPress={onSubmit}
