@@ -49,7 +49,7 @@ async function signOutAfterDeletion() {
   await clearPersistedSession();
 
   if (Platform.OS === "web" && typeof window !== "undefined") {
-    window.location.assign("/");
+    window.location.replace("/");
   }
 }
 
