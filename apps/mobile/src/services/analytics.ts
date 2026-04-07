@@ -114,6 +114,40 @@ type TrackAnalyticsBatchPayload = {
   events: TrackAnalyticsEventPayload[];
 };
 
+function isValidTrackPayload(payload: TrackAnalyticsEventPayload) {
+  const sessionId = payload.session_id.trim();
+  if (sessionId.length < 8 || sessionId.length > 128) {
+    return false;
+  }
+
+  if (!payload.event_props || typeof payload.event_props !== "object" || Array.isArray(payload.event_props)) {
+    return false;
+  }
+
+  if (
+    payload.event_name === "audio_click" ||
+    payload.event_name === "audio_play" ||
+    payload.event_name === "audio_complete" ||
+    payload.event_name === "audio_abandon"
+  ) {
+    return typeof payload.event_props.audio_id === "string" && payload.event_props.audio_id.trim().length > 0;
+  }
+
+  if (
+    payload.event_name === "tailored_session_select" ||
+    payload.event_name === "tailored_session_start" ||
+    payload.event_name === "tailored_session_complete" ||
+    payload.event_name === "tailored_session_dropoff"
+  ) {
+    return (
+      payload.event_props.session_mode === "calm_mind" ||
+      payload.event_props.session_mode === "release_accept"
+    );
+  }
+
+  return Object.keys(payload.event_props).length === 0;
+}
+
 function getEventChunk() {
   if (pendingQueue.length === 0) {
     return [];
@@ -174,6 +208,18 @@ async function invokeTrackAnalyticsEventBatch(events: TrackAnalyticsEventPayload
   return error;
 }
 
+async function invokeTrackAnalyticsSingleEvent(event: TrackAnalyticsEventPayload) {
+  const accessToken = await getCachedAccessToken();
+  const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined;
+
+  const { error } = await supabase.functions.invoke<{ ok: boolean }>("track-analytics-event", {
+    headers,
+    body: event,
+  });
+
+  return error;
+}
+
 function bindAnalyticsListeners() {
   if (analyticsListenersBound || typeof window === "undefined") {
     return;
@@ -211,12 +257,52 @@ async function flushAnalyticsQueue() {
 
   while (pendingQueue.length > 0) {
     const chunk = getEventChunk();
-    const error = await invokeTrackAnalyticsEventBatch(chunk);
+    const validEvents = chunk.filter((event) => isValidTrackPayload(event));
+    const droppedCount = chunk.length - validEvents.length;
+    if (droppedCount > 0) {
+      logAnalyticsWarning("Dropped analytics events due invalid local payload", { droppedCount });
+    }
+
+    if (validEvents.length === 0) {
+      continue;
+    }
+
+    const error = await invokeTrackAnalyticsEventBatch(validEvents);
     if (error) {
       const details = await parseInvokeError(error);
 
       if (details.status === 400 || details.code === "INVALID_PAYLOAD") {
-        logAnalyticsWarning("Dropped analytics events due invalid payload", details);
+        logAnalyticsWarning("Analytics batch rejected; retrying event-by-event", details);
+        let shouldRetry = false;
+
+        for (const event of validEvents) {
+          const singleError = await invokeTrackAnalyticsSingleEvent(event);
+          if (!singleError) {
+            continue;
+          }
+
+          const singleDetails = await parseInvokeError(singleError);
+          if (singleDetails.status === 400 || singleDetails.code === "INVALID_PAYLOAD") {
+            logAnalyticsWarning("Dropped analytics event due invalid payload", singleDetails);
+            continue;
+          }
+
+          if (singleDetails.status === 401 || singleDetails.code === "INVALID_SESSION") {
+            cachedAccessToken = null;
+            accessTokenRefreshAtMs = 0;
+            logAnalyticsWarning("Dropped analytics event due invalid session", singleDetails);
+            continue;
+          }
+
+          shouldRetry = true;
+          break;
+        }
+
+        if (shouldRetry) {
+          pendingQueue = [...validEvents, ...pendingQueue].slice(0, MAX_QUEUE_SIZE);
+          break;
+        }
+
         continue;
       }
 
@@ -269,6 +355,11 @@ export async function trackEvent(eventName: AnalyticsEventName, properties: Reco
     event_props: sanitizedProps,
     session_id: getAnalyticsSessionId(),
   };
+
+  if (!isValidTrackPayload(payload)) {
+    logAnalyticsWarning("Dropped analytics event due invalid payload shape", eventName);
+    return;
+  }
 
   pendingQueue.push(payload);
   if (pendingQueue.length > MAX_QUEUE_SIZE) {
