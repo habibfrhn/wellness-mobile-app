@@ -75,7 +75,6 @@ export const id = {
     namePlaceholder: "Boleh dikosongkan",
     emailPlaceholder: "anda@email.com",
     passwordPlaceholder: "8–64 karakter",
-    passwordHelperLength: "8–64 karakter",
     passwordHelperMix: "Gunakan huruf besar, huruf kecil, angka, dan simbol.",
     passwordMissingPrefix: "Masih kurang:",
     passwordMissingMin: "minimal 8 karakter",

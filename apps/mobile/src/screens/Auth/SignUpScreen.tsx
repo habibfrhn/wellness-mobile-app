@@ -248,45 +248,46 @@ export default function SignUpScreen({ navigation, route }: Props) {
           errorText={errors.email}
         />
 
-        <AuthTextField
-          ref={passwordInputRef}
-          label={id.signup.passwordLabel}
-          value={password}
-          onChangeText={(value) => {
-            setPassword(value);
-            if (formError) {
-              setFormError(null);
-            }
-            if (errors.password || errors.confirm) {
-              setErrors((prev) => ({ ...prev, password: undefined, confirm: undefined }));
-            }
-          }}
-          autoCapitalize="none"
-          autoCorrect={false}
-          autoComplete="password-new"
-          textContentType="newPassword"
-          secureTextEntry={!showPassword}
-          returnKeyType="next"
-          onSubmitEditing={() => confirmInputRef.current?.focus()}
-          placeholder={id.signup.passwordPlaceholder}
-          errorText={errors.password}
-          rightNode={
+        <View>
+          <Text style={authSharedStyles.label}>{id.signup.passwordLabel}</Text>
+          <Text style={styles.passwordHelperText}>{id.signup.passwordHelperMix}</Text>
+          <View style={styles.passwordStrengthRow}>
+            {[0, 1, 2].map((index) => (
+              <View key={`strength-${index}`} style={[styles.passwordStrengthSegment, strengthLevel > index && styles.passwordStrengthSegmentActive]} />
+            ))}
+          </View>
+          <View style={authSharedStyles.inputWrap}>
+            <TextInput
+              ref={passwordInputRef}
+              value={password}
+              onChangeText={(value) => {
+                setPassword(value);
+                if (formError) {
+                  setFormError(null);
+                }
+                if (errors.password || errors.confirm) {
+                  setErrors((prev) => ({ ...prev, password: undefined, confirm: undefined }));
+                }
+              }}
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="password-new"
+              textContentType="newPassword"
+              secureTextEntry={!showPassword}
+              returnKeyType="next"
+              onSubmitEditing={() => confirmInputRef.current?.focus()}
+              placeholder={id.signup.passwordPlaceholder}
+              placeholderTextColor={colors.mutedText}
+              style={[authSharedStyles.input, styles.passwordInput, errors.password && styles.passwordInputError]}
+            />
             <PasswordToggle
               visible={showPassword}
               onPress={() => setShowPassword((v) => !v)}
               accessibilityLabel={showPassword ? id.common.hidePassword : id.common.showPassword}
               style={styles.toggle}
             />
-          }
-        />
-        <View style={styles.passwordHelperCard}>
-          <Text style={styles.passwordHelperHint}>{id.signup.passwordHelperLength}</Text>
-          <Text style={styles.passwordHelperHint}>{id.signup.passwordHelperMix}</Text>
-          <View style={styles.passwordStrengthRow}>
-            {[0, 1, 2].map((index) => (
-              <View key={`strength-${index}`} style={[styles.passwordStrengthSegment, strengthLevel > index && styles.passwordStrengthSegmentActive]} />
-            ))}
           </View>
+          {errors.password ? <Text style={styles.fieldErrorText}>{errors.password}</Text> : null}
           {passwordStatusText ? (
             <Text style={[styles.passwordStatusText, isValidPassword(password) ? styles.passwordStatusSuccess : styles.passwordStatusWarning]}>
               {passwordStatusText}
@@ -366,23 +367,27 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: spacing.xs,
   },
-  passwordHelperCard: {
-    gap: spacing.xs,
-    marginTop: -spacing.xs,
-    padding: spacing.sm,
-    borderRadius: spacing.xs,
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.mutedText,
-  },
-  passwordHelperHint: {
+  passwordHelperText: {
     color: colors.mutedText,
     fontSize: typography.caption,
+    marginTop: -spacing.xs,
   },
   passwordStrengthRow: {
     flexDirection: "row",
     gap: spacing.xs,
     marginTop: spacing.xs,
+    marginBottom: spacing.xs,
+  },
+  passwordInput: {
+    paddingRight: spacing.xl + spacing.sm,
+  },
+  passwordInputError: {
+    borderColor: colors.danger,
+  },
+  fieldErrorText: {
+    marginTop: spacing.xs,
+    color: colors.danger,
+    fontSize: typography.caption,
   },
   passwordStrengthSegment: {
     flex: 1,
