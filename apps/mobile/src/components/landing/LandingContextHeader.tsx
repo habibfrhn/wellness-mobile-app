@@ -18,7 +18,7 @@ type Props = {
   onPressSignUp: () => void;
 };
 
-const NAV_ITEMS: Array<{ key: NavItemKey; label: string }> = [
+const NAV_ITEMS: { key: NavItemKey; label: string }[] = [
   { key: "home", label: "Home" },
   { key: "faq", label: "FAQ" },
   { key: "privacy-policy", label: "Kebijakan Privasi" },

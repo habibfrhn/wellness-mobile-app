@@ -123,11 +123,11 @@ export default function LandingScreen() {
     });
   };
 
-  const headerNavItems: Array<{
+  const headerNavItems: {
     key: string;
     label: string;
     onPress: () => void;
-  }> = [
+  }[] = [
     {
       key: "home",
       label: "Home",

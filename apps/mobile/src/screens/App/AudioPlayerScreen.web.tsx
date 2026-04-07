@@ -84,7 +84,6 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
     onSeek,
     handleTimerSelect,
     handleStop,
-    resetPlayers,
     resetSessionState,
   } = useWebAudioPlayerSession({ audioId, playlistIds, sleepMode });
 

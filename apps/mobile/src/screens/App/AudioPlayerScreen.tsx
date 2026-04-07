@@ -22,7 +22,7 @@ import { isFavorite, toggleFavorite } from "../../content/audioCatalog";
 import { id } from "../../i18n/strings";
 import HeaderCloseButton from "../../components/navigation/HeaderCloseButton";
 import type { AppStackParamList } from "../../navigation/types";
-import { colors, spacing, typography } from "../../theme/tokens";
+import { colors, spacing } from "../../theme/tokens";
 import {
   getWebPageContainerStyle,
   getWebSectionSpacing,
@@ -72,7 +72,6 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     onSeek,
     handleTimerSelect,
     handleStop,
-    resetPlayers,
     resetSessionState,
   } = useAudioPlayerSession({ audioId, playlistIds, sleepMode });
 

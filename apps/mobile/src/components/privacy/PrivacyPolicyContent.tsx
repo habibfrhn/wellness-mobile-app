@@ -2,7 +2,7 @@ import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { id } from "../../i18n/strings";
-import { colors, radius, spacing, typography } from "../../theme/tokens";
+import { colors, spacing, typography } from "../../theme/tokens";
 
 type PolicySectionProps = {
   title: string;

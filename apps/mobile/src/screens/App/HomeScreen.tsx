@@ -94,7 +94,7 @@ export default function HomeScreen({ navigation, route }: Props) {
       return () => {
         cancelled = true;
       };
-    }, [navigation]),
+    }, []),
   );
 
   const nonSoundscapeTracks = useMemo(
