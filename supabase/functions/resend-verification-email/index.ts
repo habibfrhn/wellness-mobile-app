@@ -3,10 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 type ErrorCode =
   | "METHOD_NOT_ALLOWED"
   | "INVALID_JSON"
-  | "MISSING_AUTHORIZATION"
-  | "INVALID_SESSION"
   | "INVALID_PAYLOAD"
-  | "EMAIL_MISMATCH"
   | "SERVER_MISCONFIGURATION"
   | "RATE_LIMITED"
   | "RATE_LIMIT_FAILED"
@@ -68,15 +65,6 @@ function buildCorsHeaders(req: Request) {
   };
 }
 
-function getBearerToken(req: Request): string {
-  const authorization = req.headers.get("authorization") ?? req.headers.get("Authorization") ?? "";
-  if (!authorization.startsWith("Bearer ")) {
-    return "";
-  }
-
-  return authorization.slice(7);
-}
-
 function getCooldownBucket(date: Date) {
   return `60s:${Math.floor(date.getTime() / 60_000)}`;
 }
@@ -102,14 +90,31 @@ function isSafeRedirectUrl(value: string) {
   }
 }
 
+function getClientIp(req: Request) {
+  const xff = req.headers.get("x-forwarded-for") ?? "";
+  const firstIp = xff.split(",")[0]?.trim();
+  if (firstIp) {
+    return firstIp;
+  }
+
+  const realIp = req.headers.get("x-real-ip")?.trim();
+  return realIp || "unknown";
+}
+
+async function sha256(value: string) {
+  const encoded = new TextEncoder().encode(value);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", encoded);
+  return Array.from(new Uint8Array(hashBuffer)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 async function incrementRateLimit(
   adminClient: ReturnType<typeof createClient>,
-  userId: string,
+  principalKey: string,
   action: string,
   bucket: string
 ): Promise<number> {
-  const { data, error } = await adminClient.rpc("increment_rate_limit", {
-    p_user_id: userId,
+  const { data, error } = await adminClient.rpc("increment_analytics_ingest_rate_limit", {
+    p_principal_key: principalKey,
     p_action: action,
     p_bucket: bucket,
   });
@@ -143,11 +148,6 @@ Deno.serve(async (req: Request) => {
     return fail(500, "Server misconfiguration", "SERVER_MISCONFIGURATION", corsHeaders);
   }
 
-  const bearerToken = getBearerToken(req);
-  if (!bearerToken) {
-    return fail(401, "Missing Authorization bearer token", "MISSING_AUTHORIZATION", corsHeaders);
-  }
-
   let payload: ResendBody;
   try {
     payload = (await req.json()) as ResendBody;
@@ -168,30 +168,19 @@ Deno.serve(async (req: Request) => {
     return fail(400, "Invalid request payload", "INVALID_PAYLOAD", corsHeaders);
   }
 
-  const userClient = createClient(supabaseUrl, supabaseAnonKey, {
-    global: { headers: { Authorization: `Bearer ${bearerToken}` } },
-  });
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
-
-  const { data: userData, error: userError } = await userClient.auth.getUser();
-  const user = userData?.user;
-  if (userError || !user?.id || !user.email) {
-    return fail(401, "Invalid user session", "INVALID_SESSION", corsHeaders);
-  }
-
-  if (user.email.toLowerCase() !== email) {
-    return fail(403, "Email does not match current user", "EMAIL_MISMATCH", corsHeaders);
-  }
+  const anonClient = createClient(supabaseUrl, supabaseAnonKey);
 
   const now = new Date();
+  const principalKey = await sha256(`${email}|${getClientIp(req)}`);
 
   try {
-    const cooldownCount = await incrementRateLimit(adminClient, user.id, ACTION_RESEND_COOLDOWN, getCooldownBucket(now));
+    const cooldownCount = await incrementRateLimit(adminClient, principalKey, ACTION_RESEND_COOLDOWN, getCooldownBucket(now));
     if (cooldownCount > 1) {
       return json(429, { ok: false, code: "RATE_LIMITED", retryAfterSec: RESEND_COOLDOWN_SECONDS }, corsHeaders);
     }
 
-    const hourlyCount = await incrementRateLimit(adminClient, user.id, ACTION_RESEND_HOURLY, getHourBucket(now));
+    const hourlyCount = await incrementRateLimit(adminClient, principalKey, ACTION_RESEND_HOURLY, getHourBucket(now));
     if (hourlyCount > MAX_RESENDS_PER_HOUR) {
       return json(429, { ok: false, code: "RATE_LIMITED", retryAfterSec: getSecondsUntilNextHour(now) }, corsHeaders);
     }
@@ -199,7 +188,7 @@ Deno.serve(async (req: Request) => {
     return fail(503, "Service temporarily unavailable", "RATE_LIMIT_FAILED", corsHeaders);
   }
 
-  const { error: resendError } = await userClient.auth.resend({
+  const { error: resendError } = await anonClient.auth.resend({
     type: "signup",
     email,
     options: redirectTo ? { emailRedirectTo: redirectTo } : undefined,

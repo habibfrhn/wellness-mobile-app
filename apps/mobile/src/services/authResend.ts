@@ -41,17 +41,7 @@ async function extractFunctionErrorPayload(error: unknown): Promise<ResendVerifi
 }
 
 export async function resendVerificationEmail(email: string): Promise<ResendVerificationResult> {
-  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-  const accessToken = sessionData.session?.access_token;
-
-  if (sessionError || !accessToken) {
-    return { ok: false, code: "ERROR" };
-  }
-
   const { data, error } = await supabase.functions.invoke<ResendVerificationResponse>("resend-verification-email", {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
     body: {
       email: email.trim().toLowerCase(),
       redirectTo: AUTH_CALLBACK,
