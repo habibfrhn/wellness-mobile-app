@@ -177,6 +177,7 @@ Deno.serve(async (req: Request) => {
   const now = new Date();
   const principalKey = await sha256(`${email}|${getClientIp(req)}`);
 
+  let rateLimitUnavailable = false;
   try {
     const cooldownCount = await incrementRateLimit(adminClient, principalKey, ACTION_RESEND_COOLDOWN, getCooldownBucket(now));
     if (cooldownCount > 1) {
@@ -190,8 +191,11 @@ Deno.serve(async (req: Request) => {
       return json(409, { ok: false, code: "LINK_STILL_VALID", retryAfterSec: getSecondsUntilWindowReset(now) }, corsHeaders);
     }
   } catch (error) {
-    console.error("resend-verification-email: rate-limit subsystem failed", { emailPreview, error });
-    return fail(503, "Service temporarily unavailable", "RATE_LIMIT_FAILED", corsHeaders);
+    rateLimitUnavailable = true;
+    console.error("resend-verification-email: rate-limit subsystem unavailable, falling back to auth provider limits", {
+      emailPreview,
+      error,
+    });
   }
 
   const { error: resendError } = await anonClient.auth.resend({
@@ -216,6 +220,6 @@ Deno.serve(async (req: Request) => {
     return fail(500, "Failed to resend verification email", "RESEND_FAILED", corsHeaders);
   }
 
-  console.log("resend-verification-email: resend success", { emailPreview });
+  console.log("resend-verification-email: resend success", { emailPreview, rateLimitUnavailable });
   return json(200, { ok: true, cooldownSec: RESEND_COOLDOWN_SECONDS }, corsHeaders);
 });
