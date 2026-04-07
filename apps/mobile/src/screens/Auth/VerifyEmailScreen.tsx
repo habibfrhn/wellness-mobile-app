@@ -53,6 +53,9 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
     setBusy(true);
     try {
       const result = await resendVerificationEmail(email);
+      if (__DEV__) {
+        console.log("VerifyEmailScreen: resend result", { trigger, code: result.ok ? "OK" : result.code });
+      }
 
       if (!result.ok) {
         if (result.code === "RATE_LIMITED") {

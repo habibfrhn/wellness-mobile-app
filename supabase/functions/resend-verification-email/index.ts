@@ -129,6 +129,7 @@ async function incrementRateLimit(
 
 Deno.serve(async (req: Request) => {
   const corsHeaders = buildCorsHeaders(req);
+  console.log("resend-verification-email: request", { method: req.method, origin: req.headers.get("origin") ?? null });
 
   if (req.headers.get("origin") && !corsHeaders["Access-Control-Allow-Origin"]) {
     return fail(403, "Origin not allowed", "METHOD_NOT_ALLOWED", corsHeaders);
@@ -157,6 +158,7 @@ Deno.serve(async (req: Request) => {
   }
 
   const email = (payload.email ?? "").trim().toLowerCase();
+  const emailPreview = email ? `${email.slice(0, 3)}***` : null;
   if (!email) {
     return fail(400, "Invalid request payload", "INVALID_PAYLOAD", corsHeaders);
   }
@@ -178,14 +180,17 @@ Deno.serve(async (req: Request) => {
   try {
     const cooldownCount = await incrementRateLimit(adminClient, principalKey, ACTION_RESEND_COOLDOWN, getCooldownBucket(now));
     if (cooldownCount > 1) {
+      console.warn("resend-verification-email: cooldown limited", { emailPreview });
       return json(429, { ok: false, code: "RATE_LIMITED", retryAfterSec: RESEND_COOLDOWN_SECONDS }, corsHeaders);
     }
 
     const windowCount = await incrementRateLimit(adminClient, principalKey, ACTION_RESEND_VALID_WINDOW, getValidWindowBucket(now));
     if (windowCount > 1) {
+      console.log("resend-verification-email: link still valid", { emailPreview });
       return json(409, { ok: false, code: "LINK_STILL_VALID", retryAfterSec: getSecondsUntilWindowReset(now) }, corsHeaders);
     }
-  } catch {
+  } catch (error) {
+    console.error("resend-verification-email: rate-limit subsystem failed", { emailPreview, error });
     return fail(503, "Service temporarily unavailable", "RATE_LIMIT_FAILED", corsHeaders);
   }
 
@@ -196,6 +201,7 @@ Deno.serve(async (req: Request) => {
   });
 
   if (resendError) {
+    console.error("resend-verification-email: resend failed", { emailPreview, message: resendError.message });
     const normalizedMessage = resendError.message.toLowerCase();
     const isRateLimited =
       normalizedMessage.includes("rate limit") ||
@@ -210,5 +216,6 @@ Deno.serve(async (req: Request) => {
     return fail(500, "Failed to resend verification email", "RESEND_FAILED", corsHeaders);
   }
 
+  console.log("resend-verification-email: resend success", { emailPreview });
   return json(200, { ok: true, cooldownSec: RESEND_COOLDOWN_SECONDS }, corsHeaders);
 });
