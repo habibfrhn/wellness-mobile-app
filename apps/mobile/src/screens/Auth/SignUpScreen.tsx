@@ -16,7 +16,6 @@ import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthSc
 import AuthTextField from "../../components/auth/AuthTextField";
 import SignUpLoginPrompt from "../../components/auth/SignUpLoginPrompt";
 import { trackEvent } from "../../services/analytics";
-import { markVerificationLinkSent } from "../../services/authResend";
 import {
   PASSWORD_MAX_LENGTH,
   getPasswordRequirementChecks,
@@ -195,7 +194,6 @@ export default function SignUpScreen({ navigation, route }: Props) {
         return;
       }
 
-      await markVerificationLinkSent(e);
       void trackEvent("signup_complete", { method: "email" });
       navigation.replace("VerifyEmail", { email: e, context: "signup" });
     } catch {

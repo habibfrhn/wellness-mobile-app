@@ -70,9 +70,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
         return;
       }
 
-      if (trigger === "manual") {
-        Alert.alert(id.verify.resendSuccessTitle, id.verify.resendSuccessBody);
-      }
+      Alert.alert(id.verify.resendSuccessTitle, id.verify.resendSuccessBody);
     } finally {
       setBusy(false);
     }
