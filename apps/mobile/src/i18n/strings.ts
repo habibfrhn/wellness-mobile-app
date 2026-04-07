@@ -356,10 +356,10 @@ export const id = {
 
     privacyPolicyScreenTitle: "Kebijakan Privasi",
     privacyPolicyUpdatedAtLabel: "Terakhir diperbarui:",
-    privacyPolicyUpdatedAtValue: "21/01/2026",
+    privacyPolicyUpdatedAtValue: "07/04/2026",
     privacyPolicySummaryTitle: "1) Ringkasan",
     privacyPolicySummaryBody:
-      "Kami menghargai privasi Anda. Kebijakan ini menjelaskan informasi apa yang kami kumpulkan, bagaimana kami menggunakannya, dan hak Anda sebagai pengguna.",
+      "Kami menghargai privasi Anda. Kebijakan ini menjelaskan informasi apa yang kami kumpulkan, bagaimana kami menggunakannya, serta bagaimana data disimpan (termasuk penyimpanan lokal dan cache aset statis) saat Anda memakai Lumepo.",
     privacyPolicyInfoTitle: "2) Informasi yang Kami Kumpulkan",
     privacyPolicyInfoIntro: "Kami hanya mengumpulkan data yang diperlukan untuk menjalankan layanan:",
     privacyPolicyAccountTitle: "a) Informasi Akun",
@@ -378,10 +378,12 @@ export const id = {
     privacyPolicyUsageTitle: "b) Data Penggunaan Aplikasi",
     privacyPolicyUsageBullets: [
       "Data penggunaan dasar seperti durasi sesi, layar yang diakses, dan laporan crash (untuk meningkatkan kualitas aplikasi)",
+      "Event interaksi produk (misalnya klik audio dan penyelesaian sesi) untuk validasi MVP",
     ],
     privacyPolicyDeviceTitle: "c) Informasi Perangkat",
     privacyPolicyDeviceBullets: [
       "Jenis perangkat, versi OS, versi aplikasi, serta identifier tertentu untuk keperluan debugging dan pencegahan penyalahgunaan",
+      "Penyimpanan lokal aplikasi (misalnya status sesi login, preferensi reminder, dan cache progress streak yang memiliki TTL singkat)",
     ],
     privacyPolicyUseTitle: "3) Cara Kami Menggunakan Informasi",
     privacyPolicyUseBullets: [
@@ -391,23 +393,25 @@ export const id = {
       "Mendukung proses login dan autentikasi, termasuk email dan Google OAuth",
       "Memperbaiki performa dan stabilitas",
       "Mengirim pemberitahuan penting (misalnya reset kata sandi)",
+      "Menyediakan performa web yang lebih baik melalui cache aset statis yang sudah di-versioning",
     ],
     privacyPolicySharingTitle: "4) Berbagi Data",
     privacyPolicySharingIntro: "Kami tidak menjual data Anda.",
     privacyPolicySharingBody: "Data hanya dapat dibagikan dengan:",
     privacyPolicySharingBullets: [
-      "Penyedia layanan (analytics, crash reporting, hosting, dan autentikasi) yang membantu operasional aplikasi",
+      "Penyedia layanan (hosting, autentikasi, database, analytics, dan crash reporting) yang membantu operasional aplikasi",
       "Pihak berwenang jika diwajibkan oleh hukum",
     ],
     privacyPolicySecurityTitle: "5) Penyimpanan & Keamanan",
     privacyPolicySecurityBody:
-      "Kami menggunakan standar keamanan yang wajar untuk melindungi data Anda. Tidak ada sistem yang sepenuhnya aman, tetapi kami berupaya semaksimal mungkin.",
+      "Kami menggunakan standar keamanan yang wajar untuk melindungi data Anda. Di web, halaman utama direvalidasi cepat, API sensitif tidak disimpan cache browser/CDN, dan aset statis versi-build dapat di-cache untuk performa. Tidak ada sistem yang sepenuhnya aman, tetapi kami berupaya semaksimal mungkin.",
     privacyPolicyRightsTitle: "6) Hak Anda",
     privacyPolicyRightsIntro: "Anda berhak untuk:",
     privacyPolicyRightsBullets: [
       "Meminta penghapusan akun",
       "Mengakses atau memperbarui data Anda",
       "Menarik persetujuan (jika berlaku)",
+      "Menghapus data lokal aplikasi dengan logout atau hapus akun pada perangkat Anda",
     ],
     privacyPolicyChildrenTitle: "7) Privasi Anak",
     privacyPolicyChildrenBody:
@@ -418,6 +422,8 @@ export const id = {
     privacyPolicyChangesTitle: "9) Perubahan Kebijakan",
     privacyPolicyChangesBody:
       'Kebijakan ini dapat diperbarui dari waktu ke waktu. Tanggal "Terakhir diperbarui" akan disesuaikan.',
+    privacyPolicyCookiesNote:
+      "Saat ini kami tidak menampilkan banner persetujuan cookie terpisah. Lumepo terutama menggunakan penyimpanan aplikasi/browser untuk fungsi login dan pengalaman penggunaan. Jika diperlukan secara regulasi di masa depan, mekanisme persetujuan akan kami tambahkan.",
     privacyPolicyContactTitle: "10) Kontak",
     privacyPolicyContactBody: "Untuk pertanyaan atau permintaan terkait privasi:",
     privacyPolicyContactEmailLabel: "Email",
@@ -425,7 +431,7 @@ export const id = {
 
     termsScreenTitle: "Ketentuan & Syarat",
     termsUpdatedAtLabel: "Terakhir diperbarui:",
-    termsUpdatedAtValue: "21/01/2026",
+    termsUpdatedAtValue: "07/04/2026",
     termsGeneralTitle: "1) Ketentuan Umum",
     termsGeneralBody:
       'Ketentuan ini mengatur penggunaan Lumepo ("Aplikasi") yang dikembangkan oleh Mitra Pasifik Nusantara ("Pengembang").',
@@ -452,7 +458,7 @@ export const id = {
       "Seluruh hak atas Aplikasi dan Kontennya milik Pengembang atau pemberi lisensi. Anda tidak boleh mendistribusikan atau menggandakan tanpa izin tertulis.",
     termsDisclaimerTitle: "6) Disclaimer (Penyangkalan)",
     termsDisclaimerBody:
-      'Aplikasi disediakan "sebagaimana adanya" tanpa jaminan apa pun. Pengembang tidak menjamin Aplikasi selalu bebas gangguan atau sepenuhnya aman.',
+      'Aplikasi disediakan "sebagaimana adanya" tanpa jaminan apa pun. Pengembang tidak menjamin Aplikasi selalu bebas gangguan atau sepenuhnya aman. Konten audio/relaksasi bukan pengganti nasihat medis profesional.',
     termsLiabilityTitle: "7) Pembatasan Tanggung Jawab",
     termsLiabilityBody:
       "Sejauh diizinkan hukum, Pengembang tidak bertanggung jawab atas kerugian tidak langsung, insidental, atau konsekuensial akibat penggunaan Aplikasi.",
@@ -460,7 +466,7 @@ export const id = {
     termsLawBody: "Ketentuan ini diatur oleh hukum Indonesia.",
     termsChangesTitle: "9) Perubahan Ketentuan",
     termsChangesBody:
-      "Pengembang dapat mengubah Ketentuan ini kapan saja. Penggunaan Aplikasi setelah perubahan berarti Anda menerima versi baru.",
+      "Pengembang dapat mengubah Ketentuan ini kapan saja. Penggunaan Aplikasi setelah perubahan berarti Anda menerima versi baru, termasuk pembaruan cara penyimpanan data lokal dan cache performa aplikasi.",
     termsContactTitle: "10) Kontak",
     termsContactBody: "Jika ada pertanyaan:",
     termsContactEmailLabel: "Email",

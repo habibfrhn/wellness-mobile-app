@@ -95,7 +95,9 @@ export default function PrivacyPolicyContent() {
 
         <PolicySection title={id.account.privacyPolicyChildrenTitle} body={id.account.privacyPolicyChildrenBody} />
         <PolicySection title={id.account.privacyPolicyInternationalTitle} body={id.account.privacyPolicyInternationalBody} />
-        <PolicySection title={id.account.privacyPolicyChangesTitle} body={id.account.privacyPolicyChangesBody} />
+        <PolicySection title={id.account.privacyPolicyChangesTitle} body={id.account.privacyPolicyChangesBody}>
+          <Text style={styles.bodyText}>{id.account.privacyPolicyCookiesNote}</Text>
+        </PolicySection>
 
         <PolicySection title={id.account.privacyPolicyContactTitle} body={id.account.privacyPolicyContactBody}>
           <Text style={styles.bodyText}>
