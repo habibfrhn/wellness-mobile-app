@@ -21,6 +21,8 @@ type TrackAnalyticsEventBody = {
   session_id: string;
 };
 
+type TrackAnalyticsEventRequestBody = TrackAnalyticsEventBody | TrackAnalyticsEventBody[];
+
 type ErrorCode =
   | "METHOD_NOT_ALLOWED"
   | "INVALID_JSON"
@@ -34,6 +36,7 @@ type ErrorCode =
 const ACTION_NAME = "track_analytics_event";
 const MAX_REQUESTS_PER_MINUTE_ANON = 45;
 const MAX_REQUESTS_PER_MINUTE_AUTH = 90;
+const MAX_BATCH_EVENTS = 20;
 
 const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -156,6 +159,26 @@ function isValidPayload(value: unknown): value is TrackAnalyticsEventBody {
   return Object.keys(eventProps).length === 0;
 }
 
+function parsePayloadBatch(value: unknown): TrackAnalyticsEventBody[] | null {
+  if (Array.isArray(value)) {
+    if (value.length < 1 || value.length > MAX_BATCH_EVENTS) {
+      return null;
+    }
+
+    if (!value.every((item) => isValidPayload(item))) {
+      return null;
+    }
+
+    return value;
+  }
+
+  if (!isValidPayload(value)) {
+    return null;
+  }
+
+  return [value];
+}
+
 async function sha256Hex(value: string) {
   const bytes = new TextEncoder().encode(value);
   const digest = await crypto.subtle.digest("SHA-256", bytes);
@@ -197,14 +220,15 @@ Deno.serve(async (req: Request) => {
     return error(500, "Server misconfiguration", "SERVER_MISCONFIGURATION", requestCorsHeaders);
   }
 
-  let payload: unknown;
+  let payloadRaw: TrackAnalyticsEventRequestBody | unknown;
   try {
-    payload = await req.json();
+    payloadRaw = await req.json();
   } catch {
     return error(400, "Invalid JSON body", "INVALID_JSON", requestCorsHeaders);
   }
 
-  if (!isValidPayload(payload)) {
+  const events = parsePayloadBatch(payloadRaw);
+  if (!events) {
     return error(400, "Invalid request payload", "INVALID_PAYLOAD", requestCorsHeaders);
   }
 
@@ -246,12 +270,14 @@ Deno.serve(async (req: Request) => {
     return error(429, "Too many requests", "RATE_LIMITED", requestCorsHeaders);
   }
 
-  const { error: insertError } = await adminClient.from("analytics_events").insert({
-    event_name: payload.event_name,
-    event_props: payload.event_props,
-    session_id: payload.session_id,
+  const insertRows = events.map((event) => ({
+    event_name: event.event_name,
+    event_props: event.event_props,
+    session_id: event.session_id,
     user_id: userId,
-  });
+  }));
+
+  const { error: insertError } = await adminClient.from("analytics_events").insert(insertRows);
 
   if (insertError) {
     console.error("track-analytics-event: insert failed", insertError);

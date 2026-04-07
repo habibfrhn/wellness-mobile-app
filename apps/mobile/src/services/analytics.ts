@@ -16,10 +16,26 @@ export type AnalyticsEventName =
   | "tailored_session_dropoff";
 
 let inMemorySessionId: string | null = null;
+let inMemoryAccessToken: string | null = null;
+let accessTokenFetchedAt = 0;
 const MAX_EVENT_PROPS_BYTES = 2048;
 const MAX_STRING_PROP_LENGTH = 120;
 const AUDIO_ID_PROP_KEY = "audio_id";
 const SESSION_MODE_PROP_KEY = "session_mode";
+const FLUSH_INTERVAL_MS = 1500;
+const MAX_BATCH_SIZE = 20;
+const ACCESS_TOKEN_CACHE_MS = 60_000;
+const MAX_PENDING_EVENTS = 80;
+
+type QueuedAnalyticsEvent = {
+  event_name: AnalyticsEventName;
+  event_props: Record<string, unknown>;
+  session_id: string;
+};
+
+const analyticsEventQueue: QueuedAnalyticsEvent[] = [];
+let flushTimer: ReturnType<typeof setTimeout> | null = null;
+let flushInFlight: Promise<void> | null = null;
 
 function logAnalyticsWarning(message: string, ...context: unknown[]) {
   if (__DEV__) {
@@ -120,9 +136,20 @@ function shouldRetryWithLegacyPayload(error: unknown) {
   return typeof maybeError.message === "string" && maybeError.message.includes("non-2xx");
 }
 
-async function invokeTrackAnalyticsEvent(payload: TrackAnalyticsEventPayload) {
+async function getAccessTokenCached() {
+  const now = Date.now();
+  if (inMemoryAccessToken && now - accessTokenFetchedAt < ACCESS_TOKEN_CACHE_MS) {
+    return inMemoryAccessToken;
+  }
+
   const { data: sessionData } = await supabase.auth.getSession();
-  const accessToken = sessionData.session?.access_token;
+  inMemoryAccessToken = sessionData.session?.access_token ?? null;
+  accessTokenFetchedAt = now;
+  return inMemoryAccessToken;
+}
+
+async function invokeTrackAnalyticsEvent(payload: TrackAnalyticsEventPayload | TrackAnalyticsEventPayload[]) {
+  const accessToken = await getAccessTokenCached();
   const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined;
 
   const { error } = await supabase.functions.invoke<{ ok: boolean }>("track-analytics-event", {
@@ -131,6 +158,10 @@ async function invokeTrackAnalyticsEvent(payload: TrackAnalyticsEventPayload) {
   });
 
   if (!error || !shouldRetryWithLegacyPayload(error)) {
+    return error;
+  }
+
+  if (Array.isArray(payload)) {
     return error;
   }
 
@@ -159,6 +190,54 @@ export function getAnalyticsSessionId() {
   return inMemorySessionId;
 }
 
+function scheduleFlush() {
+  if (flushTimer) {
+    return;
+  }
+
+  flushTimer = setTimeout(() => {
+    flushTimer = null;
+    void flushAnalyticsQueue();
+  }, FLUSH_INTERVAL_MS);
+}
+
+async function flushAnalyticsQueue() {
+  if (flushInFlight || analyticsEventQueue.length === 0) {
+    return flushInFlight;
+  }
+
+  flushInFlight = (async () => {
+    const batch = analyticsEventQueue.splice(0, MAX_BATCH_SIZE);
+    const payload = batch.length === 1 ? batch[0] : batch;
+    const error = await invokeTrackAnalyticsEvent(payload);
+    if (error) {
+      logAnalyticsWarning("Failed to track analytics event batch", error.message);
+    }
+  })().finally(() => {
+    flushInFlight = null;
+    if (analyticsEventQueue.length > 0) {
+      scheduleFlush();
+    }
+  });
+
+  return flushInFlight;
+}
+
+function enqueueAnalyticsEvent(payload: QueuedAnalyticsEvent) {
+  if (analyticsEventQueue.length >= MAX_PENDING_EVENTS) {
+    analyticsEventQueue.shift();
+    logAnalyticsWarning("Dropped oldest analytics event due to queue pressure");
+  }
+
+  analyticsEventQueue.push(payload);
+  if (analyticsEventQueue.length >= MAX_BATCH_SIZE) {
+    void flushAnalyticsQueue();
+    return;
+  }
+
+  scheduleFlush();
+}
+
 export async function trackEvent(eventName: AnalyticsEventName, properties: Record<string, unknown> = {}) {
   const sanitizedProps = sanitizeEventProps(eventName, properties);
   if (exceedsEventPropsLimit(sanitizedProps)) {
@@ -172,8 +251,5 @@ export async function trackEvent(eventName: AnalyticsEventName, properties: Reco
     session_id: getAnalyticsSessionId(),
   };
 
-  const error = await invokeTrackAnalyticsEvent(payload);
-  if (error) {
-    logAnalyticsWarning("Failed to track analytics event", eventName, error.message);
-  }
+  enqueueAnalyticsEvent(payload);
 }
