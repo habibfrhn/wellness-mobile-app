@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { supabase } from "./supabase";
 
 const CACHE_KEY_PREFIX = "night:streak_progress_cache:";
+const CACHE_TTL_MS = 5 * 60 * 1000;
 
 export type NightStreakProgress = {
   userId: string;
@@ -62,7 +63,7 @@ export async function getNightStreakState(forceRefresh = false): Promise<NightSt
   const userId = authData.user.id;
 
   if (!forceRefresh) {
-    const cached = await readCachedNightStreak(userId);
+    const cached = await readCachedNightStreak(userId, false);
     if (cached) {
       return cached;
     }
@@ -75,7 +76,7 @@ export async function getNightStreakState(forceRefresh = false): Promise<NightSt
     .maybeSingle<NightStreakProgressRow>();
 
   if (error) {
-    return readCachedNightStreak(userId);
+    return readCachedNightStreak(userId, true);
   }
 
   const mapped = data ? mapRowToProgress(data) : null;
@@ -95,22 +96,54 @@ function mapRowToProgress(row: NightStreakProgressRow): NightStreakProgress {
   };
 }
 
-async function readCachedNightStreak(userId: string): Promise<NightStreakProgress | null> {
+type NightStreakCacheEntry = {
+  progress: NightStreakProgress;
+  cachedAt: number;
+};
+
+async function readCachedNightStreak(userId: string, allowStale: boolean): Promise<NightStreakProgress | null> {
   try {
     const raw = await AsyncStorage.getItem(`${CACHE_KEY_PREFIX}${userId}`);
     if (!raw) {
       return null;
     }
 
-    const parsed = JSON.parse(raw) as NightStreakProgress;
-    if (!parsed?.userId) {
+    const parsed = JSON.parse(raw) as NightStreakCacheEntry | NightStreakProgress;
+    const cacheEntry = toNightStreakCacheEntry(parsed);
+    if (!cacheEntry) {
       return null;
     }
 
-    return parsed;
+    const isFresh = Date.now() - cacheEntry.cachedAt <= CACHE_TTL_MS;
+    if (!allowStale && !isFresh) {
+      return null;
+    }
+
+    return cacheEntry.progress;
   } catch {
     return null;
   }
+}
+
+function toNightStreakCacheEntry(value: NightStreakCacheEntry | NightStreakProgress): NightStreakCacheEntry | null {
+  if (isNightStreakProgress(value)) {
+    return { progress: value, cachedAt: Date.now() };
+  }
+
+  if (
+    typeof value !== "object" ||
+    value === null ||
+    !isNightStreakProgress((value as NightStreakCacheEntry).progress) ||
+    typeof (value as NightStreakCacheEntry).cachedAt !== "number"
+  ) {
+    return null;
+  }
+
+  return value as NightStreakCacheEntry;
+}
+
+function isNightStreakProgress(value: unknown): value is NightStreakProgress {
+  return typeof value === "object" && value !== null && typeof (value as NightStreakProgress).userId === "string";
 }
 
 async function writeCachedNightStreak(userId: string, progress: NightStreakProgress | null): Promise<void> {
@@ -121,7 +154,8 @@ async function writeCachedNightStreak(userId: string, progress: NightStreakProgr
       return;
     }
 
-    await AsyncStorage.setItem(cacheKey, JSON.stringify(progress));
+    const cacheEntry: NightStreakCacheEntry = { progress, cachedAt: Date.now() };
+    await AsyncStorage.setItem(cacheKey, JSON.stringify(cacheEntry));
   } catch {
     // Ignore cache failures.
   }
