@@ -13,23 +13,15 @@ const FLAG_ACTIVITY_NEW_TASK = 0x10000000;
 
 type Props = NativeStackScreenProps<AuthStackParamList, "VerifyEmail">;
 
-const RESEND_COOLDOWN_SECONDS = 60;
 
 export default function VerifyEmailScreen({ route, navigation }: Props) {
   const email = route.params.email;
   const [busy, setBusy] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
   const hasAutoSentRef = useRef(false);
   const viewportWidth = useViewportWidth();
   const isDesktopWeb = Platform.OS === "web" && getWebViewport(viewportWidth) === "desktop";
 
-  const canResend = useMemo(() => cooldown <= 0 && !busy, [cooldown, busy]);
-
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const t = setInterval(() => setCooldown((c) => Math.max(0, c - 1)), 1000);
-    return () => clearInterval(t);
-  }, [cooldown]);
+  const canResend = useMemo(() => !busy, [busy]);
 
   async function openEmailInbox() {
     try {
@@ -64,13 +56,11 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
 
       if (!result.ok) {
         if (result.code === "RATE_LIMITED") {
-          setCooldown(Math.max(result.retryAfterSec, RESEND_COOLDOWN_SECONDS));
           Alert.alert(id.common.errorTitle, id.verify.resendRateLimited);
           return;
         }
 
         if (result.code === "LINK_STILL_VALID") {
-          setCooldown(Math.max(result.retryAfterSec, RESEND_COOLDOWN_SECONDS));
           Alert.alert(id.verify.linkStillValidTitle, id.verify.linkStillValidBody);
           return;
         }
@@ -80,7 +70,6 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
         return;
       }
 
-      setCooldown(Math.max(result.cooldownSec, RESEND_COOLDOWN_SECONDS));
       if (trigger === "manual") {
         Alert.alert(id.verify.resendSuccessTitle, id.verify.resendSuccessBody);
       }
@@ -147,7 +136,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
             ]}
           >
             <Text style={[authSharedStyles.secondaryButtonText, styles.outlineButtonText]}>
-              {busy ? id.verify.resendBusy : cooldown > 0 ? `${id.verify.resendWait} ${cooldown}s` : id.verify.resend}
+              {busy ? id.verify.resendBusy : id.verify.resend}
             </Text>
           </Pressable>
           <Pressable

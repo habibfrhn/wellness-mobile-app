@@ -128,8 +128,8 @@ export const id = {
     changeEmail: "Ganti email",
     backToLogin: "Kembali ke masuk",
     help: "Jika tidak masuk, cek folder Spam/Promosi dan tunggu 1–2 menit.",
-    linkStillValidTitle: "Periksa email Anda",
-    linkStillValidBody: "Tautan verifikasi sebelumnya masih berlaku. Silakan cek Inbox/Spam lalu gunakan tautan yang sudah ada.",
+    linkStillValidTitle: "Tautan masih valid",
+    linkStillValidBody: "Tautan verifikasi Anda masih valid. Silakan cek email, termasuk folder Spam, lalu gunakan tautan yang sudah dikirim.",
   },
 
   forgot: {
