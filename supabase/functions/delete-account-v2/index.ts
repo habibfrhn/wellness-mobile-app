@@ -12,7 +12,7 @@ const ACTION_NAME = "delete_user_account";
 const MAX_REQUESTS_PER_HOUR = 3;
 
 const baseCorsHeaders = {
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-user-jwt",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   Vary: "Origin",
 };
@@ -57,18 +57,23 @@ function buildCorsHeaders(req: Request) {
   };
 }
 
-function getUserJwt(req: Request) {
-  const explicitUserJwt = req.headers.get("x-user-jwt")?.trim() ?? "";
-  if (explicitUserJwt.length > 0) {
-    return explicitUserJwt;
+async function getUserJwt(req: Request) {
+  try {
+    const payload = (await req.clone().json()) as { userJwt?: string };
+    const bodyToken = typeof payload?.userJwt === "string" ? payload.userJwt.trim() : "";
+    if (bodyToken.length > 0) {
+      return { token: bodyToken, source: "body" as const };
+    }
+  } catch {
+    // ignore invalid/empty JSON payloads and continue to header fallback
   }
 
   const authorization = req.headers.get("authorization") ?? req.headers.get("Authorization") ?? "";
   if (!authorization.startsWith("Bearer ")) {
-    return "";
+    return { token: "", source: "none" as const };
   }
 
-  return authorization.slice(7);
+  return { token: authorization.slice(7), source: "authorization" as const };
 }
 
 function maskToken(token: string) {
@@ -132,20 +137,20 @@ Deno.serve(async (req: Request) => {
     return fail(500, "Server misconfiguration", "SERVER_MISCONFIGURATION", corsHeaders);
   }
 
-  const userJwt = getUserJwt(req);
-  if (!userJwt) {
-    console.error("delete-account-v2: missing user jwt after header parse");
+  const userJwtResult = await getUserJwt(req);
+  if (!userJwtResult.token) {
+    console.error("delete-account-v2: missing user jwt from request body or authorization header");
     return fail(401, "Missing user token", "MISSING_USER_TOKEN", corsHeaders);
   }
 
   console.log("delete-account-v2: user jwt parsed", {
-    tokenPreview: maskToken(userJwt),
-    fromCustomHeader: Boolean(req.headers.get("x-user-jwt")),
+    tokenPreview: maskToken(userJwtResult.token),
+    source: userJwtResult.source,
   });
 
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-  const { data: userData, error: userError } = await adminClient.auth.getUser(userJwt);
+  const { data: userData, error: userError } = await adminClient.auth.getUser(userJwtResult.token);
   const user = userData?.user;
   if (userError || !user) {
     console.error("delete-account-v2: invalid user session", userError?.message ?? "missing-user");

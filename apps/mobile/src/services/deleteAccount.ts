@@ -284,7 +284,7 @@ async function requestDeleteAccountViaFetch(accessToken: string) {
     functionUrl,
     tokenPreview: maskToken(accessToken),
     anonKeyLength: anonKey.length,
-    authHeaderMode: "anon-key",
+    authHeaderMode: "anon-key + body.userJwt",
     projectRefFromEnv: getProjectRefFromUrl(functionUrl),
   });
 
@@ -294,10 +294,9 @@ async function requestDeleteAccountViaFetch(accessToken: string) {
       "Content-Type": "application/json",
       Authorization: `Bearer ${anonKey}`,
       apikey: anonKey,
-      "x-user-jwt": accessToken,
       "x-client-info": "wellness-mobile-app/delete-account-v2",
     },
-    body: JSON.stringify({}),
+    body: JSON.stringify({ userJwt: accessToken }),
   });
 
   logDebug("delete-account: fetch response received", collectResponseDebug(response));
@@ -334,16 +333,15 @@ async function requestDeleteAccountViaInvoke(accessToken: string) {
     functionName: DELETE_ACCOUNT_FUNCTION_NAME,
     functionUrl: getFunctionUrl(),
     tokenPreview: maskToken(accessToken),
-    authHeaderMode: "anon-key",
+    authHeaderMode: "anon-key + body.userJwt",
     projectRefFromEnv: process.env.EXPO_PUBLIC_SUPABASE_URL ? getProjectRefFromUrl(process.env.EXPO_PUBLIC_SUPABASE_URL) : null,
   });
 
   const { data, error } = await supabase.functions.invoke<DeleteAccountResponse>(DELETE_ACCOUNT_FUNCTION_NAME, {
-    body: {},
+    body: { userJwt: accessToken },
     headers: {
       Authorization: `Bearer ${anonKey}`,
       apikey: anonKey,
-      "x-user-jwt": accessToken,
       "x-client-info": "wellness-mobile-app/delete-account-v2",
     },
   });
