@@ -16,32 +16,27 @@ export default function DeleteAccountSection() {
   const [noticeModal, setNoticeModal] = useState<{ title: string; message: string } | null>(null);
 
   const isConfirmValid = useMemo(() => deleteConfirmation.trim().toUpperCase() === DELETE_CONFIRM_TEXT, [deleteConfirmation]);
+  const safeErrorMessages = useMemo(
+    () => new Set([id.account.sessionMissing, id.account.deleteUnavailable, id.common.tryAgain, id.account.deleteFailed]),
+    [],
+  );
 
   function onOpenDeleteModal() {
-    console.log("[delete-account] open delete modal tapped");
     setDeleteConfirmation("");
     setShowDeleteModal(true);
   }
 
   function onCloseDeleteModal() {
     if (busyDelete) {
-      console.log("[delete-account] close ignored while busy");
       return;
     }
 
-    console.log("[delete-account] closing delete modal");
     setShowDeleteModal(false);
     setDeleteConfirmation("");
   }
 
   async function onConfirmDeleteAccount() {
-    console.log("[delete-account] confirm delete tapped", {
-      typedValue: deleteConfirmation,
-      isConfirmValid,
-    });
-
     if (!isConfirmValid) {
-      console.warn("[delete-account] confirmation text mismatch");
       setNoticeModal({ title: id.account.deleteConfirmTitle, message: id.account.deleteConfirmBody });
       return;
     }
@@ -49,14 +44,11 @@ export default function DeleteAccountSection() {
     setBusyDelete(true);
     try {
       await deleteCurrentAccount();
-      console.log("[delete-account] deleteCurrentAccount() completed");
       setNoticeModal({ title: id.account.deletedTitle, message: id.account.deletedBody });
     } catch (error) {
-      const message = error instanceof Error ? error.message : id.common.tryAgain;
-      console.error("[delete-account] deleteCurrentAccount() failed", { message, error });
+      const message = error instanceof Error && safeErrorMessages.has(error.message) ? error.message : id.account.deleteFailed;
       setNoticeModal({ title: id.common.errorTitle, message });
     } finally {
-      console.log("[delete-account] resetting modal state");
       setBusyDelete(false);
       setShowDeleteModal(false);
       setDeleteConfirmation("");
