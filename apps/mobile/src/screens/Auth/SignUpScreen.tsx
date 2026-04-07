@@ -260,11 +260,6 @@ export default function SignUpScreen({ navigation, route }: Props) {
 
         <View>
           <Text style={authSharedStyles.label}>{id.signup.passwordLabel}</Text>
-          <View style={styles.passwordStrengthRow}>
-            {[0, 1, 2].map((index) => (
-              <View key={`strength-${index}`} style={[styles.passwordStrengthSegment, strengthLevel > index && styles.passwordStrengthSegmentActive]} />
-            ))}
-          </View>
           <View style={authSharedStyles.inputWrap}>
             <TextInput
               ref={passwordInputRef}
@@ -300,6 +295,11 @@ export default function SignUpScreen({ navigation, route }: Props) {
               accessibilityLabel={showPassword ? id.common.hidePassword : id.common.showPassword}
               style={styles.toggle}
             />
+          </View>
+          <View style={styles.passwordStrengthRow}>
+            {[0, 1, 2].map((index) => (
+              <View key={`strength-${index}`} style={[styles.passwordStrengthSegment, strengthLevel > index && styles.passwordStrengthSegmentActive]} />
+            ))}
           </View>
           {errors.password ? <Text style={styles.fieldErrorText}>{errors.password}</Text> : null}
           {passwordStatusText ? (
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
   passwordStrengthRow: {
     flexDirection: "row",
     gap: spacing.xs,
-    marginTop: -spacing.xs,
+    marginTop: spacing.xs,
     marginBottom: spacing.xs,
   },
   passwordInput: {
