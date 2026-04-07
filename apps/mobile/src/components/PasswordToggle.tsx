@@ -29,8 +29,8 @@ export default function PasswordToggle({ visible, onPress, accessibilityLabel, s
 
 const styles = StyleSheet.create({
   touch: {
-    width: 36,
-    height: 36,
+    minWidth: 36,
+    minHeight: 36,
     alignItems: "center",
     justifyContent: "center",
     padding: 0,

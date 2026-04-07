@@ -371,7 +371,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
 const styles = StyleSheet.create({
   toggle: {
     position: "absolute",
-    right: spacing.xs,
+    right: spacing.sm,
     top: 0,
     bottom: 0,
     justifyContent: "center",
