@@ -117,6 +117,7 @@ export const id = {
     title: "Verifikasi email",
     subtitle: "Kami mengirim tautan verifikasi ke:",
     openEmail: "Buka aplikasi email",
+    iHaveVerified: "Saya sudah verifikasi",
     resend: "Kirim ulang email",
     resendBusy: "Mengirim ulang...",
     resendWait: "Tunggu",

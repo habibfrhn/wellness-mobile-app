@@ -2,7 +2,9 @@ import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, Pressable, StyleSheet, Alert, Linking, Platform } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../../navigation/types";
-import { colors, lineHeights, spacing, typography, radius } from "../../theme/tokens";
+import { getWebViewport } from "../../constants/webLayout";
+import useViewportWidth from "../../hooks/useViewportWidth";
+import { colors, lineHeights, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { AUTH_CALLBACK, supabase } from "../../services/supabase";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
@@ -16,6 +18,8 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
   const email = route.params.email;
   const [busy, setBusy] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  const viewportWidth = useViewportWidth();
+  const isDesktopWeb = Platform.OS === "web" && getWebViewport(viewportWidth) === "desktop";
 
   const canResend = useMemo(() => cooldown <= 0 && !busy, [cooldown, busy]);
 
@@ -96,20 +100,35 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
         </Text>
 
         <View style={authSharedStyles.actionsStack}>
-          <Pressable onPress={openEmailInbox} style={({ pressed }) => [authSharedStyles.primaryButton, pressed && authSharedStyles.pressed]}>
+          <Pressable
+            onPress={openEmailInbox}
+            style={({ hovered, pressed }: any) => [
+              authSharedStyles.primaryButton,
+              hovered && isDesktopWeb && styles.primaryButtonHover,
+              pressed && authSharedStyles.pressed,
+            ]}
+          >
             <Text style={authSharedStyles.primaryButtonText}>{id.verify.openEmail}</Text>
           </Pressable>
 
-          <Pressable onPress={iHaveVerified} style={({ pressed }) => [styles.primaryOutlineButton, pressed && authSharedStyles.pressed]}>
-            <Text style={styles.primaryOutlineButtonText}>Saya sudah verifikasi</Text>
+          <Pressable
+            onPress={iHaveVerified}
+            style={({ hovered, pressed }: any) => [
+              authSharedStyles.secondaryButton,
+              hovered && isDesktopWeb && styles.secondaryButtonHover,
+              pressed && authSharedStyles.pressed,
+            ]}
+          >
+            <Text style={authSharedStyles.secondaryButtonText}>{id.verify.iHaveVerified}</Text>
           </Pressable>
 
           <Pressable
             onPress={resend}
             disabled={!canResend}
-            style={({ pressed }) => [
+            style={({ hovered, pressed }: any) => [
               authSharedStyles.secondaryButton,
               !canResend && authSharedStyles.disabled,
+              hovered && isDesktopWeb && canResend && styles.secondaryButtonHover,
               pressed && canResend && authSharedStyles.pressed,
             ]}
           >
@@ -118,12 +137,26 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
             </Text>
           </Pressable>
 
-          <Pressable onPress={changeEmail} style={({ pressed }) => [authSharedStyles.secondaryButton, pressed && authSharedStyles.pressed]}>
+          <Pressable
+            onPress={changeEmail}
+            style={({ hovered, pressed }: any) => [
+              authSharedStyles.secondaryButton,
+              hovered && isDesktopWeb && styles.secondaryButtonHover,
+              pressed && authSharedStyles.pressed,
+            ]}
+          >
             <Text style={authSharedStyles.secondaryButtonText}>{id.verify.changeEmail}</Text>
           </Pressable>
 
-          <Pressable onPress={() => navigation.replace("Login", { initialEmail: email })} style={({ pressed }) => [styles.linkButton, pressed && authSharedStyles.pressed]}>
-            <Text style={styles.linkText}>{id.verify.backToLogin}</Text>
+          <Pressable
+            onPress={() => navigation.replace("Login", { initialEmail: email })}
+            style={({ hovered, pressed }: any) => [
+              authSharedStyles.secondaryButton,
+              hovered && isDesktopWeb && styles.secondaryButtonHover,
+              pressed && authSharedStyles.pressed,
+            ]}
+          >
+            <Text style={authSharedStyles.secondaryButtonText}>{id.verify.backToLogin}</Text>
           </Pressable>
         </View>
       </View>
@@ -142,30 +175,10 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
     lineHeight: lineHeights.normal,
   },
-  primaryOutlineButton: {
-    width: "100%",
-    minHeight: 52,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.sm,
-    backgroundColor: colors.card,
-    justifyContent: "center",
-    alignItems: "center",
+  primaryButtonHover: {
+    backgroundColor: colors.primaryHover,
   },
-  primaryOutlineButtonText: {
-    color: colors.text,
-    fontSize: typography.body,
-    fontWeight: "700",
-    textAlign: "center",
-  },
-  linkButton: {
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
-  },
-  linkText: {
-    color: colors.text,
-    fontSize: typography.small,
-    fontWeight: "700",
-    textAlign: "center",
+  secondaryButtonHover: {
+    backgroundColor: colors.secondaryHover,
   },
 });
