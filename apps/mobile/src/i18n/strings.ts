@@ -119,7 +119,7 @@ export const id = {
     subtitle: "Kami mengirim tautan verifikasi ke:",
     openEmail: "Buka aplikasi email",
     iHaveVerified: "Saya sudah verifikasi",
-    resend: "Kirim ulang email",
+    resend: "Kirim ulang tautan",
     resendBusy: "Mengirim ulang...",
     resendWait: "Tunggu",
     resendRateLimited: "Terlalu banyak percobaan. Tunggu 60 detik lalu coba lagi.",

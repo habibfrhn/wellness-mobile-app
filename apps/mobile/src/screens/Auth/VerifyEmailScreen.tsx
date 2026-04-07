@@ -82,10 +82,6 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
     }
   }
 
-  async function changeEmail() {
-    await supabase.auth.signOut();
-    navigation.replace("SignUp", { initialEmail: "" });
-  }
 
   function iHaveVerified() {
     navigation.replace("Login", { initialEmail: email });
@@ -117,11 +113,12 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
             onPress={iHaveVerified}
             style={({ hovered, pressed }: any) => [
               authSharedStyles.secondaryButton,
-              hovered && isDesktopWeb && styles.secondaryButtonHover,
+              styles.outlineButton,
+              hovered && isDesktopWeb && styles.outlineButtonHover,
               pressed && authSharedStyles.pressed,
             ]}
           >
-            <Text style={authSharedStyles.secondaryButtonText}>{id.verify.iHaveVerified}</Text>
+            <Text style={[authSharedStyles.secondaryButtonText, styles.outlineButtonText]}>{id.verify.iHaveVerified}</Text>
           </Pressable>
 
           <Pressable
@@ -129,36 +126,27 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
             disabled={!canResend}
             style={({ hovered, pressed }: any) => [
               authSharedStyles.secondaryButton,
+              styles.outlineButton,
               !canResend && authSharedStyles.disabled,
-              hovered && isDesktopWeb && canResend && styles.secondaryButtonHover,
+              hovered && isDesktopWeb && canResend && styles.outlineButtonHover,
               pressed && canResend && authSharedStyles.pressed,
             ]}
           >
-            <Text style={authSharedStyles.secondaryButtonText}>
+            <Text style={[authSharedStyles.secondaryButtonText, styles.outlineButtonText]}>
               {busy ? id.verify.resendBusy : cooldown > 0 ? `${id.verify.resendWait} ${cooldown}s` : id.verify.resend}
             </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={changeEmail}
-            style={({ hovered, pressed }: any) => [
-              authSharedStyles.secondaryButton,
-              hovered && isDesktopWeb && styles.secondaryButtonHover,
-              pressed && authSharedStyles.pressed,
-            ]}
-          >
-            <Text style={authSharedStyles.secondaryButtonText}>{id.verify.changeEmail}</Text>
           </Pressable>
 
           <Pressable
             onPress={() => navigation.replace("Login", { initialEmail: email })}
             style={({ hovered, pressed }: any) => [
               authSharedStyles.secondaryButton,
-              hovered && isDesktopWeb && styles.secondaryButtonHover,
+              styles.outlineButton,
+              hovered && isDesktopWeb && styles.outlineButtonHover,
               pressed && authSharedStyles.pressed,
             ]}
           >
-            <Text style={authSharedStyles.secondaryButtonText}>{id.verify.backToLogin}</Text>
+            <Text style={[authSharedStyles.secondaryButtonText, styles.outlineButtonText]}>{id.verify.backToLogin}</Text>
           </Pressable>
         </View>
       </View>
@@ -180,7 +168,15 @@ const styles = StyleSheet.create({
   primaryButtonHover: {
     backgroundColor: colors.primaryHover,
   },
-  secondaryButtonHover: {
+  outlineButton: {
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.text,
+  },
+  outlineButtonText: {
+    color: colors.text,
+  },
+  outlineButtonHover: {
     backgroundColor: colors.secondaryHover,
   },
 });
