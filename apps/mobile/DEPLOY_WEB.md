@@ -54,12 +54,33 @@ For safe SPA updates + low bandwidth usage:
 }
 ```
 
+## MVP cache matrix (what is cached vs not cached)
 
-## Concise cache policy (current)
-- **Cached long-term (`1y, immutable`)**: Expo fingerprinted static build artifacts under `/assets/*` and `/_expo/static/*` (includes bundled JS/CSS/images/fonts/audio emitted by build).
-- **Conservative revalidation**: `/`, `/index.html`, and extensionless SPA document routes use `max-age=0, must-revalidate`.
-- **Not cached for safety**: `/api/*` uses `private, no-store, max-age=0`.
-- **No offline layer**: no service worker / Cache Storage strategy is configured in this repo.
+### Cached (intentional)
+- **Expo hashed static build artifacts** (`/assets/*`, `/_expo/static/*`):
+  - Where: CDN + browser HTTP cache.
+  - TTL/strategy: `public, max-age=31536000, immutable`.
+  - Why: safe repeat-visit performance because filenames are content-hashed at build export time.
+- **Night streak progress cache entry** (`night:streak_progress_cache:<userId>`):
+  - Where: app storage (`AsyncStorage`, and web storage adapter on web).
+  - TTL/strategy: fresh for 5 minutes; stale fallback allowed only when fetch fails.
+  - Why: quick UX while limiting stale progress risk.
+
+### Not cached (intentional)
+- **HTML/app shell + SPA documents** (`/`, `/index.html`, extensionless routes):
+  - strategy: `max-age=0, must-revalidate`.
+- **`/api/*` responses**:
+  - strategy: `private, no-store, max-age=0`.
+- **Admin analytics / user progress API payloads / auth responses**:
+  - no app-level query cache configured; data is fetched directly from Supabase RPC/functions.
+- **Offline/PWA cache layers**:
+  - no service worker precache strategy and no custom Cache Storage layer.
+
+## Audio caching note (MVP)
+- Audio files in the catalog are bundled static assets and emitted as hashed files in `dist/assets/...*.m4a` during web export.
+- These files are cached by normal browser/CDN HTTP caching via `/assets/*` immutable headers.
+- We intentionally avoid service-worker/offline audio caching for MVP.
+- Web player uses `audio.preload = "metadata"` to avoid fetching full large audio files too early.
 
 ## SPA rewrite safety
 Use a rewrite that only targets extensionless app routes, so static files (audio/js/css/images) are never rewritten to `/`:
@@ -67,4 +88,3 @@ Use a rewrite that only targets extensionless app routes, so static files (audio
 ```json
 { "rewrites": [{ "source": "/((?!api/|.*\\..*).*)", "destination": "/" }] }
 ```
-

@@ -76,7 +76,8 @@ export function useWebAudioPlayerSession({
     }
 
     const audio = new Audio();
-    audio.preload = "auto";
+    // MVP-safe default: avoid eager full-file fetches before the user actually plays audio.
+    audio.preload = "metadata";
     audioRef.current = audio;
     return audio;
   }, []);
