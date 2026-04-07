@@ -133,6 +133,27 @@ async function getCachedAccessToken() {
   return cachedAccessToken;
 }
 
+
+async function parseInvokeError(error: unknown) {
+  const context = (error as { context?: Response } | null)?.context;
+  const status = typeof context?.status === "number" ? context.status : null;
+
+  if (!context) {
+    return { status, code: null as string | null, message: (error as { message?: string } | null)?.message ?? null };
+  }
+
+  try {
+    const payload = (await context.clone().json()) as { code?: string; error?: string };
+    return {
+      status,
+      code: typeof payload?.code === "string" ? payload.code : null,
+      message: typeof payload?.error === "string" ? payload.error : (error as { message?: string } | null)?.message ?? null,
+    };
+  } catch {
+    return { status, code: null as string | null, message: (error as { message?: string } | null)?.message ?? null };
+  }
+}
+
 async function invokeTrackAnalyticsEventBatch(events: TrackAnalyticsEventPayload[]) {
   const accessToken = await getCachedAccessToken();
   const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined;
@@ -185,8 +206,22 @@ async function flushAnalyticsQueue() {
     const chunk = getEventChunk();
     const error = await invokeTrackAnalyticsEventBatch(chunk);
     if (error) {
+      const details = await parseInvokeError(error);
+
+      if (details.status === 400 || details.code === "INVALID_PAYLOAD") {
+        logAnalyticsWarning("Dropped analytics events due invalid payload", details);
+        continue;
+      }
+
+      if (details.status === 401 || details.code === "INVALID_SESSION") {
+        cachedAccessToken = null;
+        accessTokenRefreshAtMs = 0;
+        logAnalyticsWarning("Dropped analytics events due invalid session", details);
+        continue;
+      }
+
       pendingQueue = [...chunk, ...pendingQueue].slice(0, MAX_QUEUE_SIZE);
-      logAnalyticsWarning("Failed to flush analytics events", error.message);
+      logAnalyticsWarning("Failed to flush analytics events", details.message ?? error.message);
       break;
     }
   }
