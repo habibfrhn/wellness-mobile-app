@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -40,6 +40,7 @@ export default function LoginScreen({ navigation, route }: Props) {
   const [busyGoogle, setBusyGoogle] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [errors, setErrors] = useState<FieldErrors>({});
+  const passwordInputRef = useRef<TextInput>(null);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -64,6 +65,11 @@ export default function LoginScreen({ navigation, route }: Props) {
       ),
     });
   }, [navigation]);
+
+  function togglePasswordVisibility() {
+    setShowPassword((value) => !value);
+    setTimeout(() => passwordInputRef.current?.focus(), 0);
+  }
 
   async function onSubmit() {
     if (busy) {
@@ -181,6 +187,7 @@ export default function LoginScreen({ navigation, route }: Props) {
             <Text style={styles.label}>{id.login.passwordLabel}</Text>
             <View style={styles.inputWrap}>
               <TextInput
+                ref={passwordInputRef}
                 value={password}
                 onChangeText={(value) => {
                   setPassword(value);
@@ -204,7 +211,7 @@ export default function LoginScreen({ navigation, route }: Props) {
               />
               <PasswordToggle
                 visible={showPassword}
-                onPress={() => setShowPassword((v) => !v)}
+                onPress={togglePasswordVisibility}
                 accessibilityLabel={showPassword ? id.common.hidePassword : id.common.showPassword}
                 style={styles.toggle}
               />

@@ -104,6 +104,14 @@ export default function SignUpScreen({ navigation, route }: Props) {
     void trackEvent("signup_start", { method: "email" });
   }, []);
 
+  function togglePasswordVisibility(ref: React.RefObject<TextInput | null>, setter: React.Dispatch<React.SetStateAction<boolean>>) {
+    setter((value) => !value);
+
+    if (Platform.OS === "web") {
+      setTimeout(() => ref.current?.focus(), 0);
+    }
+  }
+
   function validate(): FieldErrors {
     const nextErrors: FieldErrors = {};
     const e = email.trim().toLowerCase();
@@ -273,16 +281,21 @@ export default function SignUpScreen({ navigation, route }: Props) {
               autoCorrect={false}
               autoComplete="password-new"
               textContentType="newPassword"
-              secureTextEntry={!showPassword}
+              secureTextEntry={Platform.OS === "web" ? false : !showPassword}
               returnKeyType="next"
               onSubmitEditing={() => confirmInputRef.current?.focus()}
               placeholder={id.signup.passwordPlaceholder}
               placeholderTextColor={colors.mutedText}
-              style={[authSharedStyles.input, styles.passwordInput, errors.password && styles.passwordInputError]}
+              style={[
+                authSharedStyles.input,
+                styles.passwordInput,
+                Platform.OS === "web" && !showPassword && ({ WebkitTextSecurity: "disc" } as any),
+                errors.password && styles.passwordInputError,
+              ]}
             />
             <PasswordToggle
               visible={showPassword}
-              onPress={() => setShowPassword((v) => !v)}
+              onPress={() => togglePasswordVisibility(passwordInputRef, setShowPassword)}
               accessibilityLabel={showPassword ? id.common.hidePassword : id.common.showPassword}
               style={styles.toggle}
             />
@@ -312,15 +325,16 @@ export default function SignUpScreen({ navigation, route }: Props) {
           autoCorrect={false}
           autoComplete="password-new"
           textContentType="newPassword"
-          secureTextEntry={!showConfirm}
+          secureTextEntry={Platform.OS === "web" ? false : !showConfirm}
           returnKeyType="go"
           onSubmitEditing={onSubmit}
           placeholder={id.signup.confirmPasswordPlaceholder}
           errorText={errors.confirm}
+          style={Platform.OS === "web" && !showConfirm ? ({ WebkitTextSecurity: "disc" } as any) : undefined}
           rightNode={
             <PasswordToggle
               visible={showConfirm}
-              onPress={() => setShowConfirm((v) => !v)}
+              onPress={() => togglePasswordVisibility(confirmInputRef, setShowConfirm)}
               accessibilityLabel={showConfirm ? id.common.hidePassword : id.common.showPassword}
               style={styles.toggle}
             />
@@ -393,7 +407,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 4,
     borderRadius: radius.full,
-    backgroundColor: colors.mutedText,
+    backgroundColor: "#D0D5DD",
   },
   passwordStrengthSegmentActive: {
     backgroundColor: colors.primary,

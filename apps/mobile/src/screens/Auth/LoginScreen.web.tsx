@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -51,6 +51,7 @@ export default function LoginScreen({ navigation, route }: Props) {
   const [busyGoogle, setBusyGoogle] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [errors, setErrors] = useState<FieldErrors>({});
+  const passwordInputRef = useRef<TextInput>(null);
   const viewportWidth = useViewportWidth();
   const viewport = getWebViewport(viewportWidth);
   const isMobileWeb = viewport === "mobile";
@@ -83,6 +84,11 @@ export default function LoginScreen({ navigation, route }: Props) {
       ),
     });
   }, [navigation]);
+
+  function togglePasswordVisibility() {
+    setShowPassword((value) => !value);
+    setTimeout(() => passwordInputRef.current?.focus(), 0);
+  }
 
   async function onSubmit() {
     if (busy) {
@@ -245,6 +251,7 @@ export default function LoginScreen({ navigation, route }: Props) {
               <Text style={styles.label}>{id.login.passwordLabel}</Text>
               <View style={styles.inputWrap}>
                 <TextInput
+                  ref={passwordInputRef}
                   value={password}
                   onChangeText={(value) => {
                     setPassword(value);
@@ -259,12 +266,13 @@ export default function LoginScreen({ navigation, route }: Props) {
                   autoCorrect={false}
                   autoComplete="password"
                   textContentType="password"
-                  secureTextEntry={!showPassword}
+                  secureTextEntry={false}
                   placeholder={id.login.passwordPlaceholder}
                   placeholderTextColor={colors.mutedText}
                   style={[
                     styles.input,
                     styles.passwordInput,
+                    !showPassword && ({ WebkitTextSecurity: "disc" } as any),
                     errors.password && styles.inputError,
                   ]}
                   onSubmitEditing={onSubmit}
@@ -272,7 +280,7 @@ export default function LoginScreen({ navigation, route }: Props) {
                 />
                 <PasswordToggle
                   visible={showPassword}
-                  onPress={() => setShowPassword((v) => !v)}
+                  onPress={togglePasswordVisibility}
                   accessibilityLabel={
                     showPassword
                       ? id.common.hidePassword
