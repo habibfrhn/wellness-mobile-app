@@ -59,7 +59,10 @@ function normalizeAudioId(value: unknown) {
   return normalized;
 }
 
-function sanitizeEventProps(eventName: AnalyticsEventName, properties: Record<string, unknown>) {
+function sanitizeEventProps(
+  eventName: AnalyticsEventName,
+  properties: Record<string, unknown>
+): Record<string, unknown> | null {
   const sanitized: Record<string, unknown> = {};
 
   if (
@@ -69,9 +72,11 @@ function sanitizeEventProps(eventName: AnalyticsEventName, properties: Record<st
     eventName === "audio_abandon"
   ) {
     const normalizedAudioId = normalizeAudioId(properties[AUDIO_ID_PROP_KEY]);
-    if (normalizedAudioId) {
-      sanitized[AUDIO_ID_PROP_KEY] = normalizedAudioId;
+    if (!normalizedAudioId) {
+      return null;
     }
+
+    sanitized[AUDIO_ID_PROP_KEY] = normalizedAudioId;
   }
 
   if (
@@ -81,9 +86,11 @@ function sanitizeEventProps(eventName: AnalyticsEventName, properties: Record<st
     eventName === "tailored_session_dropoff"
   ) {
     const normalizedSessionMode = normalizeSessionMode(properties[SESSION_MODE_PROP_KEY]);
-    if (normalizedSessionMode) {
-      sanitized[SESSION_MODE_PROP_KEY] = normalizedSessionMode;
+    if (!normalizedSessionMode) {
+      return null;
     }
+
+    sanitized[SESSION_MODE_PROP_KEY] = normalizedSessionMode;
   }
 
   return sanitized;
@@ -247,6 +254,11 @@ export function getAnalyticsSessionId() {
 
 export async function trackEvent(eventName: AnalyticsEventName, properties: Record<string, unknown> = {}) {
   const sanitizedProps = sanitizeEventProps(eventName, properties);
+  if (!sanitizedProps) {
+    logAnalyticsWarning("Dropped analytics event due missing required props", eventName);
+    return;
+  }
+
   if (exceedsEventPropsLimit(sanitizedProps)) {
     logAnalyticsWarning("Dropped analytics event due to oversized payload", eventName);
     return;
