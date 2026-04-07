@@ -6,9 +6,8 @@ import { getWebViewport } from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { colors, lineHeights, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
-import { AUTH_CALLBACK, supabase } from "../../services/supabase";
+import { resendVerificationEmail } from "../../services/authResend";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
-import { isRateLimitedError } from "../../services/authSecurity";
 
 const FLAG_ACTIVITY_NEW_TASK = 0x10000000;
 
@@ -60,23 +59,22 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
   async function resend() {
     setBusy(true);
     try {
-      const { error } = await supabase.auth.resend({
-        type: "signup",
-        email,
-        options: {
-          emailRedirectTo: AUTH_CALLBACK,
-        },
-      });
-      if (error) {
-        if (isRateLimitedError(error.message)) {
+      const result = await resendVerificationEmail(email);
+
+      if (!result.ok) {
+        if (result.code === "RATE_LIMITED") {
+          setCooldown(Math.max(result.retryAfterSec, RESEND_COOLDOWN_SECONDS));
           Alert.alert(id.common.errorTitle, id.verify.resendRateLimited);
           return;
         }
 
-        Alert.alert(id.common.errorTitle, id.common.genericAuthError);
+        const errorMessage = result.code === "UNAVAILABLE" ? id.common.tryAgain : id.common.genericAuthError;
+        Alert.alert(id.common.errorTitle, errorMessage);
         return;
       }
-      setCooldown(RESEND_COOLDOWN_SECONDS);
+
+      setCooldown(Math.max(result.cooldownSec, RESEND_COOLDOWN_SECONDS));
+      Alert.alert(id.verify.resendSuccessTitle, id.verify.resendSuccessBody);
     } finally {
       setBusy(false);
     }

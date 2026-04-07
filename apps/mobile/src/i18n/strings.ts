@@ -123,6 +123,8 @@ export const id = {
     resendBusy: "Mengirim ulang...",
     resendWait: "Tunggu",
     resendRateLimited: "Terlalu banyak percobaan. Tunggu 60 detik lalu coba lagi.",
+    resendSuccessTitle: "Tautan terkirim",
+    resendSuccessBody: "Kami sudah mengirim ulang tautan verifikasi ke email Anda.",
     changeEmail: "Ganti email",
     backToLogin: "Kembali ke masuk",
     help: "Jika tidak masuk, cek folder Spam/Promosi dan tunggu 1–2 menit.",

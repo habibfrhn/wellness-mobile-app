@@ -1,0 +1,82 @@
+import { AUTH_CALLBACK, supabase } from "./supabase";
+
+export type ResendVerificationResult =
+  | { ok: true; cooldownSec: number }
+  | { ok: false; code: "RATE_LIMITED"; retryAfterSec: number }
+  | { ok: false; code: "UNAVAILABLE" }
+  | { ok: false; code: "ERROR" };
+
+type ResendVerificationResponse = {
+  ok?: boolean;
+  code?: string;
+  cooldownSec?: number;
+  retryAfterSec?: number;
+};
+
+async function extractFunctionErrorPayload(error: unknown): Promise<ResendVerificationResponse | null> {
+  if (!error || typeof error !== "object" || !("context" in error)) {
+    return null;
+  }
+
+  const context = (error as { context?: unknown }).context;
+  if (!context || typeof context !== "object" || !("json" in context)) {
+    return null;
+  }
+
+  const json = (context as { json?: () => Promise<unknown> }).json;
+  if (typeof json !== "function") {
+    return null;
+  }
+
+  try {
+    const payload = await json();
+    if (!payload || typeof payload !== "object") {
+      return null;
+    }
+
+    return payload as ResendVerificationResponse;
+  } catch {
+    return null;
+  }
+}
+
+export async function resendVerificationEmail(email: string): Promise<ResendVerificationResult> {
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+  const accessToken = sessionData.session?.access_token;
+
+  if (sessionError || !accessToken) {
+    return { ok: false, code: "ERROR" };
+  }
+
+  const { data, error } = await supabase.functions.invoke<ResendVerificationResponse>("resend-verification-email", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: {
+      email: email.trim().toLowerCase(),
+      redirectTo: AUTH_CALLBACK,
+    },
+  });
+
+  if (!error) {
+    return {
+      ok: true,
+      cooldownSec: typeof data?.cooldownSec === "number" ? data.cooldownSec : 60,
+    };
+  }
+
+  const errorPayload = await extractFunctionErrorPayload(error);
+  if (errorPayload?.code === "RATE_LIMITED") {
+    return {
+      ok: false,
+      code: "RATE_LIMITED",
+      retryAfterSec: typeof errorPayload.retryAfterSec === "number" ? errorPayload.retryAfterSec : 60,
+    };
+  }
+
+  if (errorPayload?.code === "RATE_LIMIT_FAILED") {
+    return { ok: false, code: "UNAVAILABLE" };
+  }
+
+  return { ok: false, code: "ERROR" };
+}
