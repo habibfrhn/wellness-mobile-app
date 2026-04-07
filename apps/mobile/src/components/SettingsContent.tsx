@@ -11,7 +11,7 @@ import SettingsRow from "./settings/SettingsRow";
 import SettingsSection from "./settings/SettingsSection";
 import DeleteAccountSection from "./settings/DeleteAccountSection";
 
-const SUPPORT_EMAIL = "habibfrhn@gmail.com";
+const SUPPORT_EMAIL = "lumepoapp@gmail.com";
 
 function runAfterTouchCommit(callback: () => void) {
   if (typeof requestAnimationFrame === "function") {
