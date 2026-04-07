@@ -5,7 +5,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../../navigation/types";
 import { getWebViewport } from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
-import { colors, spacing, typography } from "../../theme/tokens";
+import { colors, radius, spacing, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import GoogleAuthButton from "../../components/auth/GoogleAuthButton";
 import { clearPendingProfileName, setPendingProfileName } from "../../services/pendingProfileName";
@@ -60,6 +60,45 @@ export default function SignUpScreen({ navigation, route }: Props) {
 
   const canPress = useMemo(() => !busy, [busy]);
   const passwordChecks = useMemo(() => getPasswordRequirementChecks(password), [password]);
+  const missingPasswordRules = useMemo(() => {
+    const missing: string[] = [];
+    if (!passwordChecks.minLength) missing.push(id.signup.passwordMissingMin);
+    if (!passwordChecks.maxLength) missing.push(id.signup.passwordMissingMax);
+    if (!passwordChecks.uppercase) missing.push(id.signup.passwordMissingUpper);
+    if (!passwordChecks.lowercase) missing.push(id.signup.passwordMissingLower);
+    if (!passwordChecks.number) missing.push(id.signup.passwordMissingNumber);
+    if (!passwordChecks.special) missing.push(id.signup.passwordMissingSpecial);
+    return missing;
+  }, [passwordChecks]);
+  const strengthLevel = useMemo(() => {
+    if (!password) {
+      return 0;
+    }
+
+    if (isValidPassword(password)) {
+      return 3;
+    }
+
+    const complexityMetCount = [passwordChecks.uppercase, passwordChecks.lowercase, passwordChecks.number, passwordChecks.special].filter(Boolean)
+      .length;
+
+    if (passwordChecks.minLength && passwordChecks.maxLength && complexityMetCount >= 3) {
+      return 2;
+    }
+
+    return 1;
+  }, [password, passwordChecks]);
+  const passwordStatusText = useMemo(() => {
+    if (!password) {
+      return null;
+    }
+
+    if (isValidPassword(password)) {
+      return id.signup.passwordValid;
+    }
+
+    return `${id.signup.passwordMissingPrefix} ${missingPasswordRules.join(", ")}`;
+  }, [missingPasswordRules, password]);
 
   useEffect(() => {
     void trackEvent("signup_start", { method: "email" });
@@ -240,26 +279,19 @@ export default function SignUpScreen({ navigation, route }: Props) {
             />
           }
         />
-        <View style={styles.passwordRules}>
-          <Text style={styles.passwordRulesTitle}>{id.signup.passwordRuleTitle}</Text>
-          <Text style={[styles.passwordRuleItem, passwordChecks.minLength ? styles.passwordRuleMet : styles.passwordRuleUnmet]}>
-            {passwordChecks.minLength ? "✓" : "○"} {id.signup.passwordRuleMin}
-          </Text>
-          <Text style={[styles.passwordRuleItem, passwordChecks.maxLength ? styles.passwordRuleMet : styles.passwordRuleUnmet]}>
-            {passwordChecks.maxLength ? "✓" : "○"} {id.signup.passwordRuleMax}
-          </Text>
-          <Text style={[styles.passwordRuleItem, passwordChecks.uppercase ? styles.passwordRuleMet : styles.passwordRuleUnmet]}>
-            {passwordChecks.uppercase ? "✓" : "○"} {id.signup.passwordRuleUppercase}
-          </Text>
-          <Text style={[styles.passwordRuleItem, passwordChecks.lowercase ? styles.passwordRuleMet : styles.passwordRuleUnmet]}>
-            {passwordChecks.lowercase ? "✓" : "○"} {id.signup.passwordRuleLowercase}
-          </Text>
-          <Text style={[styles.passwordRuleItem, passwordChecks.number ? styles.passwordRuleMet : styles.passwordRuleUnmet]}>
-            {passwordChecks.number ? "✓" : "○"} {id.signup.passwordRuleNumber}
-          </Text>
-          <Text style={[styles.passwordRuleItem, passwordChecks.special ? styles.passwordRuleMet : styles.passwordRuleUnmet]}>
-            {passwordChecks.special ? "✓" : "○"} {id.signup.passwordRuleSpecial}
-          </Text>
+        <View style={styles.passwordHelperCard}>
+          <Text style={styles.passwordHelperHint}>{id.signup.passwordHelperLength}</Text>
+          <Text style={styles.passwordHelperHint}>{id.signup.passwordHelperMix}</Text>
+          <View style={styles.passwordStrengthRow}>
+            {[0, 1, 2].map((index) => (
+              <View key={`strength-${index}`} style={[styles.passwordStrengthSegment, strengthLevel > index && styles.passwordStrengthSegmentActive]} />
+            ))}
+          </View>
+          {passwordStatusText ? (
+            <Text style={[styles.passwordStatusText, isValidPassword(password) ? styles.passwordStatusSuccess : styles.passwordStatusWarning]}>
+              {passwordStatusText}
+            </Text>
+          ) : null}
         </View>
 
         <AuthTextField
@@ -323,7 +355,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
 const styles = StyleSheet.create({
   toggle: {
     position: "absolute",
-    right: spacing.sm,
+    right: spacing.xs,
     top: 0,
     bottom: 0,
     justifyContent: "center",
@@ -334,23 +366,43 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: spacing.xs,
   },
-  passwordRules: {
+  passwordHelperCard: {
     gap: spacing.xs,
     marginTop: -spacing.xs,
+    padding: spacing.sm,
+    borderRadius: spacing.xs,
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.mutedText,
   },
-  passwordRulesTitle: {
-    color: colors.text,
-    fontSize: typography.caption,
-    fontWeight: "600",
-  },
-  passwordRuleItem: {
-    fontSize: typography.caption,
-  },
-  passwordRuleMet: {
-    color: colors.primary,
-  },
-  passwordRuleUnmet: {
+  passwordHelperHint: {
     color: colors.mutedText,
+    fontSize: typography.caption,
+  },
+  passwordStrengthRow: {
+    flexDirection: "row",
+    gap: spacing.xs,
+    marginTop: spacing.xs,
+  },
+  passwordStrengthSegment: {
+    flex: 1,
+    height: 4,
+    borderRadius: radius.full,
+    backgroundColor: colors.mutedText,
+  },
+  passwordStrengthSegmentActive: {
+    backgroundColor: colors.primary,
+  },
+  passwordStatusText: {
+    fontSize: typography.caption,
+    marginTop: spacing.xs,
+  },
+  passwordStatusWarning: {
+    color: colors.mutedText,
+  },
+  passwordStatusSuccess: {
+    color: colors.primary,
+    fontWeight: "600",
   },
   formError: {
     color: colors.danger,

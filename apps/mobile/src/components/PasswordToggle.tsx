@@ -1,8 +1,8 @@
 import React from "react";
 import { Pressable, StyleProp, StyleSheet, ViewStyle } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 
-import { colors, spacing, typography } from "../theme/tokens";
+import { colors, typography } from "../theme/tokens";
 
 type Props = {
   visible: boolean;
@@ -22,16 +22,18 @@ export default function PasswordToggle({ visible, onPress, accessibilityLabel, s
       accessibilityLabel={accessibilityLabel}
       style={({ pressed }) => [styles.touch, style, pressed && styles.pressed]}
     >
-      <MaterialCommunityIcons
-        name={visible ? "eye-outline" : "eye-off-outline"}
-        size={iconSize}
-        color={colors.mutedText}
-      />
+      <MaterialIcons name={visible ? "visibility" : "visibility-off"} size={iconSize} color={colors.mutedText} />
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  touch: { paddingVertical: spacing.xs, paddingHorizontal: spacing.xs },
+  touch: {
+    width: 36,
+    height: 36,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 0,
+  },
   pressed: { opacity: 0.7 },
 });

@@ -44,7 +44,7 @@ export default AuthTextField;
 
 const styles = StyleSheet.create({
   inputWithAccessory: {
-    paddingRight: spacing.xl,
+    paddingRight: spacing.xl + spacing.sm,
   },
   inputError: {
     borderColor: colors.danger,
