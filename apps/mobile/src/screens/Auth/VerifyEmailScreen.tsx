@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View, Text, Pressable, StyleSheet, Alert, Linking, Platform } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../../navigation/types";
@@ -22,6 +22,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
     route.params.context === "login_unverified" ? id.verify.loginRecoveryNotice : id.verify.recoveryNotice;
   const [busy, setBusy] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  const hasAutoSentRef = useRef(false);
   const viewportWidth = useViewportWidth();
   const isDesktopWeb = Platform.OS === "web" && getWebViewport(viewportWidth) === "desktop";
 
@@ -59,7 +60,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
     }
   }
 
-  async function resend() {
+  const attemptResend = useCallback(async (trigger: "auto" | "manual") => {
     setBusy(true);
     try {
       const result = await resendVerificationEmail(email);
@@ -71,18 +72,34 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
           return;
         }
 
+        if (result.code === "LINK_STILL_VALID") {
+          setCooldown(Math.max(result.retryAfterSec, RESEND_COOLDOWN_SECONDS));
+          Alert.alert(id.verify.linkStillValidTitle, id.verify.linkStillValidBody);
+          return;
+        }
+
         const errorMessage = result.code === "UNAVAILABLE" ? id.common.tryAgain : id.common.genericAuthError;
         Alert.alert(id.common.errorTitle, errorMessage);
         return;
       }
 
       setCooldown(Math.max(result.cooldownSec, RESEND_COOLDOWN_SECONDS));
-      Alert.alert(id.verify.resendSuccessTitle, id.verify.resendSuccessBody);
+      if (trigger === "manual") {
+        Alert.alert(id.verify.resendSuccessTitle, id.verify.resendSuccessBody);
+      }
     } finally {
       setBusy(false);
     }
-  }
+  }, [email]);
 
+  useEffect(() => {
+    if (!isRecoveryFlow || hasAutoSentRef.current) {
+      return;
+    }
+
+    hasAutoSentRef.current = true;
+    void attemptResend("auto");
+  }, [attemptResend, isRecoveryFlow]);
 
   function iHaveVerified() {
     navigation.replace("Login", { initialEmail: email });
@@ -122,7 +139,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
           </Pressable>
 
           <Pressable
-            onPress={resend}
+            onPress={() => void attemptResend("manual")}
             disabled={!canResend}
             style={({ hovered, pressed }: any) => [
               authSharedStyles.secondaryButton,
@@ -135,19 +152,6 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
             <Text style={[authSharedStyles.secondaryButtonText, styles.outlineButtonText]}>
               {busy ? id.verify.resendBusy : cooldown > 0 ? `${id.verify.resendWait} ${cooldown}s` : id.verify.resend}
             </Text>
-          </Pressable>
-
-
-          <Pressable
-            onPress={() => navigation.replace("SignUp", { initialEmail: "" })}
-            style={({ hovered, pressed }: any) => [
-              authSharedStyles.secondaryButton,
-              styles.outlineButton,
-              hovered && isDesktopWeb && styles.outlineButtonHover,
-              pressed && authSharedStyles.pressed,
-            ]}
-          >
-            <Text style={[authSharedStyles.secondaryButtonText, styles.outlineButtonText]}>{id.verify.useDifferentEmail}</Text>
           </Pressable>
           <Pressable
             onPress={() => navigation.replace("Login", { initialEmail: email })}

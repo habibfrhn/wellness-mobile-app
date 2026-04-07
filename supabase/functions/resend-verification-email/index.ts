@@ -6,6 +6,7 @@ type ErrorCode =
   | "INVALID_PAYLOAD"
   | "SERVER_MISCONFIGURATION"
   | "RATE_LIMITED"
+  | "LINK_STILL_VALID"
   | "RATE_LIMIT_FAILED"
   | "RESEND_FAILED";
 
@@ -15,9 +16,9 @@ type ResendBody = {
 };
 
 const ACTION_RESEND_COOLDOWN = "resend_verification_email_cooldown";
-const ACTION_RESEND_HOURLY = "resend_verification_email_hourly";
+const ACTION_RESEND_VALID_WINDOW = "resend_verification_email_valid_window";
 const RESEND_COOLDOWN_SECONDS = 60;
-const MAX_RESENDS_PER_HOUR = 5;
+const LINK_VALID_WINDOW_SECONDS = 3600;
 
 const baseCorsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -69,14 +70,14 @@ function getCooldownBucket(date: Date) {
   return `60s:${Math.floor(date.getTime() / 60_000)}`;
 }
 
-function getHourBucket(date: Date) {
+function getValidWindowBucket(date: Date) {
   const bucketDate = new Date(date);
   bucketDate.setUTCMinutes(0, 0, 0);
   return `1h:${bucketDate.toISOString().replace(/\.\d{3}Z$/, "Z")}`;
 }
 
-function getSecondsUntilNextHour(date: Date) {
-  return 3600 - (date.getUTCMinutes() * 60 + date.getUTCSeconds());
+function getSecondsUntilWindowReset(date: Date) {
+  return LINK_VALID_WINDOW_SECONDS - (date.getUTCMinutes() * 60 + date.getUTCSeconds());
 }
 
 function isSafeRedirectUrl(value: string) {
@@ -180,9 +181,9 @@ Deno.serve(async (req: Request) => {
       return json(429, { ok: false, code: "RATE_LIMITED", retryAfterSec: RESEND_COOLDOWN_SECONDS }, corsHeaders);
     }
 
-    const hourlyCount = await incrementRateLimit(adminClient, principalKey, ACTION_RESEND_HOURLY, getHourBucket(now));
-    if (hourlyCount > MAX_RESENDS_PER_HOUR) {
-      return json(429, { ok: false, code: "RATE_LIMITED", retryAfterSec: getSecondsUntilNextHour(now) }, corsHeaders);
+    const windowCount = await incrementRateLimit(adminClient, principalKey, ACTION_RESEND_VALID_WINDOW, getValidWindowBucket(now));
+    if (windowCount > 1) {
+      return json(409, { ok: false, code: "LINK_STILL_VALID", retryAfterSec: getSecondsUntilWindowReset(now) }, corsHeaders);
     }
   } catch {
     return fail(503, "Service temporarily unavailable", "RATE_LIMIT_FAILED", corsHeaders);
