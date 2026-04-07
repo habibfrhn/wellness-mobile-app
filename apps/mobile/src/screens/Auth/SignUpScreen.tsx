@@ -258,7 +258,6 @@ export default function SignUpScreen({ navigation, route }: Props) {
 
         <View>
           <Text style={authSharedStyles.label}>{id.signup.passwordLabel}</Text>
-          <Text style={styles.passwordHelperText}>{id.signup.passwordHelperMix}</Text>
           <View style={styles.passwordStrengthRow}>
             {[0, 1, 2].map((index) => (
               <View key={`strength-${index}`} style={[styles.passwordStrengthSegment, strengthLevel > index && styles.passwordStrengthSegmentActive]} />
@@ -381,15 +380,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: spacing.xs,
   },
-  passwordHelperText: {
-    color: colors.mutedText,
-    fontSize: typography.caption,
-    marginTop: -spacing.xs,
-  },
   passwordStrengthRow: {
     flexDirection: "row",
     gap: spacing.xs,
-    marginTop: spacing.xs,
+    marginTop: -spacing.xs,
     marginBottom: spacing.xs,
   },
   passwordInput: {
