@@ -16,10 +16,21 @@ export type AnalyticsEventName =
   | "tailored_session_dropoff";
 
 let inMemorySessionId: string | null = null;
+let analyticsFlushTimer: ReturnType<typeof setInterval> | null = null;
+let analyticsListenersBound = false;
+let flushInFlight = false;
+let cachedAccessToken: string | null = null;
+let accessTokenRefreshAtMs = 0;
+let pendingQueue: TrackAnalyticsEventPayload[] = [];
+
 const MAX_EVENT_PROPS_BYTES = 2048;
 const MAX_STRING_PROP_LENGTH = 120;
 const AUDIO_ID_PROP_KEY = "audio_id";
 const SESSION_MODE_PROP_KEY = "session_mode";
+const MAX_EVENTS_PER_FLUSH = 25;
+const MAX_QUEUE_SIZE = 100;
+const FLUSH_INTERVAL_MS = 10_000;
+const TOKEN_CACHE_FALLBACK_MS = 30_000;
 
 function logAnalyticsWarning(message: string, ...context: unknown[]) {
   if (__DEV__) {
@@ -92,55 +103,95 @@ type TrackAnalyticsEventPayload = {
   session_id: string;
 };
 
-type LegacyTrackAnalyticsEventPayload = {
-  eventName: AnalyticsEventName;
-  eventProps: Record<string, unknown>;
-  sessionId: string;
+type TrackAnalyticsBatchPayload = {
+  events: TrackAnalyticsEventPayload[];
 };
 
-function toLegacyPayload(payload: TrackAnalyticsEventPayload): LegacyTrackAnalyticsEventPayload {
-  return {
-    eventName: payload.event_name,
-    eventProps: payload.event_props,
-    sessionId: payload.session_id,
-  };
-}
-
-function shouldRetryWithLegacyPayload(error: unknown) {
-  if (!error || typeof error !== "object") {
-    return false;
+function getEventChunk() {
+  if (pendingQueue.length === 0) {
+    return [];
   }
 
-  const maybeError = error as { context?: { status?: number }; message?: string };
-  const status = maybeError.context?.status;
-  if (status === 400) {
-    return true;
-  }
-
-  return typeof maybeError.message === "string" && maybeError.message.includes("non-2xx");
+  return pendingQueue.splice(0, MAX_EVENTS_PER_FLUSH);
 }
 
-async function invokeTrackAnalyticsEvent(payload: TrackAnalyticsEventPayload) {
+async function getCachedAccessToken() {
+  const now = Date.now();
+  if (cachedAccessToken && now < accessTokenRefreshAtMs) {
+    return cachedAccessToken;
+  }
+
   const { data: sessionData } = await supabase.auth.getSession();
-  const accessToken = sessionData.session?.access_token;
+  const session = sessionData.session;
+  cachedAccessToken = session?.access_token ?? null;
+  if (session?.expires_at) {
+    accessTokenRefreshAtMs = Math.max(now, session.expires_at * 1000 - 60_000);
+  } else {
+    accessTokenRefreshAtMs = now + TOKEN_CACHE_FALLBACK_MS;
+  }
+
+  return cachedAccessToken;
+}
+
+async function invokeTrackAnalyticsEventBatch(events: TrackAnalyticsEventPayload[]) {
+  const accessToken = await getCachedAccessToken();
   const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined;
+  const body: TrackAnalyticsBatchPayload = { events };
 
   const { error } = await supabase.functions.invoke<{ ok: boolean }>("track-analytics-event", {
     headers,
-    body: payload,
+    body,
   });
 
-  if (!error || !shouldRetryWithLegacyPayload(error)) {
-    return error;
+  return error;
+}
+
+function bindAnalyticsListeners() {
+  if (analyticsListenersBound || typeof window === "undefined") {
+    return;
   }
 
-  const legacyPayload = toLegacyPayload(payload);
-  const { error: legacyError } = await supabase.functions.invoke<{ ok: boolean }>("track-analytics-event", {
-    headers,
-    body: legacyPayload,
-  });
+  const flushNow = () => {
+    void flushAnalyticsQueue();
+  };
 
-  return legacyError;
+  window.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      flushNow();
+    }
+  });
+  window.addEventListener("beforeunload", flushNow);
+  analyticsListenersBound = true;
+}
+
+function ensureFlushLoop() {
+  if (analyticsFlushTimer) {
+    return;
+  }
+
+  analyticsFlushTimer = setInterval(() => {
+    void flushAnalyticsQueue();
+  }, FLUSH_INTERVAL_MS);
+}
+
+async function flushAnalyticsQueue() {
+  if (flushInFlight || pendingQueue.length === 0) {
+    return;
+  }
+
+  flushInFlight = true;
+
+  while (pendingQueue.length > 0) {
+    const chunk = getEventChunk();
+    const error = await invokeTrackAnalyticsEventBatch(chunk);
+    if (error) {
+      pendingQueue = [...chunk, ...pendingQueue].slice(0, MAX_QUEUE_SIZE);
+      logAnalyticsWarning("Failed to flush analytics events", error.message);
+      break;
+    }
+  }
+
+  flushInFlight = false;
 }
 
 function createSessionId() {
@@ -172,8 +223,15 @@ export async function trackEvent(eventName: AnalyticsEventName, properties: Reco
     session_id: getAnalyticsSessionId(),
   };
 
-  const error = await invokeTrackAnalyticsEvent(payload);
-  if (error) {
-    logAnalyticsWarning("Failed to track analytics event", eventName, error.message);
+  pendingQueue.push(payload);
+  if (pendingQueue.length > MAX_QUEUE_SIZE) {
+    pendingQueue = pendingQueue.slice(-MAX_QUEUE_SIZE);
+  }
+
+  bindAnalyticsListeners();
+  ensureFlushLoop();
+
+  if (pendingQueue.length >= MAX_EVENTS_PER_FLUSH) {
+    await flushAnalyticsQueue();
   }
 }

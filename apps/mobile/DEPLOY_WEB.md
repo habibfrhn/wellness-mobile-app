@@ -24,6 +24,17 @@ Set the project configuration in Vercel to:
 - **Root Directory**: `apps/mobile`
 - **Build Command**: `pnpm export:web`
 - **Output Directory**: `dist`
+- **Ignored Build Step**: keep the repo `ignoreCommand` in `apps/mobile/vercel.json` enabled so markdown/docs-only commits do not trigger preview builds.
+
+## Usage guardrails (recommended)
+- **Vercel**
+  - Add budget alerts for bandwidth and function invocations in Vercel usage settings.
+  - Disable Web Analytics / Speed Insights unless you are actively using them for a decision window.
+  - Keep preview deployments, but pair with ignored-build rules to avoid waste on non-product changes.
+- **Supabase**
+  - Set project spend cap and alerts for egress, database size, and function invocations.
+  - Monitor `analytics_events` growth and prune/archive raw rows older than your MVP analysis window.
+  - Keep Realtime disabled for tables that are not subscribed by clients.
 
 ## SPA rewrite reminder
 Keep `apps/mobile/vercel.json` rewrite enabled so client-side routes work after deploy:

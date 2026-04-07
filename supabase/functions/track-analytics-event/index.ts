@@ -20,6 +20,9 @@ type TrackAnalyticsEventBody = {
   event_props: Record<string, unknown>;
   session_id: string;
 };
+type TrackAnalyticsBatchBody = {
+  events: TrackAnalyticsEventBody[];
+};
 
 type ErrorCode =
   | "METHOD_NOT_ALLOWED"
@@ -34,6 +37,7 @@ type ErrorCode =
 const ACTION_NAME = "track_analytics_event";
 const MAX_REQUESTS_PER_MINUTE_ANON = 45;
 const MAX_REQUESTS_PER_MINUTE_AUTH = 90;
+const MAX_EVENTS_PER_REQUEST = 25;
 
 const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -156,6 +160,27 @@ function isValidPayload(value: unknown): value is TrackAnalyticsEventBody {
   return Object.keys(eventProps).length === 0;
 }
 
+function parsePayloadEvents(value: unknown): TrackAnalyticsEventBody[] | null {
+  if (isValidPayload(value)) {
+    return [value];
+  }
+
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  const batch = value as Partial<TrackAnalyticsBatchBody>;
+  if (!Array.isArray(batch.events) || batch.events.length === 0 || batch.events.length > MAX_EVENTS_PER_REQUEST) {
+    return null;
+  }
+
+  if (!batch.events.every((item) => isValidPayload(item))) {
+    return null;
+  }
+
+  return batch.events;
+}
+
 async function sha256Hex(value: string) {
   const bytes = new TextEncoder().encode(value);
   const digest = await crypto.subtle.digest("SHA-256", bytes);
@@ -204,7 +229,8 @@ Deno.serve(async (req: Request) => {
     return error(400, "Invalid JSON body", "INVALID_JSON", requestCorsHeaders);
   }
 
-  if (!isValidPayload(payload)) {
+  const payloadEvents = parsePayloadEvents(payload);
+  if (!payloadEvents) {
     return error(400, "Invalid request payload", "INVALID_PAYLOAD", requestCorsHeaders);
   }
 
@@ -233,6 +259,7 @@ Deno.serve(async (req: Request) => {
       p_principal_key: principalKey,
       p_action: ACTION_NAME,
       p_bucket: bucket,
+      p_increment: payloadEvents.length,
     }
   );
 
@@ -246,17 +273,19 @@ Deno.serve(async (req: Request) => {
     return error(429, "Too many requests", "RATE_LIMITED", requestCorsHeaders);
   }
 
-  const { error: insertError } = await adminClient.from("analytics_events").insert({
-    event_name: payload.event_name,
-    event_props: payload.event_props,
-    session_id: payload.session_id,
+  const rows = payloadEvents.map((eventPayload) => ({
+    event_name: eventPayload.event_name,
+    event_props: eventPayload.event_props,
+    session_id: eventPayload.session_id,
     user_id: userId,
-  });
+  }));
+
+  const { error: insertError } = await adminClient.from("analytics_events").insert(rows);
 
   if (insertError) {
     console.error("track-analytics-event: insert failed", insertError);
     return error(500, "Failed to track event", "INSERT_FAILED", requestCorsHeaders);
   }
 
-  return json(200, { ok: true }, requestCorsHeaders);
+  return json(200, { ok: true, received: payloadEvents.length }, requestCorsHeaders);
 });
