@@ -110,10 +110,6 @@ type TrackAnalyticsEventPayload = {
   session_id: string;
 };
 
-type TrackAnalyticsBatchPayload = {
-  events: TrackAnalyticsEventPayload[];
-};
-
 function isValidTrackPayload(payload: TrackAnalyticsEventPayload) {
   const sessionId = payload.session_id.trim();
   if (sessionId.length < 8 || sessionId.length > 128) {
@@ -195,22 +191,9 @@ async function parseInvokeError(error: unknown) {
   }
 }
 
-async function invokeTrackAnalyticsEventBatch(events: TrackAnalyticsEventPayload[]) {
+async function invokeTrackAnalyticsSingleEvent(event: TrackAnalyticsEventPayload, includeAuth = true) {
   const accessToken = await getCachedAccessToken();
-  const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined;
-  const body: TrackAnalyticsBatchPayload = { events };
-
-  const { error } = await supabase.functions.invoke<{ ok: boolean }>("track-analytics-event", {
-    headers,
-    body,
-  });
-
-  return error;
-}
-
-async function invokeTrackAnalyticsSingleEvent(event: TrackAnalyticsEventPayload) {
-  const accessToken = await getCachedAccessToken();
-  const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined;
+  const headers = includeAuth && accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined;
 
   const { error } = await supabase.functions.invoke<{ ok: boolean }>("track-analytics-event", {
     headers,
@@ -267,55 +250,39 @@ async function flushAnalyticsQueue() {
       continue;
     }
 
-    const error = await invokeTrackAnalyticsEventBatch(validEvents);
-    if (error) {
-      const details = await parseInvokeError(error);
+    for (let index = 0; index < validEvents.length; index += 1) {
+      const event = validEvents[index];
+      let error = await invokeTrackAnalyticsSingleEvent(event);
+      if (error) {
+        const details = await parseInvokeError(error);
 
-      if (details.status === 400 || details.code === "INVALID_PAYLOAD") {
-        logAnalyticsWarning("Analytics batch rejected; retrying event-by-event", details);
-        let shouldRetry = false;
+        if (details.status === 401 || details.code === "INVALID_SESSION") {
+          cachedAccessToken = null;
+          accessTokenRefreshAtMs = 0;
 
-        for (const event of validEvents) {
-          const singleError = await invokeTrackAnalyticsSingleEvent(event);
-          if (!singleError) {
+          error = await invokeTrackAnalyticsSingleEvent(event, false);
+          if (!error) {
             continue;
           }
-
-          const singleDetails = await parseInvokeError(singleError);
-          if (singleDetails.status === 400 || singleDetails.code === "INVALID_PAYLOAD") {
-            logAnalyticsWarning("Dropped analytics event due invalid payload", singleDetails);
-            continue;
-          }
-
-          if (singleDetails.status === 401 || singleDetails.code === "INVALID_SESSION") {
-            cachedAccessToken = null;
-            accessTokenRefreshAtMs = 0;
-            logAnalyticsWarning("Dropped analytics event due invalid session", singleDetails);
-            continue;
-          }
-
-          shouldRetry = true;
-          break;
         }
 
-        if (shouldRetry) {
-          pendingQueue = [...validEvents, ...pendingQueue].slice(0, MAX_QUEUE_SIZE);
-          break;
+        const finalDetails = await parseInvokeError(error);
+
+        if (finalDetails.status === 400 || finalDetails.code === "INVALID_PAYLOAD") {
+          logAnalyticsWarning("Dropped analytics event due invalid payload", finalDetails);
+          continue;
         }
 
-        continue;
-      }
+        if (finalDetails.status === 401 || finalDetails.code === "INVALID_SESSION") {
+          logAnalyticsWarning("Dropped analytics event due invalid session", finalDetails);
+          continue;
+        }
 
-      if (details.status === 401 || details.code === "INVALID_SESSION") {
-        cachedAccessToken = null;
-        accessTokenRefreshAtMs = 0;
-        logAnalyticsWarning("Dropped analytics events due invalid session", details);
-        continue;
+        pendingQueue = [...validEvents.slice(index), ...pendingQueue].slice(0, MAX_QUEUE_SIZE);
+        logAnalyticsWarning("Failed to flush analytics events", finalDetails.message ?? error.message);
+        flushInFlight = false;
+        return;
       }
-
-      pendingQueue = [...chunk, ...pendingQueue].slice(0, MAX_QUEUE_SIZE);
-      logAnalyticsWarning("Failed to flush analytics events", details.message ?? error.message);
-      break;
     }
   }
 
