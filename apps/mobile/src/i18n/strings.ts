@@ -122,6 +122,7 @@ export const id = {
     resend: "Kirim ulang email",
     resendBusy: "Mengirim ulang...",
     resendWait: "Tunggu",
+    resendRateLimited: "Terlalu banyak percobaan. Tunggu 60 detik lalu coba lagi.",
     changeEmail: "Ganti email",
     backToLogin: "Kembali ke masuk",
     help: "Jika tidak masuk, cek folder Spam/Promosi dan tunggu 1–2 menit.",

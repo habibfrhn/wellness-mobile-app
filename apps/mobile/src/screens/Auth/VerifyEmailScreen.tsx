@@ -14,6 +14,8 @@ const FLAG_ACTIVITY_NEW_TASK = 0x10000000;
 
 type Props = NativeStackScreenProps<AuthStackParamList, "VerifyEmail">;
 
+const RESEND_COOLDOWN_SECONDS = 60;
+
 export default function VerifyEmailScreen({ route, navigation }: Props) {
   const email = route.params.email;
   const [busy, setBusy] = useState(false);
@@ -67,14 +69,14 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
       });
       if (error) {
         if (isRateLimitedError(error.message)) {
-          Alert.alert(id.common.errorTitle, id.common.authRateLimited);
+          Alert.alert(id.common.errorTitle, id.verify.resendRateLimited);
           return;
         }
 
         Alert.alert(id.common.errorTitle, id.common.genericAuthError);
         return;
       }
-      setCooldown(30);
+      setCooldown(RESEND_COOLDOWN_SECONDS);
     } finally {
       setBusy(false);
     }

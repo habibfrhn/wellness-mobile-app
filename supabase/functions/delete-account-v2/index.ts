@@ -6,6 +6,7 @@ type ErrorCode =
   | "SERVER_MISCONFIGURATION"
   | "INVALID_SESSION"
   | "RATE_LIMITED"
+  | "RATE_LIMIT_UNAVAILABLE"
   | "DELETE_FAILED";
 
 const ACTION_NAME = "delete_user_account";
@@ -98,9 +99,8 @@ async function applyRateLimit(adminClient: ReturnType<typeof createClient>, user
   });
 
   if (error) {
-    // Keep deletion available even if rate limiter isn't deployed yet.
-    console.warn("delete-account-v2: rate-limit rpc unavailable, continuing", error.message);
-    return;
+    console.error("delete-account-v2: rate-limit rpc failed", error.message);
+    throw new Error("RATE_LIMIT_UNAVAILABLE");
   }
 
   if (typeof data === "number" && data > MAX_REQUESTS_PER_HOUR) {
@@ -169,7 +169,8 @@ Deno.serve(async (req: Request) => {
       return fail(429, "Too many requests", "RATE_LIMITED", corsHeaders);
     }
 
-    console.warn("delete-account-v2: unexpected rate-limit error", error);
+    console.error("delete-account-v2: rate-limit check unavailable", error);
+    return fail(503, "Service temporarily unavailable", "RATE_LIMIT_UNAVAILABLE", corsHeaders);
   }
 
   // Force hard-delete account (explicit false) so it is removed from auth.users dashboard and not anonymized.
