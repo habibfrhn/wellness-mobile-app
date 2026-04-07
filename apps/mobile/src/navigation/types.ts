@@ -4,7 +4,7 @@ export type AuthStackParamList = {
   Welcome: undefined;
   SignUp: { initialEmail?: string } | undefined;
   Login: { initialEmail?: string } | undefined;
-  VerifyEmail: { email: string };
+  VerifyEmail: { email: string; context?: "signup" | "recovery" | "login_unverified" };
   ForgotPassword: { initialEmail?: string } | undefined;
   ResetPassword: undefined;
 };

@@ -17,6 +17,7 @@ const RESEND_COOLDOWN_SECONDS = 60;
 
 export default function VerifyEmailScreen({ route, navigation }: Props) {
   const email = route.params.email;
+  const isRecoveryFlow = route.params.context === "recovery" || route.params.context === "login_unverified";
   const [busy, setBusy] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const viewportWidth = useViewportWidth();
@@ -91,8 +92,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
         <Text style={styles.email}>{email}</Text>
 
         <Text style={styles.help}>
-          Setelah klik tautan verifikasi, kembali ke aplikasi Wellness. Jika tautan tidak membuka aplikasi, tap “Saya
-          sudah verifikasi” lalu masuk.
+          {isRecoveryFlow ? id.verify.recoveryNotice : id.verify.help}
         </Text>
 
         <View style={authSharedStyles.actionsStack}>
@@ -135,6 +135,18 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
             </Text>
           </Pressable>
 
+
+          <Pressable
+            onPress={() => navigation.replace("SignUp", { initialEmail: "" })}
+            style={({ hovered, pressed }: any) => [
+              authSharedStyles.secondaryButton,
+              styles.outlineButton,
+              hovered && isDesktopWeb && styles.outlineButtonHover,
+              pressed && authSharedStyles.pressed,
+            ]}
+          >
+            <Text style={[authSharedStyles.secondaryButtonText, styles.outlineButtonText]}>{id.verify.useDifferentEmail}</Text>
+          </Pressable>
           <Pressable
             onPress={() => navigation.replace("Login", { initialEmail: email })}
             style={({ hovered, pressed }: any) => [

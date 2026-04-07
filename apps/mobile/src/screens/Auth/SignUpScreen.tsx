@@ -178,8 +178,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
         }
 
         if (isEmailAlreadyRegisteredError(error.message)) {
-          setErrors((prev) => ({ ...prev, email: id.signup.emailAlreadyUsedError }));
-          emailInputRef.current?.focus();
+          navigation.replace("VerifyEmail", { email: e, context: "recovery" });
           return;
         }
 
@@ -191,13 +190,12 @@ export default function SignUpScreen({ navigation, route }: Props) {
       }
 
       if (isExistingUserSignupResponse(data.user?.identities)) {
-        setErrors((prev) => ({ ...prev, email: id.signup.emailAlreadyUsedError }));
-        emailInputRef.current?.focus();
+        navigation.replace("VerifyEmail", { email: e, context: "recovery" });
         return;
       }
 
       void trackEvent("signup_complete", { method: "email" });
-      navigation.replace("VerifyEmail", { email: e });
+      navigation.replace("VerifyEmail", { email: e, context: "signup" });
     } catch {
       setFormError(id.common.genericAuthError);
     } finally {

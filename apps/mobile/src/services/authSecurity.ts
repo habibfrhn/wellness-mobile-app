@@ -2,6 +2,7 @@ const EMAIL_EXISTS_MARKERS = ["already registered", "already been registered", "
 const RATE_LIMIT_MARKERS = ["rate limit", "too many", "over_email_send_rate_limit", "over_request_rate_limit"];
 const NETWORK_MARKERS = ["network", "fetch", "timeout", "timed out"];
 const WEAK_PASSWORD_MARKERS = ["weak password", "password should", "password must", "password is too weak"];
+const EMAIL_NOT_CONFIRMED_MARKERS = ["email not confirmed", "confirm your email", "email_not_confirmed", "signup_disabled"];
 
 export const PASSWORD_MIN_LENGTH = 8;
 export const PASSWORD_MAX_LENGTH = 64;
@@ -61,4 +62,9 @@ export function getSafeAuthErrorMessage(message: string | null | undefined, fall
   }
 
   return fallback;
+}
+
+export function isEmailNotConfirmedError(message: string | null | undefined) {
+  const normalized = (message ?? "").toLowerCase();
+  return EMAIL_NOT_CONFIRMED_MARKERS.some((marker) => normalized.includes(marker));
 }
