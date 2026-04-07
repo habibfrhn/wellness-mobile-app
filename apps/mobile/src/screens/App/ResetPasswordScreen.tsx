@@ -8,6 +8,7 @@ import { id } from "../../i18n/strings";
 import { canManagePassword } from "../../services/authProviders";
 import { signOutToLogin } from "../../services/authSession";
 import { supabase } from "../../services/supabase";
+import { PASSWORD_MAX_LENGTH, isValidPassword } from "../../services/authSecurity";
 import PasswordToggle from "../../components/PasswordToggle";
 
 type Props = NativeStackScreenProps<AppStackParamList, "ResetPassword">;
@@ -53,8 +54,7 @@ export default function ResetPasswordScreen({ navigation }: Props) {
     return (
       passwordManagementReady &&
       currentPassword.trim().length > 0 &&
-      password.length >= 8 &&
-      confirm.length >= 8 &&
+      isValidPassword(password) &&
       password === confirm &&
       !busy
     );
@@ -65,7 +65,11 @@ export default function ResetPasswordScreen({ navigation }: Props) {
       Alert.alert(id.common.errorTitle, id.account.resetCurrentMissing);
       return;
     }
-    if (password.length < 8) {
+    if (!isValidPassword(password)) {
+      if (password.length > PASSWORD_MAX_LENGTH) {
+        Alert.alert(id.common.weakPassword, id.common.weakPasswordLongBody);
+        return;
+      }
       Alert.alert(id.common.weakPassword, id.common.weakPasswordBody);
       return;
     }

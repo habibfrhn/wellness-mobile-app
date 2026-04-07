@@ -8,7 +8,7 @@ import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
 import PasswordToggle from "../../components/PasswordToggle";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
-import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH, isRateLimitedError } from "../../services/authSecurity";
+import { PASSWORD_MAX_LENGTH, isRateLimitedError, isValidPassword } from "../../services/authSecurity";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "ResetPassword">;
 
@@ -20,25 +20,20 @@ export default function ResetPasswordScreen({ navigation }: Props) {
   const [busy, setBusy] = useState(false);
 
   const canSubmit = useMemo(() => {
-    return (
-      password.length >= PASSWORD_MIN_LENGTH &&
-      password.length <= PASSWORD_MAX_LENGTH &&
-      confirm.length >= PASSWORD_MIN_LENGTH &&
-      confirm.length <= PASSWORD_MAX_LENGTH &&
-      password === confirm &&
-      !busy
-    );
+    return isValidPassword(password) && password === confirm && !busy;
   }, [password, confirm, busy]);
 
   async function onSubmit() {
-    if (password.length < PASSWORD_MIN_LENGTH) {
+    if (!isValidPassword(password)) {
+      if (password.length > PASSWORD_MAX_LENGTH) {
+        Alert.alert(id.common.weakPassword, id.common.weakPasswordLongBody);
+        return;
+      }
+
       Alert.alert(id.common.weakPassword, id.common.weakPasswordBody);
       return;
     }
-    if (password.length > PASSWORD_MAX_LENGTH) {
-      Alert.alert(id.common.weakPassword, id.common.weakPasswordLongBody);
-      return;
-    }
+
     if (password !== confirm) {
       Alert.alert(id.common.passwordsNotMatch, id.common.passwordsNotMatchBody);
       return;

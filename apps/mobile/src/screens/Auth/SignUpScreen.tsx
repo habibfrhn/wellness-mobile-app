@@ -18,10 +18,12 @@ import SignUpLoginPrompt from "../../components/auth/SignUpLoginPrompt";
 import { trackEvent } from "../../services/analytics";
 import {
   PASSWORD_MAX_LENGTH,
-  PASSWORD_MIN_LENGTH,
+  getPasswordRequirementChecks,
+  isValidPassword,
   getSafeAuthErrorMessage,
   isEmailAlreadyRegisteredError,
   isRateLimitedError,
+  isWeakPasswordError,
 } from "../../services/authSecurity";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "SignUp">;
@@ -57,6 +59,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
   const isDesktopWeb = Platform.OS === "web" && getWebViewport(viewportWidth) === "desktop";
 
   const canPress = useMemo(() => !busy, [busy]);
+  const passwordChecks = useMemo(() => getPasswordRequirementChecks(password), [password]);
 
   useEffect(() => {
     void trackEvent("signup_start", { method: "email" });
@@ -74,18 +77,12 @@ export default function SignUpScreen({ navigation, route }: Props) {
 
     if (!password) {
       nextErrors.password = id.login.errorPasswordRequired;
-    } else if (password.length < PASSWORD_MIN_LENGTH) {
-      nextErrors.password = id.common.weakPasswordBody;
-    } else if (password.length > PASSWORD_MAX_LENGTH) {
-      nextErrors.password = id.common.weakPasswordLongBody;
+    } else if (!isValidPassword(password)) {
+      nextErrors.password = password.length > PASSWORD_MAX_LENGTH ? id.common.weakPasswordLongBody : id.common.weakPasswordBody;
     }
 
     if (!confirm) {
       nextErrors.confirm = "Ulangi kata sandi belum diisi";
-    } else if (confirm.length < PASSWORD_MIN_LENGTH) {
-      nextErrors.confirm = id.common.weakPasswordBody;
-    } else if (confirm.length > PASSWORD_MAX_LENGTH) {
-      nextErrors.confirm = id.common.weakPasswordLongBody;
     } else if (password && password !== confirm) {
       nextErrors.confirm = "Kata sandi dan konfirmasi tidak sama.";
     }
@@ -122,6 +119,15 @@ export default function SignUpScreen({ navigation, route }: Props) {
       });
 
       if (error) {
+        if (isWeakPasswordError(error.message)) {
+          setErrors((prev) => ({
+            ...prev,
+            password: password.length > PASSWORD_MAX_LENGTH ? id.common.weakPasswordLongBody : id.common.weakPasswordBody,
+          }));
+          passwordInputRef.current?.focus();
+          return;
+        }
+
         if (isEmailAlreadyRegisteredError(error.message)) {
           setErrors((prev) => ({ ...prev, email: id.signup.emailAlreadyUsedError }));
           emailInputRef.current?.focus();
@@ -179,7 +185,6 @@ export default function SignUpScreen({ navigation, route }: Props) {
           onSubmitEditing={() => emailInputRef.current?.focus()}
           placeholder={id.signup.namePlaceholder}
         />
-
         <AuthTextField
           ref={emailInputRef}
           label={id.signup.emailLabel}
@@ -235,6 +240,27 @@ export default function SignUpScreen({ navigation, route }: Props) {
             />
           }
         />
+        <View style={styles.passwordRules}>
+          <Text style={styles.passwordRulesTitle}>{id.signup.passwordRuleTitle}</Text>
+          <Text style={[styles.passwordRuleItem, passwordChecks.minLength ? styles.passwordRuleMet : styles.passwordRuleUnmet]}>
+            {passwordChecks.minLength ? "✓" : "○"} {id.signup.passwordRuleMin}
+          </Text>
+          <Text style={[styles.passwordRuleItem, passwordChecks.maxLength ? styles.passwordRuleMet : styles.passwordRuleUnmet]}>
+            {passwordChecks.maxLength ? "✓" : "○"} {id.signup.passwordRuleMax}
+          </Text>
+          <Text style={[styles.passwordRuleItem, passwordChecks.uppercase ? styles.passwordRuleMet : styles.passwordRuleUnmet]}>
+            {passwordChecks.uppercase ? "✓" : "○"} {id.signup.passwordRuleUppercase}
+          </Text>
+          <Text style={[styles.passwordRuleItem, passwordChecks.lowercase ? styles.passwordRuleMet : styles.passwordRuleUnmet]}>
+            {passwordChecks.lowercase ? "✓" : "○"} {id.signup.passwordRuleLowercase}
+          </Text>
+          <Text style={[styles.passwordRuleItem, passwordChecks.number ? styles.passwordRuleMet : styles.passwordRuleUnmet]}>
+            {passwordChecks.number ? "✓" : "○"} {id.signup.passwordRuleNumber}
+          </Text>
+          <Text style={[styles.passwordRuleItem, passwordChecks.special ? styles.passwordRuleMet : styles.passwordRuleUnmet]}>
+            {passwordChecks.special ? "✓" : "○"} {id.signup.passwordRuleSpecial}
+          </Text>
+        </View>
 
         <AuthTextField
           ref={confirmInputRef}
@@ -307,6 +333,24 @@ const styles = StyleSheet.create({
     fontSize: typography.caption,
     textAlign: "center",
     marginTop: spacing.xs,
+  },
+  passwordRules: {
+    gap: spacing.xs,
+    marginTop: -spacing.xs,
+  },
+  passwordRulesTitle: {
+    color: colors.text,
+    fontSize: typography.caption,
+    fontWeight: "600",
+  },
+  passwordRuleItem: {
+    fontSize: typography.caption,
+  },
+  passwordRuleMet: {
+    color: colors.primary,
+  },
+  passwordRuleUnmet: {
+    color: colors.mutedText,
   },
   formError: {
     color: colors.danger,
