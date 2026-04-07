@@ -172,8 +172,8 @@ Deno.serve(async (req: Request) => {
     console.warn("delete-account-v2: unexpected rate-limit error", error);
   }
 
-  // Hard-delete account so it is removed from auth.users in Supabase dashboard.
-  const { error: hardDeleteError } = await adminClient.auth.admin.deleteUser(user.id);
+  // Force hard-delete account (explicit false) so it is removed from auth.users dashboard and not anonymized.
+  const { error: hardDeleteError } = await adminClient.auth.admin.deleteUser(user.id, false);
   if (hardDeleteError) {
     console.error("delete-account-v2: hard delete failed", {
       hardDeleteError: hardDeleteError.message,
