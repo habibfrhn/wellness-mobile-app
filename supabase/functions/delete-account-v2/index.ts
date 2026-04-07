@@ -172,21 +172,16 @@ Deno.serve(async (req: Request) => {
     console.warn("delete-account-v2: unexpected rate-limit error", error);
   }
 
-  // Soft-delete first: this works for both email/password and OAuth users,
-  // and avoids FK-constraint failures on auth.users hard deletion.
-  const { error: softDeleteError } = await adminClient.auth.admin.deleteUser(user.id, true);
-  if (softDeleteError) {
-    // Fall back to hard delete just in case soft delete is unavailable.
-    const { error: hardDeleteError } = await adminClient.auth.admin.deleteUser(user.id);
-    if (hardDeleteError) {
-      console.error("delete-account-v2: failed to delete user", {
-        softDeleteError: softDeleteError.message,
-        hardDeleteError: hardDeleteError.message,
-      });
-      return fail(500, "Failed to delete account", "DELETE_FAILED", corsHeaders);
-    }
+  // Hard-delete account so it is removed from auth.users in Supabase dashboard.
+  const { error: hardDeleteError } = await adminClient.auth.admin.deleteUser(user.id);
+  if (hardDeleteError) {
+    console.error("delete-account-v2: hard delete failed", {
+      hardDeleteError: hardDeleteError.message,
+      hint: "Check foreign-key constraints or cleanup dependencies before deleting auth.users row",
+    });
+    return fail(500, "Failed to delete account", "DELETE_FAILED", corsHeaders);
   }
 
-  console.log("delete-account-v2: account deletion succeeded", { userId: user.id });
+  console.log("delete-account-v2: hard account deletion succeeded", { userId: user.id });
   return json(200, { ok: true }, corsHeaders);
 });
