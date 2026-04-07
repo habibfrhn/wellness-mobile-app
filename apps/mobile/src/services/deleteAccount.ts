@@ -47,10 +47,6 @@ async function signOutAfterDeletion() {
   }
 
   await clearPersistedSession();
-
-  if (Platform.OS === "web" && typeof window !== "undefined") {
-    window.location.replace("/");
-  }
 }
 
 async function getCurrentAccessToken(forceRefresh = false) {
