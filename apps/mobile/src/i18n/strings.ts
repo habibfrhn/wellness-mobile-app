@@ -128,8 +128,6 @@ export const id = {
     changeEmail: "Ganti email",
     backToLogin: "Kembali ke masuk",
     help: "Jika tidak masuk, cek folder Spam/Promosi dan tunggu 1–2 menit.",
-    recoveryNotice: "Jika email ini terdaftar, kami akan mengirim ulang tautan verifikasi. Cek Inbox/Spam lalu verifikasi akun Anda.",
-    loginRecoveryNotice: "Email Anda belum terverifikasi. Verifikasi email terlebih dahulu sebelum masuk, lalu coba login kembali.",
     linkStillValidTitle: "Periksa email Anda",
     linkStillValidBody: "Tautan verifikasi sebelumnya masih berlaku. Silakan cek Inbox/Spam lalu gunakan tautan yang sudah ada.",
   },

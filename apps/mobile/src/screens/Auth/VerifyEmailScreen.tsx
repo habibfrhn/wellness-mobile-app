@@ -17,9 +17,6 @@ const RESEND_COOLDOWN_SECONDS = 60;
 
 export default function VerifyEmailScreen({ route, navigation }: Props) {
   const email = route.params.email;
-  const isRecoveryFlow = route.params.context === "recovery" || route.params.context === "login_unverified";
-  const recoveryHelpText =
-    route.params.context === "login_unverified" ? id.verify.loginRecoveryNotice : id.verify.recoveryNotice;
   const [busy, setBusy] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const hasAutoSentRef = useRef(false);
@@ -93,13 +90,13 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
   }, [email]);
 
   useEffect(() => {
-    if (!isRecoveryFlow || hasAutoSentRef.current) {
+    if (hasAutoSentRef.current) {
       return;
     }
 
     hasAutoSentRef.current = true;
     void attemptResend("auto");
-  }, [attemptResend, isRecoveryFlow]);
+  }, [attemptResend]);
 
   function iHaveVerified() {
     navigation.replace("Login", { initialEmail: email });
@@ -111,7 +108,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
         <Text style={styles.email}>{email}</Text>
 
         <Text style={styles.help}>
-          {isRecoveryFlow ? recoveryHelpText : id.verify.help}
+          {id.verify.help}
         </Text>
 
         <View style={authSharedStyles.actionsStack}>
