@@ -88,17 +88,19 @@ export default function SignUpScreen({ navigation, route }: Props) {
 
     return 1;
   }, [password, passwordChecks]);
+  const hasStartedPasswordInput = password.length > 0;
+  const passwordIsValid = hasStartedPasswordInput && isValidPassword(password);
   const passwordStatusText = useMemo(() => {
-    if (!password) {
+    if (!hasStartedPasswordInput) {
       return null;
     }
 
-    if (isValidPassword(password)) {
+    if (passwordIsValid) {
       return id.signup.passwordValid;
     }
 
     return `${id.signup.passwordMissingPrefix} ${missingPasswordRules.join(", ")}`;
-  }, [missingPasswordRules, password]);
+  }, [hasStartedPasswordInput, missingPasswordRules, passwordIsValid]);
 
   useEffect(() => {
     void trackEvent("signup_start", { method: "email" });
@@ -301,7 +303,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
           </View>
           {errors.password ? <Text style={styles.fieldErrorText}>{errors.password}</Text> : null}
           {passwordStatusText ? (
-            <Text style={[styles.passwordStatusText, isValidPassword(password) ? styles.passwordStatusSuccess : styles.passwordStatusWarning]}>
+            <Text style={[styles.passwordStatusText, passwordIsValid ? styles.passwordStatusSuccess : styles.passwordStatusWarning]}>
               {passwordStatusText}
             </Text>
           ) : null}
