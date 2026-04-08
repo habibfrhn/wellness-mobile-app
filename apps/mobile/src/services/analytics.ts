@@ -19,8 +19,6 @@ let inMemorySessionId: string | null = null;
 let analyticsFlushTimer: ReturnType<typeof setInterval> | null = null;
 let analyticsListenersBound = false;
 let flushInFlight = false;
-let cachedAccessToken: string | null = null;
-let accessTokenRefreshAtMs = 0;
 let pendingQueue: TrackAnalyticsEventPayload[] = [];
 
 const MAX_EVENT_PROPS_BYTES = 2048;
@@ -30,7 +28,6 @@ const SESSION_MODE_PROP_KEY = "session_mode";
 const MAX_EVENTS_PER_FLUSH = 25;
 const MAX_QUEUE_SIZE = 100;
 const FLUSH_INTERVAL_MS = 10_000;
-const TOKEN_CACHE_FALLBACK_MS = 30_000;
 
 function logAnalyticsWarning(message: string, ...context: unknown[]) {
   if (__DEV__) {
@@ -152,25 +149,6 @@ function getEventChunk() {
   return pendingQueue.splice(0, MAX_EVENTS_PER_FLUSH);
 }
 
-async function getCachedAccessToken() {
-  const now = Date.now();
-  if (cachedAccessToken && now < accessTokenRefreshAtMs) {
-    return cachedAccessToken;
-  }
-
-  const { data: sessionData } = await supabase.auth.getSession();
-  const session = sessionData.session;
-  cachedAccessToken = session?.access_token ?? null;
-  if (session?.expires_at) {
-    accessTokenRefreshAtMs = Math.max(now, session.expires_at * 1000 - 60_000);
-  } else {
-    accessTokenRefreshAtMs = now + TOKEN_CACHE_FALLBACK_MS;
-  }
-
-  return cachedAccessToken;
-}
-
-
 async function parseInvokeError(error: unknown) {
   const context = (error as { context?: Response } | null)?.context;
   const status = typeof context?.status === "number" ? context.status : null;
@@ -191,12 +169,8 @@ async function parseInvokeError(error: unknown) {
   }
 }
 
-async function invokeTrackAnalyticsSingleEvent(event: TrackAnalyticsEventPayload, includeAuth = true) {
-  const accessToken = await getCachedAccessToken();
-  const headers = includeAuth && accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined;
-
+async function invokeTrackAnalyticsSingleEvent(event: TrackAnalyticsEventPayload) {
   const { error } = await supabase.functions.invoke<{ ok: boolean }>("track-analytics-event", {
-    headers,
     body: event,
   });
 
@@ -252,20 +226,8 @@ async function flushAnalyticsQueue() {
 
     for (let index = 0; index < validEvents.length; index += 1) {
       const event = validEvents[index];
-      let error = await invokeTrackAnalyticsSingleEvent(event);
+      const error = await invokeTrackAnalyticsSingleEvent(event);
       if (error) {
-        const details = await parseInvokeError(error);
-
-        if (details.status === 401 || details.code === "INVALID_SESSION") {
-          cachedAccessToken = null;
-          accessTokenRefreshAtMs = 0;
-
-          error = await invokeTrackAnalyticsSingleEvent(event, false);
-          if (!error) {
-            continue;
-          }
-        }
-
         const finalDetails = await parseInvokeError(error);
 
         if (finalDetails.status === 400 || finalDetails.code === "INVALID_PAYLOAD") {
