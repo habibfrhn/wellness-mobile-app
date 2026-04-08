@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 export type AnalyticsEventName =
   | "landing_page_view"
@@ -20,6 +21,7 @@ let analyticsFlushTimer: ReturnType<typeof setInterval> | null = null;
 let analyticsListenersBound = false;
 let flushInFlight = false;
 let pendingQueue: TrackAnalyticsEventPayload[] = [];
+let anonFunctionsClient: SupabaseClient | null = null;
 
 const MAX_EVENT_PROPS_BYTES = 2048;
 const MAX_STRING_PROP_LENGTH = 120;
@@ -174,7 +176,45 @@ async function invokeTrackAnalyticsSingleEvent(event: TrackAnalyticsEventPayload
     body: event,
   });
 
+  if (error) {
+    const details = await parseInvokeError(error);
+    if (details.status === 401) {
+      const fallbackClient = getAnonFunctionsClient();
+      if (!fallbackClient) {
+        return error;
+      }
+
+      const { error: fallbackError } = await fallbackClient.functions.invoke<{ ok: boolean }>("track-analytics-event", {
+        body: event,
+      });
+
+      return fallbackError ?? null;
+    }
+  }
+
   return error;
+}
+
+function getAnonFunctionsClient() {
+  if (anonFunctionsClient) {
+    return anonFunctionsClient;
+  }
+
+  const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return null;
+  }
+
+  anonFunctionsClient = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  });
+
+  return anonFunctionsClient;
 }
 
 function bindAnalyticsListeners() {
