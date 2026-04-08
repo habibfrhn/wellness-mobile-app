@@ -1,5 +1,3 @@
-import { supabase } from "./supabase";
-
 export type AnalyticsEventName =
   | "landing_page_view"
   | "landing_cta_click"
@@ -170,18 +168,7 @@ async function parseInvokeError(error: unknown) {
 }
 
 async function invokeTrackAnalyticsSingleEvent(event: TrackAnalyticsEventPayload) {
-  const { error } = await supabase.functions.invoke<{ ok: boolean }>("track-analytics-event", {
-    body: event,
-  });
-
-  if (error) {
-    const details = await parseInvokeError(error);
-    if (details.status === 401) {
-      return invokeTrackAnalyticsViaAnonFetch(event);
-    }
-  }
-
-  return error;
+  return invokeTrackAnalyticsViaAnonFetch(event);
 }
 
 async function invokeTrackAnalyticsViaAnonFetch(event: TrackAnalyticsEventPayload) {
