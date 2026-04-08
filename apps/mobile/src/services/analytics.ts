@@ -1,5 +1,4 @@
 import { supabase } from "./supabase";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 export type AnalyticsEventName =
   | "landing_page_view"
@@ -21,7 +20,6 @@ let analyticsFlushTimer: ReturnType<typeof setInterval> | null = null;
 let analyticsListenersBound = false;
 let flushInFlight = false;
 let pendingQueue: TrackAnalyticsEventPayload[] = [];
-let anonFunctionsClient: SupabaseClient | null = null;
 
 const MAX_EVENT_PROPS_BYTES = 2048;
 const MAX_STRING_PROP_LENGTH = 120;
@@ -179,42 +177,46 @@ async function invokeTrackAnalyticsSingleEvent(event: TrackAnalyticsEventPayload
   if (error) {
     const details = await parseInvokeError(error);
     if (details.status === 401) {
-      const fallbackClient = getAnonFunctionsClient();
-      if (!fallbackClient) {
-        return error;
-      }
-
-      const { error: fallbackError } = await fallbackClient.functions.invoke<{ ok: boolean }>("track-analytics-event", {
-        body: event,
-      });
-
-      return fallbackError ?? null;
+      return invokeTrackAnalyticsViaAnonFetch(event);
     }
   }
 
   return error;
 }
 
-function getAnonFunctionsClient() {
-  if (anonFunctionsClient) {
-    return anonFunctionsClient;
-  }
-
+async function invokeTrackAnalyticsViaAnonFetch(event: TrackAnalyticsEventPayload) {
   const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
   if (!supabaseUrl || !supabaseAnonKey) {
-    return null;
+    return {
+      message: "Missing Supabase env for analytics fallback",
+    };
   }
 
-  anonFunctionsClient = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-      detectSessionInUrl: false,
-    },
-  });
+  try {
+    const response = await fetch(`${supabaseUrl}/functions/v1/track-analytics-event`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: supabaseAnonKey,
+        Authorization: `Bearer ${supabaseAnonKey}`,
+      },
+      body: JSON.stringify(event),
+    });
 
-  return anonFunctionsClient;
+    if (response.ok) {
+      return null;
+    }
+
+    return {
+      message: `Analytics fallback request failed with status ${response.status}`,
+      context: response,
+    };
+  } catch (fallbackError) {
+    return {
+      message: (fallbackError as { message?: string } | null)?.message ?? "Analytics fallback request failed",
+    };
+  }
 }
 
 function bindAnalyticsListeners() {
