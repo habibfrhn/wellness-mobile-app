@@ -1,3 +1,5 @@
+import { supabase } from "./supabase";
+
 export type AnalyticsEventName =
   | "landing_page_view"
   | "landing_cta_click"
@@ -150,9 +152,14 @@ function getEventChunk() {
 async function parseInvokeError(error: unknown) {
   const context = (error as { context?: Response } | null)?.context;
   const status = typeof context?.status === "number" ? context.status : null;
+  const directError = error as { status?: number; code?: string; message?: string } | null;
 
   if (!context) {
-    return { status, code: null as string | null, message: (error as { message?: string } | null)?.message ?? null };
+    return {
+      status: status ?? (typeof directError?.status === "number" ? directError.status : null),
+      code: typeof directError?.code === "string" ? directError.code : null,
+      message: directError?.message ?? null,
+    };
   }
 
   try {
@@ -168,10 +175,44 @@ async function parseInvokeError(error: unknown) {
 }
 
 async function invokeTrackAnalyticsSingleEvent(event: TrackAnalyticsEventPayload) {
-  return invokeTrackAnalyticsViaAnonFetch(event);
+  const accessToken = await getAccessToken();
+  if (!accessToken) {
+    return {
+      status: 401,
+      code: "INVALID_SESSION",
+      message: "Missing authenticated session",
+    };
+  }
+
+  const initialError = await invokeTrackAnalyticsViaFetch(event, accessToken);
+  if (!initialError) {
+    return null;
+  }
+
+  const initialDetails = await parseInvokeError(initialError);
+  if (initialDetails.status !== 401 && initialDetails.code !== "INVALID_SESSION") {
+    return initialError;
+  }
+
+  const refreshedToken = await refreshAccessToken();
+  if (!refreshedToken) {
+    return initialError;
+  }
+
+  return invokeTrackAnalyticsViaFetch(event, refreshedToken);
 }
 
-async function invokeTrackAnalyticsViaAnonFetch(event: TrackAnalyticsEventPayload) {
+async function getAccessToken() {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.access_token ?? null;
+}
+
+async function refreshAccessToken() {
+  const { data } = await supabase.auth.refreshSession();
+  return data.session?.access_token ?? null;
+}
+
+async function invokeTrackAnalyticsViaFetch(event: TrackAnalyticsEventPayload, accessToken: string) {
   const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
   if (!supabaseUrl || !supabaseAnonKey) {
@@ -186,7 +227,7 @@ async function invokeTrackAnalyticsViaAnonFetch(event: TrackAnalyticsEventPayloa
       headers: {
         "Content-Type": "application/json",
         apikey: supabaseAnonKey,
-        Authorization: `Bearer ${supabaseAnonKey}`,
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify(event),
     });
