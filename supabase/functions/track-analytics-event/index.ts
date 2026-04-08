@@ -243,10 +243,10 @@ Deno.serve(async (req: Request) => {
   if (token) {
     const { data: userData, error: userError } = await userClient.auth.getUser();
     if (userError || !userData.user?.id) {
-      return error(401, "Invalid user session", "INVALID_SESSION", requestCorsHeaders);
+      console.warn("track-analytics-event: invalid bearer token, falling back to anonymous principal");
+    } else {
+      userId = userData.user.id;
     }
-
-    userId = userData.user.id;
   }
 
   const principalKey = userId ? `user:${userId}` : await getAnonPrincipalKey(req);
