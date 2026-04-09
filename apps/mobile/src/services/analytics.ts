@@ -191,7 +191,7 @@ async function ensureFreshAccessToken() {
   return session.access_token;
 }
 
-async function postAnalyticsBatch(batchPayload: TrackAnalyticsBatchPayload) {
+async function postAnalyticsPayload(payload: TrackAnalyticsBatchPayload | TrackAnalyticsEventPayload) {
   if (!ANALYTICS_API_URL || !SUPABASE_ANON_KEY) {
     return {
       status: 500,
@@ -214,7 +214,7 @@ async function postAnalyticsBatch(batchPayload: TrackAnalyticsBatchPayload) {
     const response = await fetch(ANALYTICS_API_URL, {
       method: "POST",
       headers,
-      body: JSON.stringify(batchPayload),
+      body: JSON.stringify(payload),
     });
 
     if (response.ok) {
@@ -244,6 +244,41 @@ async function postAnalyticsBatch(batchPayload: TrackAnalyticsBatchPayload) {
       message: networkError instanceof Error ? networkError.message : "Network request failed",
     } satisfies AnalyticsInvokeFailure;
   }
+}
+
+
+
+type FlushSingleResult = "all_handled" | "requeue_remaining";
+
+async function flushEventsIndividually(events: TrackAnalyticsEventPayload[]): Promise<FlushSingleResult> {
+  for (let index = 0; index < events.length; index += 1) {
+    const event = events[index];
+    const failure = await postAnalyticsPayload(event);
+    if (!failure) {
+      continue;
+    }
+
+    if (failure.status === 400 || failure.code === "INVALID_PAYLOAD") {
+      logAnalyticsWarning("Dropped analytics event due invalid payload", {
+        eventName: event.event_name,
+        sessionId: event.session_id,
+        failure,
+      });
+      continue;
+    }
+
+    pendingQueue = [...events.slice(index), ...pendingQueue].slice(0, MAX_QUEUE_SIZE);
+
+    if (failure.status === 401 || failure.code === "INVALID_SESSION") {
+      logAnalyticsWarning("Analytics flush blocked by invalid auth session", failure);
+      return "requeue_remaining";
+    }
+
+    logAnalyticsWarning("Failed to flush analytics events", failure);
+    return "requeue_remaining";
+  }
+
+  return "all_handled";
 }
 
 function bindAnalyticsListeners() {
@@ -293,13 +328,30 @@ async function flushAnalyticsQueue() {
       continue;
     }
 
-    const failure = await postAnalyticsBatch({ events: validEvents });
+    const failure = await postAnalyticsPayload({ events: validEvents });
     if (!failure) {
       continue;
     }
 
     if (failure.status === 400 || failure.code === "INVALID_PAYLOAD") {
-      logAnalyticsWarning("Dropped analytics batch due invalid payload", failure);
+      if (validEvents.length === 1) {
+        logAnalyticsWarning("Dropped analytics event due invalid payload", {
+          eventName: validEvents[0].event_name,
+          sessionId: validEvents[0].session_id,
+          failure,
+        });
+        continue;
+      }
+
+      logAnalyticsWarning("Analytics batch rejected; retrying events one-by-one", {
+        failure,
+        batchSize: validEvents.length,
+      });
+
+      const singleResult = await flushEventsIndividually(validEvents);
+      if (singleResult === "requeue_remaining") {
+        break;
+      }
       continue;
     }
 
