@@ -178,9 +178,9 @@ async function invokeTrackAnalyticsSingleEvent(event: TrackAnalyticsEventPayload
   const accessToken = await getAccessToken();
   if (!accessToken) {
     return {
-      status: 401,
-      code: "INVALID_SESSION",
-      message: "Missing authenticated session",
+      status: 204,
+      code: "SKIPPED_UNAUTHENTICATED",
+      message: "Skipped analytics event because user session is not available",
     };
   }
 
@@ -302,6 +302,10 @@ async function flushAnalyticsQueue() {
 
         if (finalDetails.status === 400 || finalDetails.code === "INVALID_PAYLOAD") {
           logAnalyticsWarning("Dropped analytics event due invalid payload", finalDetails);
+          continue;
+        }
+
+        if (finalDetails.code === "SKIPPED_UNAUTHENTICATED") {
           continue;
         }
 
