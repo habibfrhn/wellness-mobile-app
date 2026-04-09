@@ -174,17 +174,20 @@ async function postAnalyticsEvents(events: TrackAnalyticsEventPayload[]) {
     throw new Error("Missing analytics function configuration");
   }
 
+  const sendRequest = async (userJwt: string | null) =>
+    fetch(`${supabaseUrl}/functions/v1/track-analytics-event`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: anonKey,
+        Authorization: `Bearer ${anonKey}`,
+        ...(userJwt ? { [USER_JWT_HEADER]: userJwt } : {}),
+      },
+      body: JSON.stringify(events.length === 1 ? events[0] : { events }),
+    });
+
   const accessToken = await getUserAccessTokenForAnalytics();
-  const response = await fetch(`${supabaseUrl}/functions/v1/track-analytics-event`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: anonKey,
-      Authorization: `Bearer ${anonKey}`,
-      ...(accessToken ? { [USER_JWT_HEADER]: accessToken } : {}),
-    },
-    body: JSON.stringify(events.length === 1 ? events[0] : { events }),
-  });
+  let response = await sendRequest(accessToken);
 
   if (!response.ok) {
     let payload: { error?: string; code?: string } | null = null;
@@ -194,11 +197,33 @@ async function postAnalyticsEvents(events: TrackAnalyticsEventPayload[]) {
       payload = null;
     }
 
-    return {
+    const errorPayload = {
       status: response.status,
       code: payload?.code ?? null,
       message: payload?.error ?? null,
     };
+
+    if (accessToken && (errorPayload.status === 401 || errorPayload.code === "INVALID_SESSION")) {
+      response = await sendRequest(null);
+      if (response.ok) {
+        return null;
+      }
+
+      let fallbackPayload: { error?: string; code?: string } | null = null;
+      try {
+        fallbackPayload = (await response.json()) as { error?: string; code?: string };
+      } catch {
+        fallbackPayload = null;
+      }
+
+      return {
+        status: response.status,
+        code: fallbackPayload?.code ?? null,
+        message: fallbackPayload?.error ?? null,
+      };
+    }
+
+    return errorPayload;
   }
 
   return null;

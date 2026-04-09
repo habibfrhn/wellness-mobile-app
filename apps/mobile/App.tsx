@@ -521,6 +521,40 @@ export default function App() {
 
   const shouldAutoOpenWebAuth =
     forceReset || authStartRoute === "Login" || authStartRoute === "SignUp" || authStartRoute === "ResetPassword";
+  const initialWebRootRoute = shouldShowAuth ? (shouldAutoOpenWebAuth ? "Auth" : "Landing") : "App";
+
+  useEffect(() => {
+    if (Platform.OS !== "web" || !navigationRef.isReady()) {
+      return;
+    }
+
+    const currentRoute = navigationRef.getCurrentRoute();
+    if (!currentRoute) {
+      return;
+    }
+    const currentRouteName = String(currentRoute.name);
+
+    if (!shouldShowAuth) {
+      if (currentRouteName !== "App") {
+        navigationRef.resetRoot({ index: 0, routes: [{ name: "App" }] });
+      }
+      return;
+    }
+
+    if (shouldAutoOpenWebAuth) {
+      const requestedAuthScreen =
+        authStartRoute === "SignUp" ? "SignUp" : initialAuthRoute === "ResetPassword" ? "ResetPassword" : "Login";
+
+      if (currentRouteName !== "Auth") {
+        navigationRef.navigate("Auth", { screen: requestedAuthScreen });
+      }
+      return;
+    }
+
+    if (currentRouteName === "App") {
+      navigationRef.navigate("Landing");
+    }
+  }, [authStartRoute, initialAuthRoute, shouldAutoOpenWebAuth, shouldShowAuth]);
 
   return (
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
@@ -531,35 +565,26 @@ export default function App() {
           onStateChange={() => syncWebTitle(navigationRef.getCurrentRoute()?.name)}
         >
           {Platform.OS === "web" ? (
-            shouldShowAuth ? (
-              <RootStack.Navigator
-                initialRouteName={shouldAutoOpenWebAuth ? "Auth" : "Landing"}
-                screenOptions={{ headerShown: false }}
-              >
-                <RootStack.Screen name="Landing" component={LandingScreen} />
-                <RootStack.Screen name="Auth">
-                  {({ route }) => {
-                    const requestedRoute = route.params?.screen;
-                    const resolvedInitialRoute =
-                      requestedRoute === "Login" || requestedRoute === "SignUp"
-                        ? requestedRoute
-                        : initialAuthRoute === "ResetPassword"
-                          ? "ResetPassword"
-                          : "Login";
+            <RootStack.Navigator
+              initialRouteName={initialWebRootRoute}
+              screenOptions={{ headerShown: false }}
+            >
+              <RootStack.Screen name="Landing" component={LandingScreen} />
+              <RootStack.Screen name="Auth">
+                {({ route }) => {
+                  const requestedRoute = route.params?.screen;
+                  const resolvedInitialRoute =
+                    requestedRoute === "Login" || requestedRoute === "SignUp" || requestedRoute === "ResetPassword"
+                      ? requestedRoute
+                      : initialAuthRoute === "ResetPassword"
+                        ? "ResetPassword"
+                        : "Login";
 
-                    return (
-                      <AuthStack
-                        initialRouteName={resolvedInitialRoute}
-                        includeWelcome={false}
-                      />
-                    );
-                  }}
-                </RootStack.Screen>
-                <RootStack.Screen name="App" component={AppStack} />
-              </RootStack.Navigator>
-            ) : (
-              <AppStack />
-            )
+                  return <AuthStack initialRouteName={resolvedInitialRoute} includeWelcome={false} />;
+                }}
+              </RootStack.Screen>
+              <RootStack.Screen name="App" component={AppStack} />
+            </RootStack.Navigator>
           ) : shouldShowAuth ? (
             <AuthStack key={`auth-${initialAuthRoute}`} initialRouteName={initialAuthRoute} />
           ) : (
