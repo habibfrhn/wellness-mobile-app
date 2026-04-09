@@ -156,6 +156,27 @@ type ParsedInvokeError = {
   message: string | null;
 };
 
+
+function canFallbackToLegacyEmptyProps(event: TrackAnalyticsEventPayload) {
+  return (
+    event.event_name === "landing_page_view" ||
+    event.event_name === "landing_cta_click" ||
+    event.event_name === "signup_start" ||
+    event.event_name === "signup_complete"
+  );
+}
+
+function toLegacyCompatiblePayload(event: TrackAnalyticsEventPayload): TrackAnalyticsEventPayload {
+  if (!canFallbackToLegacyEmptyProps(event)) {
+    return event;
+  }
+
+  return {
+    ...event,
+    event_props: {},
+  };
+}
+
 function isValidEventProps(eventName: AnalyticsEventName, eventProps: Record<string, unknown>) {
   const keys = Object.keys(eventProps);
 
@@ -261,6 +282,20 @@ function getTrackFunctionUrl() {
   return `${baseUrl}/functions/v1/${TRACK_FUNCTION_NAME}`;
 }
 
+async function invokeTrackAnalyticsSingle(event: TrackAnalyticsEventPayload): Promise<ParsedInvokeError | null> {
+  const accessToken = await getCurrentAccessToken();
+  const { error } = await supabase.functions.invoke<{ ok: boolean; received: number }>(TRACK_FUNCTION_NAME, {
+    body: event,
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+  });
+
+  if (!error) {
+    return null;
+  }
+
+  return parseInvokeError(error);
+}
+
 async function invokeTrackAnalyticsBatch(events: TrackAnalyticsEventPayload[]): Promise<ParsedInvokeError | null> {
   if (events.length === 0) {
     return null;
@@ -277,6 +312,45 @@ async function invokeTrackAnalyticsBatch(events: TrackAnalyticsEventPayload[]): 
   }
 
   return parseInvokeError(error);
+}
+
+
+async function postAnalyticsPayload(events: TrackAnalyticsEventPayload[]): Promise<ParsedInvokeError | null> {
+  const batchError = await invokeTrackAnalyticsBatch(events);
+  if (!batchError) {
+    return null;
+  }
+
+  if (batchError.status !== 400 && batchError.code !== "INVALID_PAYLOAD") {
+    return batchError;
+  }
+
+  for (const event of events) {
+    const singleError = await invokeTrackAnalyticsSingle(event);
+    if (!singleError) {
+      continue;
+    }
+
+    const canRetryWithLegacyProps =
+      (singleError.status === 400 || singleError.code === "INVALID_PAYLOAD") && canFallbackToLegacyEmptyProps(event);
+
+    if (canRetryWithLegacyProps) {
+      const legacyPayload = toLegacyCompatiblePayload(event);
+      const legacyError = await invokeTrackAnalyticsSingle(legacyPayload);
+      if (!legacyError) {
+        continue;
+      }
+
+      return {
+        ...legacyError,
+        message: legacyError.message ?? "legacy_payload_retry_failed",
+      };
+    }
+
+    return singleError;
+  }
+
+  return null;
 }
 
 function trySendBeacon(events: TrackAnalyticsEventPayload[]) {
@@ -363,7 +437,7 @@ async function flushAnalyticsQueue() {
       continue;
     }
 
-    const error = await invokeTrackAnalyticsBatch(validEvents);
+    const error = await postAnalyticsPayload(validEvents);
     if (!error) {
       continue;
     }
