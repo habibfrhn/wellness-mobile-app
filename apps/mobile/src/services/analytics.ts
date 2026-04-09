@@ -1,3 +1,5 @@
+import { Platform } from "react-native";
+
 import { supabase } from "./supabase";
 
 export type AnalyticsEventName =
@@ -23,15 +25,17 @@ let pendingQueue: TrackAnalyticsEventPayload[] = [];
 
 const MAX_EVENT_PROPS_BYTES = 2048;
 const MAX_STRING_PROP_LENGTH = 120;
+const MAX_TAG_PROP_LENGTH = 64;
 const AUDIO_ID_PROP_KEY = "audio_id";
 const SESSION_MODE_PROP_KEY = "session_mode";
 const MAX_EVENTS_PER_FLUSH = 25;
 const MAX_QUEUE_SIZE = 100;
 const FLUSH_INTERVAL_MS = 10_000;
+const TRACK_FUNCTION_NAME = "track-analytics-event";
 
 function logAnalyticsWarning(message: string, ...context: unknown[]) {
   if (__DEV__) {
-    console.warn(message, ...context);
+    console.warn(`[analytics] ${message}`, ...context);
   }
 }
 
@@ -43,24 +47,61 @@ function normalizeSessionMode(value: unknown) {
   return null;
 }
 
-function normalizeAudioId(value: unknown) {
+function normalizeTag(value: unknown) {
   if (typeof value !== "string") {
     return null;
   }
 
-  const normalized = value.trim().toLowerCase();
-  if (!normalized || normalized.length > MAX_STRING_PROP_LENGTH) {
+  const normalized = value.trim().toLowerCase().replace(/\s+/g, "_");
+  if (!normalized || normalized.length > MAX_TAG_PROP_LENGTH) {
     return null;
   }
 
   return normalized;
 }
 
-function sanitizeEventProps(
-  eventName: AnalyticsEventName,
-  properties: Record<string, unknown>
-): Record<string, unknown> | null {
+function normalizeAudioId(value: unknown) {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  if (!normalized || normalized.length > MAX_STRING_PROP_LENGTH || !/^[a-z0-9_-]+$/.test(normalized)) {
+    return null;
+  }
+
+  return normalized;
+}
+
+function sanitizeEventProps(eventName: AnalyticsEventName, properties: Record<string, unknown>): Record<string, unknown> | null {
   const sanitized: Record<string, unknown> = {};
+
+  if (eventName === "landing_page_view") {
+    const surface = normalizeTag(properties.surface);
+    if (surface) {
+      sanitized.surface = surface;
+    }
+
+    return sanitized;
+  }
+
+  if (eventName === "landing_cta_click") {
+    const cta = normalizeTag(properties.cta);
+    if (cta) {
+      sanitized.cta = cta;
+    }
+
+    return sanitized;
+  }
+
+  if (eventName === "signup_start" || eventName === "signup_complete") {
+    const method = normalizeTag(properties.method);
+    if (method) {
+      sanitized.method = method;
+    }
+
+    return sanitized;
+  }
 
   if (
     eventName === "audio_click" ||
@@ -74,6 +115,7 @@ function sanitizeEventProps(
     }
 
     sanitized[AUDIO_ID_PROP_KEY] = normalizedAudioId;
+    return sanitized;
   }
 
   if (
@@ -88,6 +130,7 @@ function sanitizeEventProps(
     }
 
     sanitized[SESSION_MODE_PROP_KEY] = normalizedSessionMode;
+    return sanitized;
   }
 
   return sanitized;
@@ -107,6 +150,59 @@ type TrackAnalyticsEventPayload = {
   session_id: string;
 };
 
+type ParsedInvokeError = {
+  status: number | null;
+  code: string | null;
+  message: string | null;
+};
+
+function isValidEventProps(eventName: AnalyticsEventName, eventProps: Record<string, unknown>) {
+  const keys = Object.keys(eventProps);
+
+  if (eventName === "landing_page_view") {
+    if (keys.length === 0) {
+      return true;
+    }
+
+    return keys.length === 1 && keys[0] === "surface" && typeof eventProps.surface === "string";
+  }
+
+  if (eventName === "landing_cta_click") {
+    if (keys.length === 0) {
+      return true;
+    }
+
+    return keys.length === 1 && keys[0] === "cta" && typeof eventProps.cta === "string";
+  }
+
+  if (eventName === "signup_start" || eventName === "signup_complete") {
+    if (keys.length === 0) {
+      return true;
+    }
+
+    return keys.length === 1 && keys[0] === "method" && typeof eventProps.method === "string";
+  }
+
+  if (eventName === "home_sleep_cta_click") {
+    return keys.length === 0;
+  }
+
+  if (eventName === "audio_click" || eventName === "audio_play" || eventName === "audio_complete" || eventName === "audio_abandon") {
+    return keys.length === 1 && typeof eventProps.audio_id === "string" && eventProps.audio_id.trim().length > 0;
+  }
+
+  if (
+    eventName === "tailored_session_select" ||
+    eventName === "tailored_session_start" ||
+    eventName === "tailored_session_complete" ||
+    eventName === "tailored_session_dropoff"
+  ) {
+    return keys.length === 1 && (eventProps.session_mode === "calm_mind" || eventProps.session_mode === "release_accept");
+  }
+
+  return false;
+}
+
 function isValidTrackPayload(payload: TrackAnalyticsEventPayload) {
   const sessionId = payload.session_id.trim();
   if (sessionId.length < 8 || sessionId.length > 128) {
@@ -117,28 +213,7 @@ function isValidTrackPayload(payload: TrackAnalyticsEventPayload) {
     return false;
   }
 
-  if (
-    payload.event_name === "audio_click" ||
-    payload.event_name === "audio_play" ||
-    payload.event_name === "audio_complete" ||
-    payload.event_name === "audio_abandon"
-  ) {
-    return typeof payload.event_props.audio_id === "string" && payload.event_props.audio_id.trim().length > 0;
-  }
-
-  if (
-    payload.event_name === "tailored_session_select" ||
-    payload.event_name === "tailored_session_start" ||
-    payload.event_name === "tailored_session_complete" ||
-    payload.event_name === "tailored_session_dropoff"
-  ) {
-    return (
-      payload.event_props.session_mode === "calm_mind" ||
-      payload.event_props.session_mode === "release_accept"
-    );
-  }
-
-  return Object.keys(payload.event_props).length === 0;
+  return isValidEventProps(payload.event_name, payload.event_props);
 }
 
 function getEventChunk() {
@@ -169,16 +244,62 @@ async function parseInvokeError(error: unknown) {
   }
 }
 
-async function invokeTrackAnalyticsSingleEvent(event: TrackAnalyticsEventPayload) {
-  const { error } = await supabase.functions.invoke<{ ok: boolean }>("track-analytics-event", {
-    body: event,
+async function getCurrentAccessToken() {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  return session?.access_token ?? null;
+}
+
+function getTrackFunctionUrl() {
+  const baseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+  if (!baseUrl) {
+    return null;
+  }
+
+  return `${baseUrl}/functions/v1/${TRACK_FUNCTION_NAME}`;
+}
+
+async function invokeTrackAnalyticsBatch(events: TrackAnalyticsEventPayload[]): Promise<ParsedInvokeError | null> {
+  if (events.length === 0) {
+    return null;
+  }
+
+  const accessToken = await getCurrentAccessToken();
+  const { error } = await supabase.functions.invoke<{ ok: boolean; received: number }>(TRACK_FUNCTION_NAME, {
+    body: { events },
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
   });
 
-  return error;
+  if (!error) {
+    return null;
+  }
+
+  return parseInvokeError(error);
+}
+
+function trySendBeacon(events: TrackAnalyticsEventPayload[]) {
+  if (Platform.OS !== "web" || typeof window === "undefined") {
+    return false;
+  }
+
+  const trackFunctionUrl = getTrackFunctionUrl();
+  if (!trackFunctionUrl || typeof navigator === "undefined" || typeof navigator.sendBeacon !== "function") {
+    return false;
+  }
+
+  try {
+    const payload = JSON.stringify({ events });
+    const blob = new Blob([payload], { type: "application/json" });
+    return navigator.sendBeacon(trackFunctionUrl, blob);
+  } catch {
+    return false;
+  }
 }
 
 function bindAnalyticsListeners() {
-  if (analyticsListenersBound || typeof window === "undefined") {
+  if (analyticsListenersBound || typeof window === "undefined" || typeof document === "undefined") {
     return;
   }
 
@@ -186,12 +307,30 @@ function bindAnalyticsListeners() {
     void flushAnalyticsQueue();
   };
 
-  window.addEventListener("visibilitychange", () => {
+  document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") {
       flushNow();
     }
   });
-  window.addEventListener("beforeunload", flushNow);
+
+  window.addEventListener("pagehide", () => {
+    if (pendingQueue.length === 0) {
+      return;
+    }
+
+    const chunk = getEventChunk();
+    if (chunk.length === 0) {
+      return;
+    }
+
+    const validEvents = chunk.filter((event) => isValidTrackPayload(event));
+    const beaconSent = trySendBeacon(validEvents);
+    if (!beaconSent) {
+      pendingQueue = [...validEvents, ...pendingQueue].slice(0, MAX_QUEUE_SIZE);
+      flushNow();
+    }
+  });
+
   analyticsListenersBound = true;
 }
 
@@ -224,28 +363,25 @@ async function flushAnalyticsQueue() {
       continue;
     }
 
-    for (let index = 0; index < validEvents.length; index += 1) {
-      const event = validEvents[index];
-      const error = await invokeTrackAnalyticsSingleEvent(event);
-      if (error) {
-        const finalDetails = await parseInvokeError(error);
-
-        if (finalDetails.status === 400 || finalDetails.code === "INVALID_PAYLOAD") {
-          logAnalyticsWarning("Dropped analytics event due invalid payload", finalDetails);
-          continue;
-        }
-
-        if (finalDetails.status === 401 || finalDetails.code === "INVALID_SESSION") {
-          logAnalyticsWarning("Dropped analytics event due invalid session", finalDetails);
-          continue;
-        }
-
-        pendingQueue = [...validEvents.slice(index), ...pendingQueue].slice(0, MAX_QUEUE_SIZE);
-        logAnalyticsWarning("Failed to flush analytics events", finalDetails.message ?? error.message);
-        flushInFlight = false;
-        return;
-      }
+    const error = await invokeTrackAnalyticsBatch(validEvents);
+    if (!error) {
+      continue;
     }
+
+    if (error.status === 400 || error.code === "INVALID_PAYLOAD") {
+      logAnalyticsWarning("Dropped analytics event batch due invalid payload", error);
+      continue;
+    }
+
+    if (error.status === 401 || error.code === "INVALID_SESSION") {
+      logAnalyticsWarning("Dropped analytics event batch due invalid session", error);
+      continue;
+    }
+
+    pendingQueue = [...validEvents, ...pendingQueue].slice(0, MAX_QUEUE_SIZE);
+    logAnalyticsWarning("Failed to flush analytics events", error.message ?? error.code ?? "unknown_error");
+    flushInFlight = false;
+    return;
   }
 
   flushInFlight = false;
@@ -286,7 +422,7 @@ export async function trackEvent(eventName: AnalyticsEventName, properties: Reco
   };
 
   if (!isValidTrackPayload(payload)) {
-    logAnalyticsWarning("Dropped analytics event due invalid payload shape", eventName);
+    logAnalyticsWarning("Dropped analytics event due invalid payload shape", { eventName, sanitizedProps });
     return;
   }
 

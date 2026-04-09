@@ -108,6 +108,25 @@ function getAuthorizationToken(req: Request): string {
   return "";
 }
 
+
+function isShortTag(value: unknown) {
+  if (typeof value !== "string") {
+    return false;
+  }
+
+  const normalized = value.trim();
+  return normalized.length >= 1 && normalized.length <= 64;
+}
+
+function isValidAudioId(value: unknown) {
+  if (typeof value !== "string") {
+    return false;
+  }
+
+  const normalized = value.trim();
+  return normalized.length >= 1 && normalized.length <= 120 && /^[A-Za-z0-9_-]+$/.test(normalized);
+}
+
 function getMinuteBucket(date: Date): string {
   const bucketDate = new Date(date);
   bucketDate.setUTCSeconds(0, 0);
@@ -138,6 +157,23 @@ function isValidPayload(value: unknown): value is TrackAnalyticsEventBody {
   }
 
   const eventProps = payload.event_props as Record<string, unknown>;
+  const eventPropKeys = Object.keys(eventProps);
+
+  if (payload.event_name === "landing_page_view") {
+    return eventPropKeys.length === 0 || (eventPropKeys.length === 1 && eventPropKeys[0] === "surface" && isShortTag(eventProps.surface));
+  }
+
+  if (payload.event_name === "landing_cta_click") {
+    return eventPropKeys.length === 0 || (eventPropKeys.length === 1 && eventPropKeys[0] === "cta" && isShortTag(eventProps.cta));
+  }
+
+  if (payload.event_name === "signup_start" || payload.event_name === "signup_complete") {
+    return eventPropKeys.length === 0 || (eventPropKeys.length === 1 && eventPropKeys[0] === "method" && isShortTag(eventProps.method));
+  }
+
+  if (payload.event_name === "home_sleep_cta_click") {
+    return eventPropKeys.length === 0;
+  }
 
   if (
     payload.event_name === "audio_click" ||
@@ -145,7 +181,7 @@ function isValidPayload(value: unknown): value is TrackAnalyticsEventBody {
     payload.event_name === "audio_complete" ||
     payload.event_name === "audio_abandon"
   ) {
-    return typeof eventProps.audio_id === "string" && eventProps.audio_id.trim().length > 0;
+    return eventPropKeys.length === 1 && eventPropKeys[0] === "audio_id" && isValidAudioId(eventProps.audio_id);
   }
 
   if (
@@ -154,10 +190,14 @@ function isValidPayload(value: unknown): value is TrackAnalyticsEventBody {
     payload.event_name === "tailored_session_complete" ||
     payload.event_name === "tailored_session_dropoff"
   ) {
-    return eventProps.session_mode === "calm_mind" || eventProps.session_mode === "release_accept";
+    return (
+      eventPropKeys.length === 1 &&
+      eventPropKeys[0] === "session_mode" &&
+      (eventProps.session_mode === "calm_mind" || eventProps.session_mode === "release_accept")
+    );
   }
 
-  return Object.keys(eventProps).length === 0;
+  return false;
 }
 
 function parsePayloadEvents(value: unknown): TrackAnalyticsEventBody[] | null {
@@ -179,6 +219,48 @@ function parsePayloadEvents(value: unknown): TrackAnalyticsEventBody[] | null {
   }
 
   return batch.events;
+}
+
+
+function normalizeTagProp(value: unknown) {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const normalized = value.trim().toLowerCase().replace(/\s+/g, "_");
+  return normalized.length >= 1 && normalized.length <= 64 ? normalized : null;
+}
+
+function normalizeEventPayload(payload: TrackAnalyticsEventBody): TrackAnalyticsEventBody {
+  const sessionId = payload.session_id.trim();
+
+  if (payload.event_name === "landing_page_view") {
+    const surface = normalizeTagProp(payload.event_props.surface);
+    return { event_name: payload.event_name, session_id: sessionId, event_props: surface ? { surface } : {} };
+  }
+
+  if (payload.event_name === "landing_cta_click") {
+    const cta = normalizeTagProp(payload.event_props.cta);
+    return { event_name: payload.event_name, session_id: sessionId, event_props: cta ? { cta } : {} };
+  }
+
+  if (payload.event_name === "signup_start" || payload.event_name === "signup_complete") {
+    const method = normalizeTagProp(payload.event_props.method);
+    return { event_name: payload.event_name, session_id: sessionId, event_props: method ? { method } : {} };
+  }
+
+  if (
+    payload.event_name === "audio_click" ||
+    payload.event_name === "audio_play" ||
+    payload.event_name === "audio_complete" ||
+    payload.event_name === "audio_abandon"
+  ) {
+    const audioId = (payload.event_props.audio_id as string).trim().toLowerCase();
+    return { event_name: payload.event_name, session_id: sessionId, event_props: { audio_id: audioId } };
+  }
+
+  const sessionMode = payload.event_props.session_mode as "calm_mind" | "release_accept";
+  return { event_name: payload.event_name, session_id: sessionId, event_props: { session_mode: sessionMode } };
 }
 
 async function sha256Hex(value: string) {
@@ -273,7 +355,9 @@ Deno.serve(async (req: Request) => {
     return error(429, "Too many requests", "RATE_LIMITED", requestCorsHeaders);
   }
 
-  const rows = payloadEvents.map((eventPayload) => ({
+  const normalizedEvents = payloadEvents.map((eventPayload) => normalizeEventPayload(eventPayload));
+
+  const rows = normalizedEvents.map((eventPayload) => ({
     event_name: eventPayload.event_name,
     event_props: eventPayload.event_props,
     session_id: eventPayload.session_id,
