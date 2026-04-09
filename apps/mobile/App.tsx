@@ -127,6 +127,27 @@ const IGNORED_WEB_WARNINGS = [
   "Node cannot be found in the current page.",
 ];
 
+function shouldIgnoreWebConsoleArgs(args: unknown[]) {
+  return args.some((arg) => {
+    if (typeof arg === "string") {
+      return IGNORED_WEB_WARNINGS.some((warning) => arg.includes(warning));
+    }
+
+    if (arg instanceof Error && typeof arg.message === "string") {
+      return IGNORED_WEB_WARNINGS.some((warning) => arg.message.includes(warning));
+    }
+
+    if (arg && typeof arg === "object") {
+      const message = (arg as { message?: unknown }).message;
+      if (typeof message === "string") {
+        return IGNORED_WEB_WARNINGS.some((warning) => message.includes(warning));
+      }
+    }
+
+    return false;
+  });
+}
+
 if (Platform.OS === "web") {
   const guardedConsole = console as ConsoleWithPointerEventsGuard;
 
@@ -134,16 +155,14 @@ if (Platform.OS === "web") {
     const originalWarn = console.warn;
     const originalError = console.error;
     console.warn = (...args: unknown[]) => {
-      const [firstArg] = args;
-      if (typeof firstArg === "string" && IGNORED_WEB_WARNINGS.some((warning) => firstArg.includes(warning))) {
+      if (shouldIgnoreWebConsoleArgs(args)) {
         return;
       }
 
       originalWarn(...args);
     };
     console.error = (...args: unknown[]) => {
-      const [firstArg] = args;
-      if (typeof firstArg === "string" && IGNORED_WEB_WARNINGS.some((warning) => firstArg.includes(warning))) {
+      if (shouldIgnoreWebConsoleArgs(args)) {
         return;
       }
 
