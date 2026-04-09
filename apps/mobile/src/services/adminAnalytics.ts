@@ -6,6 +6,7 @@ export type AdminProductActions = {
   home_sleep_clicks: number;
   tailored_session_selections: number;
   tailored_session_starts: number;
+  signup_completes: number;
 };
 
 export type AdminAudioEngagementRow = {
@@ -28,7 +29,17 @@ export type AdminTailoredSessionRow = {
 
 export async function fetchAdminProductActions(range: AdminAnalyticsRange) {
   const { data, error } = await supabase.rpc("admin_analytics_product_actions", { range_key: range }).single();
-  return { data: (data as AdminProductActions | null) ?? null, error };
+
+  const normalized = data
+    ? {
+        home_sleep_clicks: Number((data as AdminProductActions).home_sleep_clicks) || 0,
+        tailored_session_selections: Number((data as AdminProductActions).tailored_session_selections) || 0,
+        tailored_session_starts: Number((data as AdminProductActions).tailored_session_starts) || 0,
+        signup_completes: Number((data as AdminProductActions).signup_completes) || 0,
+      }
+    : null;
+
+  return { data: normalized, error };
 }
 
 export async function fetchAdminAudioEngagement(range: AdminAnalyticsRange) {

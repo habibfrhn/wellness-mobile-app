@@ -117,34 +117,6 @@ function setWebResetFlowActive(active: boolean) {
 
 LogBox.ignoreLogs(["props.pointerEvents is deprecated. Use style.pointerEvents"]);
 
-type ConsoleWithPointerEventsGuard = Console & {
-  __wellnessPointerEventsWarnGuard?: boolean;
-};
-
-const IGNORED_WEB_WARNINGS = [
-  "props.pointerEvents is deprecated. Use style.pointerEvents",
-  "Cannot record touch end without a touch start.",
-  "Node cannot be found in the current page.",
-];
-
-if (Platform.OS === "web") {
-  const guardedConsole = console as ConsoleWithPointerEventsGuard;
-
-  if (!guardedConsole.__wellnessPointerEventsWarnGuard) {
-    const originalWarn = console.warn;
-    console.warn = (...args: unknown[]) => {
-      const [firstArg] = args;
-      if (typeof firstArg === "string" && IGNORED_WEB_WARNINGS.some((warning) => firstArg.includes(warning))) {
-        return;
-      }
-
-      originalWarn(...args);
-    };
-
-    guardedConsole.__wellnessPointerEventsWarnGuard = true;
-  }
-}
-
 preventAutoHideSplashScreen().catch(() => {
   // no-op if it's already hidden
 });

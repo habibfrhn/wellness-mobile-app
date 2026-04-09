@@ -8,6 +8,7 @@ import { colors, radius, spacing, typography } from "../../theme/tokens";
 type Props = {
   rows: AdminTailoredSessionRow[];
   homeSleepClicks: number;
+  successfulSignups: number;
 };
 
 const SESSION_LABELS: Record<AdminTailoredSessionRow["session_mode"], string> = {
@@ -15,7 +16,7 @@ const SESSION_LABELS: Record<AdminTailoredSessionRow["session_mode"], string> = 
   release_accept: id.admin.tailoredReleaseAcceptLabel,
 };
 
-export default function AdminTailoredSessionsPanel({ rows, homeSleepClicks }: Props) {
+export default function AdminTailoredSessionsPanel({ rows, homeSleepClicks, successfulSignups }: Props) {
   return (
     <View style={styles.panel}>
       <Text style={styles.panelTitle}>{id.admin.tailoredUsageTitle}</Text>
@@ -24,6 +25,10 @@ export default function AdminTailoredSessionsPanel({ rows, homeSleepClicks }: Pr
       <View style={styles.startSleepCard}>
         <Text style={styles.startSleepLabel}>{id.admin.homeSleepClickLabel}</Text>
         <Text style={styles.startSleepValue}>{homeSleepClicks}</Text>
+      </View>
+      <View style={styles.startSleepCard}>
+        <Text style={styles.startSleepLabel}>{id.admin.successfulSignupsLabel}</Text>
+        <Text style={styles.startSleepValue}>{successfulSignups}</Text>
       </View>
 
       {rows.map((row) => (

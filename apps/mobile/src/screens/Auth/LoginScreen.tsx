@@ -20,7 +20,7 @@ import { supabase } from "../../services/supabase";
 import { continueWithGoogle } from "../../services/authOAuth";
 import PasswordToggle from "../../components/PasswordToggle";
 import LoginSignUpPrompt from "../../components/auth/LoginSignUpPrompt";
-import { isEmailNotConfirmedError } from "../../services/authSecurity";
+import { getAuthErrorKind } from "../../services/authSecurity";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
@@ -113,13 +113,20 @@ export default function LoginScreen({ navigation, route }: Props) {
       });
 
       if (error) {
-        if (isEmailNotConfirmedError(error.message)) {
+        const errorKind = getAuthErrorKind(error.message);
+
+        if (errorKind === "unverified_email") {
           navigation.replace("VerifyEmail", { email: e, context: "login_unverified" });
           return;
         }
 
-        setErrors({ password: id.login.errorInvalidCredentials });
-        setFormError(id.common.genericAuthError);
+        if (errorKind === "invalid_credentials") {
+          setErrors({ password: id.login.errorInvalidCredentials });
+          setFormError(id.common.genericAuthError);
+          return;
+        }
+
+        setFormError(errorKind === "rate_limited" ? id.common.authRateLimited : id.common.genericAuthError);
         return;
       }
 

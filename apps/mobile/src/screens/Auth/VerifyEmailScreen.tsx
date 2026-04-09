@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { View, Text, Pressable, StyleSheet, Alert, Linking, Platform } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+
 import type { AuthStackParamList } from "../../navigation/types";
 import { getWebViewport } from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
@@ -13,15 +14,28 @@ const FLAG_ACTIVITY_NEW_TASK = 0x10000000;
 
 type Props = NativeStackScreenProps<AuthStackParamList, "VerifyEmail">;
 
-
 export default function VerifyEmailScreen({ route, navigation }: Props) {
   const email = route.params.email;
   const [busy, setBusy] = useState(false);
-  const hasAutoSentRef = useRef(false);
+  const [resendCooldownSec, setResendCooldownSec] = useState(0);
   const viewportWidth = useViewportWidth();
   const isDesktopWeb = Platform.OS === "web" && getWebViewport(viewportWidth) === "desktop";
 
-  const canResend = useMemo(() => !busy, [busy]);
+  const canResend = useMemo(() => !busy && resendCooldownSec <= 0, [busy, resendCooldownSec]);
+
+  useEffect(() => {
+    if (resendCooldownSec <= 0) {
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setResendCooldownSec((previous) => Math.max(previous - 1, 0));
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [resendCooldownSec]);
 
   async function openEmailInbox() {
     try {
@@ -39,6 +53,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
         Alert.alert(id.common.errorTitle, id.common.tryAgain);
         return;
       }
+
       await Linking.openURL("mailto:");
     } catch {
       try {
@@ -49,21 +64,24 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
     }
   }
 
-  const attemptResend = useCallback(async (trigger: "auto" | "manual") => {
+  const attemptResend = useCallback(async () => {
+    if (!canResend) {
+      return;
+    }
+
     setBusy(true);
     try {
       const result = await resendVerificationEmail(email);
-      if (__DEV__) {
-        console.log("VerifyEmailScreen: resend result", { trigger, code: result.ok ? "OK" : result.code });
-      }
 
       if (!result.ok) {
         if (result.code === "RATE_LIMITED") {
+          setResendCooldownSec(result.retryAfterSec);
           Alert.alert(id.common.errorTitle, id.verify.resendRateLimited);
           return;
         }
 
         if (result.code === "LINK_STILL_VALID") {
+          setResendCooldownSec(result.retryAfterSec);
           Alert.alert(id.verify.linkStillValidTitle, id.verify.linkStillValidBody);
           return;
         }
@@ -73,20 +91,12 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
         return;
       }
 
+      setResendCooldownSec(result.cooldownSec);
       Alert.alert(id.verify.resendSuccessTitle, id.verify.resendSuccessBody);
     } finally {
       setBusy(false);
     }
-  }, [email]);
-
-  useEffect(() => {
-    if (hasAutoSentRef.current) {
-      return;
-    }
-
-    hasAutoSentRef.current = true;
-    void attemptResend("auto");
-  }, [attemptResend]);
+  }, [canResend, email]);
 
   function iHaveVerified() {
     navigation.replace("Login", { initialEmail: email });
@@ -97,9 +107,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
       <View style={authSharedStyles.formFields}>
         <Text style={styles.email}>{email}</Text>
 
-        <Text style={styles.help}>
-          {id.verify.help}
-        </Text>
+        <Text style={styles.help}>{id.verify.help}</Text>
 
         <View style={authSharedStyles.actionsStack}>
           <Pressable
@@ -126,7 +134,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
           </Pressable>
 
           <Pressable
-            onPress={() => void attemptResend("manual")}
+            onPress={() => void attemptResend()}
             disabled={!canResend}
             style={({ hovered, pressed }: any) => [
               authSharedStyles.secondaryButton,
@@ -137,9 +145,10 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
             ]}
           >
             <Text style={[authSharedStyles.secondaryButtonText, styles.outlineButtonText]}>
-              {busy ? id.verify.resendBusy : id.verify.resend}
+              {busy ? id.verify.resendBusy : resendCooldownSec > 0 ? `${id.verify.resendWait} (${resendCooldownSec}s)` : id.verify.resend}
             </Text>
           </Pressable>
+
           <Pressable
             onPress={() => navigation.replace("Login", { initialEmail: email })}
             style={({ hovered, pressed }: any) => [

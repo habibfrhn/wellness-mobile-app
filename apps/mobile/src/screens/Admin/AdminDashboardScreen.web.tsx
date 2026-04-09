@@ -6,6 +6,7 @@ import AdminDashboardView from "../../components/admin/AdminDashboardView";
 import AdminLoginForm from "../../components/admin/AdminLoginForm";
 import { id } from "../../i18n/strings";
 import { useAdminAnalytics } from "../../hooks/useAdminAnalytics";
+import { signOutToLogin } from "../../services/authSession";
 import { supabase } from "../../services/supabase";
 import { colors, spacing, typography } from "../../theme/tokens";
 import WebResponsiveFrame from "../../components/WebResponsiveFrame";
@@ -101,7 +102,12 @@ export default function AdminDashboardScreen({ session }: Props) {
   }, []);
 
   const handleSignOut = useCallback(async () => {
-    await supabase.auth.signOut();
+    const { error } = await signOutToLogin("global");
+    if (error) {
+      setErrorMessage(id.common.tryAgain);
+      return;
+    }
+
     setIsAdmin(null);
   }, []);
 
@@ -130,6 +136,7 @@ export default function AdminDashboardScreen({ session }: Props) {
               range={range}
               onRangeChange={setRange}
               homeSleepClicks={productActions?.home_sleep_clicks ?? 0}
+              successfulSignups={productActions?.signup_completes ?? 0}
               audioRows={audioRows}
               tailoredRows={tailoredRows}
               onRefresh={reload}
