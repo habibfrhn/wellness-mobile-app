@@ -45,6 +45,23 @@ const corsHeaders = {
   "Vary": "Origin",
 };
 
+
+function getRequestId(req: Request): string {
+  return req.headers.get("x-request-id") ?? crypto.randomUUID();
+}
+
+function logInfo(requestId: string, message: string, details?: Record<string, unknown>) {
+  console.info(`track-analytics-event:${requestId}: ${message}`, details ?? {});
+}
+
+function logWarn(requestId: string, message: string, details?: Record<string, unknown>) {
+  console.warn(`track-analytics-event:${requestId}: ${message}`, details ?? {});
+}
+
+function logError(requestId: string, message: string, details?: Record<string, unknown>) {
+  console.error(`track-analytics-event:${requestId}: ${message}`, details ?? {});
+}
+
 const EVENT_NAMES: AnalyticsEventName[] = [
   "landing_page_view",
   "landing_cta_click",
@@ -196,6 +213,7 @@ async function getAnonPrincipalKey(req: Request) {
 }
 
 Deno.serve(async (req: Request) => {
+  const requestId = getRequestId(req);
   const requestCorsHeaders = buildCorsHeaders(req);
 
   if (req.headers.get("origin") && !requestCorsHeaders["Access-Control-Allow-Origin"]) {
@@ -218,7 +236,7 @@ Deno.serve(async (req: Request) => {
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
   if (!supabaseUrl || !anonKey || !serviceRoleKey) {
-    console.error("track-analytics-event: missing environment variables");
+    logError(requestId, "missing environment variables");
     return error(500, "Server misconfiguration", "SERVER_MISCONFIGURATION", requestCorsHeaders);
   }
 
@@ -243,7 +261,7 @@ Deno.serve(async (req: Request) => {
   if (token) {
     const { data: userData, error: userError } = await userClient.auth.getUser();
     if (userError || !userData.user?.id) {
-      console.warn("track-analytics-event: invalid bearer token, falling back to anonymous principal");
+      logWarn(requestId, "invalid bearer token, falling back to anonymous principal");
     } else {
       userId = userData.user.id;
     }
@@ -264,7 +282,7 @@ Deno.serve(async (req: Request) => {
   );
 
   if (rateLimitError || typeof incrementedCount !== "number") {
-    console.error("track-analytics-event: rate limit increment failed", rateLimitError);
+    logError(requestId, "rate limit increment failed", { rateLimitError });
     return error(500, "Failed to process rate limit", "RATE_LIMIT_FAILED", requestCorsHeaders);
   }
 
@@ -283,9 +301,10 @@ Deno.serve(async (req: Request) => {
   const { error: insertError } = await adminClient.from("analytics_events").insert(rows);
 
   if (insertError) {
-    console.error("track-analytics-event: insert failed", insertError);
+    logError(requestId, "insert failed", { insertError });
     return error(500, "Failed to track event", "INSERT_FAILED", requestCorsHeaders);
   }
 
+  logInfo(requestId, "events tracked", { received: payloadEvents.length, principalKey, hasUser: Boolean(userId) });
   return json(200, { ok: true, received: payloadEvents.length }, requestCorsHeaders);
 });

@@ -15,11 +15,21 @@ export type AnalyticsEventName =
   | "tailored_session_complete"
   | "tailored_session_dropoff";
 
-let inMemorySessionId: string | null = null;
-let analyticsFlushTimer: ReturnType<typeof setInterval> | null = null;
-let analyticsListenersBound = false;
-let flushInFlight = false;
-let pendingQueue: TrackAnalyticsEventPayload[] = [];
+type TrackAnalyticsEventPayload = {
+  event_name: AnalyticsEventName;
+  event_props: Record<string, unknown>;
+  session_id: string;
+};
+
+type TrackAnalyticsBatchPayload = {
+  events: TrackAnalyticsEventPayload[];
+};
+
+type AnalyticsInvokeFailure = {
+  status: number | null;
+  code: string | null;
+  message: string | null;
+};
 
 const MAX_EVENT_PROPS_BYTES = 2048;
 const MAX_STRING_PROP_LENGTH = 120;
@@ -28,10 +38,23 @@ const SESSION_MODE_PROP_KEY = "session_mode";
 const MAX_EVENTS_PER_FLUSH = 25;
 const MAX_QUEUE_SIZE = 100;
 const FLUSH_INTERVAL_MS = 10_000;
+const SESSION_REFRESH_LEEWAY_SECONDS = 30;
+
+const TRACK_ANALYTICS_FUNCTION = "track-analytics-event";
+const ANALYTICS_API_URL = process.env.EXPO_PUBLIC_SUPABASE_URL
+  ? `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/${TRACK_ANALYTICS_FUNCTION}`
+  : null;
+const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? "";
+
+let inMemorySessionId: string | null = null;
+let analyticsFlushTimer: ReturnType<typeof setInterval> | null = null;
+let analyticsListenersBound = false;
+let flushInFlight = false;
+let pendingQueue: TrackAnalyticsEventPayload[] = [];
 
 function logAnalyticsWarning(message: string, ...context: unknown[]) {
   if (__DEV__) {
-    console.warn(message, ...context);
+    console.warn(`[analytics] ${message}`, ...context);
   }
 }
 
@@ -101,12 +124,6 @@ function exceedsEventPropsLimit(value: Record<string, unknown>) {
   }
 }
 
-type TrackAnalyticsEventPayload = {
-  event_name: AnalyticsEventName;
-  event_props: Record<string, unknown>;
-  session_id: string;
-};
-
 function isValidTrackPayload(payload: TrackAnalyticsEventPayload) {
   const sessionId = payload.session_id.trim();
   if (sessionId.length < 8 || sessionId.length > 128) {
@@ -132,10 +149,7 @@ function isValidTrackPayload(payload: TrackAnalyticsEventPayload) {
     payload.event_name === "tailored_session_complete" ||
     payload.event_name === "tailored_session_dropoff"
   ) {
-    return (
-      payload.event_props.session_mode === "calm_mind" ||
-      payload.event_props.session_mode === "release_accept"
-    );
+    return payload.event_props.session_mode === "calm_mind" || payload.event_props.session_mode === "release_accept";
   }
 
   return Object.keys(payload.event_props).length === 0;
@@ -149,32 +163,87 @@ function getEventChunk() {
   return pendingQueue.splice(0, MAX_EVENTS_PER_FLUSH);
 }
 
-async function parseInvokeError(error: unknown) {
-  const context = (error as { context?: Response } | null)?.context;
-  const status = typeof context?.status === "number" ? context.status : null;
+async function ensureFreshAccessToken() {
+  const { data, error } = await supabase.auth.getSession();
+  if (error) {
+    logAnalyticsWarning("Failed to read auth session for analytics flush", error.message);
+    return null;
+  }
 
-  if (!context) {
-    return { status, code: null as string | null, message: (error as { message?: string } | null)?.message ?? null };
+  const session = data.session;
+  if (!session?.access_token) {
+    return null;
+  }
+
+  const expiresAt = typeof session.expires_at === "number" ? session.expires_at : null;
+  const nowSeconds = Math.floor(Date.now() / 1000);
+
+  if (expiresAt && expiresAt - nowSeconds <= SESSION_REFRESH_LEEWAY_SECONDS) {
+    const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
+    if (refreshError || !refreshed.session?.access_token) {
+      logAnalyticsWarning("Failed to refresh auth session before analytics flush", refreshError?.message ?? null);
+      return null;
+    }
+
+    return refreshed.session.access_token;
+  }
+
+  return session.access_token;
+}
+
+async function postAnalyticsBatch(batchPayload: TrackAnalyticsBatchPayload) {
+  if (!ANALYTICS_API_URL || !SUPABASE_ANON_KEY) {
+    return {
+      status: 500,
+      code: "CLIENT_MISCONFIGURATION",
+      message: "Missing Supabase analytics endpoint configuration",
+    } satisfies AnalyticsInvokeFailure;
+  }
+
+  const token = await ensureFreshAccessToken();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    apikey: SUPABASE_ANON_KEY,
+  };
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
   }
 
   try {
-    const payload = (await context.clone().json()) as { code?: string; error?: string };
+    const response = await fetch(ANALYTICS_API_URL, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(batchPayload),
+    });
+
+    if (response.ok) {
+      return null;
+    }
+
+    let code: string | null = null;
+    let message: string | null = null;
+
+    try {
+      const errorPayload = (await response.json()) as { code?: string; error?: string };
+      code = typeof errorPayload.code === "string" ? errorPayload.code : null;
+      message = typeof errorPayload.error === "string" ? errorPayload.error : null;
+    } catch {
+      message = response.statusText;
+    }
+
     return {
-      status,
-      code: typeof payload?.code === "string" ? payload.code : null,
-      message: typeof payload?.error === "string" ? payload.error : (error as { message?: string } | null)?.message ?? null,
-    };
-  } catch {
-    return { status, code: null as string | null, message: (error as { message?: string } | null)?.message ?? null };
+      status: response.status,
+      code,
+      message,
+    } satisfies AnalyticsInvokeFailure;
+  } catch (networkError) {
+    return {
+      status: null,
+      code: "NETWORK_ERROR",
+      message: networkError instanceof Error ? networkError.message : "Network request failed",
+    } satisfies AnalyticsInvokeFailure;
   }
-}
-
-async function invokeTrackAnalyticsSingleEvent(event: TrackAnalyticsEventPayload) {
-  const { error } = await supabase.functions.invoke<{ ok: boolean }>("track-analytics-event", {
-    body: event,
-  });
-
-  return error;
 }
 
 function bindAnalyticsListeners() {
@@ -224,28 +293,25 @@ async function flushAnalyticsQueue() {
       continue;
     }
 
-    for (let index = 0; index < validEvents.length; index += 1) {
-      const event = validEvents[index];
-      const error = await invokeTrackAnalyticsSingleEvent(event);
-      if (error) {
-        const finalDetails = await parseInvokeError(error);
-
-        if (finalDetails.status === 400 || finalDetails.code === "INVALID_PAYLOAD") {
-          logAnalyticsWarning("Dropped analytics event due invalid payload", finalDetails);
-          continue;
-        }
-
-        if (finalDetails.status === 401 || finalDetails.code === "INVALID_SESSION") {
-          logAnalyticsWarning("Dropped analytics event due invalid session", finalDetails);
-          continue;
-        }
-
-        pendingQueue = [...validEvents.slice(index), ...pendingQueue].slice(0, MAX_QUEUE_SIZE);
-        logAnalyticsWarning("Failed to flush analytics events", finalDetails.message ?? error.message);
-        flushInFlight = false;
-        return;
-      }
+    const failure = await postAnalyticsBatch({ events: validEvents });
+    if (!failure) {
+      continue;
     }
+
+    if (failure.status === 400 || failure.code === "INVALID_PAYLOAD") {
+      logAnalyticsWarning("Dropped analytics batch due invalid payload", failure);
+      continue;
+    }
+
+    pendingQueue = [...validEvents, ...pendingQueue].slice(0, MAX_QUEUE_SIZE);
+
+    if (failure.status === 401 || failure.code === "INVALID_SESSION") {
+      logAnalyticsWarning("Analytics flush blocked by invalid auth session", failure);
+      break;
+    }
+
+    logAnalyticsWarning("Failed to flush analytics events", failure);
+    break;
   }
 
   flushInFlight = false;

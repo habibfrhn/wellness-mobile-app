@@ -5,11 +5,15 @@ import {
   type AdminAudioEngagementRow,
   type AdminProductActions,
   type AdminTailoredSessionRow,
-  fetchAdminAudioEngagement,
-  fetchAdminProductActions,
-  fetchAdminTailoredSessions,
+  fetchAdminAnalyticsSnapshot,
 } from "../services/adminAnalytics";
 import { id } from "../i18n/strings";
+
+function logAdminAnalyticsWarning(message: string, context?: unknown) {
+  if (__DEV__) {
+    console.warn(`[admin-analytics] ${message}`, context);
+  }
+}
 
 export function useAdminAnalytics(enabled: boolean) {
   const [range, setRange] = useState<AdminAnalyticsRange>("30d");
@@ -28,22 +32,17 @@ export function useAdminAnalytics(enabled: boolean) {
       setBusy(true);
       setErrorMessage(null);
 
-      const [actionsRes, audioRes, tailoredRes] = await Promise.all([
-        fetchAdminProductActions(nextRange),
-        fetchAdminAudioEngagement(nextRange),
-        fetchAdminTailoredSessions(nextRange),
-      ]);
-
-      const firstError = actionsRes.error ?? audioRes.error ?? tailoredRes.error;
-      if (firstError) {
+      const snapshot = await fetchAdminAnalyticsSnapshot(nextRange);
+      if (snapshot.error || !snapshot.data) {
+        logAdminAnalyticsWarning("Failed to load analytics snapshot", snapshot.error);
         setErrorMessage(id.common.tryAgain);
         setBusy(false);
         return;
       }
 
-      setProductActions(actionsRes.data);
-      setAudioRows(audioRes.data);
-      setTailoredRows(tailoredRes.data);
+      setProductActions(snapshot.data.productActions);
+      setAudioRows(snapshot.data.audioRows);
+      setTailoredRows(snapshot.data.tailoredRows);
       setBusy(false);
     },
     [enabled, range],

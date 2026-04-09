@@ -8,6 +8,8 @@ import { colors, radius, spacing, typography } from "../../theme/tokens";
 type Props = {
   rows: AdminTailoredSessionRow[];
   homeSleepClicks: number;
+  tailoredSelections: number;
+  tailoredStarts: number;
 };
 
 const SESSION_LABELS: Record<AdminTailoredSessionRow["session_mode"], string> = {
@@ -15,15 +17,29 @@ const SESSION_LABELS: Record<AdminTailoredSessionRow["session_mode"], string> = 
   release_accept: id.admin.tailoredReleaseAcceptLabel,
 };
 
-export default function AdminTailoredSessionsPanel({ rows, homeSleepClicks }: Props) {
+function formatPercent(value: number) {
+  return `${Math.round(value * 100)}%`;
+}
+
+export default function AdminTailoredSessionsPanel({ rows, homeSleepClicks, tailoredSelections, tailoredStarts }: Props) {
   return (
     <View style={styles.panel}>
       <Text style={styles.panelTitle}>{id.admin.tailoredUsageTitle}</Text>
       <Text style={styles.panelSubtitle}>{id.admin.tailoredUsageSubtitle}</Text>
 
-      <View style={styles.startSleepCard}>
-        <Text style={styles.startSleepLabel}>{id.admin.homeSleepClickLabel}</Text>
-        <Text style={styles.startSleepValue}>{homeSleepClicks}</Text>
+      <View style={styles.productSignalsGrid}>
+        <View style={styles.startSleepCard}>
+          <Text style={styles.startSleepLabel}>{id.admin.homeSleepClickLabel}</Text>
+          <Text style={styles.startSleepValue}>{homeSleepClicks}</Text>
+        </View>
+        <View style={styles.startSleepCard}>
+          <Text style={styles.startSleepLabel}>{id.admin.tailoredSelectionsTotalLabel}</Text>
+          <Text style={styles.startSleepValue}>{tailoredSelections}</Text>
+        </View>
+        <View style={styles.startSleepCard}>
+          <Text style={styles.startSleepLabel}>{id.admin.tailoredStartsTotalLabel}</Text>
+          <Text style={styles.startSleepValue}>{tailoredStarts}</Text>
+        </View>
       </View>
 
       {rows.map((row) => (
@@ -41,6 +57,14 @@ export default function AdminTailoredSessionsPanel({ rows, homeSleepClicks }: Pr
             <View style={styles.statItem}>
               <Text style={styles.statLabel}>{id.admin.tailoredCompletesLabel}</Text>
               <Text style={styles.statValue}>{row.completes}</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statLabel}>{id.admin.tailoredDropoffsLabel}</Text>
+              <Text style={styles.statValue}>{row.dropoffs}</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statLabel}>{id.admin.tailoredCompletionRateLabel}</Text>
+              <Text style={styles.statValue}>{formatPercent(row.completion_rate)}</Text>
             </View>
           </View>
         </View>
@@ -64,6 +88,9 @@ const styles = StyleSheet.create({
   panelSubtitle: {
     color: colors.mutedText,
     fontSize: typography.small,
+  },
+  productSignalsGrid: {
+    gap: spacing.sm,
   },
   sessionCard: {
     backgroundColor: colors.bg,

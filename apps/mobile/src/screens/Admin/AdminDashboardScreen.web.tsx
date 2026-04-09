@@ -130,6 +130,8 @@ export default function AdminDashboardScreen({ session }: Props) {
               range={range}
               onRangeChange={setRange}
               homeSleepClicks={productActions?.home_sleep_clicks ?? 0}
+              tailoredSelections={productActions?.tailored_session_selections ?? 0}
+              tailoredStarts={productActions?.tailored_session_starts ?? 0}
               audioRows={audioRows}
               tailoredRows={tailoredRows}
               onRefresh={reload}

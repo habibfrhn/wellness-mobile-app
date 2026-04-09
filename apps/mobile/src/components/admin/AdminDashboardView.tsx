@@ -20,6 +20,8 @@ type Props = {
   range: AdminAnalyticsRange;
   onRangeChange: (next: AdminAnalyticsRange) => void;
   homeSleepClicks: number;
+  tailoredSelections: number;
+  tailoredStarts: number;
   audioRows: AdminAudioEngagementRow[];
   tailoredRows: AdminTailoredSessionRow[];
   onRefresh: () => Promise<void>;
@@ -32,6 +34,8 @@ export default function AdminDashboardView({
   range,
   onRangeChange,
   homeSleepClicks,
+  tailoredSelections,
+  tailoredStarts,
   audioRows,
   tailoredRows,
   onRefresh,
@@ -63,7 +67,12 @@ export default function AdminDashboardView({
 
       <View style={[styles.sectionGrid, isDesktopWeb && styles.sectionGridDesktop]}>
         <View style={styles.sectionCol}>
-          <AdminTailoredSessionsPanel rows={tailoredRows} homeSleepClicks={homeSleepClicks} />
+          <AdminTailoredSessionsPanel
+            rows={tailoredRows}
+            homeSleepClicks={homeSleepClicks}
+            tailoredSelections={tailoredSelections}
+            tailoredStarts={tailoredStarts}
+          />
         </View>
         <View style={styles.sectionCol}>
           <AdminAudioSummaryPanel rows={audioRows} />

@@ -10,6 +10,10 @@ type Props = {
   rows: AdminAudioEngagementRow[];
 };
 
+function formatPercent(value: number) {
+  return `${Math.round(value * 100)}%`;
+}
+
 export default function AdminAudioSummaryPanel({ rows }: Props) {
   const rowsByAudioId = useMemo(() => {
     const map = new Map<string, AdminAudioEngagementRow>();
@@ -28,6 +32,8 @@ export default function AdminAudioSummaryPanel({ rows }: Props) {
         clicks: row?.clicks ?? 0,
         starts: row?.starts ?? 0,
         completes: row?.completes ?? 0,
+        abandons: row?.abandons ?? 0,
+        completionRate: row?.completion_rate ?? 0,
       };
     });
   }, [rowsByAudioId]);
@@ -42,6 +48,8 @@ export default function AdminAudioSummaryPanel({ rows }: Props) {
         <Text style={styles.headerCell}>{id.admin.audioClicksLabel}</Text>
         <Text style={styles.headerCell}>{id.admin.audioStartsLabel}</Text>
         <Text style={styles.headerCell}>{id.admin.audioCompletesLabel}</Text>
+        <Text style={styles.headerCell}>{id.admin.audioAbandonsLabel}</Text>
+        <Text style={styles.headerCell}>{id.admin.audioCompletionRateLabel}</Text>
       </View>
 
       {orderedRows.map((row) => (
@@ -50,6 +58,8 @@ export default function AdminAudioSummaryPanel({ rows }: Props) {
           <Text style={styles.valueCell}>{row.clicks}</Text>
           <Text style={styles.valueCell}>{row.starts}</Text>
           <Text style={styles.valueCell}>{row.completes}</Text>
+          <Text style={styles.valueCell}>{row.abandons}</Text>
+          <Text style={styles.valueCell}>{formatPercent(row.completionRate)}</Text>
         </View>
       ))}
     </View>
