@@ -115,7 +115,11 @@ function setWebResetFlowActive(active: boolean) {
   window.localStorage.removeItem(WEB_RESET_FLOW_KEY);
 }
 
-LogBox.ignoreLogs(["props.pointerEvents is deprecated. Use style.pointerEvents"]);
+LogBox.ignoreLogs([
+  "props.pointerEvents is deprecated. Use style.pointerEvents",
+  "Cannot record touch end without a touch start.",
+  "Node cannot be found in the current page.",
+]);
 
 preventAutoHideSplashScreen().catch(() => {
   // no-op if it's already hidden

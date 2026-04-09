@@ -180,7 +180,6 @@ async function postAnalyticsEvents(events: TrackAnalyticsEventPayload[]) {
       headers: {
         "Content-Type": "application/json",
         apikey: anonKey,
-        Authorization: `Bearer ${anonKey}`,
         ...(userJwt ? { [USER_JWT_HEADER]: userJwt } : {}),
       },
       body: JSON.stringify(events.length === 1 ? events[0] : { events }),
