@@ -454,6 +454,66 @@ export default function App() {
     void clearNextAuthRoute();
   }, [webAuthStatus]);
 
+  const shouldShowAuth = forceReset || !session || !isVerified;
+  const initialAuthRoute =
+    authStartRoute === "Login"
+      ? "Login"
+      : authStartRoute === "SignUp"
+        ? "SignUp"
+        : forceReset
+          ? "ResetPassword"
+          : authStartRoute;
+
+  const shouldAutoOpenWebAuth =
+    forceReset || authStartRoute === "Login" || authStartRoute === "SignUp" || authStartRoute === "ResetPassword";
+  const initialWebRootRoute = shouldShowAuth ? (shouldAutoOpenWebAuth ? "Auth" : "Landing") : "App";
+
+  useEffect(() => {
+    if (
+      Platform.OS !== "web" ||
+      !navigationRef.isReady() ||
+      !ready ||
+      webAuthStatus !== "idle" ||
+      isAdminRoutePath()
+    ) {
+      return;
+    }
+
+    const currentRoute = navigationRef.getCurrentRoute();
+    if (!currentRoute) {
+      return;
+    }
+    const currentRouteName = String(currentRoute.name);
+
+    if (!shouldShowAuth) {
+      if (currentRouteName !== "App") {
+        navigationRef.resetRoot({ index: 0, routes: [{ name: "App" }] });
+      }
+      return;
+    }
+
+    if (shouldAutoOpenWebAuth) {
+      const requestedAuthScreen =
+        authStartRoute === "SignUp" ? "SignUp" : initialAuthRoute === "ResetPassword" ? "ResetPassword" : "Login";
+
+      if (currentRouteName !== "Auth") {
+        navigationRef.navigate("Auth", { screen: requestedAuthScreen });
+      }
+      return;
+    }
+
+    if (currentRouteName === "App") {
+      navigationRef.navigate("Landing");
+    }
+  }, [
+    authStartRoute,
+    initialAuthRoute,
+    ready,
+    shouldAutoOpenWebAuth,
+    shouldShowAuth,
+    webAuthStatus,
+  ]);
+
   if (!ready || (!session && !authStartResolved)) {
     return (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
@@ -508,53 +568,6 @@ export default function App() {
       </View>
     );
   }
-
-  const shouldShowAuth = forceReset || !session || !isVerified;
-  const initialAuthRoute =
-    authStartRoute === "Login"
-      ? "Login"
-      : authStartRoute === "SignUp"
-        ? "SignUp"
-        : forceReset
-          ? "ResetPassword"
-          : authStartRoute;
-
-  const shouldAutoOpenWebAuth =
-    forceReset || authStartRoute === "Login" || authStartRoute === "SignUp" || authStartRoute === "ResetPassword";
-  const initialWebRootRoute = shouldShowAuth ? (shouldAutoOpenWebAuth ? "Auth" : "Landing") : "App";
-
-  useEffect(() => {
-    if (Platform.OS !== "web" || !navigationRef.isReady()) {
-      return;
-    }
-
-    const currentRoute = navigationRef.getCurrentRoute();
-    if (!currentRoute) {
-      return;
-    }
-    const currentRouteName = String(currentRoute.name);
-
-    if (!shouldShowAuth) {
-      if (currentRouteName !== "App") {
-        navigationRef.resetRoot({ index: 0, routes: [{ name: "App" }] });
-      }
-      return;
-    }
-
-    if (shouldAutoOpenWebAuth) {
-      const requestedAuthScreen =
-        authStartRoute === "SignUp" ? "SignUp" : initialAuthRoute === "ResetPassword" ? "ResetPassword" : "Login";
-
-      if (currentRouteName !== "Auth") {
-        navigationRef.navigate("Auth", { screen: requestedAuthScreen });
-      }
-      return;
-    }
-
-    if (currentRouteName === "App") {
-      navigationRef.navigate("Landing");
-    }
-  }, [authStartRoute, initialAuthRoute, shouldAutoOpenWebAuth, shouldShowAuth]);
 
   return (
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
