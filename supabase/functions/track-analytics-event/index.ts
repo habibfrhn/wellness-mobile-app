@@ -100,9 +100,20 @@ function buildCorsHeaders(req: Request) {
 }
 
 function getAuthorizationToken(req: Request): string {
+  const userJwtHeader = req.headers.get("x-user-jwt")?.trim();
+  if (userJwtHeader) {
+    return userJwtHeader;
+  }
+
   const authorization = req.headers.get("Authorization") ?? req.headers.get("authorization") ?? "";
   if (authorization.startsWith("Bearer ")) {
-    return authorization.slice(7);
+    const bearerToken = authorization.slice(7);
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    if (anonKey && bearerToken === anonKey) {
+      return "";
+    }
+
+    return bearerToken;
   }
 
   return "";
@@ -243,7 +254,7 @@ Deno.serve(async (req: Request) => {
   if (token) {
     const { data: userData, error: userError } = await userClient.auth.getUser();
     if (userError || !userData.user?.id) {
-      console.warn("track-analytics-event: invalid bearer token, falling back to anonymous principal");
+      console.info("track-analytics-event: invalid user jwt, falling back to anonymous principal");
     } else {
       userId = userData.user.id;
     }
