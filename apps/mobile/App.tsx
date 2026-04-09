@@ -121,6 +121,31 @@ LogBox.ignoreLogs([
   "Node cannot be found in the current page.",
 ]);
 
+type ConsoleWithKnownWarningGuard = Console & {
+  __wellnessKnownWarningGuard?: boolean;
+};
+
+if (Platform.OS === "web") {
+  const guardedConsole = console as ConsoleWithKnownWarningGuard;
+  if (!guardedConsole.__wellnessKnownWarningGuard) {
+    const originalWarn = console.warn;
+    console.warn = (...args: unknown[]) => {
+      const [firstArg] = args;
+      if (
+        typeof firstArg === "string" &&
+        (firstArg.includes("Cannot record touch end without a touch start.") ||
+          firstArg.includes("Node cannot be found in the current page."))
+      ) {
+        return;
+      }
+
+      originalWarn(...args);
+    };
+
+    guardedConsole.__wellnessKnownWarningGuard = true;
+  }
+}
+
 preventAutoHideSplashScreen().catch(() => {
   // no-op if it's already hidden
 });

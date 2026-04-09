@@ -206,6 +206,37 @@ async function getAnonPrincipalKey(req: Request) {
   return `anon:${hashedIp}`;
 }
 
+async function incrementRateLimitWithFallback(
+  adminClient: ReturnType<typeof createClient>,
+  principalKey: string,
+  action: string,
+  bucket: string,
+  eventCount: number
+) {
+  const primary = await adminClient.rpc("increment_analytics_ingest_rate_limit", {
+    p_principal_key: principalKey,
+    p_action: action,
+    p_bucket: bucket,
+    p_increment: eventCount,
+  });
+
+  if (!primary.error && typeof primary.data === "number") {
+    return primary;
+  }
+
+  const fallback = await adminClient.rpc("increment_analytics_ingest_rate_limit", {
+    p_principal_key: principalKey,
+    p_action: action,
+    p_bucket: bucket,
+  });
+
+  if (fallback.error || typeof fallback.data !== "number") {
+    return primary;
+  }
+
+  return fallback;
+}
+
 Deno.serve(async (req: Request) => {
   const requestCorsHeaders = buildCorsHeaders(req);
 
@@ -264,14 +295,12 @@ Deno.serve(async (req: Request) => {
   const bucket = getMinuteBucket(new Date());
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-  const { data: incrementedCount, error: rateLimitError } = await adminClient.rpc(
-    "increment_analytics_ingest_rate_limit",
-    {
-      p_principal_key: principalKey,
-      p_action: ACTION_NAME,
-      p_bucket: bucket,
-      p_increment: payloadEvents.length,
-    }
+  const { data: incrementedCount, error: rateLimitError } = await incrementRateLimitWithFallback(
+    adminClient,
+    principalKey,
+    ACTION_NAME,
+    bucket,
+    payloadEvents.length
   );
 
   if (rateLimitError || typeof incrementedCount !== "number") {
