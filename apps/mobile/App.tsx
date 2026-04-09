@@ -119,6 +119,7 @@ LogBox.ignoreLogs(["props.pointerEvents is deprecated. Use style.pointerEvents"]
 
 type ConsoleWithPointerEventsGuard = Console & {
   __wellnessPointerEventsWarnGuard?: boolean;
+  __wellnessWebErrorEventGuard?: boolean;
 };
 
 const IGNORED_WEB_WARNINGS = [
@@ -170,6 +171,34 @@ if (Platform.OS === "web") {
     };
 
     guardedConsole.__wellnessPointerEventsWarnGuard = true;
+  }
+
+  if (!guardedConsole.__wellnessWebErrorEventGuard && typeof window !== "undefined") {
+    const shouldIgnoreMessage = (message: unknown) =>
+      typeof message === "string" && IGNORED_WEB_WARNINGS.some((warning) => message.includes(warning));
+
+    window.addEventListener("error", (event) => {
+      if (shouldIgnoreMessage(event.message)) {
+        event.preventDefault();
+      }
+    });
+
+    window.addEventListener("unhandledrejection", (event) => {
+      const reasonMessage =
+        typeof event.reason === "string"
+          ? event.reason
+          : event.reason instanceof Error
+            ? event.reason.message
+            : typeof (event.reason as { message?: unknown } | null)?.message === "string"
+              ? (event.reason as { message: string }).message
+              : null;
+
+      if (shouldIgnoreMessage(reasonMessage)) {
+        event.preventDefault();
+      }
+    });
+
+    guardedConsole.__wellnessWebErrorEventGuard = true;
   }
 }
 
