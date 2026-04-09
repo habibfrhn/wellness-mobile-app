@@ -132,6 +132,7 @@ if (Platform.OS === "web") {
 
   if (!guardedConsole.__wellnessPointerEventsWarnGuard) {
     const originalWarn = console.warn;
+    const originalError = console.error;
     console.warn = (...args: unknown[]) => {
       const [firstArg] = args;
       if (typeof firstArg === "string" && IGNORED_WEB_WARNINGS.some((warning) => firstArg.includes(warning))) {
@@ -139,6 +140,14 @@ if (Platform.OS === "web") {
       }
 
       originalWarn(...args);
+    };
+    console.error = (...args: unknown[]) => {
+      const [firstArg] = args;
+      if (typeof firstArg === "string" && IGNORED_WEB_WARNINGS.some((warning) => firstArg.includes(warning))) {
+        return;
+      }
+
+      originalError(...args);
     };
 
     guardedConsole.__wellnessPointerEventsWarnGuard = true;
