@@ -6,6 +6,7 @@ import AdminDashboardView from "../../components/admin/AdminDashboardView";
 import AdminLoginForm from "../../components/admin/AdminLoginForm";
 import { id } from "../../i18n/strings";
 import { useAdminAnalytics } from "../../hooks/useAdminAnalytics";
+import { isInvalidCredentialsError } from "../../services/authSecurity";
 import { supabase } from "../../services/supabase";
 import { colors, spacing, typography } from "../../theme/tokens";
 import WebResponsiveFrame from "../../components/WebResponsiveFrame";
@@ -22,8 +23,7 @@ export default function AdminDashboardScreen({ session }: Props) {
     useAdminAnalytics(Boolean(session) && isAdmin === true);
 
   const getSafeAuthErrorMessage = useCallback((message: string) => {
-    const normalized = message.toLowerCase();
-    if (normalized.includes("invalid login") || normalized.includes("invalid credentials")) {
+    if (isInvalidCredentialsError(message)) {
       return id.admin.loginFailed;
     }
 
@@ -130,6 +130,7 @@ export default function AdminDashboardScreen({ session }: Props) {
               range={range}
               onRangeChange={setRange}
               homeSleepClicks={productActions?.home_sleep_clicks ?? 0}
+              successfulSignups={productActions?.successful_signups ?? 0}
               audioRows={audioRows}
               tailoredRows={tailoredRows}
               onRefresh={reload}

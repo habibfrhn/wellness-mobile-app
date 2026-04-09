@@ -43,9 +43,6 @@ async function extractFunctionErrorPayload(error: unknown): Promise<ResendVerifi
 }
 
 export async function resendVerificationEmail(email: string): Promise<ResendVerificationResult> {
-  if (__DEV__) {
-    console.log("authResend: invoke resend-verification-email", { emailPreview: `${email.slice(0, 3)}***` });
-  }
   const { data, error } = await supabase.functions.invoke<ResendVerificationResponse>("resend-verification-email", {
     body: {
       email: email.trim().toLowerCase(),
@@ -54,9 +51,6 @@ export async function resendVerificationEmail(email: string): Promise<ResendVeri
   });
 
   if (!error) {
-    if (__DEV__) {
-      console.log("authResend: resend-verification-email success", data);
-    }
     return {
       ok: true,
       cooldownSec: typeof data?.cooldownSec === "number" ? data.cooldownSec : 60,
@@ -64,9 +58,6 @@ export async function resendVerificationEmail(email: string): Promise<ResendVeri
   }
 
   const errorPayload = await extractFunctionErrorPayload(error);
-  if (__DEV__) {
-    console.warn("authResend: resend-verification-email error", { message: error?.message, payload: errorPayload });
-  }
   if (errorPayload?.code === "RATE_LIMITED") {
     return {
       ok: false,

@@ -8,6 +8,7 @@ import { colors, radius, spacing, typography } from "../../theme/tokens";
 type Props = {
   rows: AdminTailoredSessionRow[];
   homeSleepClicks: number;
+  successfulSignups: number;
 };
 
 const SESSION_LABELS: Record<AdminTailoredSessionRow["session_mode"], string> = {
@@ -15,15 +16,21 @@ const SESSION_LABELS: Record<AdminTailoredSessionRow["session_mode"], string> = 
   release_accept: id.admin.tailoredReleaseAcceptLabel,
 };
 
-export default function AdminTailoredSessionsPanel({ rows, homeSleepClicks }: Props) {
+export default function AdminTailoredSessionsPanel({ rows, homeSleepClicks, successfulSignups }: Props) {
   return (
     <View style={styles.panel}>
       <Text style={styles.panelTitle}>{id.admin.tailoredUsageTitle}</Text>
       <Text style={styles.panelSubtitle}>{id.admin.tailoredUsageSubtitle}</Text>
 
-      <View style={styles.startSleepCard}>
-        <Text style={styles.startSleepLabel}>{id.admin.homeSleepClickLabel}</Text>
-        <Text style={styles.startSleepValue}>{homeSleepClicks}</Text>
+      <View style={styles.primaryKpiRow}>
+        <View style={styles.startSleepCard}>
+          <Text style={styles.startSleepLabel}>{id.admin.homeSleepClickLabel}</Text>
+          <Text style={styles.startSleepValue}>{homeSleepClicks}</Text>
+        </View>
+        <View style={styles.startSleepCard}>
+          <Text style={styles.startSleepLabel}>{id.admin.successfulSignupsLabel}</Text>
+          <Text style={styles.startSleepValue}>{successfulSignups}</Text>
+        </View>
       </View>
 
       {rows.map((row) => (
@@ -71,11 +78,18 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.sm,
   },
+  primaryKpiRow: {
+    flexDirection: "row",
+    gap: spacing.sm,
+    flexWrap: "wrap",
+  },
   startSleepCard: {
     backgroundColor: colors.bg,
     borderRadius: radius.sm,
     padding: spacing.md,
     gap: spacing.xs,
+    minWidth: 160,
+    flex: 1,
   },
   startSleepLabel: {
     color: colors.mutedText,

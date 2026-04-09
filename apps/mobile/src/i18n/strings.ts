@@ -507,6 +507,7 @@ export const id = {
     productSignalsTitle: "Sinyal produk utama",
     productSignalsSubtitle: "Apakah user menekan mulai tidur dan masuk ke tailored session?",
     homeSleepClickLabel: "Klik “Mulai Tidur”",
+    successfulSignupsLabel: "Successful sign-ups",
     tailoredSelectionsTotalLabel: "Total pilih tailored session",
     tailoredStartsTotalLabel: "Total tailored session dimulai",
     audioUsageTitle: "Pemakaian audio per konten",

@@ -20,7 +20,7 @@ import { supabase } from "../../services/supabase";
 import { continueWithGoogle } from "../../services/authOAuth";
 import PasswordToggle from "../../components/PasswordToggle";
 import LoginSignUpPrompt from "../../components/auth/LoginSignUpPrompt";
-import { isEmailNotConfirmedError } from "../../services/authSecurity";
+import { getSafeAuthErrorMessage, isEmailNotConfirmedError, isInvalidCredentialsError } from "../../services/authSecurity";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
@@ -118,8 +118,8 @@ export default function LoginScreen({ navigation, route }: Props) {
           return;
         }
 
-        setErrors({ password: id.login.errorInvalidCredentials });
-        setFormError(id.common.genericAuthError);
+        setErrors(isInvalidCredentialsError(error.message) ? { password: id.login.errorInvalidCredentials } : {});
+        setFormError(getSafeAuthErrorMessage(error.message, id.common.genericAuthError));
         return;
       }
 

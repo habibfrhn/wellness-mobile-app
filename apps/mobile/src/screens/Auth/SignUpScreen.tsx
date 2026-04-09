@@ -275,7 +275,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
               autoCorrect={false}
               autoComplete="password-new"
               textContentType="newPassword"
-              secureTextEntry={Platform.OS === "web" ? false : !showPassword}
+              secureTextEntry={!showPassword}
               returnKeyType="next"
               onSubmitEditing={() => confirmInputRef.current?.focus()}
               placeholder={id.signup.passwordPlaceholder}
