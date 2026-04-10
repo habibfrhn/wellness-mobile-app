@@ -115,6 +115,43 @@ function setWebResetFlowActive(active: boolean) {
   window.localStorage.removeItem(WEB_RESET_FLOW_KEY);
 }
 
+const WEB_KNOWN_RESPONDER_WARNINGS = [
+  "Cannot record touch end without a touch start.",
+  "Node cannot be found in the current page.",
+] as const;
+
+function shouldSuppressKnownWebResponderWarning(args: unknown[]) {
+  if (Platform.OS !== "web" || args.length === 0) {
+    return false;
+  }
+
+  const [firstArg] = args;
+  if (typeof firstArg !== "string") {
+    return false;
+  }
+
+  return WEB_KNOWN_RESPONDER_WARNINGS.some((warning) => firstArg.includes(warning));
+}
+
+if (__DEV__ && Platform.OS === "web") {
+  const originalConsoleWarn = console.warn.bind(console);
+  const originalConsoleError = console.error.bind(console);
+
+  console.warn = (...args: unknown[]) => {
+    if (shouldSuppressKnownWebResponderWarning(args)) {
+      return;
+    }
+    originalConsoleWarn(...args);
+  };
+
+  console.error = (...args: unknown[]) => {
+    if (shouldSuppressKnownWebResponderWarning(args)) {
+      return;
+    }
+    originalConsoleError(...args);
+  };
+}
+
 LogBox.ignoreLogs([
   "props.pointerEvents is deprecated. Use style.pointerEvents",
 ]);
