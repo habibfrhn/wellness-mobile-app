@@ -33,6 +33,8 @@ const FLUSH_INTERVAL_MS = 10_000;
 const USER_JWT_HEADER = "x-user-jwt";
 const MAX_CONSECUTIVE_SERVER_FAILURES = 3;
 const ANALYTICS_ENABLED = process.env.EXPO_PUBLIC_ANALYTICS_ENABLED?.trim().toLowerCase() !== "false";
+const ANALYTICS_BACKEND_FAILURE_KEY = "wellness.analytics.backendFailureAt";
+const ANALYTICS_BACKEND_FAILURE_TTL_MS = 24 * 60 * 60 * 1000;
 let consecutiveServerFailures = 0;
 
 function logAnalyticsWarning(message: string, ...context: unknown[]) {
@@ -51,6 +53,29 @@ function disableAnalyticsForSession(reason: string, details?: unknown) {
   }
 
   logAnalyticsWarning(reason, details);
+
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem(ANALYTICS_BACKEND_FAILURE_KEY, String(Date.now()));
+  }
+}
+
+function shouldKeepAnalyticsDisabledByStorage() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const rawValue = window.localStorage.getItem(ANALYTICS_BACKEND_FAILURE_KEY);
+  const timestamp = Number(rawValue);
+  if (!Number.isFinite(timestamp) || timestamp <= 0) {
+    return false;
+  }
+
+  if (Date.now() - timestamp > ANALYTICS_BACKEND_FAILURE_TTL_MS) {
+    window.localStorage.removeItem(ANALYTICS_BACKEND_FAILURE_KEY);
+    return false;
+  }
+
+  return true;
 }
 
 function normalizeSessionMode(value: unknown) {
@@ -365,6 +390,11 @@ export function getAnalyticsSessionId() {
 
 export async function trackEvent(eventName: AnalyticsEventName, properties: Record<string, unknown> = {}) {
   if (!ANALYTICS_ENABLED) {
+    return;
+  }
+
+  if (shouldKeepAnalyticsDisabledByStorage()) {
+    analyticsIngestDisabledForSession = true;
     return;
   }
 

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import {
   colors,
@@ -51,50 +51,31 @@ export default function PlayerProgressSection({
     },
     [onSeek],
   );
-  const isWeb = Platform.OS === "web";
 
   return (
     <>
-      {isWeb ? (
-        <Pressable
-          style={[styles.progressWrap, compact && styles.progressWrapCompact]}
-          onLayout={(event) => onLayoutWidth(event.nativeEvent.layout.width)}
-          onPress={(event) => handleSeekGesture(event.nativeEvent.locationX)}
-        >
-          <View style={styles.progressTrack}>
-            <View
-              style={[
-                styles.progressFill,
-                { width: progressWidth ? `${progressRatio * 100}%` : "0%" },
-              ]}
-            />
-            <View style={[styles.progressHandle, { left: progressHandleLeft }]} />
-          </View>
-        </Pressable>
-      ) : (
-        <View
-          style={[styles.progressWrap, compact && styles.progressWrapCompact]}
-          onLayout={(event) => onLayoutWidth(event.nativeEvent.layout.width)}
-          onStartShouldSetResponder={() => true}
-          onMoveShouldSetResponder={() => true}
-          onResponderGrant={(event) =>
-            handleSeekGesture(event.nativeEvent.locationX)
-          }
-          onResponderMove={(event) =>
-            handleSeekGesture(event.nativeEvent.locationX)
-          }
-        >
-          <View style={styles.progressTrack}>
-            <View
-              style={[
-                styles.progressFill,
-                { width: progressWidth ? `${progressRatio * 100}%` : "0%" },
-              ]}
-            />
-            <View style={[styles.progressHandle, { left: progressHandleLeft }]} />
-          </View>
+      <View
+        style={[styles.progressWrap, compact && styles.progressWrapCompact]}
+        onLayout={(event) => onLayoutWidth(event.nativeEvent.layout.width)}
+        onStartShouldSetResponder={() => true}
+        onMoveShouldSetResponder={() => true}
+        onResponderGrant={(event) =>
+          handleSeekGesture(event.nativeEvent.locationX)
+        }
+        onResponderMove={(event) =>
+          handleSeekGesture(event.nativeEvent.locationX)
+        }
+      >
+        <View style={styles.progressTrack}>
+          <View
+            style={[
+              styles.progressFill,
+              { width: progressWidth ? `${progressRatio * 100}%` : "0%" },
+            ]}
+          />
+          <View style={[styles.progressHandle, { left: progressHandleLeft }]} />
         </View>
-      )}
+      </View>
       <View style={[styles.timeRow, compact && styles.timeRowCompact]}>
         <Text style={[styles.timeText, compact && styles.timeTextCompact]}>
           {formatTime(current)}
