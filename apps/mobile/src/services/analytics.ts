@@ -1,3 +1,4 @@
+import { Platform } from "react-native";
 import { supabase } from "./supabase";
 
 export type AnalyticsEventName =
@@ -30,6 +31,8 @@ const MAX_EVENTS_PER_FLUSH = 25;
 const MAX_QUEUE_SIZE = 100;
 const FLUSH_INTERVAL_MS = 10_000;
 const USER_JWT_HEADER = "x-user-jwt";
+const ANALYTICS_ENABLED =
+  process.env.EXPO_PUBLIC_ANALYTICS_ENABLED?.trim().toLowerCase() === "true" || !(__DEV__ && Platform.OS === "web");
 
 function logAnalyticsWarning(message: string, ...context: unknown[]) {
   if (__DEV__) {
@@ -330,6 +333,10 @@ export function getAnalyticsSessionId() {
 }
 
 export async function trackEvent(eventName: AnalyticsEventName, properties: Record<string, unknown> = {}) {
+  if (!ANALYTICS_ENABLED) {
+    return;
+  }
+
   if (analyticsIngestDisabledForSession) {
     return;
   }
