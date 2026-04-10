@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { Modal, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { id } from "../i18n/strings";
 import { colors, radius, spacing, typography } from "../theme/tokens";
@@ -11,15 +11,23 @@ type SleepSessionExitModalProps = {
 };
 
 export default function SleepSessionExitModal({ visible, onConfirmExit, onCancel }: SleepSessionExitModalProps) {
+  const closeModal = () => {
+    if (Platform.OS === "web" && typeof requestAnimationFrame === "function") {
+      requestAnimationFrame(() => onCancel());
+      return;
+    }
+    onCancel();
+  };
+
   return (
-    <Modal transparent animationType="fade" visible={visible} onRequestClose={onCancel}>
+    <Modal transparent animationType="fade" visible={visible} onRequestClose={closeModal}>
       <View style={styles.overlay}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={onCancel} />
+        <Pressable style={StyleSheet.absoluteFill} onPress={closeModal} />
         <View style={styles.card}>
           <Text style={styles.title}>{id.player.sleepSessionExitConfirm}</Text>
 
           <View style={styles.actions}>
-            <Pressable style={styles.secondaryBtn} onPress={onCancel}>
+            <Pressable style={styles.secondaryBtn} onPress={closeModal}>
               <Text style={styles.secondaryText}>{id.player.sleepSessionExitNo}</Text>
             </Pressable>
             <Pressable style={styles.primaryBtn} onPress={onConfirmExit}>

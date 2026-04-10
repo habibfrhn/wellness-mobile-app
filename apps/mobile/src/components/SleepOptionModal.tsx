@@ -24,18 +24,26 @@ export default function SleepOptionModal({
   onClose,
   onSelect,
 }: SleepOptionModalProps) {
+  const closeModal = () => {
+    if (Platform.OS === "web" && typeof requestAnimationFrame === "function") {
+      requestAnimationFrame(() => onClose());
+      return;
+    }
+    onClose();
+  };
+
   return (
     <Modal
       transparent
       animationType="fade"
       visible={visible}
-      onRequestClose={onClose}
+      onRequestClose={closeModal}
     >
       <View style={styles.overlay}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+        <Pressable style={StyleSheet.absoluteFill} onPress={closeModal} />
         <View style={styles.modalCard}>
           <Pressable
-            onPress={onClose}
+            onPress={closeModal}
             accessibilityRole="button"
             accessibilityLabel="Tutup modal"
             style={({ pressed }) => [

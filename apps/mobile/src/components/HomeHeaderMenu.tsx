@@ -16,9 +16,16 @@ type Props = {
 export default function HomeHeaderMenu({ navigation, withWhiteCircle = false }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const insets = useSafeAreaInsets();
+  const closeMenu = () => {
+    if (Platform.OS === "web" && typeof requestAnimationFrame === "function") {
+      requestAnimationFrame(() => setIsOpen(false));
+      return;
+    }
+    setIsOpen(false);
+  };
 
   const handleNavigate = (route: "Account" | "Settings") => {
-    setIsOpen(false);
+    closeMenu();
     navigation.navigate(route);
   };
 
@@ -43,10 +50,10 @@ export default function HomeHeaderMenu({ navigation, withWhiteCircle = false }: 
         transparent
         animationType="fade"
         visible={isOpen}
-        onRequestClose={() => setIsOpen(false)}
+        onRequestClose={closeMenu}
       >
         <View style={styles.overlay}>
-          <Pressable style={StyleSheet.absoluteFill} onPress={() => setIsOpen(false)} />
+          <Pressable style={StyleSheet.absoluteFill} onPress={closeMenu} />
           <View style={[styles.dropdown, { top: insets.top + spacing.lg }]}>
             <Pressable
               onPress={() => handleNavigate("Account")}

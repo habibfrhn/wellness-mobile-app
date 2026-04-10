@@ -15,14 +15,21 @@ export default function LandingMobileAuthMenu({
   onPressSignUp,
 }: LandingMobileAuthMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const closeMenu = () => {
+    if (Platform.OS === "web" && typeof requestAnimationFrame === "function") {
+      requestAnimationFrame(() => setIsOpen(false));
+      return;
+    }
+    setIsOpen(false);
+  };
 
   const handlePressLogin = () => {
-    setIsOpen(false);
+    closeMenu();
     onPressLogin();
   };
 
   const handlePressSignUp = () => {
-    setIsOpen(false);
+    closeMenu();
     onPressSignUp();
   };
 
@@ -51,10 +58,10 @@ export default function LandingMobileAuthMenu({
         transparent
         animationType="fade"
         visible={isOpen}
-        onRequestClose={() => setIsOpen(false)}
+        onRequestClose={closeMenu}
       >
         <View style={styles.overlay}>
-          <Pressable style={StyleSheet.absoluteFill} onPress={() => setIsOpen(false)} />
+          <Pressable style={StyleSheet.absoluteFill} onPress={closeMenu} />
           <View style={styles.dropdown}>
             <Pressable
               onPress={handlePressSignUp}

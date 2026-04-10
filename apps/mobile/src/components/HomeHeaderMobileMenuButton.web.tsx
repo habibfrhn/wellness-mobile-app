@@ -43,15 +43,29 @@ export default function HomeHeaderMobileMenuButton({ navigation }: Props) {
   const [notice, setNotice] = useState<string | null>(null);
   const triggerWrapRef = useRef<View>(null);
 
-  const closeMenu = () => setIsMenuVisible(false);
+  const closeMenu = () => {
+    if (typeof requestAnimationFrame === "function") {
+      requestAnimationFrame(() => setIsMenuVisible(false));
+      return;
+    }
+    setIsMenuVisible(false);
+  };
 
   const updateMenuPosition = useCallback(() => {
-    const triggerNode = triggerWrapRef.current as unknown as { getBoundingClientRect?: () => DOMRect };
-    if (typeof triggerNode?.getBoundingClientRect !== "function") {
+    const triggerNode = triggerWrapRef.current as unknown as {
+      getBoundingClientRect?: () => DOMRect;
+      isConnected?: boolean;
+    };
+    if (typeof triggerNode?.getBoundingClientRect !== "function" || triggerNode.isConnected === false) {
       return;
     }
 
-    const rect = triggerNode.getBoundingClientRect();
+    let rect: DOMRect;
+    try {
+      rect = triggerNode.getBoundingClientRect();
+    } catch {
+      return;
+    }
     const menuWidth = 172;
     const viewportWidth = typeof window !== "undefined" ? window.innerWidth : rect.left + rect.width + spacing.sm;
     const left = Math.max(spacing.sm, Math.min(rect.left + rect.width - menuWidth, viewportWidth - menuWidth - spacing.sm));
