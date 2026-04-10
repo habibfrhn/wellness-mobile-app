@@ -46,6 +46,20 @@ export default function HomeHeaderMobileMenuButton({ navigation }: Props) {
   const closeMenu = () => setIsMenuVisible(false);
 
   const updateMenuPosition = useCallback(() => {
+    const triggerNode = triggerWrapRef.current as unknown as { getBoundingClientRect?: () => DOMRect };
+    if (typeof triggerNode?.getBoundingClientRect === "function") {
+      const rect = triggerNode.getBoundingClientRect();
+      const menuWidth = 172;
+      const viewportWidth = typeof window !== "undefined" ? window.innerWidth : rect.left + rect.width + spacing.sm;
+      const left = Math.max(spacing.sm, Math.min(rect.left + rect.width - menuWidth, viewportWidth - menuWidth - spacing.sm));
+
+      setMenuPosition({
+        top: rect.bottom + spacing.xs,
+        left,
+      });
+      return;
+    }
+
     if (!triggerWrapRef.current?.measureInWindow) {
       return;
     }

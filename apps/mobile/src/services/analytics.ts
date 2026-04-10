@@ -32,8 +32,10 @@ const MAX_QUEUE_SIZE = 100;
 const FLUSH_INTERVAL_MS = 10_000;
 const USER_JWT_HEADER = "x-user-jwt";
 const MAX_CONSECUTIVE_SERVER_FAILURES = 3;
+const RATE_LIMIT_FAILURE_COOLDOWN_MS = 60_000;
 const ANALYTICS_ENABLED = process.env.EXPO_PUBLIC_ANALYTICS_ENABLED?.trim().toLowerCase() !== "false";
 let consecutiveServerFailures = 0;
+let rateLimitBackendUnavailableUntilMs = 0;
 
 function logAnalyticsWarning(message: string, ...context: unknown[]) {
   if (__DEV__) {
@@ -282,6 +284,10 @@ async function flushAnalyticsQueue() {
     return;
   }
 
+  if (Date.now() < rateLimitBackendUnavailableUntilMs) {
+    return;
+  }
+
   flushInFlight = true;
 
   while (pendingQueue.length > 0) {
@@ -298,6 +304,17 @@ async function flushAnalyticsQueue() {
 
     const requestError = await postAnalyticsEvents(validEvents);
     if (requestError) {
+      if (requestError.code === "RATE_LIMIT_FAILED") {
+        pendingQueue = [...validEvents, ...pendingQueue].slice(0, MAX_QUEUE_SIZE);
+        rateLimitBackendUnavailableUntilMs = Date.now() + RATE_LIMIT_FAILURE_COOLDOWN_MS;
+        logAnalyticsWarning("Analytics ingest rate-limit backend unavailable; delaying retries", {
+          cooldownMs: RATE_LIMIT_FAILURE_COOLDOWN_MS,
+          ...requestError,
+        });
+        flushInFlight = false;
+        return;
+      }
+
       if (requestError.status === 400 || requestError.code === "INVALID_PAYLOAD") {
         logAnalyticsWarning("Dropped analytics event batch due invalid payload", requestError);
         continue;
@@ -308,7 +325,7 @@ async function flushAnalyticsQueue() {
         continue;
       }
 
-      if (requestError.code === "RATE_LIMIT_FAILED" || (requestError.status ?? 0) >= 500) {
+      if ((requestError.status ?? 0) >= 500) {
         consecutiveServerFailures += 1;
         pendingQueue = [...validEvents, ...pendingQueue].slice(0, MAX_QUEUE_SIZE);
         if (consecutiveServerFailures >= MAX_CONSECUTIVE_SERVER_FAILURES) {
@@ -324,7 +341,7 @@ async function flushAnalyticsQueue() {
           ...requestError,
         });
         flushInFlight = false;
-        continue;
+        return;
       }
 
       pendingQueue = [...validEvents, ...pendingQueue].slice(0, MAX_QUEUE_SIZE);
@@ -334,6 +351,7 @@ async function flushAnalyticsQueue() {
     }
 
     consecutiveServerFailures = 0;
+    rateLimitBackendUnavailableUntilMs = 0;
   }
 
   flushInFlight = false;
