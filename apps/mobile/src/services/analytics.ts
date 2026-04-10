@@ -20,6 +20,8 @@ let analyticsFlushTimer: ReturnType<typeof setInterval> | null = null;
 let analyticsListenersBound = false;
 let flushInFlight = false;
 let pendingQueue: TrackAnalyticsEventPayload[] = [];
+let analyticsRetryBlockedUntil = 0;
+let lastServerFailureWarningAt = 0;
 
 const MAX_EVENT_PROPS_BYTES = 2048;
 const MAX_STRING_PROP_LENGTH = 120;
@@ -29,6 +31,7 @@ const MAX_EVENTS_PER_FLUSH = 25;
 const MAX_QUEUE_SIZE = 100;
 const FLUSH_INTERVAL_MS = 10_000;
 const USER_JWT_HEADER = "x-user-jwt";
+const SERVER_FAILURE_RETRY_COOLDOWN_MS = 60_000;
 
 function logAnalyticsWarning(message: string, ...context: unknown[]) {
   if (__DEV__) {
@@ -261,6 +264,10 @@ async function flushAnalyticsQueue() {
     return;
   }
 
+  if (analyticsRetryBlockedUntil > Date.now()) {
+    return;
+  }
+
   flushInFlight = true;
 
   while (pendingQueue.length > 0) {
@@ -284,6 +291,16 @@ async function flushAnalyticsQueue() {
 
       if (requestError.status === 401 || requestError.code === "INVALID_SESSION") {
         logAnalyticsWarning("Dropped analytics event batch due invalid session", requestError);
+        continue;
+      }
+
+      if (requestError.code === "RATE_LIMIT_FAILED" || (requestError.status ?? 0) >= 500) {
+        analyticsRetryBlockedUntil = Date.now() + SERVER_FAILURE_RETRY_COOLDOWN_MS;
+        const shouldWarnNow = Date.now() - lastServerFailureWarningAt >= SERVER_FAILURE_RETRY_COOLDOWN_MS;
+        if (shouldWarnNow) {
+          lastServerFailureWarningAt = Date.now();
+          logAnalyticsWarning("Analytics ingest temporarily unavailable; dropping current batch", requestError);
+        }
         continue;
       }
 
