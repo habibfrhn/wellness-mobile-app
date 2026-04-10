@@ -47,32 +47,18 @@ export default function HomeHeaderMobileMenuButton({ navigation }: Props) {
 
   const updateMenuPosition = useCallback(() => {
     const triggerNode = triggerWrapRef.current as unknown as { getBoundingClientRect?: () => DOMRect };
-    if (typeof triggerNode?.getBoundingClientRect === "function") {
-      const rect = triggerNode.getBoundingClientRect();
-      const menuWidth = 172;
-      const viewportWidth = typeof window !== "undefined" ? window.innerWidth : rect.left + rect.width + spacing.sm;
-      const left = Math.max(spacing.sm, Math.min(rect.left + rect.width - menuWidth, viewportWidth - menuWidth - spacing.sm));
-
-      setMenuPosition({
-        top: rect.bottom + spacing.xs,
-        left,
-      });
+    if (typeof triggerNode?.getBoundingClientRect !== "function") {
       return;
     }
 
-    if (!triggerWrapRef.current?.measureInWindow) {
-      return;
-    }
+    const rect = triggerNode.getBoundingClientRect();
+    const menuWidth = 172;
+    const viewportWidth = typeof window !== "undefined" ? window.innerWidth : rect.left + rect.width + spacing.sm;
+    const left = Math.max(spacing.sm, Math.min(rect.left + rect.width - menuWidth, viewportWidth - menuWidth - spacing.sm));
 
-    triggerWrapRef.current.measureInWindow((x, y, width, height) => {
-      const menuWidth = 172;
-      const viewportWidth = typeof window !== "undefined" ? window.innerWidth : x + width + spacing.sm;
-      const left = Math.max(spacing.sm, Math.min(x + width - menuWidth, viewportWidth - menuWidth - spacing.sm));
-
-      setMenuPosition({
-        top: y + height + spacing.xs,
-        left,
-      });
+    setMenuPosition({
+      top: rect.bottom + spacing.xs,
+      left,
     });
   }, []);
 
