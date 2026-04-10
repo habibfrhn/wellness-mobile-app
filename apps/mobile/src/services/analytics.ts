@@ -38,6 +38,18 @@ function logAnalyticsWarning(message: string, ...context: unknown[]) {
   }
 }
 
+function disableAnalyticsForSession(reason: string, details?: unknown) {
+  analyticsIngestDisabledForSession = true;
+  pendingQueue = [];
+
+  if (analyticsFlushTimer) {
+    clearInterval(analyticsFlushTimer);
+    analyticsFlushTimer = null;
+  }
+
+  logAnalyticsWarning(reason, details);
+}
+
 function normalizeSessionMode(value: unknown) {
   if (value === "calm_mind" || value === "release_accept") {
     return value;
@@ -294,13 +306,7 @@ async function flushAnalyticsQueue() {
       }
 
       if (requestError.code === "RATE_LIMIT_FAILED" || (requestError.status ?? 0) >= 500) {
-        analyticsIngestDisabledForSession = true;
-        pendingQueue = [];
-        if (analyticsFlushTimer) {
-          clearInterval(analyticsFlushTimer);
-          analyticsFlushTimer = null;
-        }
-        logAnalyticsWarning("Analytics ingest disabled for current session after server failure", requestError);
+        disableAnalyticsForSession("Analytics ingest disabled for current session after server failure", requestError);
         continue;
       }
 
@@ -370,6 +376,6 @@ export async function trackEvent(eventName: AnalyticsEventName, properties: Reco
   ensureFlushLoop();
 
   if (pendingQueue.length >= MAX_EVENTS_PER_FLUSH) {
-    await flushAnalyticsQueue();
+    void flushAnalyticsQueue();
   }
 }
