@@ -21,6 +21,7 @@ let analyticsListenersBound = false;
 let flushInFlight = false;
 let pendingQueue: TrackAnalyticsEventPayload[] = [];
 let analyticsIngestDisabledForSession = false;
+let consecutiveServerFailures = 0;
 
 const MAX_EVENT_PROPS_BYTES = 2048;
 const MAX_STRING_PROP_LENGTH = 120;
@@ -31,6 +32,7 @@ const MAX_QUEUE_SIZE = 100;
 const FLUSH_INTERVAL_MS = 10_000;
 const USER_JWT_HEADER = "x-user-jwt";
 const ANALYTICS_ENABLED = process.env.EXPO_PUBLIC_ANALYTICS_ENABLED?.trim().toLowerCase() !== "false";
+const MAX_CONSECUTIVE_SERVER_FAILURES = 3;
 
 function logAnalyticsWarning(message: string, ...context: unknown[]) {
   if (__DEV__) {
@@ -41,6 +43,7 @@ function logAnalyticsWarning(message: string, ...context: unknown[]) {
 function disableAnalyticsForSession(reason: string, details?: unknown) {
   analyticsIngestDisabledForSession = true;
   pendingQueue = [];
+  consecutiveServerFailures = 0;
 
   if (analyticsFlushTimer) {
     clearInterval(analyticsFlushTimer);
@@ -296,25 +299,46 @@ async function flushAnalyticsQueue() {
     const requestError = await postAnalyticsEvents(validEvents);
     if (requestError) {
       if (requestError.status === 400 || requestError.code === "INVALID_PAYLOAD") {
+        consecutiveServerFailures = 0;
         logAnalyticsWarning("Dropped analytics event batch due invalid payload", requestError);
         continue;
       }
 
       if (requestError.status === 401 || requestError.code === "INVALID_SESSION") {
+        consecutiveServerFailures = 0;
         logAnalyticsWarning("Dropped analytics event batch due invalid session", requestError);
         continue;
       }
 
       if (requestError.code === "RATE_LIMIT_FAILED" || (requestError.status ?? 0) >= 500) {
-        disableAnalyticsForSession("Analytics ingest disabled for current session after server failure", requestError);
-        continue;
+        pendingQueue = [...validEvents, ...pendingQueue].slice(0, MAX_QUEUE_SIZE);
+        consecutiveServerFailures += 1;
+
+        if (consecutiveServerFailures >= MAX_CONSECUTIVE_SERVER_FAILURES) {
+          disableAnalyticsForSession("Analytics ingest disabled for current session after repeated server failures", {
+            ...requestError,
+            consecutiveServerFailures,
+          });
+          flushInFlight = false;
+          return;
+        }
+
+        logAnalyticsWarning("Retrying analytics event batch after transient server failure", {
+          ...requestError,
+          consecutiveServerFailures,
+        });
+        flushInFlight = false;
+        return;
       }
 
       pendingQueue = [...validEvents, ...pendingQueue].slice(0, MAX_QUEUE_SIZE);
+      consecutiveServerFailures = 0;
       logAnalyticsWarning("Failed to flush analytics events", requestError.message ?? "unknown request error");
       flushInFlight = false;
       return;
     }
+
+    consecutiveServerFailures = 0;
   }
 
   flushInFlight = false;

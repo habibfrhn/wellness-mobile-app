@@ -32,6 +32,10 @@ type RootStackParamList = {
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 
 const WEB_RESET_FLOW_KEY = "wellness.webResetFlow";
+const WEB_NOISY_LOG_PATTERNS = [
+  "Cannot record touch end without a touch start.",
+  "Node cannot be found in the current page.",
+] as const;
 
 
 const WEB_APP_NAME = "Lumepo";
@@ -120,6 +124,34 @@ LogBox.ignoreLogs([
   "Cannot record touch end without a touch start.",
   "Node cannot be found in the current page.",
 ]);
+
+if (__DEV__ && Platform.OS === "web" && typeof window !== "undefined") {
+  const originalConsoleError = console.error;
+  const originalConsoleWarn = console.warn;
+  const shouldSuppressWebNoise = (args: unknown[]) => {
+    const joined = args
+      .map((value) => (typeof value === "string" ? value : String(value)))
+      .join(" ");
+
+    return WEB_NOISY_LOG_PATTERNS.some((pattern) => joined.includes(pattern));
+  };
+
+  console.error = (...args: unknown[]) => {
+    if (shouldSuppressWebNoise(args)) {
+      return;
+    }
+
+    originalConsoleError(...args);
+  };
+
+  console.warn = (...args: unknown[]) => {
+    if (shouldSuppressWebNoise(args)) {
+      return;
+    }
+
+    originalConsoleWarn(...args);
+  };
+}
 
 preventAutoHideSplashScreen().catch(() => {
   // no-op if it's already hidden
