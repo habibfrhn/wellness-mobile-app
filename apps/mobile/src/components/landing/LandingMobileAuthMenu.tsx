@@ -53,7 +53,8 @@ export default function LandingMobileAuthMenu({
         visible={isOpen}
         onRequestClose={() => setIsOpen(false)}
       >
-        <Pressable style={styles.overlay} onPress={() => setIsOpen(false)}>
+        <View style={styles.overlay}>
+          <Pressable style={StyleSheet.absoluteFill} onPress={() => setIsOpen(false)} />
           <View style={styles.dropdown}>
             <Pressable
               onPress={handlePressSignUp}
@@ -75,7 +76,7 @@ export default function LandingMobileAuthMenu({
               <Text style={styles.menuText}>{id.login.primaryCta}</Text>
             </Pressable>
           </View>
-        </Pressable>
+        </View>
       </Modal>
     </View>
   );

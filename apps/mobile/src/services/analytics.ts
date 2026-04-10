@@ -26,11 +26,14 @@ const MAX_EVENT_PROPS_BYTES = 2048;
 const MAX_STRING_PROP_LENGTH = 120;
 const AUDIO_ID_PROP_KEY = "audio_id";
 const SESSION_MODE_PROP_KEY = "session_mode";
+const EVENT_PROP_ID_REGEX = /^[A-Za-z0-9_-]+$/;
 const MAX_EVENTS_PER_FLUSH = 25;
 const MAX_QUEUE_SIZE = 100;
 const FLUSH_INTERVAL_MS = 10_000;
 const USER_JWT_HEADER = "x-user-jwt";
+const MAX_CONSECUTIVE_SERVER_FAILURES = 3;
 const ANALYTICS_ENABLED = process.env.EXPO_PUBLIC_ANALYTICS_ENABLED?.trim().toLowerCase() !== "false";
+let consecutiveServerFailures = 0;
 
 function logAnalyticsWarning(message: string, ...context: unknown[]) {
   if (__DEV__) {
@@ -64,7 +67,7 @@ function normalizeAudioId(value: unknown) {
   }
 
   const normalized = value.trim().toLowerCase();
-  if (!normalized || normalized.length > MAX_STRING_PROP_LENGTH) {
+  if (!normalized || normalized.length > MAX_STRING_PROP_LENGTH || !EVENT_PROP_ID_REGEX.test(normalized)) {
     return null;
   }
 
@@ -306,7 +309,21 @@ async function flushAnalyticsQueue() {
       }
 
       if (requestError.code === "RATE_LIMIT_FAILED" || (requestError.status ?? 0) >= 500) {
-        disableAnalyticsForSession("Analytics ingest disabled for current session after server failure", requestError);
+        consecutiveServerFailures += 1;
+        pendingQueue = [...validEvents, ...pendingQueue].slice(0, MAX_QUEUE_SIZE);
+        if (consecutiveServerFailures >= MAX_CONSECUTIVE_SERVER_FAILURES) {
+          disableAnalyticsForSession("Analytics ingest disabled for current session after repeated server failures", {
+            consecutiveServerFailures,
+            ...requestError,
+          });
+          continue;
+        }
+
+        logAnalyticsWarning("Analytics ingest server failure; will retry on next flush", {
+          consecutiveServerFailures,
+          ...requestError,
+        });
+        flushInFlight = false;
         continue;
       }
 
@@ -315,6 +332,8 @@ async function flushAnalyticsQueue() {
       flushInFlight = false;
       return;
     }
+
+    consecutiveServerFailures = 0;
   }
 
   flushInFlight = false;

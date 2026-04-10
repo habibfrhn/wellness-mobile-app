@@ -5,6 +5,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  View,
 } from "react-native";
 
 import { id } from "../i18n/strings";
@@ -30,11 +31,9 @@ export default function SleepOptionModal({
       visible={visible}
       onRequestClose={onClose}
     >
-      <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable
-          style={styles.modalCard}
-          onPress={(event) => event.stopPropagation()}
-        >
+      <View style={styles.overlay}>
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+        <View style={styles.modalCard}>
           <Pressable
             onPress={onClose}
             accessibilityRole="button"
@@ -78,8 +77,8 @@ export default function SleepOptionModal({
               {id.home.nightModeReleaseAcceptSubtitle}
             </Text>
           </Pressable>
-        </Pressable>
-      </Pressable>
+        </View>
+      </View>
     </Modal>
   );
 }

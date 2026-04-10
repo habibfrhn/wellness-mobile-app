@@ -45,7 +45,8 @@ export default function HomeHeaderMenu({ navigation, withWhiteCircle = false }: 
         visible={isOpen}
         onRequestClose={() => setIsOpen(false)}
       >
-        <Pressable style={styles.overlay} onPress={() => setIsOpen(false)}>
+        <View style={styles.overlay}>
+          <Pressable style={StyleSheet.absoluteFill} onPress={() => setIsOpen(false)} />
           <View style={[styles.dropdown, { top: insets.top + spacing.lg }]}>
             <Pressable
               onPress={() => handleNavigate("Account")}
@@ -67,7 +68,7 @@ export default function HomeHeaderMenu({ navigation, withWhiteCircle = false }: 
               </View>
             </Pressable>
           </View>
-        </Pressable>
+        </View>
       </Modal>
     </View>
   );

@@ -117,8 +117,6 @@ function setWebResetFlowActive(active: boolean) {
 
 LogBox.ignoreLogs([
   "props.pointerEvents is deprecated. Use style.pointerEvents",
-  "Cannot record touch end without a touch start.",
-  "Node cannot be found in the current page.",
 ]);
 
 preventAutoHideSplashScreen().catch(() => {

@@ -38,6 +38,7 @@ const ACTION_NAME = "track_analytics_event";
 const MAX_REQUESTS_PER_MINUTE_ANON = 45;
 const MAX_REQUESTS_PER_MINUTE_AUTH = 90;
 const MAX_EVENTS_PER_REQUEST = 25;
+const EVENT_PROP_ID_REGEX = /^[A-Za-z0-9_-]+$/;
 
 const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -149,6 +150,10 @@ function isValidPayload(value: unknown): value is TrackAnalyticsEventBody {
   }
 
   const eventProps = payload.event_props as Record<string, unknown>;
+  const eventPropKeys = Object.keys(eventProps);
+  if (eventPropKeys.length > 1) {
+    return false;
+  }
 
   if (
     payload.event_name === "audio_click" ||
@@ -156,15 +161,27 @@ function isValidPayload(value: unknown): value is TrackAnalyticsEventBody {
     payload.event_name === "audio_complete" ||
     payload.event_name === "audio_abandon"
   ) {
-    return typeof eventProps.audio_id === "string" && eventProps.audio_id.trim().length > 0;
+    return (
+      typeof eventProps.audio_id === "string" &&
+      eventProps.audio_id.trim().length > 0 &&
+      eventProps.audio_id.trim().length <= 120 &&
+      EVENT_PROP_ID_REGEX.test(eventProps.audio_id.trim())
+    );
+  }
+
+  if (payload.event_name === "tailored_session_select") {
+    return eventProps.session_mode === "calm_mind" || eventProps.session_mode === "release_accept";
   }
 
   if (
-    payload.event_name === "tailored_session_select" ||
     payload.event_name === "tailored_session_start" ||
     payload.event_name === "tailored_session_complete" ||
     payload.event_name === "tailored_session_dropoff"
   ) {
+    if (eventPropKeys.length === 0) {
+      return true;
+    }
+
     return eventProps.session_mode === "calm_mind" || eventProps.session_mode === "release_accept";
   }
 
