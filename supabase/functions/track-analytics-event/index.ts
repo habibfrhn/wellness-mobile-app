@@ -303,14 +303,16 @@ Deno.serve(async (req: Request) => {
     payloadEvents.length
   );
 
-  if (rateLimitError || typeof incrementedCount !== "number") {
-    console.error("track-analytics-event: rate limit increment failed", rateLimitError);
-    return error(500, "Failed to process rate limit", "RATE_LIMIT_FAILED", requestCorsHeaders);
+  const hasRateLimitCounter = !rateLimitError && typeof incrementedCount === "number";
+  if (!hasRateLimitCounter) {
+    console.error("track-analytics-event: rate limit increment unavailable, continuing without enforcement", rateLimitError);
   }
 
-  const maxPerMinute = userId ? MAX_REQUESTS_PER_MINUTE_AUTH : MAX_REQUESTS_PER_MINUTE_ANON;
-  if (incrementedCount > maxPerMinute) {
-    return error(429, "Too many requests", "RATE_LIMITED", requestCorsHeaders);
+  if (hasRateLimitCounter) {
+    const maxPerMinute = userId ? MAX_REQUESTS_PER_MINUTE_AUTH : MAX_REQUESTS_PER_MINUTE_ANON;
+    if ((incrementedCount as number) > maxPerMinute) {
+      return error(429, "Too many requests", "RATE_LIMITED", requestCorsHeaders);
+    }
   }
 
   const rows = payloadEvents.map((eventPayload) => ({

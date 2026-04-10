@@ -130,11 +130,13 @@ if (Platform.OS === "web") {
   if (!guardedConsole.__wellnessKnownWarningGuard) {
     const originalWarn = console.warn;
     console.warn = (...args: unknown[]) => {
-      const [firstArg] = args;
+      const merged = args
+        .map((arg) => (typeof arg === "string" ? arg : ""))
+        .join(" ");
+
       if (
-        typeof firstArg === "string" &&
-        (firstArg.includes("Cannot record touch end without a touch start.") ||
-          firstArg.includes("Node cannot be found in the current page."))
+        merged.includes("Cannot record touch end without a touch start.") ||
+        merged.includes("Node cannot be found in the current page.")
       ) {
         return;
       }
