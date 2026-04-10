@@ -20,8 +20,7 @@ let analyticsFlushTimer: ReturnType<typeof setInterval> | null = null;
 let analyticsListenersBound = false;
 let flushInFlight = false;
 let pendingQueue: TrackAnalyticsEventPayload[] = [];
-let analyticsRetryBlockedUntil = 0;
-let lastServerFailureWarningAt = 0;
+let analyticsIngestDisabledForSession = false;
 
 const MAX_EVENT_PROPS_BYTES = 2048;
 const MAX_STRING_PROP_LENGTH = 120;
@@ -31,7 +30,6 @@ const MAX_EVENTS_PER_FLUSH = 25;
 const MAX_QUEUE_SIZE = 100;
 const FLUSH_INTERVAL_MS = 10_000;
 const USER_JWT_HEADER = "x-user-jwt";
-const SERVER_FAILURE_RETRY_COOLDOWN_MS = 60_000;
 
 function logAnalyticsWarning(message: string, ...context: unknown[]) {
   if (__DEV__) {
@@ -250,6 +248,10 @@ function bindAnalyticsListeners() {
 }
 
 function ensureFlushLoop() {
+  if (analyticsIngestDisabledForSession) {
+    return;
+  }
+
   if (analyticsFlushTimer) {
     return;
   }
@@ -260,11 +262,7 @@ function ensureFlushLoop() {
 }
 
 async function flushAnalyticsQueue() {
-  if (flushInFlight || pendingQueue.length === 0) {
-    return;
-  }
-
-  if (analyticsRetryBlockedUntil > Date.now()) {
+  if (analyticsIngestDisabledForSession || flushInFlight || pendingQueue.length === 0) {
     return;
   }
 
@@ -295,12 +293,13 @@ async function flushAnalyticsQueue() {
       }
 
       if (requestError.code === "RATE_LIMIT_FAILED" || (requestError.status ?? 0) >= 500) {
-        analyticsRetryBlockedUntil = Date.now() + SERVER_FAILURE_RETRY_COOLDOWN_MS;
-        const shouldWarnNow = Date.now() - lastServerFailureWarningAt >= SERVER_FAILURE_RETRY_COOLDOWN_MS;
-        if (shouldWarnNow) {
-          lastServerFailureWarningAt = Date.now();
-          logAnalyticsWarning("Analytics ingest temporarily unavailable; dropping current batch", requestError);
+        analyticsIngestDisabledForSession = true;
+        pendingQueue = [];
+        if (analyticsFlushTimer) {
+          clearInterval(analyticsFlushTimer);
+          analyticsFlushTimer = null;
         }
+        logAnalyticsWarning("Analytics ingest disabled for current session after server failure", requestError);
         continue;
       }
 
@@ -331,6 +330,10 @@ export function getAnalyticsSessionId() {
 }
 
 export async function trackEvent(eventName: AnalyticsEventName, properties: Record<string, unknown> = {}) {
+  if (analyticsIngestDisabledForSession) {
+    return;
+  }
+
   const sanitizedProps = sanitizeEventProps(eventName, properties);
   if (!sanitizedProps) {
     logAnalyticsWarning("Dropped analytics event due missing required props", eventName);
