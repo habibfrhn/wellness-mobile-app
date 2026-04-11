@@ -13,6 +13,12 @@ Or using workspace script:
 pnpm --filter mobile export:web
 ```
 
+## Auth reset-password setup
+
+Before release, complete reset-password operational setup and E2E validation in:
+
+- `apps/mobile/docs/RESET_PASSWORD_SETUP.md`
+
 ## Expected output
 Expo static export output directory:
 

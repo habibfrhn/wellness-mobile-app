@@ -23,6 +23,30 @@ export default function ResetPasswordScreen({ navigation }: Props) {
     return isValidPassword(password) && password === confirm && !busy;
   }, [password, confirm, busy]);
 
+  React.useEffect(() => {
+    let cancelled = false;
+
+    const validateRecoverySession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (cancelled || data.session?.user) {
+        return;
+      }
+
+      Alert.alert(id.reset.linkInvalidTitle, id.reset.linkInvalidBody, [
+        {
+          text: id.common.ok,
+          onPress: () => navigation.replace("ForgotPassword"),
+        },
+      ]);
+    };
+
+    void validateRecoverySession();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [navigation]);
+
   async function onSubmit() {
     if (!isValidPassword(password)) {
       if (password.length > PASSWORD_MAX_LENGTH) {
@@ -49,12 +73,32 @@ export default function ResetPasswordScreen({ navigation }: Props) {
           return;
         }
 
-        Alert.alert(id.common.errorTitle, id.common.genericAuthError);
+        const message = (error.message ?? "").toLowerCase();
+        if (message.includes("expired")) {
+          Alert.alert(id.reset.linkExpiredTitle, id.reset.linkExpiredBody, [
+            { text: id.common.ok, onPress: () => navigation.replace("ForgotPassword") },
+          ]);
+          return;
+        }
+
+        if (
+          message.includes("invalid") ||
+          message.includes("not found") ||
+          message.includes("session") ||
+          message.includes("jwt")
+        ) {
+          Alert.alert(id.reset.linkInvalidTitle, id.reset.linkInvalidBody, [
+            { text: id.common.ok, onPress: () => navigation.replace("ForgotPassword") },
+          ]);
+          return;
+        }
+
+        Alert.alert(id.common.errorTitle, id.common.genericAuthError, [{ text: id.common.ok }]);
         return;
       }
 
       await supabase.auth.signOut();
-      navigation.replace("Login");
+      Alert.alert(id.reset.successTitle, id.reset.successBody, [{ text: id.common.ok, onPress: () => navigation.replace("Login") }]);
     } finally {
       setBusy(false);
     }

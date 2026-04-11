@@ -3,9 +3,14 @@ import { supabase } from "./supabase";
 
 type AuthLinkType = "signup" | "recovery" | "magiclink" | "email_change" | "unknown";
 
+function normalizeAuthPath(path: string | null | undefined) {
+  const cleanPath = (path ?? "").replace(/^\/+/, "").toLowerCase();
+  return cleanPath.startsWith("--/") ? cleanPath.slice(3) : cleanPath;
+}
+
 function resolveAuthPath(url: URL, parsedPath: string | null): "auth/callback" | "auth/reset" | null {
-  const cleanParsedPath = (parsedPath ?? "").replace(/^\/+/, "").toLowerCase();
-  const cleanUrlPath = url.pathname.replace(/^\/+/, "").toLowerCase();
+  const cleanParsedPath = normalizeAuthPath(parsedPath);
+  const cleanUrlPath = normalizeAuthPath(url.pathname);
   const flowParam = url.searchParams.get("auth_flow")?.toLowerCase();
 
   if (cleanParsedPath === "auth/callback" || cleanUrlPath === "auth/callback" || flowParam === "callback") {
@@ -34,7 +39,7 @@ export function isPotentialAuthLink(url: string) {
     return false;
   }
 
-  const pathname = parsedUrl.pathname.replace(/^\/+/, "").toLowerCase();
+  const pathname = normalizeAuthPath(parsedUrl.pathname);
   if (pathname === "auth/callback" || pathname === "auth/reset") {
     return true;
   }

@@ -137,7 +137,7 @@ export const id = {
     subtitle: "Kami akan mengirim tautan untuk mengatur ulang kata sandi lewat email.",
     emailLabel: "Email",
     emailPlaceholder: "anda@email.com",
-    send: "Kirim email reset",
+    send: "Kirim Email Reset",
     sending: "Mengirim...",
     backToLogin: "Kembali ke masuk",
     successTitle: "Jika email terdaftar, tautan terkirim",

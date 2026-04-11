@@ -4,6 +4,7 @@ const DEFAULT_LOCAL_WEB_ORIGIN = "http://localhost:8081";
 
 export const WEB_AUTH_CALLBACK_PATH = "/auth/callback";
 export const WEB_AUTH_RESET_PATH = "/auth/reset";
+const WEB_EXPO_ROUTE_PREFIX = "/--";
 
 function normalizeOrigin(origin: string) {
   return origin.endsWith("/") ? origin.slice(0, -1) : origin;
@@ -54,12 +55,15 @@ export function buildAuthRedirectPath(flow: "callback" | "reset") {
 
 export function getWebAuthPath(pathname?: string | null): "callback" | "reset" | null {
   const value = (pathname ?? "").replace(/\/+$/, "") || "/";
+  const normalizedPath = value.startsWith(WEB_EXPO_ROUTE_PREFIX)
+    ? value.slice(WEB_EXPO_ROUTE_PREFIX.length) || "/"
+    : value;
 
-  if (value === WEB_AUTH_CALLBACK_PATH) {
+  if (normalizedPath === WEB_AUTH_CALLBACK_PATH) {
     return "callback";
   }
 
-  if (value === WEB_AUTH_RESET_PATH) {
+  if (normalizedPath === WEB_AUTH_RESET_PATH) {
     return "reset";
   }
 
