@@ -41,6 +41,17 @@ pnpm --filter mobile start --web
 
 Open the shown local URL (usually `http://localhost:8081`).
 
+## 3.1) Do we need Supabase CLI deploy/push for this reset-password fix?
+
+For this specific reset-password hardening change, **no database migration or edge-function deploy is required**.
+
+- No `supabase db push` needed.
+- No `supabase functions deploy` needed.
+
+Manual requirements are Auth dashboard URL configuration + correct app environment variables.
+
+You only need Supabase CLI deploy commands when backend SQL/functions change in future work.
+
 ## 4) End-to-end verification checklist
 
 Use a test user with email/password auth enabled:

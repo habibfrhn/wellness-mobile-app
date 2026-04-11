@@ -115,6 +115,8 @@ export default function ResetPasswordScreen({ navigation }: Props) {
               onChangeText={setPassword}
               autoCapitalize="none"
               autoCorrect={false}
+              autoComplete="new-password"
+              textContentType="newPassword"
               secureTextEntry={!showPassword}
               placeholder={id.reset.placeholderNew}
               placeholderTextColor={colors.mutedText}
@@ -137,6 +139,8 @@ export default function ResetPasswordScreen({ navigation }: Props) {
               onChangeText={setConfirm}
               autoCapitalize="none"
               autoCorrect={false}
+              autoComplete="new-password"
+              textContentType="newPassword"
               secureTextEntry={!showConfirm}
               placeholder={id.reset.placeholderConfirm}
               placeholderTextColor={colors.mutedText}

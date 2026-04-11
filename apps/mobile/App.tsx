@@ -118,6 +118,7 @@ function setWebResetFlowActive(active: boolean) {
 const WEB_KNOWN_RESPONDER_WARNINGS = [
   "Cannot record touch end without a touch start.",
   "Node cannot be found in the current page.",
+  "props.pointerEvents is deprecated. Use style.pointerEvents",
 ] as const;
 
 function shouldSuppressKnownWebResponderWarning(args: unknown[]) {
