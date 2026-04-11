@@ -17,6 +17,19 @@ function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim().toLowerCase());
 }
 
+function isOperationalResetError(message: string | null | undefined) {
+  const normalized = (message ?? "").toLowerCase();
+  return (
+    normalized.includes("redirect") ||
+    normalized.includes("smtp") ||
+    normalized.includes("email provider") ||
+    normalized.includes("invalid") ||
+    normalized.includes("network") ||
+    normalized.includes("fetch") ||
+    normalized.includes("timeout")
+  );
+}
+
 export default function ForgotPasswordScreen({ navigation, route }: Props) {
   const [email, setEmail] = useState(route.params?.initialEmail ?? "");
   const [busy, setBusy] = useState(false);
@@ -54,6 +67,11 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
         if (isRateLimitedError(error.message)) {
           Alert.alert(id.common.errorTitle, id.common.authRateLimited);
           setCooldownSeconds(60);
+          return;
+        }
+
+        if (isOperationalResetError(error.message)) {
+          Alert.alert(id.forgot.failedTitle, id.forgot.failedBody);
           return;
         }
 
@@ -102,7 +120,9 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
               pressed && canSubmit && styles.primaryButtonPressed,
             ]}
           >
-            <Text style={authSharedStyles.primaryButtonText}>{busy ? id.forgot.sending : id.forgot.send}</Text>
+            <Text style={authSharedStyles.primaryButtonText}>
+              {busy ? id.forgot.sending : cooldownSeconds > 0 ? `${id.forgot.cooldown} ${cooldownSeconds}s` : id.forgot.send}
+            </Text>
           </Pressable>
 
           <Pressable

@@ -137,11 +137,14 @@ export const id = {
     subtitle: "Kami akan mengirim tautan untuk mengatur ulang kata sandi lewat email.",
     emailLabel: "Email",
     emailPlaceholder: "anda@email.com",
-    send: "Kirim Email Reset",
+    send: "Kirim email reset password link",
     sending: "Mengirim...",
+    cooldown: "Coba lagi dalam",
     backToLogin: "Kembali ke masuk",
     successTitle: "Jika email terdaftar, tautan terkirim",
     successBody: "Jika email tersebut terdaftar, kami mengirim tautan reset kata sandi.",
+    failedTitle: "Gagal mengirim tautan reset",
+    failedBody: "Pengiriman tautan reset gagal. Periksa konfigurasi auth redirect URL dan coba lagi.",
   },
 
   reset: {
