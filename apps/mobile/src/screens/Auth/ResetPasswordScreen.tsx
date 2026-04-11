@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, Pressable, StyleSheet, Alert, Platform } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AuthStackParamList } from "../../navigation/types";
@@ -25,6 +25,8 @@ export default function ResetPasswordScreen({ navigation }: Props) {
   const isDesktopWeb = getWebViewport(viewportWidth) === "desktop";
   const hasPasswordMismatch = confirm.length > 0 && password !== confirm;
   const showPasswordMismatchError = hasPasswordMismatch && didAttemptSubmit;
+  const newPasswordWebInputProps = Platform.OS === "web" ? ({ id: "reset-password-new", name: "new-password" } as const) : {};
+  const confirmPasswordWebInputProps = Platform.OS === "web" ? ({ id: "reset-password-confirm", name: "confirm-password" } as const) : {};
 
   React.useEffect(() => {
     let cancelled = false;
@@ -126,11 +128,11 @@ export default function ResetPasswordScreen({ navigation }: Props) {
               autoCapitalize="none"
               autoCorrect={false}
               autoComplete="new-password"
-              textContentType="newPassword"
               secureTextEntry={!showPassword}
               placeholder={id.reset.placeholderNew}
               placeholderTextColor={colors.mutedText}
               style={authSharedStyles.input}
+              {...(newPasswordWebInputProps as any)}
             />
             <PasswordToggle
               visible={showPassword}
@@ -150,11 +152,11 @@ export default function ResetPasswordScreen({ navigation }: Props) {
               autoCapitalize="none"
               autoCorrect={false}
               autoComplete="new-password"
-              textContentType="newPassword"
               secureTextEntry={!showConfirm}
               placeholder={id.reset.placeholderConfirm}
               placeholderTextColor={colors.mutedText}
               style={authSharedStyles.input}
+              {...(confirmPasswordWebInputProps as any)}
             />
             <PasswordToggle
               visible={showConfirm}

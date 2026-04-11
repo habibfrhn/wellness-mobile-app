@@ -38,6 +38,7 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
   const isDesktopWeb = getWebViewport(viewportWidth) === "desktop";
 
   const canSubmit = useMemo(() => isValidEmail(email) && !busy && cooldownSeconds === 0, [email, busy, cooldownSeconds]);
+  const emailWebInputProps = Platform.OS === "web" ? ({ id: "forgot-password-email", name: "email" } as const) : {};
 
   useEffect(() => {
     if (cooldownSeconds <= 0) {
@@ -102,10 +103,10 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
             autoCorrect={false}
             keyboardType="email-address"
             autoComplete="email"
-            textContentType="emailAddress"
             placeholder={id.forgot.emailPlaceholder}
             placeholderTextColor={colors.mutedText}
             style={authSharedStyles.input}
+            {...(emailWebInputProps as any)}
           />
         </View>
 
