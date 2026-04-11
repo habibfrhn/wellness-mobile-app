@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -8,7 +8,9 @@ import { id } from "../../i18n/strings";
 import { supabase } from "../../services/supabase";
 import PasswordToggle from "../../components/PasswordToggle";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
-import { PASSWORD_MAX_LENGTH, isRateLimitedError, isValidPassword } from "../../services/authSecurity";
+import { getWebViewport } from "../../constants/webLayout";
+import useViewportWidth from "../../hooks/useViewportWidth";
+import { PASSWORD_MAX_LENGTH, getResetLinkErrorType, isRateLimitedError, isValidPassword } from "../../services/authSecurity";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "ResetPassword">;
 
@@ -18,10 +20,11 @@ export default function ResetPasswordScreen({ navigation }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
-
-  const canSubmit = useMemo(() => {
-    return isValidPassword(password) && password === confirm && !busy;
-  }, [password, confirm, busy]);
+  const [didAttemptSubmit, setDidAttemptSubmit] = useState(false);
+  const viewportWidth = useViewportWidth();
+  const isDesktopWeb = getWebViewport(viewportWidth) === "desktop";
+  const hasPasswordMismatch = confirm.length > 0 && password !== confirm;
+  const showPasswordMismatchError = hasPasswordMismatch && didAttemptSubmit;
 
   React.useEffect(() => {
     let cancelled = false;
@@ -48,6 +51,12 @@ export default function ResetPasswordScreen({ navigation }: Props) {
   }, [navigation]);
 
   async function onSubmit() {
+    if (busy) {
+      return;
+    }
+
+    setDidAttemptSubmit(true);
+
     if (!isValidPassword(password)) {
       if (password.length > PASSWORD_MAX_LENGTH) {
         Alert.alert(id.common.weakPassword, id.common.weakPasswordLongBody);
@@ -58,8 +67,7 @@ export default function ResetPasswordScreen({ navigation }: Props) {
       return;
     }
 
-    if (password !== confirm) {
-      Alert.alert(id.common.passwordsNotMatch, id.common.passwordsNotMatchBody);
+    if (hasPasswordMismatch) {
       return;
     }
 
@@ -73,20 +81,22 @@ export default function ResetPasswordScreen({ navigation }: Props) {
           return;
         }
 
-        const message = (error.message ?? "").toLowerCase();
-        if (message.includes("expired")) {
+        const resetLinkError = getResetLinkErrorType(error.message);
+        if (resetLinkError === "expired") {
           Alert.alert(id.reset.linkExpiredTitle, id.reset.linkExpiredBody, [
             { text: id.common.ok, onPress: () => navigation.replace("ForgotPassword") },
           ]);
           return;
         }
 
-        if (
-          message.includes("invalid") ||
-          message.includes("not found") ||
-          message.includes("session") ||
-          message.includes("jwt")
-        ) {
+        if (resetLinkError === "used") {
+          Alert.alert(id.reset.linkUsedTitle, id.reset.linkUsedBody, [
+            { text: id.common.ok, onPress: () => navigation.replace("ForgotPassword") },
+          ]);
+          return;
+        }
+
+        if (resetLinkError === "invalid") {
           Alert.alert(id.reset.linkInvalidTitle, id.reset.linkInvalidBody, [
             { text: id.common.ok, onPress: () => navigation.replace("ForgotPassword") },
           ]);
@@ -153,16 +163,18 @@ export default function ResetPasswordScreen({ navigation }: Props) {
               style={styles.toggle}
             />
           </View>
+          {showPasswordMismatchError ? <Text style={styles.validationErrorText}>{id.reset.passwordsNotMatchInline}</Text> : null}
         </View>
 
         <View style={authSharedStyles.actionsStack}>
           <Pressable
             onPress={onSubmit}
-            disabled={!canSubmit}
-            style={({ pressed }) => [
+            disabled={busy}
+            style={({ hovered, pressed }: any) => [
               authSharedStyles.primaryButton,
-              (!canSubmit || busy) && authSharedStyles.disabled,
-              pressed && canSubmit && authSharedStyles.pressed,
+              busy && authSharedStyles.disabled,
+              hovered && isDesktopWeb && !busy && styles.primaryButtonHover,
+              pressed && !busy && styles.primaryButtonPressed,
             ]}
           >
             <Text style={authSharedStyles.primaryButtonText}>{busy ? id.reset.saving : id.reset.set}</Text>
@@ -170,9 +182,14 @@ export default function ResetPasswordScreen({ navigation }: Props) {
 
           <Pressable
             onPress={() => navigation.replace("Login")}
-            style={({ pressed }) => [authSharedStyles.secondaryButton, pressed && authSharedStyles.pressed]}
+            style={({ hovered, pressed }: any) => [
+              authSharedStyles.secondaryButton,
+              styles.outlineButton,
+              hovered && isDesktopWeb && styles.outlineButtonHover,
+              pressed && styles.outlineButtonPressed,
+            ]}
           >
-            <Text style={authSharedStyles.secondaryButtonText}>{id.reset.backToLogin}</Text>
+            <Text style={[authSharedStyles.secondaryButtonText, styles.outlineButtonText]}>{id.reset.backToLogin}</Text>
           </Pressable>
         </View>
       </View>
@@ -187,5 +204,33 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     justifyContent: "center",
+  },
+  validationErrorText: {
+    marginTop: spacing.xs,
+    color: colors.danger,
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  primaryButtonHover: {
+    backgroundColor: colors.primaryHover,
+  },
+  primaryButtonPressed: {
+    backgroundColor: colors.primaryPressed,
+  },
+  outlineButton: {
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.text,
+  },
+  outlineButtonHover: {
+    backgroundColor: colors.secondaryHover,
+    borderColor: colors.text,
+  },
+  outlineButtonPressed: {
+    backgroundColor: colors.secondaryPressed,
+    borderColor: colors.text,
+  },
+  outlineButtonText: {
+    color: colors.text,
   },
 });

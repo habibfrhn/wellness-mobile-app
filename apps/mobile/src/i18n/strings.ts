@@ -151,6 +151,7 @@ export const id = {
     confirmPassword: "Ulangi kata sandi",
     placeholderNew: "8–64 karakter",
     placeholderConfirm: "Ulangi kata sandi baru",
+    passwordsNotMatchInline: "Kata sandi tidak cocok.",
     set: "Simpan kata sandi baru",
     saving: "Menyimpan...",
     backToLogin: "Kembali ke masuk",
