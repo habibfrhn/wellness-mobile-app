@@ -25,8 +25,14 @@ export default function ResetPasswordScreen({ navigation }: Props) {
   const isDesktopWeb = getWebViewport(viewportWidth) === "desktop";
   const hasPasswordMismatch = confirm.length > 0 && password !== confirm;
   const showPasswordMismatchError = hasPasswordMismatch && didAttemptSubmit;
-  const newPasswordWebInputProps = Platform.OS === "web" ? ({ id: "reset-password-new", name: "new-password" } as const) : {};
-  const confirmPasswordWebInputProps = Platform.OS === "web" ? ({ id: "reset-password-confirm", name: "confirm-password" } as const) : {};
+  const newPasswordWebInputProps =
+    Platform.OS === "web"
+      ? ({ id: "reset-password-new", name: "new-password", nativeID: "reset-password-new" } as const)
+      : {};
+  const confirmPasswordWebInputProps =
+    Platform.OS === "web"
+      ? ({ id: "reset-password-confirm", name: "confirm-password", nativeID: "reset-password-confirm" } as const)
+      : {};
 
   React.useEffect(() => {
     let cancelled = false;
