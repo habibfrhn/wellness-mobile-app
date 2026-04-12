@@ -34,6 +34,7 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
   const [email, setEmail] = useState(route.params?.initialEmail ?? "");
   const [busy, setBusy] = useState(false);
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
+  const [rateLimitHelperText, setRateLimitHelperText] = useState<string | null>(null);
   const viewportWidth = useViewportWidth();
   const isDesktopWeb = getWebViewport(viewportWidth) === "desktop";
 
@@ -60,6 +61,7 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
     }
 
     setBusy(true);
+    setRateLimitHelperText(null);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(e, {
         redirectTo: AUTH_RESET,
@@ -67,8 +69,8 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
 
       if (error) {
         if (isRateLimitedError(error.message)) {
-          Alert.alert(id.common.errorTitle, id.common.authRateLimited);
           setCooldownSeconds(60);
+          setRateLimitHelperText(id.forgot.resendHelperRateLimited);
           return;
         }
 
@@ -126,6 +128,7 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
               {busy ? id.forgot.sending : cooldownSeconds > 0 ? `${id.forgot.cooldown} ${cooldownSeconds}s` : id.forgot.send}
             </Text>
           </Pressable>
+          {rateLimitHelperText ? <Text style={styles.rateLimitHelperText}>{rateLimitHelperText}</Text> : null}
 
           <Pressable
             onPress={() => navigation.replace("Login", { initialEmail: email.trim() })}
@@ -167,5 +170,10 @@ const styles = StyleSheet.create({
   },
   outlineButtonText: {
     color: colors.text,
+  },
+  rateLimitHelperText: {
+    color: colors.danger,
+    fontSize: 13,
+    fontWeight: "600",
   },
 });

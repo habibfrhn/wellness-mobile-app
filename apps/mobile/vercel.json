@@ -38,6 +38,24 @@
       ]
     },
     {
+      "source": "/auth/(callback|reset)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "private, no-store, max-age=0"
+        }
+      ]
+    },
+    {
+      "source": "/--/auth/(callback|reset)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "private, no-store, max-age=0"
+        }
+      ]
+    },
+    {
       "source": "/(.*\\.(m4a|mp3|aac|wav|ogg))",
       "headers": [
         {

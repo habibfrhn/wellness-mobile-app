@@ -55,6 +55,7 @@ For safe SPA updates + low bandwidth usage:
 - Keep HTML/app shell and SPA document routes conservative (`max-age=0, must-revalidate`) so new deploys are picked up quickly.
 - Cache fingerprinted Expo build assets under `/assets/*` and `/_expo/static/*` with long-lived immutable caching.
 - Keep `/api/*` responses uncacheable (`private, no-store`) to avoid stale or user-specific data leaks.
+- Keep `/auth/callback` and `/auth/reset` routes uncacheable (`private, no-store`) so token-bearing auth redirects are never cached.
 
 `apps/mobile/vercel.json` should include:
 
@@ -87,6 +88,8 @@ For safe SPA updates + low bandwidth usage:
 - **HTML/app shell + SPA documents** (`/`, `/index.html`, extensionless routes):
   - strategy: `max-age=0, must-revalidate`.
 - **`/api/*` responses**:
+  - strategy: `private, no-store, max-age=0`.
+- **Auth callback/reset document routes** (`/auth/callback`, `/auth/reset`, including Expo web prefix variants):
   - strategy: `private, no-store, max-age=0`.
 - **Admin analytics / user progress API payloads / auth responses**:
   - no app-level query cache configured; data is fetched directly from Supabase RPC/functions.

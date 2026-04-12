@@ -17,11 +17,25 @@ type Props = NativeStackScreenProps<AuthStackParamList, "VerifyEmail">;
 export default function VerifyEmailScreen({ route, navigation }: Props) {
   const email = route.params.email;
   const [busy, setBusy] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+  const [resendHelperText, setResendHelperText] = useState<string | null>(null);
   const hasAutoSentRef = useRef(false);
   const viewportWidth = useViewportWidth();
   const isDesktopWeb = Platform.OS === "web" && getWebViewport(viewportWidth) === "desktop";
 
-  const canResend = useMemo(() => !busy, [busy]);
+  const canResend = useMemo(() => !busy && cooldownSeconds === 0, [busy, cooldownSeconds]);
+
+  useEffect(() => {
+    if (cooldownSeconds <= 0) {
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      setCooldownSeconds((prev) => Math.max(0, prev - 1));
+    }, 1000);
+
+    return () => clearTimeout(timeout);
+  }, [cooldownSeconds]);
 
   async function openEmailInbox() {
     try {
@@ -50,18 +64,21 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
   }
 
   const attemptResend = useCallback(async (trigger: "auto" | "manual") => {
+    setResendHelperText(null);
     setBusy(true);
     try {
       const result = await resendVerificationEmail(email);
 
       if (!result.ok) {
         if (result.code === "RATE_LIMITED") {
-          Alert.alert(id.common.errorTitle, id.verify.resendRateLimited);
+          setCooldownSeconds(Math.max(1, result.retryAfterSec));
+          setResendHelperText(id.verify.resendHelperRateLimited);
           return;
         }
 
         if (result.code === "LINK_STILL_VALID") {
-          Alert.alert(id.verify.linkStillValidTitle, id.verify.linkStillValidBody);
+          setCooldownSeconds(Math.max(1, result.retryAfterSec));
+          setResendHelperText(id.verify.resendHelperLinkStillValid);
           return;
         }
 
@@ -70,7 +87,11 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
         return;
       }
 
-      Alert.alert(id.verify.resendSuccessTitle, id.verify.resendSuccessBody);
+      setCooldownSeconds(Math.max(1, result.cooldownSec));
+      setResendHelperText(id.verify.resendHelperInboxSpam);
+      if (trigger === "manual") {
+        Alert.alert(id.verify.resendSuccessTitle, id.verify.resendSuccessBody);
+      }
     } finally {
       setBusy(false);
     }
@@ -134,9 +155,14 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
             ]}
           >
             <Text style={[authSharedStyles.secondaryButtonText, styles.outlineButtonText]}>
-              {busy ? id.verify.resendBusy : id.verify.resend}
+              {busy
+                ? id.verify.resendBusy
+                : cooldownSeconds > 0
+                  ? `${id.verify.resendWait} ${cooldownSeconds}s`
+                  : id.verify.resend}
             </Text>
           </Pressable>
+          {resendHelperText ? <Text style={styles.resendHelperText}>{resendHelperText}</Text> : null}
           <Pressable
             onPress={() => navigation.replace("Login", { initialEmail: email })}
             style={({ hovered, pressed }: any) => [
@@ -178,5 +204,10 @@ const styles = StyleSheet.create({
   },
   outlineButtonHover: {
     backgroundColor: colors.secondaryHover,
+  },
+  resendHelperText: {
+    fontSize: typography.caption,
+    color: colors.danger,
+    lineHeight: lineHeights.normal,
   },
 });

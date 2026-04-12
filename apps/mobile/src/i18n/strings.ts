@@ -125,6 +125,9 @@ export const id = {
     resendRateLimited: "Terlalu banyak percobaan. Tunggu 60 detik lalu coba lagi.",
     resendSuccessTitle: "Tautan terkirim",
     resendSuccessBody: "Kami sudah mengirim ulang tautan verifikasi ke email Anda.",
+    resendHelperInboxSpam: "Cek inbox atau folder Spam/Promosi untuk tautan terbaru.",
+    resendHelperRateLimited: "Belum bisa kirim ulang. Cek inbox/spam dulu, lalu coba lagi setelah jeda selesai.",
+    resendHelperLinkStillValid: "Tautan sebelumnya masih valid. Cek inbox/spam dan gunakan tautan yang sudah dikirim.",
     changeEmail: "Ganti email",
     backToLogin: "Kembali ke masuk",
     help: "Jika tidak masuk, cek folder Spam/Promosi dan tunggu 1–2 menit.",
@@ -145,6 +148,7 @@ export const id = {
     successBody: "Jika email tersebut terdaftar, kami mengirim tautan reset kata sandi.",
     failedTitle: "Gagal mengirim tautan reset",
     failedBody: "Pengiriman tautan reset gagal. Periksa konfigurasi auth redirect URL dan coba lagi.",
+    resendHelperRateLimited: "Belum bisa kirim ulang sekarang. Cek inbox atau folder Spam/Promosi, lalu coba lagi setelah jeda selesai.",
   },
 
   reset: {

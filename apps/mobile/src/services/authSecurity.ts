@@ -53,18 +53,6 @@ export function isWeakPasswordError(message: string | null | undefined) {
 }
 
 export function getSafeAuthErrorMessage(message: string | null | undefined, fallback: string) {
-  if (!message) {
-    return fallback;
-  }
-
-  if (isRateLimitedError(message)) {
-    return fallback;
-  }
-
-  if (isNetworkLikeError(message)) {
-    return fallback;
-  }
-
   return fallback;
 }
 
