@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-native";
+import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { View, Text, TextInput, Pressable, StyleSheet, Alert, Platform } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { AppStackParamList } from "../../navigation/types";
@@ -10,6 +10,8 @@ import { signOutToLogin } from "../../services/authSession";
 import { supabase } from "../../services/supabase";
 import { PASSWORD_MAX_LENGTH, isValidPassword } from "../../services/authSecurity";
 import PasswordToggle from "../../components/PasswordToggle";
+import useViewportWidth from "../../hooks/useViewportWidth";
+import { getWebViewport } from "../../constants/webLayout";
 
 type Props = NativeStackScreenProps<AppStackParamList, "ResetPassword">;
 
@@ -22,6 +24,20 @@ export default function ResetPasswordScreen({ navigation }: Props) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
   const [passwordManagementReady, setPasswordManagementReady] = useState(false);
+  const [validationFeedback, setValidationFeedback] = useState<string | null>(null);
+  const viewportWidth = useViewportWidth();
+  const isDesktopWeb = Platform.OS === "web" && getWebViewport(viewportWidth) === "desktop";
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: "",
+      headerTitle: "",
+      headerStyle: {
+        backgroundColor: colors.bg,
+      },
+      headerShadowVisible: false,
+    });
+  }, [navigation]);
 
   useEffect(() => {
     let mounted = true;
@@ -50,45 +66,60 @@ export default function ResetPasswordScreen({ navigation }: Props) {
     };
   }, [navigation]);
 
-  const canSubmit = useMemo(() => {
-    return (
-      passwordManagementReady &&
-      currentPassword.trim().length > 0 &&
-      isValidPassword(password) &&
-      password === confirm &&
-      !busy
-    );
-  }, [passwordManagementReady, currentPassword, password, confirm, busy]);
+  const validationMessage = useMemo(() => {
+    if (!passwordManagementReady) {
+      return null;
+    }
+
+    if (!currentPassword.trim()) {
+      return id.account.resetCurrentMissing;
+    }
+
+    if (!password) {
+      return id.account.resetNewMissing;
+    }
+
+    if (!confirm) {
+      return id.account.resetConfirmMissing;
+    }
+
+    if (!isValidPassword(password)) {
+      return password.length > PASSWORD_MAX_LENGTH ? id.common.weakPasswordLongBody : id.common.weakPasswordBody;
+    }
+
+    if (password !== confirm) {
+      return id.common.passwordsNotMatchBody;
+    }
+
+    return null;
+  }, [passwordManagementReady, currentPassword, password, confirm]);
+
+  useEffect(() => {
+    setValidationFeedback(validationMessage);
+  }, [validationMessage]);
 
   async function onSubmit() {
-    if (!currentPassword.trim()) {
-      Alert.alert(id.common.errorTitle, id.account.resetCurrentMissing);
+    if (busy) {
       return;
     }
-    if (!isValidPassword(password)) {
-      if (password.length > PASSWORD_MAX_LENGTH) {
-        Alert.alert(id.common.weakPassword, id.common.weakPasswordLongBody);
-        return;
-      }
-      Alert.alert(id.common.weakPassword, id.common.weakPasswordBody);
-      return;
-    }
-    if (password !== confirm) {
-      Alert.alert(id.common.passwordsNotMatch, id.common.passwordsNotMatchBody);
+
+    if (validationMessage) {
+      setValidationFeedback(validationMessage);
       return;
     }
 
     setBusy(true);
+    setValidationFeedback(null);
     try {
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError) {
-        Alert.alert(id.common.errorTitle, userError.message);
+        setValidationFeedback(id.common.tryAgain);
         return;
       }
 
       const email = userData.user?.email;
       if (!email) {
-        Alert.alert(id.common.errorTitle, id.account.sessionMissing);
+        setValidationFeedback(id.account.sessionMissing);
         return;
       }
 
@@ -98,13 +129,13 @@ export default function ResetPasswordScreen({ navigation }: Props) {
       });
 
       if (signInError) {
-        Alert.alert(id.common.errorTitle, signInError.message);
+        setValidationFeedback(id.account.resetCurrentInvalid);
         return;
       }
 
       const { error: updateError } = await supabase.auth.updateUser({ password });
       if (updateError) {
-        Alert.alert(id.common.errorTitle, updateError.message);
+        setValidationFeedback(id.common.tryAgain);
         return;
       }
 
@@ -120,10 +151,7 @@ export default function ResetPasswordScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{id.account.resetTitle}</Text>
-      <Text style={styles.subtitle}>{id.account.resetSubtitle}</Text>
-
-      <View style={{ marginTop: spacing.lg, gap: spacing.sm }}>
+      <View style={styles.formStack}>
         <View>
           <Text style={styles.label}>{id.account.currentPasswordLabel}</Text>
           <View style={styles.inputWrap}>
@@ -190,13 +218,14 @@ export default function ResetPasswordScreen({ navigation }: Props) {
           </View>
         </View>
 
+        {validationFeedback ? <Text style={styles.validationHelperText}>{validationFeedback}</Text> : null}
+
         <Pressable
           onPress={onSubmit}
-          disabled={!canSubmit}
-          style={({ pressed }) => [
+          style={({ hovered, pressed }: any) => [
             styles.primaryButton,
-            (!canSubmit || busy) && styles.disabled,
-            pressed && canSubmit && styles.pressed,
+            hovered && isDesktopWeb && !busy && styles.primaryButtonHover,
+            pressed && !busy && styles.primaryButtonPressed,
           ]}
         >
           <Text style={styles.primaryButtonText}>
@@ -206,7 +235,11 @@ export default function ResetPasswordScreen({ navigation }: Props) {
 
         <Pressable
           onPress={() => navigation.goBack()}
-          style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+          style={({ hovered, pressed }: any) => [
+            styles.secondaryButton,
+            hovered && isDesktopWeb && styles.secondaryButtonHover,
+            pressed && styles.secondaryButtonPressed,
+          ]}
         >
           <Text style={styles.secondaryButtonText}>{id.account.resetBack}</Text>
         </Pressable>
@@ -217,13 +250,7 @@ export default function ResetPasswordScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: spacing.lg, backgroundColor: colors.bg },
-  title: { fontSize: typography.h2, color: colors.text, fontWeight: "700" },
-  subtitle: {
-    marginTop: spacing.xs,
-    fontSize: typography.body,
-    color: colors.mutedText,
-    lineHeight: lineHeights.relaxed,
-  },
+  formStack: { marginTop: spacing.lg, gap: spacing.sm },
   label: { fontSize: typography.small, color: colors.text, fontWeight: "700", marginBottom: spacing.xs },
   inputWrap: { position: "relative" },
   input: {
@@ -244,24 +271,47 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     marginTop: spacing.sm,
+    minHeight: 52,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     borderRadius: radius.sm,
     backgroundColor: colors.primary,
+    justifyContent: "center",
+    alignItems: "center",
   },
+  primaryButtonHover: { backgroundColor: colors.primaryHover },
+  primaryButtonPressed: { backgroundColor: colors.primaryPressed },
   primaryButtonText: { color: colors.primaryText, fontSize: typography.body, fontWeight: "700", textAlign: "center" },
   secondaryButton: {
+    minHeight: 52,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     borderRadius: radius.sm,
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.text,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  secondaryButtonHover: {
+    backgroundColor: colors.secondaryHover,
+    borderColor: colors.text,
+  },
+  secondaryButtonPressed: {
+    backgroundColor: colors.secondaryPressed,
+    borderColor: colors.text,
   },
   secondaryButtonText: {
-    color: colors.secondaryText,
+    color: colors.text,
     fontSize: typography.body,
     fontWeight: "700",
     textAlign: "center",
   },
-  disabled: { opacity: 0.6 },
-  pressed: { opacity: 0.85 },
+  validationHelperText: {
+    marginTop: spacing.xs,
+    color: colors.danger,
+    fontSize: typography.caption,
+    lineHeight: lineHeights.normal,
+    fontWeight: "600",
+  },
 });
