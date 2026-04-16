@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, Linking, ScrollView, StyleSheet, TextInput } from "react-native";
+import { Alert, Linking, Platform, ScrollView, StyleSheet, TextInput } from "react-native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { id } from "../i18n/strings";
@@ -123,8 +123,38 @@ export default function SettingsContent({ navigation }: Props) {
     setInitialName(trimmedName);
   }
 
-  function openHelp() {
-    Alert.alert(id.account.helpTitle, `${id.account.helpNoAutoplay}\n\n${id.account.helpPlayback}`);
+  async function copySupportEmail() {
+    if (Platform.OS === "web" && typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(SUPPORT_EMAIL);
+        Alert.alert(id.account.supportCopySuccessTitle, id.account.supportCopySuccessBody);
+        return;
+      } catch {
+        // fallback below
+      }
+    }
+
+    if (Platform.OS === "web" && typeof document !== "undefined") {
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = SUPPORT_EMAIL;
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        const copied = document.execCommand("copy");
+        document.body.removeChild(textarea);
+        if (copied) {
+          Alert.alert(id.account.supportCopySuccessTitle, id.account.supportCopySuccessBody);
+          return;
+        }
+      } catch {
+        // fallback below
+      }
+    }
+
+    Alert.alert(id.account.supportCopyFallbackTitle, SUPPORT_EMAIL);
   }
 
   const navigateFromSettings = (route: "ResetPassword" | "PrivacyPolicy" | "TermsConditions") => {
@@ -163,15 +193,9 @@ export default function SettingsContent({ navigation }: Props) {
       </SettingsSection>
 
       <SettingsSection title={id.account.supportSectionTitle}>
-        <SettingsRow label={id.account.helpTitle} onPress={openHelp} showChevron />
-        <SettingsRow
-          label={id.account.support}
-          value={SUPPORT_EMAIL}
-          onPress={() => {
-            void safeOpenUrl(`mailto:${SUPPORT_EMAIL}`);
-          }}
-          showDivider={false}
-        />
+        <SettingsRow label={id.account.support} value={SUPPORT_EMAIL} />
+        <SettingsRow label={id.account.supportSendEmail} onPress={() => void safeOpenUrl(`mailto:${SUPPORT_EMAIL}`)} />
+        <SettingsRow label={id.account.supportCopyEmail} onPress={() => void copySupportEmail()} showDivider={false} />
       </SettingsSection>
 
       <SettingsSection title={id.account.aboutSectionTitle}>
