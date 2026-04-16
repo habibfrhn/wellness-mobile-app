@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, Clipboard, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Clipboard, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
@@ -49,24 +49,6 @@ function readAppVersionFromAppJson(): string {
   }
 }
 
-async function safeOpenUrl(url: string) {
-  try {
-    if (typeof window !== "undefined") {
-      await Linking.openURL(url);
-      return;
-    }
-
-    const can = await Linking.canOpenURL(url);
-    if (!can) {
-      Alert.alert(id.common.errorTitle, id.account.openLinkFailed);
-      return;
-    }
-    await Linking.openURL(url);
-  } catch {
-    Alert.alert(id.common.errorTitle, id.account.openLinkFailed);
-  }
-}
-
 type Props = {
   navigation: NativeStackNavigationProp<AppStackParamList, "Settings">;
 };
@@ -76,6 +58,7 @@ export default function SettingsContent({ navigation }: Props) {
   const [nameValue, setNameValue] = useState("");
   const [initialName, setInitialName] = useState("");
   const [showResetPassword, setShowResetPassword] = useState(false);
+  const [showCopiedFeedback, setShowCopiedFeedback] = useState(false);
 
   const appVersion = useMemo(() => readAppVersionFromAppJson(), []);
 
@@ -127,11 +110,23 @@ export default function SettingsContent({ navigation }: Props) {
   function copySupportEmail() {
     try {
       Clipboard.setString(SUPPORT_EMAIL);
-      Alert.alert(id.account.supportCopySuccessTitle, id.account.supportCopySuccessBody);
+      setShowCopiedFeedback(true);
     } catch {
       Alert.alert(id.account.supportCopyFallbackTitle, SUPPORT_EMAIL);
     }
   }
+
+  useEffect(() => {
+    if (!showCopiedFeedback) {
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      setShowCopiedFeedback(false);
+    }, 1200);
+
+    return () => clearTimeout(timeout);
+  }, [showCopiedFeedback]);
 
   const navigateFromSettings = (route: "ResetPassword" | "PrivacyPolicy" | "TermsConditions") => {
     runAfterTouchCommit(() => {
@@ -174,23 +169,21 @@ export default function SettingsContent({ navigation }: Props) {
           showDivider={false}
           rightNode={
             <View style={styles.supportActions}>
-              <Pressable
-                onPress={() => void safeOpenUrl(`mailto:${SUPPORT_EMAIL}`)}
-                style={({ pressed }) => [styles.supportEmailAction, pressed && styles.pressedSupportAction]}
-                accessibilityRole="button"
-                accessibilityLabel={id.account.supportSendEmail}
-              >
-                <Text style={styles.supportEmailText}>{SUPPORT_EMAIL}</Text>
-              </Pressable>
+              <Text selectable style={styles.supportEmailText}>{SUPPORT_EMAIL}</Text>
               <Pressable
                 onPress={copySupportEmail}
-                style={({ pressed }) => [styles.copyAction, pressed && styles.pressedSupportAction]}
+                style={({ pressed }) => [styles.copyAction, pressed && styles.copyActionPressed]}
                 hitSlop={8}
                 accessibilityRole="button"
                 accessibilityLabel={id.account.supportCopyEmail}
               >
                 <MaterialCommunityIcons name="content-copy" size={18} color={colors.text} />
               </Pressable>
+              {showCopiedFeedback ? (
+                <View style={styles.copiedBubble}>
+                  <Text style={styles.copiedBubbleText}>Copied</Text>
+                </View>
+              ) : null}
             </View>
           }
         />
@@ -239,11 +232,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.xs,
   },
-  supportEmailAction: {
-    paddingVertical: spacing.xs / 2,
-    paddingHorizontal: spacing.xs,
-    borderRadius: radius.xs,
-  },
   supportEmailText: {
     fontSize: typography.small,
     color: colors.mutedText,
@@ -256,7 +244,21 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: radius.xs,
   },
-  pressedSupportAction: {
-    opacity: 0.72,
+  copyActionPressed: {
+    backgroundColor: colors.bg,
+  },
+  copiedBubble: {
+    position: "absolute",
+    right: 0,
+    top: -28,
+    backgroundColor: colors.text,
+    borderRadius: radius.xs,
+    paddingHorizontal: spacing.xs,
+    paddingVertical: 4,
+  },
+  copiedBubbleText: {
+    fontSize: typography.caption,
+    color: colors.white,
+    fontWeight: "600",
   },
 });
