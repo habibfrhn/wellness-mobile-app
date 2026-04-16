@@ -5,7 +5,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../../navigation/types";
 import { colors } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
-import { supabase, AUTH_RESET } from "../../services/supabase";
+import { supabase, AUTH_RESET, hasValidAuthRedirects } from "../../services/supabase";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
 import { isRateLimitedError } from "../../services/authSecurity";
 import { getWebViewport } from "../../constants/webLayout";
@@ -63,6 +63,11 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
     setBusy(true);
     setRateLimitHelperText(null);
     try {
+      if (!hasValidAuthRedirects) {
+        Alert.alert(id.forgot.failedTitle, id.forgot.failedBody);
+        return;
+      }
+
       const { error } = await supabase.auth.resetPasswordForEmail(e, {
         redirectTo: AUTH_RESET,
       });

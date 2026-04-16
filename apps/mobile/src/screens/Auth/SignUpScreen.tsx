@@ -9,7 +9,7 @@ import { colors, radius, spacing, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import GoogleAuthButton from "../../components/auth/GoogleAuthButton";
 import { clearPendingProfileName, setPendingProfileName } from "../../services/pendingProfileName";
-import { supabase, AUTH_CALLBACK } from "../../services/supabase";
+import { supabase, AUTH_CALLBACK, hasValidAuthRedirects } from "../../services/supabase";
 import { continueWithGoogle } from "../../services/authOAuth";
 import PasswordToggle from "../../components/PasswordToggle";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
@@ -157,6 +157,11 @@ export default function SignUpScreen({ navigation, route }: Props) {
 
     setBusy(true);
     try {
+      if (!hasValidAuthRedirects) {
+        setFormError(id.forgot.failedBody);
+        return;
+      }
+
       await clearPendingProfileName();
       const { data, error } = await supabase.auth.signUp({
         email: e,

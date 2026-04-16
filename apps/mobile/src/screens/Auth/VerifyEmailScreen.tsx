@@ -82,7 +82,12 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
           return;
         }
 
-        const errorMessage = result.code === "UNAVAILABLE" ? id.common.tryAgain : id.common.genericAuthError;
+        const errorMessage =
+          result.code === "UNAVAILABLE"
+            ? id.common.tryAgain
+            : result.code === "MISCONFIGURED"
+              ? id.forgot.failedBody
+              : id.common.genericAuthError;
         Alert.alert(id.common.errorTitle, errorMessage);
         return;
       }

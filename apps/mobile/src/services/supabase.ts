@@ -53,3 +53,4 @@ if (Platform.OS !== "web") {
 
 export const AUTH_CALLBACK = buildAuthRedirectPath("callback");
 export const AUTH_RESET = buildAuthRedirectPath("reset");
+export const hasValidAuthRedirects = Platform.OS !== "web" || (AUTH_CALLBACK.length > 0 && AUTH_RESET.length > 0);

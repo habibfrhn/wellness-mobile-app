@@ -32,6 +32,14 @@ Set the project configuration in Vercel to:
 - **Output Directory**: `dist`
 - **Ignored Build Step**: keep the repo `ignoreCommand` in `apps/mobile/vercel.json` enabled so markdown/docs-only commits do not trigger preview builds.
 
+### Required web auth environment variables
+Set these environment variables in Vercel for **Preview** and **Production**:
+
+- `EXPO_PUBLIC_WEB_ORIGIN` = exact deployed app origin (for example `https://app.example.com`).
+- `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` = comma-separated allowlist that must include every valid web origin for auth callbacks and reset links.
+
+Without these, the app blocks outbound auth redirect generation on production web builds to prevent invalid localhost reset/verify links.
+
 ## Usage guardrails (recommended)
 - **Vercel**
   - Add budget alerts for bandwidth and function invocations in Vercel usage settings.

@@ -1,5 +1,7 @@
 import * as Linking from "expo-linking";
+import { Platform } from "react-native";
 import { supabase } from "./supabase";
+import { isAllowedWebOrigin } from "./webAuth";
 
 type AuthLinkType = "signup" | "recovery" | "magiclink" | "email_change" | "unknown";
 
@@ -57,6 +59,28 @@ export function isPotentialAuthLink(url: string) {
   );
 }
 
+function isTrustedAuthLinkUrl(parsedUrl: URL) {
+  if (Platform.OS !== "web") {
+    return true;
+  }
+
+  const protocol = parsedUrl.protocol.toLowerCase();
+  if (protocol !== "https:" && protocol !== "http:") {
+    return false;
+  }
+
+  if (!isAllowedWebOrigin(parsedUrl.origin)) {
+    return false;
+  }
+
+  if (typeof window === "undefined") {
+    return true;
+  }
+
+  const currentOrigin = window.location.origin;
+  return parsedUrl.origin === currentOrigin;
+}
+
 /**
  * Handles Supabase auth links for web and native.
  */
@@ -65,6 +89,10 @@ export async function handleAuthLink(url: string) {
   try {
     parsedUrl = new URL(url);
   } catch {
+    return { handled: false as const };
+  }
+
+  if (!isTrustedAuthLinkUrl(parsedUrl)) {
     return { handled: false as const };
   }
 

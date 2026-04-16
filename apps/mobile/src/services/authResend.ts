@@ -1,10 +1,11 @@
-import { AUTH_CALLBACK, supabase } from "./supabase";
+import { AUTH_CALLBACK, hasValidAuthRedirects, supabase } from "./supabase";
 
 export type ResendVerificationResult =
   | { ok: true; cooldownSec: number }
   | { ok: false; code: "RATE_LIMITED"; retryAfterSec: number }
   | { ok: false; code: "LINK_STILL_VALID"; retryAfterSec: number }
   | { ok: false; code: "UNAVAILABLE" }
+  | { ok: false; code: "MISCONFIGURED" }
   | { ok: false; code: "ERROR" };
 
 
@@ -43,6 +44,10 @@ async function extractFunctionErrorPayload(error: unknown): Promise<ResendVerifi
 }
 
 export async function resendVerificationEmail(email: string): Promise<ResendVerificationResult> {
+  if (!hasValidAuthRedirects) {
+    return { ok: false, code: "MISCONFIGURED" };
+  }
+
   const { data, error } = await supabase.functions.invoke<ResendVerificationResponse>("resend-verification-email", {
     body: {
       email: email.trim().toLowerCase(),

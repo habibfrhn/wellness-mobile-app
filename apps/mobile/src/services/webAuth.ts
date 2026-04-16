@@ -10,7 +10,11 @@ function normalizeOrigin(origin: string) {
   return origin.endsWith("/") ? origin.slice(0, -1) : origin;
 }
 
-function isAllowedWebOrigin(origin: string) {
+function isLocalDevOrigin(origin: string) {
+  return /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin);
+}
+
+export function isAllowedWebOrigin(origin: string) {
   const configuredOrigins = (process.env.EXPO_PUBLIC_WEB_ALLOWED_ORIGINS ?? "")
     .split(",")
     .map((value: string) => value.trim())
@@ -25,10 +29,11 @@ function isAllowedWebOrigin(origin: string) {
     return true;
   }
 
-  return /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin);
+  return isLocalDevOrigin(origin);
 }
 
 export function getWebAppOrigin() {
+  const isProductionBuild = process.env.NODE_ENV === "production";
   const configuredOrigin = process.env.EXPO_PUBLIC_WEB_ORIGIN?.trim();
   if (configuredOrigin && isAllowedWebOrigin(configuredOrigin)) {
     return normalizeOrigin(configuredOrigin);
@@ -41,6 +46,10 @@ export function getWebAppOrigin() {
     }
   }
 
+  if (isProductionBuild) {
+    return null;
+  }
+
   return DEFAULT_LOCAL_WEB_ORIGIN;
 }
 
@@ -50,6 +59,10 @@ export function buildAuthRedirectPath(flow: "callback" | "reset") {
   }
 
   const origin = getWebAppOrigin();
+  if (!origin) {
+    return "";
+  }
+
   return `${origin}${flow === "callback" ? WEB_AUTH_CALLBACK_PATH : WEB_AUTH_RESET_PATH}`;
 }
 

@@ -1,7 +1,7 @@
 import { Platform } from "react-native";
 import * as Linking from "expo-linking";
 
-import { AUTH_CALLBACK, supabase } from "./supabase";
+import { AUTH_CALLBACK, hasValidAuthRedirects, supabase } from "./supabase";
 import { setNextAuthRoute } from "./authStart";
 
 type ContinueWithGoogleOptions = {
@@ -9,6 +9,10 @@ type ContinueWithGoogleOptions = {
 };
 
 export async function continueWithGoogle({ nextRoute = "Login" }: ContinueWithGoogleOptions = {}) {
+  if (!hasValidAuthRedirects) {
+    throw new Error("AUTH_REDIRECT_MISCONFIGURED");
+  }
+
   await setNextAuthRoute(nextRoute);
 
   const { data, error } = await supabase.auth.signInWithOAuth({
