@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, Linking, Platform, ScrollView, StyleSheet, TextInput } from "react-native";
+import { Alert, Clipboard, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 import { id } from "../i18n/strings";
 import type { AppStackParamList } from "../navigation/types";
@@ -123,38 +124,13 @@ export default function SettingsContent({ navigation }: Props) {
     setInitialName(trimmedName);
   }
 
-  async function copySupportEmail() {
-    if (Platform.OS === "web" && typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
-      try {
-        await navigator.clipboard.writeText(SUPPORT_EMAIL);
-        Alert.alert(id.account.supportCopySuccessTitle, id.account.supportCopySuccessBody);
-        return;
-      } catch {
-        // fallback below
-      }
+  function copySupportEmail() {
+    try {
+      Clipboard.setString(SUPPORT_EMAIL);
+      Alert.alert(id.account.supportCopySuccessTitle, id.account.supportCopySuccessBody);
+    } catch {
+      Alert.alert(id.account.supportCopyFallbackTitle, SUPPORT_EMAIL);
     }
-
-    if (Platform.OS === "web" && typeof document !== "undefined") {
-      try {
-        const textarea = document.createElement("textarea");
-        textarea.value = SUPPORT_EMAIL;
-        textarea.style.position = "fixed";
-        textarea.style.left = "-9999px";
-        document.body.appendChild(textarea);
-        textarea.focus();
-        textarea.select();
-        const copied = document.execCommand("copy");
-        document.body.removeChild(textarea);
-        if (copied) {
-          Alert.alert(id.account.supportCopySuccessTitle, id.account.supportCopySuccessBody);
-          return;
-        }
-      } catch {
-        // fallback below
-      }
-    }
-
-    Alert.alert(id.account.supportCopyFallbackTitle, SUPPORT_EMAIL);
   }
 
   const navigateFromSettings = (route: "ResetPassword" | "PrivacyPolicy" | "TermsConditions") => {
@@ -193,9 +169,31 @@ export default function SettingsContent({ navigation }: Props) {
       </SettingsSection>
 
       <SettingsSection title={id.account.supportSectionTitle}>
-        <SettingsRow label={id.account.support} value={SUPPORT_EMAIL} />
-        <SettingsRow label={id.account.supportSendEmail} onPress={() => void safeOpenUrl(`mailto:${SUPPORT_EMAIL}`)} />
-        <SettingsRow label={id.account.supportCopyEmail} onPress={() => void copySupportEmail()} showDivider={false} />
+        <SettingsRow
+          label={id.account.support}
+          showDivider={false}
+          rightNode={
+            <View style={styles.supportActions}>
+              <Pressable
+                onPress={() => void safeOpenUrl(`mailto:${SUPPORT_EMAIL}`)}
+                style={({ pressed }) => [styles.supportEmailAction, pressed && styles.pressedSupportAction]}
+                accessibilityRole="button"
+                accessibilityLabel={id.account.supportSendEmail}
+              >
+                <Text style={styles.supportEmailText}>{SUPPORT_EMAIL}</Text>
+              </Pressable>
+              <Pressable
+                onPress={copySupportEmail}
+                style={({ pressed }) => [styles.copyAction, pressed && styles.pressedSupportAction]}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel={id.account.supportCopyEmail}
+              >
+                <MaterialCommunityIcons name="content-copy" size={18} color={colors.text} />
+              </Pressable>
+            </View>
+          }
+        />
       </SettingsSection>
 
       <SettingsSection title={id.account.aboutSectionTitle}>
@@ -235,5 +233,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xs,
     borderRadius: radius.xs,
     backgroundColor: colors.bg,
+  },
+  supportActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+  },
+  supportEmailAction: {
+    paddingVertical: spacing.xs / 2,
+    paddingHorizontal: spacing.xs,
+    borderRadius: radius.xs,
+  },
+  supportEmailText: {
+    fontSize: typography.small,
+    color: colors.mutedText,
+    textAlign: "right",
+  },
+  copyAction: {
+    minWidth: 36,
+    minHeight: 36,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: radius.xs,
+  },
+  pressedSupportAction: {
+    opacity: 0.72,
   },
 });
