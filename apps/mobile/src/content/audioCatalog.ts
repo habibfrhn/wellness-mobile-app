@@ -1,10 +1,12 @@
 export type AudioId =
-  | "bersiap_tidur"
+  | "persiapan_tidur"
   | "hening"
   | "rintik-hujan"
   | "ombak-laut"
   | "afirmasi_tidur"
   | "meditasi_tidur";
+
+type LegacyAudioId = "bersiap_tidur";
 
 export type AudioTrack = {
   id: AudioId;
@@ -23,9 +25,9 @@ export type AudioTrack = {
 
 export const AUDIO_TRACKS = [
   {
-    id: "bersiap_tidur",
+    id: "persiapan_tidur",
     order: 1,
-    title: "Rilekskan Tubuh",
+    title: "Persiapan Tidur",
     subtitle: "Ritual santai sebelum lelap",
     durationSec: 600,
     asset: require("../../assets/audio/sleep-guide/01-bersiap-tidur-10m.m4a"),
@@ -110,6 +112,18 @@ export const AUDIO_TRACKS = [
 
 const favoriteIds = new Set<AudioId>();
 
+const legacyAudioIdAliases: Record<LegacyAudioId, AudioId> = {
+  bersiap_tidur: "persiapan_tidur",
+};
+
+export function normalizeAudioId(id: AudioId | LegacyAudioId): AudioId {
+  if (id in legacyAudioIdAliases) {
+    return legacyAudioIdAliases[id as LegacyAudioId];
+  }
+
+  return id as AudioId;
+}
+
 export function isFavorite(id: AudioId) {
   return favoriteIds.has(id);
 }
@@ -123,8 +137,9 @@ export function toggleFavorite(id: AudioId) {
   return true;
 }
 
-export function getTrackById(id: AudioId): AudioTrack {
-  const t = AUDIO_TRACKS.find((x) => x.id === id);
+export function getTrackById(id: AudioId | LegacyAudioId): AudioTrack {
+  const normalizedId = normalizeAudioId(id);
+  const t = AUDIO_TRACKS.find((x) => x.id === normalizedId);
   if (!t) throw new Error(`Unknown AudioId: ${id}`);
   return t;
 }

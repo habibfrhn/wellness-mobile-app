@@ -14,7 +14,7 @@ function getStep1AudioId(mode: "calm_mind" | "release_accept") {
   if (mode === "release_accept") {
     return "afirmasi_tidur" as const;
   }
-  return "bersiap_tidur" as const;
+  return "persiapan_tidur" as const;
 }
 
 export default function NightStep1Screen({ navigation, route }: Props) {
