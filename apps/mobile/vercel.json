@@ -56,15 +56,6 @@
       ]
     },
     {
-      "source": "/(.*\\.(m4a|mp3|aac|wav|ogg))",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    },
-    {
       "source": "/assets/(.*)",
       "headers": [
         {
