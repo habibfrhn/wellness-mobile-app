@@ -223,7 +223,7 @@ export const id = {
     afirmasiCarouselTitle: "Afirmasi sebelum tidur",
     pickWhatYouNeedTitle: "Temani sebelum tidur",
     soundscapeCarouselTitle: "Soundscape untuk tidur",
-    soundscapeShortTitle: "Suara pengantar tidur",
+    soundscapeShortTitle: "Nuansa menenangkan",
     feedbackCta: "Beri masukan",
     feedbackTitle: "Bantu kami berkembang",
     feedbackDescription:
