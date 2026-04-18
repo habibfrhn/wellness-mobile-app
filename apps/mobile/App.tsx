@@ -232,7 +232,6 @@ export default function App() {
         screens: {
           Landing: "",
           Auth: {
-            path: "",
             screens: {
               Login: "masuk",
               SignUp: "daftar",
@@ -243,7 +242,6 @@ export default function App() {
             },
           },
           App: {
-            path: "",
             screens: {
               Home: "beranda",
               Player: "pemutar-audio",
