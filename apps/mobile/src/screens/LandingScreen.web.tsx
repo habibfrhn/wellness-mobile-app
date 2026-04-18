@@ -868,50 +868,54 @@ export default function LandingScreen() {
               ]}
             >
               <View style={styles.footerColumn}>
-                <Text style={styles.footerBrandTitle}>Lumepo</Text>
-                <Text style={styles.footerDescription}>
-                  Ruang tenang untuk menutup hari dengan sadar.
-                </Text>
+                <View style={styles.footerBrandBlock}>
+                  <Text style={styles.footerBrandTitle}>Lumepo</Text>
+                  <Text style={styles.footerDescription}>
+                    Ruang tenang untuk menutup hari dengan sadar.
+                  </Text>
+                </View>
               </View>
 
               <View style={styles.footerColumn}>
                 <Text style={styles.footerHeading}>Navigasi</Text>
-                <Pressable
-                  onPress={() => goToSection("beranda")}
-                  style={({ hovered }: any) => [
-                    styles.footerLinkPressable,
-                    hovered && styles.footerLinkPressableHover,
-                  ]}
-                >
-                  <Text style={styles.footerLinkText}>Home</Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => goToSection("faq")}
-                  style={({ hovered }: any) => [
-                    styles.footerLinkPressable,
-                    hovered && styles.footerLinkPressableHover,
-                  ]}
-                >
-                  <Text style={styles.footerLinkText}>FAQ</Text>
-                </Pressable>
-                <Pressable
-                  onPress={goToPrivacyPolicy}
-                  style={({ hovered }: any) => [
-                    styles.footerLinkPressable,
-                    hovered && styles.footerLinkPressableHover,
-                  ]}
-                >
-                  <Text style={styles.footerLinkText}>Kebijakan privasi</Text>
-                </Pressable>
-                <Pressable
-                  onPress={goToTermsConditions}
-                  style={({ hovered }: any) => [
-                    styles.footerLinkPressable,
-                    hovered && styles.footerLinkPressableHover,
-                  ]}
-                >
-                  <Text style={styles.footerLinkText}>Syarat & ketentuan</Text>
-                </Pressable>
+                <View style={styles.footerLinksStack}>
+                  <Pressable
+                    onPress={() => goToSection("beranda")}
+                    style={({ hovered }: any) => [
+                      styles.footerLinkPressable,
+                      hovered && styles.footerLinkPressableHover,
+                    ]}
+                  >
+                    <Text style={styles.footerLinkText}>Home</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => goToSection("faq")}
+                    style={({ hovered }: any) => [
+                      styles.footerLinkPressable,
+                      hovered && styles.footerLinkPressableHover,
+                    ]}
+                  >
+                    <Text style={styles.footerLinkText}>FAQ</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={goToPrivacyPolicy}
+                    style={({ hovered }: any) => [
+                      styles.footerLinkPressable,
+                      hovered && styles.footerLinkPressableHover,
+                    ]}
+                  >
+                    <Text style={styles.footerLinkText}>Kebijakan privasi</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={goToTermsConditions}
+                    style={({ hovered }: any) => [
+                      styles.footerLinkPressable,
+                      hovered && styles.footerLinkPressableHover,
+                    ]}
+                  >
+                    <Text style={styles.footerLinkText}>Syarat & ketentuan</Text>
+                  </Pressable>
+                </View>
               </View>
 
               <View
@@ -921,33 +925,35 @@ export default function LandingScreen() {
                 ]}
               >
                 <Text style={styles.footerHeading}>Informasi</Text>
-                <Pressable
-                  onPress={goToPrivacyPolicy}
-                  style={({ hovered }: any) => [
-                    styles.footerLinkPressable,
-                    hovered && styles.footerLinkPressableHover,
-                  ]}
-                >
-                  <Text style={styles.footerLinkText}>Kebijakan privasi</Text>
-                </Pressable>
-                <Pressable
-                  onPress={goToTermsConditions}
-                  style={({ hovered }: any) => [
-                    styles.footerLinkPressable,
-                    hovered && styles.footerLinkPressableHover,
-                  ]}
-                >
-                  <Text style={styles.footerLinkText}>Syarat & ketentuan</Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => {}}
-                  style={({ hovered }: any) => [
-                    styles.footerLinkPressable,
-                    hovered && styles.footerLinkPressableHover,
-                  ]}
-                >
-                  <Text style={styles.footerLinkText}>Kontak</Text>
-                </Pressable>
+                <View style={styles.footerLinksStack}>
+                  <Pressable
+                    onPress={goToPrivacyPolicy}
+                    style={({ hovered }: any) => [
+                      styles.footerLinkPressable,
+                      hovered && styles.footerLinkPressableHover,
+                    ]}
+                  >
+                    <Text style={styles.footerLinkText}>Kebijakan privasi</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={goToTermsConditions}
+                    style={({ hovered }: any) => [
+                      styles.footerLinkPressable,
+                      hovered && styles.footerLinkPressableHover,
+                    ]}
+                  >
+                    <Text style={styles.footerLinkText}>Syarat & ketentuan</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => {}}
+                    style={({ hovered }: any) => [
+                      styles.footerLinkPressable,
+                      hovered && styles.footerLinkPressableHover,
+                    ]}
+                  >
+                    <Text style={styles.footerLinkText}>Kontak</Text>
+                  </Pressable>
+                </View>
                 <Text style={styles.footerContact}>hello@lumepo.id</Text>
               </View>
             </View>
@@ -1492,7 +1498,7 @@ const styles = StyleSheet.create({
   },
   footerTopRow: {
     flexDirection: "column",
-    gap: spacing.md,
+    gap: spacing.lg,
     paddingTop: 30,
     paddingBottom: spacing.lg,
   },
@@ -1509,10 +1515,16 @@ const styles = StyleSheet.create({
   },
   footerColumn: {
     flex: 1,
+    gap: spacing.sm,
+  },
+  footerBrandBlock: {
+    gap: spacing.sm,
+  },
+  footerLinksStack: {
     gap: spacing.xs,
   },
   footerInfoColumnMobile: {
-    paddingBottom: spacing.lg,
+    paddingBottom: spacing.md,
   },
   footerDivider: {
     width: "100%",
@@ -1562,10 +1574,11 @@ const styles = StyleSheet.create({
     fontSize: typography.body,
     fontWeight: "700",
     color: colors.white,
-    marginBottom: spacing.xs,
   },
   footerLinkPressable: {
     alignSelf: "flex-start",
+    minHeight: 40,
+    justifyContent: "center",
     paddingVertical: 2,
     opacity: 0.85,
   },
@@ -1581,7 +1594,7 @@ const styles = StyleSheet.create({
     fontSize: typography.body,
     lineHeight: 24,
     color: colors.white,
-    marginTop: spacing.xs,
-    marginBottom: spacing.sm,
+    marginTop: spacing.sm,
+    marginBottom: spacing.xs,
   },
 });
