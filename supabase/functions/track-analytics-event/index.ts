@@ -39,6 +39,7 @@ const MAX_REQUESTS_PER_MINUTE_ANON = 45;
 const MAX_REQUESTS_PER_MINUTE_AUTH = 90;
 const MAX_EVENTS_PER_REQUEST = 25;
 const EVENT_PROP_ID_REGEX = /^[A-Za-z0-9_-]+$/;
+const REQUIRED_WEB_ORIGINS = ["https://www.lumepo.com", "https://lumepo.com"];
 
 const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -88,8 +89,9 @@ function getAllowedCorsOrigin(req: Request): string | null {
     .split(",")
     .map((value) => value.trim())
     .filter(Boolean);
+  const expandedAllowedOrigins = Array.from(new Set([...allowedOrigins, ...REQUIRED_WEB_ORIGINS]));
 
-  return allowedOrigins.includes(origin) ? origin : null;
+  return expandedAllowedOrigins.includes(origin) ? origin : null;
 }
 
 function buildCorsHeaders(req: Request) {

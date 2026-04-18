@@ -11,6 +11,7 @@ type ErrorCode =
 
 const ACTION_NAME = "delete_user_account";
 const MAX_REQUESTS_PER_HOUR = 3;
+const REQUIRED_WEB_ORIGINS = ["https://www.lumepo.com", "https://lumepo.com"];
 
 const baseCorsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -42,12 +43,13 @@ function getAllowedCorsOrigin(req: Request) {
     .split(",")
     .map((value) => value.trim())
     .filter(Boolean);
+  const allowedOrigins = Array.from(new Set([...configuredAllowedOrigins, ...REQUIRED_WEB_ORIGINS]));
 
   if (configuredAllowedOrigins.length === 0) {
     return "*";
   }
 
-  return configuredAllowedOrigins.includes(requestOrigin) ? requestOrigin : null;
+  return allowedOrigins.includes(requestOrigin) ? requestOrigin : null;
 }
 
 function buildCorsHeaders(req: Request) {

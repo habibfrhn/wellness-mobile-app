@@ -87,9 +87,9 @@ The following cannot be fully proven from repo-only review and should be validat
 ## Recommended env configuration updates
 
 - In Supabase function secrets, set:
-  - `CORS_ALLOWED_ORIGINS=https://<your-production-domain>,https://<your-staging-domain>`
+  - `CORS_ALLOWED_ORIGINS=https://lumepo.com,https://www.lumepo.com,https://<your-staging-domain>`
 - In web client env, ensure:
-  - `EXPO_PUBLIC_WEB_ORIGIN=https://<your-production-domain>`
+  - `EXPO_PUBLIC_WEB_ORIGIN=https://lumepo.com`
 
 ## Launch-blocking status (repo scope)
 

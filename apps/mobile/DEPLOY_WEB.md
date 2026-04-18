@@ -35,8 +35,10 @@ Set the project configuration in Vercel to:
 ### Required web auth environment variables
 Set these environment variables in Vercel for **Preview** and **Production**:
 
-- `EXPO_PUBLIC_WEB_ORIGIN` = exact deployed app origin (for example `https://app.example.com`).
-- `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` = comma-separated allowlist that must include every valid web origin for auth callbacks and reset links.
+- `EXPO_PUBLIC_WEB_ORIGIN` = exact deployed app origin (`https://lumepo.com` for production).
+- `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` = comma-separated allowlist that must include every valid web origin for auth callbacks and reset links, including:
+  - `https://lumepo.com`
+  - `https://www.lumepo.com`
 
 Without these, the app blocks outbound auth redirect generation on production web builds to prevent invalid localhost reset/verify links.
 

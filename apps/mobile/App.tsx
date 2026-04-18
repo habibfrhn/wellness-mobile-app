@@ -2,7 +2,13 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Alert, LogBox, Platform, View } from "react-native";
 import * as Linking from "expo-linking";
 import * as Updates from "expo-updates";
-import { NavigationContainer, NavigatorScreenParams, createNavigationContainerRef } from "@react-navigation/native";
+import {
+  LinkingOptions,
+  NavigationContainer,
+  NavigatorScreenParams,
+  createNavigationContainerRef,
+  getStateFromPath as defaultGetStateFromPath,
+} from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -35,29 +41,60 @@ const WEB_RESET_FLOW_KEY = "wellness.webResetFlow";
 
 
 const WEB_APP_NAME = "Lumepo";
+const WEB_EXPO_ROUTE_PREFIX = "/--";
+const WEB_LEGACY_PATH_ALIASES: Record<string, string> = {
+  "/login": "/masuk",
+  "/signup": "/daftar",
+  "/privacy-policy": "/kebijakan-privasi",
+  "/terms-conditions": "/syarat-ketentuan",
+};
+
+const WEB_ROUTE_PATHS: Record<string, string> = {
+  Landing: "/",
+  Home: "/beranda",
+  Login: "/masuk",
+  SignUp: "/daftar",
+  ForgotPassword: "/lupa-kata-sandi",
+  ResetPassword: "/atur-ulang-kata-sandi",
+  VerifyEmail: "/verifikasi-email",
+  Welcome: "/selamat-datang",
+  Player: "/pemutar-audio",
+  Account: "/akun",
+  Settings: "/pengaturan",
+  PrivacyPolicy: "/kebijakan-privasi",
+  TermsConditions: "/syarat-ketentuan",
+  ReminderSettings: "/pengingat-tidur",
+  NightMode: "/mode-malam",
+  NightCheckIn: "/check-in-malam",
+  NightStep1: "/langkah-1",
+  NightStep2: "/langkah-2",
+  NightStep3: "/langkah-3",
+  NightCheckOut: "/check-out-malam",
+  Admin: "/admin",
+};
 
 const WEB_ROUTE_TITLES: Record<string, string> = {
   Landing: "Beranda",
   Home: "Beranda",
-  Login: "Log in",
-  SignUp: "Sign up",
-  ForgotPassword: "Forgot password",
-  ResetPassword: "Reset password",
-  VerifyEmail: "Verify email",
-  Welcome: "Welcome",
-  Player: "Audio Player",
-  Account: "Account",
+  Login: "Masuk",
+  SignUp: "Daftar",
+  ForgotPassword: "Lupa Kata Sandi",
+  ResetPassword: "Atur Ulang Kata Sandi",
+  VerifyEmail: "Verifikasi Email",
+  Welcome: "Selamat Datang",
+  Player: "Pemutar Audio",
+  Account: "Akun",
   Settings: "Pengaturan",
   PrivacyPolicy: "Kebijakan Privasi",
   TermsConditions: "Syarat & Ketentuan",
-  ReminderSettings: "Reminder settings",
-  NightMode: "Night mode",
-  NightCheckIn: "Check in",
-  NightStep1: "Sleep step 1",
-  NightStep2: "Sleep step 2",
-  NightStep3: "Sleep step 3",
-  NightCheckOut: "Check out",
-  Admin: "Admin Analytics",
+  ReminderSettings: "Pengingat Tidur",
+  NightMode: "Mode Malam",
+  NightCheckIn: "Check In Malam",
+  NightStep1: "Langkah Tidur 1",
+  NightStep2: "Langkah Tidur 2",
+  NightStep3: "Langkah Tidur 3",
+  NightCheckOut: "Check Out Malam",
+  Admin: "Admin Analitik",
 };
 
 const navigationRef = createNavigationContainerRef<RootStackParamList>();
@@ -73,6 +110,19 @@ function syncWebTitle(routeName?: string) {
   }
 
   document.title = formatWebTitle(routeName);
+}
+
+function normalizeWebPathForRoute(pathname: string) {
+  const trimmedPath = pathname.replace(/\/+$/, "") || "/";
+  const withoutExpoPrefix = trimmedPath.startsWith(WEB_EXPO_ROUTE_PREFIX)
+    ? trimmedPath.slice(WEB_EXPO_ROUTE_PREFIX.length) || "/"
+    : trimmedPath;
+  const normalized = withoutExpoPrefix.toLowerCase();
+  return WEB_LEGACY_PATH_ALIASES[normalized] ?? withoutExpoPrefix;
+}
+
+function getWebPathForRoute(routeName: string, fallback = "/") {
+  return WEB_ROUTE_PATHS[routeName] ?? fallback;
 }
 
 function isAdminRoutePath() {
@@ -172,6 +222,54 @@ export default function App() {
   const [webAuthStatus, setWebAuthStatus] = useState<"idle" | "loading" | "error" | "missing">("idle");
 
   const didCheckUpdatesRef = useRef(false);
+  const webLinking = useMemo<LinkingOptions<RootStackParamList>>(
+    () => ({
+      prefixes:
+        Platform.OS === "web" && typeof window !== "undefined"
+          ? [window.location.origin, `${window.location.origin}${WEB_EXPO_ROUTE_PREFIX}`]
+          : [Linking.createURL("/")],
+      config: {
+        screens: {
+          Landing: "",
+          Auth: {
+            path: "",
+            screens: {
+              Login: "masuk",
+              SignUp: "daftar",
+              ForgotPassword: "lupa-kata-sandi",
+              ResetPassword: "atur-ulang-kata-sandi",
+              VerifyEmail: "verifikasi-email",
+              Welcome: "selamat-datang",
+            },
+          },
+          App: {
+            path: "",
+            screens: {
+              Home: "beranda",
+              Player: "pemutar-audio",
+              Account: "akun",
+              Settings: "pengaturan",
+              PrivacyPolicy: "kebijakan-privasi",
+              TermsConditions: "syarat-ketentuan",
+              ReminderSettings: "pengingat-tidur",
+              ResetPassword: "ubah-kata-sandi",
+              NightMode: "mode-malam",
+              NightCheckIn: "check-in-malam",
+              NightStep1: "langkah-1",
+              NightStep2: "langkah-2",
+              NightStep3: "langkah-3",
+              NightCheckOut: "check-out-malam",
+            },
+          },
+        },
+      },
+      getStateFromPath(path, options) {
+        const normalizedPath = normalizeWebPathForRoute(path);
+        return defaultGetStateFromPath(normalizedPath, options);
+      },
+    }),
+    []
+  );
 
   const isVerified = useMemo(() => {
     const user = session?.user;
@@ -259,7 +357,7 @@ export default function App() {
         setWebResetFlowActive(true);
         await setNextAuthRoute("ResetPassword");
         setAuthStartRoute("ResetPassword");
-        replaceWebUrl("/");
+        replaceWebUrl(getWebPathForRoute("ResetPassword"));
         setWebAuthStatus("idle");
         return;
       }
@@ -271,7 +369,7 @@ export default function App() {
         setAuthStartRoute("Login");
         setForceReset(false);
         setWebResetFlowActive(false);
-        replaceWebUrl("/");
+        replaceWebUrl(getWebPathForRoute("Login"));
         setWebAuthStatus("idle");
         return;
       }
@@ -564,7 +662,7 @@ export default function App() {
 
   if (Platform.OS === "web" && webAuthStatus !== "idle") {
     const onReturnToLogin = () => {
-      replaceWebUrl("/");
+      replaceWebUrl(getWebPathForRoute("Login"));
       setWebAuthStatus("idle");
       void setNextAuthRoute("Login");
       setAuthStartRoute("Login");
@@ -614,6 +712,7 @@ export default function App() {
       <SafeAreaProvider>
         <NavigationContainer
           ref={navigationRef}
+          linking={Platform.OS === "web" ? webLinking : undefined}
           onReady={() => syncWebTitle(navigationRef.getCurrentRoute()?.name)}
           onStateChange={() => syncWebTitle(navigationRef.getCurrentRoute()?.name)}
         >

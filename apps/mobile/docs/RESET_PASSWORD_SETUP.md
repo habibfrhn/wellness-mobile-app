@@ -7,12 +7,14 @@ This guide documents the required setup so the reset-password flow works in loca
 1. Open **Supabase Dashboard → Authentication → URL Configuration**.
 2. Set **Site URL** to your primary web app URL.
    - Local: `http://localhost:8081`
-   - Production example: `https://app.your-domain.com`
+   - Production: `https://lumepo.com`
 3. Add every reset/callback URL variant to **Redirect URLs**:
    - `http://localhost:8081/auth/reset`
    - `http://localhost:8081/auth/callback`
-   - `https://app.your-domain.com/auth/reset`
-   - `https://app.your-domain.com/auth/callback`
+   - `https://lumepo.com/auth/reset`
+   - `https://lumepo.com/auth/callback`
+   - `https://www.lumepo.com/auth/reset`
+   - `https://www.lumepo.com/auth/callback`
 4. Save changes.
 
 > If redirect URLs are missing or mismatched, reset links may open but fail to establish a valid session.
@@ -25,7 +27,7 @@ Create/update `apps/mobile/.env` for local Expo web:
 EXPO_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
 EXPO_PUBLIC_WEB_ORIGIN=http://localhost:8081
-EXPO_PUBLIC_WEB_ALLOWED_ORIGINS=http://localhost:8081,https://app.your-domain.com
+EXPO_PUBLIC_WEB_ALLOWED_ORIGINS=http://localhost:8081,https://lumepo.com,https://www.lumepo.com
 ```
 
 For deployed environments, set the same vars in your platform (for example Vercel / EAS environment settings), with production-safe values.
