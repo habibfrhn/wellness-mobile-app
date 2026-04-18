@@ -8,11 +8,17 @@ import { colors, radius, spacing, typography } from "../../theme/tokens";
 type LandingMobileAuthMenuProps = {
   onPressLogin: () => void;
   onPressSignUp: () => void;
+  onPressFaq: () => void;
+  onPressPrivacyPolicy: () => void;
+  onPressTermsConditions: () => void;
 };
 
 export default function LandingMobileAuthMenu({
   onPressLogin,
   onPressSignUp,
+  onPressFaq,
+  onPressPrivacyPolicy,
+  onPressTermsConditions,
 }: LandingMobileAuthMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const closeMenu = () => {
@@ -31,6 +37,21 @@ export default function LandingMobileAuthMenu({
   const handlePressSignUp = () => {
     closeMenu();
     onPressSignUp();
+  };
+
+  const handlePressFaq = () => {
+    closeMenu();
+    onPressFaq();
+  };
+
+  const handlePressPrivacyPolicy = () => {
+    closeMenu();
+    onPressPrivacyPolicy();
+  };
+
+  const handlePressTermsConditions = () => {
+    closeMenu();
+    onPressTermsConditions();
   };
 
   return (
@@ -63,6 +84,36 @@ export default function LandingMobileAuthMenu({
         <View style={styles.overlay}>
           <Pressable style={StyleSheet.absoluteFill} onPress={closeMenu} />
           <View style={styles.dropdown}>
+            <Pressable
+              onPress={handlePressFaq}
+              style={({ pressed }) => [
+                styles.menuItem,
+                pressed && styles.menuItemPressed,
+              ]}
+            >
+              <Text style={styles.menuText}>FAQ</Text>
+            </Pressable>
+
+            <Pressable
+              onPress={handlePressPrivacyPolicy}
+              style={({ pressed }) => [
+                styles.menuItem,
+                pressed && styles.menuItemPressed,
+              ]}
+            >
+              <Text style={styles.menuText}>{id.account.privacy}</Text>
+            </Pressable>
+
+            <Pressable
+              onPress={handlePressTermsConditions}
+              style={({ pressed }) => [
+                styles.menuItem,
+                pressed && styles.menuItemPressed,
+              ]}
+            >
+              <Text style={styles.menuText}>{id.account.terms}</Text>
+            </Pressable>
+
             <Pressable
               onPress={handlePressSignUp}
               style={({ pressed }) => [

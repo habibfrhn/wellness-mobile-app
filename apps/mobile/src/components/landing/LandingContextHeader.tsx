@@ -63,7 +63,13 @@ export default function LandingContextHeader({
 
         <View style={[styles.actions, !isDesktop && !isTablet && styles.actionsMobile]}>
           {!isDesktop && !isTablet ? (
-            <LandingMobileAuthMenu onPressLogin={onPressLogin} onPressSignUp={onPressSignUp} />
+            <LandingMobileAuthMenu
+              onPressFaq={onPressFaq}
+              onPressLogin={onPressLogin}
+              onPressPrivacyPolicy={onPressPrivacyPolicy}
+              onPressSignUp={onPressSignUp}
+              onPressTermsConditions={onPressTermsConditions}
+            />
           ) : (
             <>
               <Pressable onPress={onPressLogin} style={styles.textButton}>

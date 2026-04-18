@@ -282,8 +282,11 @@ export default function LandingScreen() {
             >
               {!isDesktop && !isTablet ? (
                 <LandingMobileAuthMenu
+                  onPressFaq={() => goToSection("faq")}
                   onPressLogin={goToLogin}
+                  onPressPrivacyPolicy={goToPrivacyPolicy}
                   onPressSignUp={goToSignUp}
+                  onPressTermsConditions={goToTermsConditions}
                 />
               ) : (
                 <>
