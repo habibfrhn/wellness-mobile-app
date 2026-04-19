@@ -1,18 +1,32 @@
 import type { User } from "@supabase/supabase-js";
 
 function normalizeProviders(user: User | null | undefined) {
-  const providers = user?.app_metadata?.providers;
+  const providers = new Set<string>();
 
-  if (Array.isArray(providers)) {
-    return providers.filter((value): value is string => typeof value === "string");
+  const appMetadataProviders = user?.app_metadata?.providers;
+  if (Array.isArray(appMetadataProviders)) {
+    for (const value of appMetadataProviders) {
+      if (typeof value === "string" && value.length > 0) {
+        providers.add(value);
+      }
+    }
   }
 
-  const singleProvider = user?.app_metadata?.provider;
-  if (typeof singleProvider === "string" && singleProvider.length > 0) {
-    return [singleProvider];
+  const appMetadataProvider = user?.app_metadata?.provider;
+  if (typeof appMetadataProvider === "string" && appMetadataProvider.length > 0) {
+    providers.add(appMetadataProvider);
   }
 
-  return [];
+  const identities = user?.identities;
+  if (Array.isArray(identities)) {
+    for (const identity of identities) {
+      if (typeof identity?.provider === "string" && identity.provider.length > 0) {
+        providers.add(identity.provider);
+      }
+    }
+  }
+
+  return Array.from(providers);
 }
 
 export function canManagePassword(user: User | null | undefined) {
