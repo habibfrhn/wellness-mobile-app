@@ -42,7 +42,7 @@ const EVENT_PROP_ID_REGEX = /^[A-Za-z0-9_-]+$/;
 const REQUIRED_WEB_ORIGINS = ["https://www.lumepo.com", "https://lumepo.com"];
 
 const corsHeaders = {
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-user-jwt",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Vary": "Origin",
 };
