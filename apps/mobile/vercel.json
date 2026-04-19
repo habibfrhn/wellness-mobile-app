@@ -130,19 +130,7 @@
       ]
     }
   ],
-  "redirects": [
-    {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.lumepo.com"
-        }
-      ],
-      "destination": "https://lumepo.com/:path*",
-      "permanent": true
-    }
-  ],
+  "redirects": [],
   "rewrites": [
     {
       "source": "/((?!api/|.*\\..*).*)",
