@@ -6,6 +6,36 @@ import { logAuthDebugEvent } from "./authDebug";
 
 type AuthLinkType = "signup" | "recovery" | "magiclink" | "email_change" | "unknown";
 
+function parseRawParams(raw: string) {
+  const params = new Map<string, string>();
+  const source = raw.replace(/^[#?]/, "");
+  if (!source) {
+    return params;
+  }
+
+  for (const pair of source.split("&")) {
+    if (!pair) {
+      continue;
+    }
+
+    const separatorIndex = pair.indexOf("=");
+    const keyPart = separatorIndex >= 0 ? pair.slice(0, separatorIndex) : pair;
+    const valuePart = separatorIndex >= 0 ? pair.slice(separatorIndex + 1) : "";
+
+    try {
+      const key = decodeURIComponent(keyPart);
+      if (!key) {
+        continue;
+      }
+      params.set(key, decodeURIComponent(valuePart));
+    } catch {
+      // Skip malformed params and continue processing other auth parameters.
+    }
+  }
+
+  return params;
+}
+
 function normalizeAuthPath(path: string | null | undefined) {
   const cleanPath = (path ?? "").replace(/^\/+/, "").toLowerCase();
   return cleanPath.startsWith("--/") ? cleanPath.slice(3) : cleanPath;
@@ -47,8 +77,9 @@ export function isPotentialAuthLink(url: string) {
     return true;
   }
 
-  const hashParams = new URLSearchParams(parsedUrl.hash.replace(/^#/, ""));
-  const hasParam = (key: string) => Boolean(parsedUrl.searchParams.get(key) || hashParams.get(key));
+  const hashParams = parseRawParams(parsedUrl.hash);
+  const searchParams = parseRawParams(parsedUrl.search);
+  const hasParam = (key: string) => Boolean(searchParams.get(key) || hashParams.get(key));
   return (
     hasParam("auth_flow") ||
     hasParam("code") ||
@@ -105,10 +136,11 @@ export async function handleAuthLink(url: string) {
   }
 
   const parsed = Linking.parse(url);
-  const hashParams = new URLSearchParams(parsedUrl.hash.replace(/^#/, ""));
+  const hashParams = parseRawParams(parsedUrl.hash);
+  const searchParams = parseRawParams(parsedUrl.search);
 
   const getParam = (key: string) => {
-    const fromSearch = parsedUrl.searchParams.get(key);
+    const fromSearch = searchParams.get(key);
     if (fromSearch) return fromSearch;
     const fromHash = hashParams.get(key);
     if (fromHash) return fromHash;
