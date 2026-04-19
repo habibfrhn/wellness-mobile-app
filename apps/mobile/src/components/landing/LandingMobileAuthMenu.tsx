@@ -54,6 +54,14 @@ export default function LandingMobileAuthMenu({
     onPressTermsConditions();
   };
 
+  const menuItems = [
+    { key: "login", label: id.login.primaryCta, onPress: handlePressLogin },
+    { key: "signup", label: id.signup.primaryCta, onPress: handlePressSignUp },
+    { key: "faq", label: "FAQ", onPress: handlePressFaq },
+    { key: "privacy", label: id.account.privacy, onPress: handlePressPrivacyPolicy },
+    { key: "terms", label: id.account.terms, onPress: handlePressTermsConditions },
+  ];
+
   return (
     <View style={styles.container}>
       <Pressable
@@ -84,55 +92,18 @@ export default function LandingMobileAuthMenu({
         <View style={styles.overlay}>
           <Pressable style={StyleSheet.absoluteFill} onPress={closeMenu} />
           <View style={styles.dropdown}>
-            <Pressable
-              onPress={handlePressFaq}
-              style={({ pressed }) => [
-                styles.menuItem,
-                pressed && styles.menuItemPressed,
-              ]}
-            >
-              <Text style={styles.menuText}>FAQ</Text>
-            </Pressable>
-
-            <Pressable
-              onPress={handlePressPrivacyPolicy}
-              style={({ pressed }) => [
-                styles.menuItem,
-                pressed && styles.menuItemPressed,
-              ]}
-            >
-              <Text style={styles.menuText}>{id.account.privacy}</Text>
-            </Pressable>
-
-            <Pressable
-              onPress={handlePressTermsConditions}
-              style={({ pressed }) => [
-                styles.menuItem,
-                pressed && styles.menuItemPressed,
-              ]}
-            >
-              <Text style={styles.menuText}>{id.account.terms}</Text>
-            </Pressable>
-
-            <Pressable
-              onPress={handlePressSignUp}
-              style={({ pressed }) => [
-                styles.menuItem,
-                pressed && styles.menuItemPressed,
-              ]}
-            >
-              <Text style={styles.menuText}>{id.signup.primaryCta}</Text>
-            </Pressable>
-
-            <Pressable
-              onPress={handlePressLogin}
-              style={({ pressed }) => [
-                styles.menuItem,
-                pressed && styles.menuItemPressed,
-              ]}
-            >
-              <Text style={styles.menuText}>{id.login.primaryCta}</Text>
-            </Pressable>
+            {menuItems.map((item) => (
+              <Pressable
+                key={item.key}
+                onPress={item.onPress}
+                style={({ pressed }) => [
+                  styles.menuItem,
+                  pressed && styles.menuItemPressed,
+                ]}
+              >
+                <Text style={styles.menuText}>{item.label}</Text>
+              </Pressable>
+            ))}
           </View>
         </View>
       </Modal>
@@ -180,9 +151,11 @@ const styles = StyleSheet.create({
     elevation: Platform.OS === "android" ? 3 : 0,
   },
   menuItem: {
+    minHeight: 44,
     borderRadius: radius.sm,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    justifyContent: "center",
   },
   menuItemPressed: {
     backgroundColor: colors.bg,
