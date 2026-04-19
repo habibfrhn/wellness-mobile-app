@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import PlayerArtworkSection from "../../components/player/PlayerArtworkSection";
@@ -85,6 +85,7 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
     handleTimerSelect,
     handleStop,
     resetSessionState,
+    playbackError,
   } = useWebAudioPlayerSession({ audioId, playlistIds, sleepMode });
 
   useEffect(() => {
@@ -293,6 +294,10 @@ export default function AudioPlayerScreenWeb({ route, navigation }: Props) {
                 compact={!isTabletWeb}
               />
             )}
+
+            {playbackError ? (
+              <Text style={styles.errorText}>{id.player.playbackError}</Text>
+            ) : null}
           </View>
         </View>
       </ScrollView>
@@ -327,5 +332,10 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 420,
     alignSelf: "center",
+  },
+  errorText: {
+    marginTop: spacing.sm,
+    color: colors.danger,
+    textAlign: "center",
   },
 });

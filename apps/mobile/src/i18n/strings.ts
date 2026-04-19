@@ -250,6 +250,7 @@ export const id = {
     sleepSessionExitConfirm: "Yakin ingin mengakhiri sesi tidur?",
     sleepSessionExitNo: "No",
     sleepSessionExitYes: "Yes",
+    playbackError: "Audio belum bisa diputar. Cek koneksi lalu coba lagi.",
   },
 
   account: {

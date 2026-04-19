@@ -84,6 +84,7 @@ export function useWebAudioPlayerSession({
   const [duration, setDuration] = useState(0);
   const [timerSeconds, setTimerSeconds] = useState<number | null>(null);
   const [timerRemaining, setTimerRemaining] = useState<number | null>(null);
+  const [playbackError, setPlaybackError] = useState<string | null>(null);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const preloadedAudioRefs = useRef(new Map<string, HTMLAudioElement>());
@@ -231,6 +232,7 @@ export function useWebAudioPlayerSession({
     }
 
     setIsLoading(true);
+    setPlaybackError(null);
     for (let attempt = 0; attempt < PLAY_RETRY_ATTEMPTS; attempt += 1) {
       try {
         await audio.play();
@@ -240,6 +242,7 @@ export function useWebAudioPlayerSession({
         if (attempt >= PLAY_RETRY_ATTEMPTS - 1) {
           setIsPlaying(false);
           setIsLoading(false);
+          setPlaybackError("play_failed");
           return;
         }
         await new Promise((resolve) => setTimeout(resolve, PLAY_RETRY_DELAY_MS));
@@ -283,6 +286,7 @@ export function useWebAudioPlayerSession({
     audio.volume = 1;
     setCurrent(0);
     setIsPlaying(false);
+    setPlaybackError(null);
   }, [clearFadeOutInterval, clearTailoredProgressInterval, getOrCreateAudio]);
 
   const handleSessionComplete = useCallback(() => {
@@ -465,6 +469,7 @@ export function useWebAudioPlayerSession({
     const handleError = () => {
       setIsLoading(false);
       setIsPlaying(false);
+      setPlaybackError("play_failed");
     };
 
     const handleEnded = () => {
@@ -703,6 +708,7 @@ export function useWebAudioPlayerSession({
     transitionRequestRef.current += 1;
 
     if (audio.paused) {
+      setPlaybackError(null);
       if (!currentSourceRef.current) {
         assignTrackSource(track);
       }
@@ -798,6 +804,7 @@ export function useWebAudioPlayerSession({
   const handleTimerSelect = useCallback((seconds: number) => {
     setTimerSeconds(seconds);
     setTimerRemaining(seconds);
+    setPlaybackError(null);
   }, []);
 
   const handleStop = useCallback(() => {
@@ -819,9 +826,17 @@ export function useWebAudioPlayerSession({
     setHasSessionStarted(false);
     setPlaylistIndex(0);
     resetPlayers();
+    setTimerRemaining(timerSeconds);
     hasTrackedTailoredStartRef.current = false;
     hasTrackedTailoredEndRef.current = false;
-  }, [isTailoredSession, resetPlayers, sessionProgressRatio, sleepMode, trackTrackAbandon]);
+  }, [
+    isTailoredSession,
+    resetPlayers,
+    sessionProgressRatio,
+    sleepMode,
+    timerSeconds,
+    trackTrackAbandon,
+  ]);
 
   useEffect(() => {
     if (hasTrackedTrackEndRef.current || !hasTrackedTrackPlayRef.current) {
@@ -893,5 +908,6 @@ export function useWebAudioPlayerSession({
     handleStop,
     resetPlayers,
     resetSessionState,
+    playbackError,
   };
 }
