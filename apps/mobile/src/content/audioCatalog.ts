@@ -3,10 +3,10 @@ export type AudioId =
   | "hening"
   | "rintik-hujan"
   | "ombak-laut"
-  | "afirmasi_tidur"
-  | "meditasi_tidur";
+  | "terima_diri"
+  | "syukuri_hari";
 
-type LegacyAudioId = "bersiap_tidur";
+type LegacyAudioId = "bersiap_tidur" | "afirmasi_tidur" | "meditasi_tidur";
 
 export type AudioTrack = {
   id: AudioId;
@@ -81,7 +81,7 @@ export const AUDIO_TRACKS = [
     isPremium: false,
   },
   {
-    id: "afirmasi_tidur",
+    id: "terima_diri",
     order: 5,
     title: "Terima Diri",
     subtitle: "Afirmasi lembut untuk diri",
@@ -95,7 +95,7 @@ export const AUDIO_TRACKS = [
     isPremium: false,
   },
   {
-    id: "meditasi_tidur",
+    id: "syukuri_hari",
     order: 6,
     title: "Syukuri Hari",
     subtitle: "Afirmasi lembut untuk diri",
@@ -114,6 +114,8 @@ const favoriteIds = new Set<AudioId>();
 
 const legacyAudioIdAliases: Record<LegacyAudioId, AudioId> = {
   bersiap_tidur: "persiapan_tidur",
+  afirmasi_tidur: "terima_diri",
+  meditasi_tidur: "syukuri_hari",
 };
 
 export function normalizeAudioId(id: AudioId | LegacyAudioId): AudioId {

@@ -12,6 +12,7 @@ const TAILORED_TRANSITION_FADE_IN_MS = 360;
 const VOLUME_TICK_MS = 40;
 const PLAY_RETRY_DELAY_MS = 140;
 const PLAY_RETRY_ATTEMPTS = 5;
+const TAILORED_PROGRESS_TICK_MS = 120;
 const COMPLETION_THRESHOLD = 0.8;
 const TAILORED_SESSION_COMPLETE_THRESHOLD = 0.995;
 
@@ -28,6 +29,33 @@ type UseWebAudioPlayerSessionArgs = {
   playlistIds?: AudioId[];
   sleepMode?: NightSessionMode;
 };
+
+type TailoredTrackPlan = {
+  startOffsetSec: number;
+  endAtSec: number | null;
+  fadeInSec: number;
+  fadeOutSec: number;
+};
+
+function getTailoredTrackPlan(audioId: AudioId, index: number, durationSec: number): TailoredTrackPlan {
+  if (index === 0 && audioId === "terima_diri") {
+    return { startOffsetSec: 0, endAtSec: 160, fadeInSec: 0, fadeOutSec: 5 };
+  }
+
+  if (index === 0 && audioId === "syukuri_hari") {
+    return { startOffsetSec: 0, endAtSec: durationSec, fadeInSec: 0, fadeOutSec: 5 };
+  }
+
+  if (index > 0 && audioId === "persiapan_tidur") {
+    return { startOffsetSec: 5, endAtSec: durationSec, fadeInSec: 5, fadeOutSec: 10 };
+  }
+
+  if (index > 0 && (audioId === "hening" || audioId === "rintik-hujan" || audioId === "ombak-laut")) {
+    return { startOffsetSec: 0, endAtSec: durationSec, fadeInSec: 10, fadeOutSec: 10 };
+  }
+
+  return { startOffsetSec: 0, endAtSec: durationSec, fadeInSec: 0, fadeOutSec: 0 };
+}
 
 function getAssetUri(moduleId: number) {
   const asset = Asset.fromModule(moduleId);
@@ -65,6 +93,7 @@ export function useWebAudioPlayerSession({
   const playlistIndexRef = useRef(playlistIndex);
   const hasSessionStartedRef = useRef(hasSessionStarted);
   const transitionRequestRef = useRef(0);
+  const tailoredProgressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isTailoredSessionRef = useRef(isTailoredSession);
   const normalizedPlaylistIdsRef = useRef(normalizedPlaylistIds);
   const trackTrackCompletionRef = useRef<() => void>(() => {});
@@ -125,6 +154,13 @@ export function useWebAudioPlayerSession({
     if (fadeIntervalRef.current) {
       clearInterval(fadeIntervalRef.current);
       fadeIntervalRef.current = null;
+    }
+  }, []);
+
+  const clearTailoredProgressInterval = useCallback(() => {
+    if (tailoredProgressIntervalRef.current) {
+      clearInterval(tailoredProgressIntervalRef.current);
+      tailoredProgressIntervalRef.current = null;
     }
   }, []);
 
@@ -234,6 +270,7 @@ export function useWebAudioPlayerSession({
 
   const resetPlayers = useCallback(() => {
     clearFadeOutInterval();
+    clearTailoredProgressInterval();
     transitionRequestRef.current += 1;
 
     const audio = getOrCreateAudio();
@@ -246,7 +283,7 @@ export function useWebAudioPlayerSession({
     audio.volume = 1;
     setCurrent(0);
     setIsPlaying(false);
-  }, [clearFadeOutInterval, getOrCreateAudio]);
+  }, [clearFadeOutInterval, clearTailoredProgressInterval, getOrCreateAudio]);
 
   const handleSessionComplete = useCallback(() => {
     if (!sleepMode || sessionCompletionLockRef.current) {
@@ -351,17 +388,23 @@ export function useWebAudioPlayerSession({
       }
 
       const nextTrack = getTrackById(nextTrackId);
+      const nextTrackPlan = getTailoredTrackPlan(nextTrack.id, nextIndex, nextTrack.durationSec);
       setPlaylistIndex(nextIndex);
       assignTrackSource(nextTrack);
 
-      audio.volume = 0;
+      audio.currentTime = nextTrackPlan.startOffsetSec;
+      audio.volume = nextTrackPlan.fadeInSec > 0 ? 0 : 1;
       await playAudio();
 
       if (transitionRequestRef.current !== requestId) {
         return;
       }
 
-      await fadeVolume(audio, 0, 1, TAILORED_TRANSITION_FADE_IN_MS, requestId);
+      if (nextTrackPlan.fadeInSec > 0) {
+        await fadeVolume(audio, 0, 1, nextTrackPlan.fadeInSec * 1000, requestId);
+      } else {
+        await fadeVolume(audio, 0, 1, TAILORED_TRANSITION_FADE_IN_MS, requestId);
+      }
     },
     [assignTrackSource, fadeVolume, getOrCreateAudio, normalizedPlaylistIds, playAudio],
   );
@@ -460,6 +503,7 @@ export function useWebAudioPlayerSession({
 
     return () => {
       clearFadeOutInterval();
+      clearTailoredProgressInterval();
       transitionRequestRef.current += 1;
       audio.pause();
       audio.src = "";
@@ -478,7 +522,7 @@ export function useWebAudioPlayerSession({
       preloadedAudios.clear();
       audioRef.current = null;
     };
-  }, [clearFadeOutInterval, getOrCreateAudio]);
+  }, [clearFadeOutInterval, clearTailoredProgressInterval, getOrCreateAudio]);
 
   useEffect(() => {
     const preferredIndex = isTailoredSession
@@ -547,6 +591,74 @@ export function useWebAudioPlayerSession({
     return () => clearInterval(interval);
   }, [isPlaying, showSoundscapeControls, timerSeconds]);
 
+  useEffect(() => {
+    if (!isTailoredSession || !hasSessionStarted || !isPlaying) {
+      clearTailoredProgressInterval();
+      return;
+    }
+
+    const interval = setInterval(() => {
+      const audio = audioRef.current;
+      if (!audio) {
+        return;
+      }
+
+      const currentIndex = playlistIndexRef.current;
+      const currentTrackId = normalizedPlaylistIds[currentIndex];
+      if (!currentTrackId) {
+        return;
+      }
+
+      const currentTrack = getTrackById(currentTrackId);
+      const currentPlan = getTailoredTrackPlan(currentTrack.id, currentIndex, currentTrack.durationSec);
+      const endAtSec = currentPlan.endAtSec ?? currentTrack.durationSec;
+      const fadeOutStartSec = Math.max(currentPlan.startOffsetSec, endAtSec - currentPlan.fadeOutSec);
+
+      if (currentPlan.fadeOutSec > 0 && audio.currentTime >= fadeOutStartSec) {
+        const fadeProgress = Math.min((audio.currentTime - fadeOutStartSec) / currentPlan.fadeOutSec, 1);
+        audio.volume = Math.max(0, 1 - fadeProgress);
+      } else if (audio.volume !== 1) {
+        audio.volume = 1;
+      }
+
+      if (audio.currentTime < endAtSec) {
+        return;
+      }
+
+      if (currentIndex < normalizedPlaylistIds.length - 1) {
+        trackTrackCompletion();
+        hasTrackedTrackPlayRef.current = false;
+        hasTrackedTrackEndRef.current = false;
+        void transitionToIndex(currentIndex + 1);
+        return;
+      }
+
+      trackTrackCompletion();
+      trackTailoredComplete();
+      handleSessionComplete();
+      setHasSessionStarted(false);
+      setPlaylistIndex(0);
+      setIsPlaying(false);
+      setCurrent(0);
+      audio.pause();
+      audio.currentTime = 0;
+      audio.volume = 1;
+    }, TAILORED_PROGRESS_TICK_MS);
+
+    tailoredProgressIntervalRef.current = interval;
+    return () => clearTailoredProgressInterval();
+  }, [
+    clearTailoredProgressInterval,
+    handleSessionComplete,
+    hasSessionStarted,
+    isPlaying,
+    isTailoredSession,
+    normalizedPlaylistIds,
+    trackTailoredComplete,
+    trackTrackCompletion,
+    transitionToIndex,
+  ]);
+
   const fadeOutAndStop = useCallback(() => {
     const audio = getOrCreateAudio();
     if (!audio) {
@@ -601,7 +713,10 @@ export function useWebAudioPlayerSession({
         setHasSessionStarted(true);
         setPlaylistIndex(0);
         const firstTrack = getTrackById(normalizedPlaylistIds[0] ?? audioId);
+        const firstTrackPlan = getTailoredTrackPlan(firstTrack.id, 0, firstTrack.durationSec);
         assignTrackSource(firstTrack);
+        audio.currentTime = firstTrackPlan.startOffsetSec;
+        audio.volume = firstTrackPlan.fadeInSec > 0 ? 0 : 1;
         trackTailoredStart();
       }
 
@@ -640,7 +755,13 @@ export function useWebAudioPlayerSession({
       setHasSessionStarted(true);
       setPlaylistIndex(0);
       const firstTrack = getTrackById(normalizedPlaylistIds[0] ?? audioId);
+      const firstTrackPlan = getTailoredTrackPlan(firstTrack.id, 0, firstTrack.durationSec);
       assignTrackSource(firstTrack);
+      const audio = getOrCreateAudio();
+      if (audio) {
+        audio.currentTime = firstTrackPlan.startOffsetSec;
+        audio.volume = firstTrackPlan.fadeInSec > 0 ? 0 : 1;
+      }
       trackTailoredStart();
       trackTrackPlay();
       void playAudio();
@@ -654,6 +775,7 @@ export function useWebAudioPlayerSession({
   }, [
     assignTrackSource,
     audioId,
+    getOrCreateAudio,
     isTailoredSession,
     normalizedPlaylistIds,
     playAudio,

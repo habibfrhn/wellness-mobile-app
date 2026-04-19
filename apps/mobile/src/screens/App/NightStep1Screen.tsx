@@ -12,7 +12,7 @@ type Props = NativeStackScreenProps<AppStackParamList, "NightStep1">;
 
 function getStep1AudioId(mode: "calm_mind" | "release_accept") {
   if (mode === "release_accept") {
-    return "afirmasi_tidur" as const;
+    return "terima_diri" as const;
   }
   return "persiapan_tidur" as const;
 }

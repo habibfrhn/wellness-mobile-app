@@ -121,8 +121,8 @@ export default function HomeScreen({ navigation, route }: Props) {
 
     const playlistIds =
       option === "calm_mind"
-        ? (["afirmasi_tidur", "persiapan_tidur", "rintik-hujan"] as const)
-        : (["meditasi_tidur", "persiapan_tidur", "ombak-laut"] as const);
+        ? (["terima_diri", "persiapan_tidur", "rintik-hujan"] as const)
+        : (["syukuri_hari", "persiapan_tidur", "ombak-laut"] as const);
 
     navigation.navigate("Player", { audioId: playlistIds[0], playlistIds: [...playlistIds], sleepMode: option });
   };
