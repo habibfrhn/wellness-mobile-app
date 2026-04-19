@@ -2,6 +2,7 @@ import * as Linking from "expo-linking";
 import { Platform } from "react-native";
 import { supabase } from "./supabase";
 import { isAllowedWebOrigin } from "./webAuth";
+import { logAuthDebugEvent } from "./authDebug";
 
 type AuthLinkType = "signup" | "recovery" | "magiclink" | "email_change" | "unknown";
 
@@ -70,29 +71,36 @@ function isTrustedAuthLinkUrl(parsedUrl: URL) {
   }
 
   if (!isAllowedWebOrigin(parsedUrl.origin)) {
+    logAuthDebugEvent("warn", "oauth_callback_untrusted_origin", {
+      origin: parsedUrl.origin,
+    });
     return false;
   }
 
-  if (typeof window === "undefined") {
-    return true;
-  }
-
-  const currentOrigin = window.location.origin;
-  return parsedUrl.origin === currentOrigin;
+  return true;
 }
 
 /**
  * Handles Supabase auth links for web and native.
  */
 export async function handleAuthLink(url: string) {
+  logAuthDebugEvent("info", "oauth_callback_received", {
+    url,
+  });
+
   let parsedUrl: URL;
   try {
     parsedUrl = new URL(url);
   } catch {
+    logAuthDebugEvent("warn", "oauth_callback_invalid_url", { url });
     return { handled: false as const };
   }
 
   if (!isTrustedAuthLinkUrl(parsedUrl)) {
+    logAuthDebugEvent("warn", "oauth_callback_rejected", {
+      origin: parsedUrl.origin,
+      pathname: parsedUrl.pathname,
+    });
     return { handled: false as const };
   }
 
@@ -123,9 +131,18 @@ export async function handleAuthLink(url: string) {
   if (!inferredPath) return { handled: false as const };
 
   if (code) {
+    logAuthDebugEvent("info", "oauth_callback_exchange_code_start", {
+      inferredPath,
+      linkType,
+    });
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (error) {
+      logAuthDebugEvent("error", "oauth_callback_exchange_code_failed", {
+        inferredPath,
+        linkType,
+        error: error.message,
+      });
       return {
         handled: true as const,
         ok: false as const,
@@ -145,12 +162,21 @@ export async function handleAuthLink(url: string) {
   }
 
   if (accessToken && refreshToken) {
+    logAuthDebugEvent("info", "oauth_callback_set_session_start", {
+      inferredPath,
+      linkType,
+    });
     const { data, error } = await supabase.auth.setSession({
       access_token: accessToken,
       refresh_token: refreshToken,
     });
 
     if (error) {
+      logAuthDebugEvent("error", "oauth_callback_set_session_failed", {
+        inferredPath,
+        linkType,
+        error: error.message,
+      });
       return {
         handled: true as const,
         ok: false as const,
@@ -179,6 +205,12 @@ export async function handleAuthLink(url: string) {
     const { data, error } = await supabase.auth.verifyOtp(params);
 
     if (error) {
+      logAuthDebugEvent("error", "oauth_callback_verify_otp_failed", {
+        inferredPath,
+        linkType,
+        type,
+        error: error.message,
+      });
       return {
         handled: true as const,
         ok: false as const,
@@ -198,6 +230,15 @@ export async function handleAuthLink(url: string) {
       session: data.session,
     };
   }
+
+  logAuthDebugEvent("warn", "oauth_callback_missing_expected_params", {
+    inferredPath,
+    linkType,
+    hasCode: Boolean(code),
+    hasAccessToken: Boolean(accessToken),
+    hasRefreshToken: Boolean(refreshToken),
+    hasTokenHash: Boolean(tokenHash),
+  });
 
   return {
     handled: true as const,

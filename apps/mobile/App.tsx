@@ -27,6 +27,7 @@ import WebAuthStatusScreen from "./src/components/auth/WebAuthStatusScreen";
 import { getWebAuthPath, replaceWebUrl } from "./src/services/webAuth";
 import AdminDashboardScreen from "./src/screens/Admin/AdminDashboardScreen.web";
 import { isUserVerified } from "./src/services/authProviders";
+import { logAuthDebugEvent } from "./src/services/authDebug";
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
 
@@ -311,10 +312,12 @@ export default function App() {
     }
 
     async function processUrl(url: string) {
+      logAuthDebugEvent("info", "oauth_callback_process_start", { url });
       let res: Awaited<ReturnType<typeof handleAuthLink>>;
       try {
         res = await handleAuthLink(url);
       } catch {
+        logAuthDebugEvent("error", "oauth_callback_process_exception", { url });
         if (Platform.OS === "web" && getWebAuthPath(typeof window !== "undefined" ? window.location.pathname : null)) {
           setWebAuthStatus("error");
         } else {
@@ -329,12 +332,18 @@ export default function App() {
       }
 
       if (!res.handled) {
+        logAuthDebugEvent("warn", "oauth_callback_not_handled", { url });
         await clearPendingProfileName();
         setWebAuthStatus("missing");
         return;
       }
 
       if (!res.ok) {
+        logAuthDebugEvent("error", "oauth_callback_failed", {
+          path: res.path,
+          linkType: res.linkType,
+          error: res.error,
+        });
         const copy = getAuthLinkErrorCopy(res.error, res.linkType);
         if (Platform.OS === "web" && getWebAuthPath(typeof window !== "undefined" ? window.location.pathname : null)) {
           setWebAuthStatus("error");
@@ -350,6 +359,9 @@ export default function App() {
       }
 
       if (res.path === "auth/reset") {
+        logAuthDebugEvent("info", "oauth_callback_reset_flow", {
+          linkType: res.linkType,
+        });
         setForceReset(true);
         setWebResetFlowActive(true);
         await setNextAuthRoute("ResetPassword");
@@ -361,6 +373,9 @@ export default function App() {
 
       const isEmailVerificationLink = res.linkType === "signup" || res.linkType === "email_change";
       if (isEmailVerificationLink) {
+        logAuthDebugEvent("info", "oauth_callback_email_verification_link", {
+          linkType: res.linkType,
+        });
         await supabase.auth.signOut();
         await setNextAuthRoute("Login");
         setAuthStartRoute("Login");
@@ -372,11 +387,20 @@ export default function App() {
       }
 
       if (!res.session) {
+        logAuthDebugEvent("warn", "oauth_callback_missing_session", {
+          path: res.path,
+          linkType: res.linkType,
+        });
         await clearPendingProfileName();
         setWebAuthStatus("missing");
         return;
       }
 
+      logAuthDebugEvent("info", "oauth_callback_success", {
+        path: res.path,
+        linkType: res.linkType,
+        userId: res.session.user.id,
+      });
       replaceWebUrl("/");
       setWebAuthStatus("idle");
     }
@@ -389,17 +413,29 @@ export default function App() {
 
       const initialUrl = await Linking.getInitialURL();
       const initialWebAuthPath = Platform.OS === "web" && typeof window !== "undefined" ? getWebAuthPath(window.location.pathname) : null;
+      const initialWebUrl = Platform.OS === "web" && typeof window !== "undefined" ? window.location.href : null;
+      const initialAuthUrl = initialWebAuthPath && initialWebUrl ? initialWebUrl : initialUrl;
       if (initialWebAuthPath) {
         setWebAuthStatus("loading");
       }
 
       const shouldProcessInitialUrl =
-        typeof initialUrl === "string" &&
-        (Platform.OS !== "web" || Boolean(initialWebAuthPath) || isPotentialAuthLink(initialUrl));
+        typeof initialAuthUrl === "string" &&
+        (Platform.OS !== "web" || Boolean(initialWebAuthPath) || isPotentialAuthLink(initialAuthUrl));
 
-      if (typeof initialUrl === "string" && shouldProcessInitialUrl) {
-        await processUrl(initialUrl);
+      if (typeof initialAuthUrl === "string" && shouldProcessInitialUrl) {
+        logAuthDebugEvent("info", "oauth_callback_initial_url", {
+          initialUrl,
+          initialAuthUrl,
+          initialWebAuthPath,
+        });
+        await processUrl(initialAuthUrl);
       } else if (initialWebAuthPath) {
+        logAuthDebugEvent("warn", "oauth_callback_initial_missing_params", {
+          initialUrl,
+          initialAuthUrl,
+          initialWebAuthPath,
+        });
         setWebAuthStatus("missing");
       }
 

@@ -3,6 +3,7 @@ import * as Linking from "expo-linking";
 
 import { AUTH_CALLBACK, hasValidAuthRedirects, supabase } from "./supabase";
 import { setNextAuthRoute } from "./authStart";
+import { logAuthDebugEvent } from "./authDebug";
 
 type ContinueWithGoogleOptions = {
   nextRoute?: "Login" | "SignUp";
@@ -10,8 +11,18 @@ type ContinueWithGoogleOptions = {
 
 export async function continueWithGoogle({ nextRoute = "Login" }: ContinueWithGoogleOptions = {}) {
   if (!hasValidAuthRedirects) {
+    logAuthDebugEvent("error", "oauth_google_start_blocked", {
+      reason: "AUTH_REDIRECT_MISCONFIGURED",
+      nextRoute,
+      redirectTo: AUTH_CALLBACK,
+    });
     throw new Error("AUTH_REDIRECT_MISCONFIGURED");
   }
+
+  logAuthDebugEvent("info", "oauth_google_start", {
+    nextRoute,
+    redirectTo: AUTH_CALLBACK,
+  });
 
   await setNextAuthRoute(nextRoute);
 
@@ -27,8 +38,19 @@ export async function continueWithGoogle({ nextRoute = "Login" }: ContinueWithGo
   });
 
   if (error) {
+    logAuthDebugEvent("error", "oauth_google_start_failed", {
+      nextRoute,
+      redirectTo: AUTH_CALLBACK,
+      error: error.message,
+    });
     throw error;
   }
+
+  logAuthDebugEvent("info", "oauth_google_start_success", {
+    nextRoute,
+    redirectTo: AUTH_CALLBACK,
+    hasAuthUrl: Boolean(data?.url),
+  });
 
   if (Platform.OS !== "web" && data?.url) {
     await Linking.openURL(data.url);

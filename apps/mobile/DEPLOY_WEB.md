@@ -42,6 +42,23 @@ Set these environment variables in Vercel for **Preview** and **Production**:
 
 Without these, the app blocks outbound auth redirect generation on production web builds to prevent invalid localhost reset/verify links.
 
+### Google OAuth production parity checklist
+Google OAuth for Supabase depends on **three** configs matching exactly:
+
+1. **Google Cloud OAuth client**
+   - Authorized redirect URI must include your Supabase callback:
+     - `https://<project-ref>.supabase.co/auth/v1/callback`
+2. **Supabase Auth URL configuration**
+   - Site URL: `https://lumepo.com`
+   - Redirect URLs must include:
+     - `https://lumepo.com/auth/callback`
+     - `https://www.lumepo.com/auth/callback`
+3. **Vercel web env vars**
+   - `EXPO_PUBLIC_WEB_ORIGIN=https://lumepo.com`
+   - `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS=https://lumepo.com,https://www.lumepo.com`
+
+If any one of these differs between dev/preview/production, Google auth can succeed at Google but fail to complete session exchange in-app.
+
 ## Usage guardrails (recommended)
 - **Vercel**
   - Add budget alerts for bandwidth and function invocations in Vercel usage settings.
