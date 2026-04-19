@@ -216,16 +216,28 @@ async function postAnalyticsEvents(events: TrackAnalyticsEventPayload[]) {
     throw new Error("Missing analytics function configuration");
   }
 
-  const sendRequest = async (userJwt: string | null) =>
-    fetch(`${supabaseUrl}/functions/v1/track-analytics-event`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: anonKey,
-        ...(userJwt ? { [USER_JWT_HEADER]: userJwt } : {}),
-      },
-      body: JSON.stringify(events.length === 1 ? events[0] : { events }),
-    });
+  const sendRequest = async (userJwt: string | null) => {
+    try {
+      return await fetch(`${supabaseUrl}/functions/v1/track-analytics-event`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: anonKey,
+          ...(userJwt ? { [USER_JWT_HEADER]: userJwt } : {}),
+        },
+        body: JSON.stringify(events.length === 1 ? events[0] : { events }),
+      });
+    } catch (requestError) {
+      return {
+        ok: false,
+        status: 0,
+        json: async () => ({
+          error: requestError instanceof Error ? requestError.message : "Network request failed",
+          code: "NETWORK_ERROR",
+        }),
+      } as Pick<Response, "ok" | "status" | "json">;
+    }
+  };
 
   const accessToken = await getUserAccessTokenForAnalytics();
   let response = await sendRequest(accessToken);

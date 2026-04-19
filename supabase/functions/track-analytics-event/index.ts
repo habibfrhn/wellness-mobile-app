@@ -80,6 +80,8 @@ function getAllowedCorsOrigin(req: Request): string | null {
     return null;
   }
 
+  const normalizedOrigin = origin.trim().toLowerCase();
+
   const allowedOriginsRaw = Deno.env.get("CORS_ALLOWED_ORIGINS")?.trim();
   if (!allowedOriginsRaw) {
     return "*";
@@ -88,10 +90,16 @@ function getAllowedCorsOrigin(req: Request): string | null {
   const allowedOrigins = allowedOriginsRaw
     .split(",")
     .map((value) => value.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .map((value) => value.toLowerCase());
+
+  if (allowedOrigins.includes("*")) {
+    return "*";
+  }
+
   const expandedAllowedOrigins = Array.from(new Set([...allowedOrigins, ...REQUIRED_WEB_ORIGINS]));
 
-  return expandedAllowedOrigins.includes(origin) ? origin : null;
+  return expandedAllowedOrigins.includes(normalizedOrigin) ? origin : null;
 }
 
 function buildCorsHeaders(req: Request) {
