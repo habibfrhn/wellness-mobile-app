@@ -10,6 +10,8 @@ const FADE_OUT_SECONDS = 5;
 const TAILORED_TRANSITION_FADE_OUT_MS = 160;
 const TAILORED_TRANSITION_FADE_IN_MS = 360;
 const VOLUME_TICK_MS = 40;
+const PLAY_RETRY_DELAY_MS = 140;
+const PLAY_RETRY_ATTEMPTS = 5;
 const COMPLETION_THRESHOLD = 0.8;
 const TAILORED_SESSION_COMPLETE_THRESHOLD = 0.995;
 
@@ -56,12 +58,19 @@ export function useWebAudioPlayerSession({
   const [timerRemaining, setTimerRemaining] = useState<number | null>(null);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const preloadedAudioRefs = useRef(new Map<string, HTMLAudioElement>());
   const currentSourceRef = useRef<string | null>(null);
   const fadeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const sessionCompletionLockRef = useRef(false);
   const playlistIndexRef = useRef(playlistIndex);
   const hasSessionStartedRef = useRef(hasSessionStarted);
   const transitionRequestRef = useRef(0);
+  const isTailoredSessionRef = useRef(isTailoredSession);
+  const normalizedPlaylistIdsRef = useRef(normalizedPlaylistIds);
+  const trackTrackCompletionRef = useRef<() => void>(() => {});
+  const trackTailoredCompleteRef = useRef<() => void>(() => {});
+  const handleSessionCompleteRef = useRef<() => void>(() => {});
+  const transitionToIndexRef = useRef<(nextIndex: number) => Promise<void>>(async () => {});
   const hasTrackedTrackPlayRef = useRef(false);
   const hasTrackedTrackEndRef = useRef(false);
   const hasTrackedTailoredStartRef = useRef(false);
@@ -77,7 +86,7 @@ export function useWebAudioPlayerSession({
 
     const audio = new Audio();
     // MVP-safe default: avoid eager full-file fetches before the user actually plays audio.
-    audio.preload = "metadata";
+    audio.preload = "auto";
     audioRef.current = audio;
     return audio;
   }, []);
@@ -186,12 +195,19 @@ export function useWebAudioPlayerSession({
     }
 
     setIsLoading(true);
-    try {
-      await audio.play();
-    } catch {
-      setIsPlaying(false);
-    } finally {
-      setIsLoading(false);
+    for (let attempt = 0; attempt < PLAY_RETRY_ATTEMPTS; attempt += 1) {
+      try {
+        await audio.play();
+        setIsLoading(false);
+        return;
+      } catch {
+        if (attempt >= PLAY_RETRY_ATTEMPTS - 1) {
+          setIsPlaying(false);
+          setIsLoading(false);
+          return;
+        }
+        await new Promise((resolve) => setTimeout(resolve, PLAY_RETRY_DELAY_MS));
+      }
     }
   }, [getOrCreateAudio]);
 
@@ -351,20 +367,48 @@ export function useWebAudioPlayerSession({
   );
 
   useEffect(() => {
+    isTailoredSessionRef.current = isTailoredSession;
+    normalizedPlaylistIdsRef.current = normalizedPlaylistIds;
+  }, [isTailoredSession, normalizedPlaylistIds]);
+
+  useEffect(() => {
     playlistIndexRef.current = playlistIndex;
     hasSessionStartedRef.current = hasSessionStarted;
   }, [hasSessionStarted, playlistIndex]);
 
   useEffect(() => {
-    const assetModules = normalizedPlaylistIds.map((id) => getTrackById(id).asset);
-    void Asset.loadAsync(assetModules);
+    const preloadTracks = async () => {
+      const tracks = normalizedPlaylistIds.map((id) => getTrackById(id));
+      await Asset.loadAsync(tracks.map((item) => item.asset));
+
+      tracks.forEach((item) => {
+        const src = getAssetUri(item.asset);
+        if (!src || preloadedAudioRefs.current.has(src) || typeof Audio === "undefined") {
+          return;
+        }
+        const preloadAudio = new Audio(src);
+        preloadAudio.preload = "auto";
+        preloadAudio.load();
+        preloadedAudioRefs.current.set(src, preloadAudio);
+      });
+    };
+
+    void preloadTracks();
   }, [normalizedPlaylistIds]);
+
+  useEffect(() => {
+    trackTrackCompletionRef.current = trackTrackCompletion;
+    trackTailoredCompleteRef.current = trackTailoredComplete;
+    handleSessionCompleteRef.current = handleSessionComplete;
+    transitionToIndexRef.current = transitionToIndex;
+  }, [handleSessionComplete, trackTailoredComplete, trackTrackCompletion, transitionToIndex]);
 
   useEffect(() => {
     const audio = getOrCreateAudio();
     if (!audio) {
       return;
     }
+    const preloadedAudios = preloadedAudioRefs.current;
 
     const handleLoadedMetadata = () => {
       setDuration(Number.isFinite(audio.duration) ? audio.duration : 0);
@@ -382,19 +426,21 @@ export function useWebAudioPlayerSession({
 
     const handleEnded = () => {
       const currentIndex = playlistIndexRef.current;
+      const isTailored = isTailoredSessionRef.current;
+      const playlist = normalizedPlaylistIdsRef.current;
 
-      if (isTailoredSession && hasSessionStartedRef.current && currentIndex < normalizedPlaylistIds.length - 1) {
-        trackTrackCompletion();
+      if (isTailored && hasSessionStartedRef.current && currentIndex < playlist.length - 1) {
+        trackTrackCompletionRef.current();
         hasTrackedTrackPlayRef.current = false;
         hasTrackedTrackEndRef.current = false;
-        void transitionToIndex(currentIndex + 1);
+        void transitionToIndexRef.current(currentIndex + 1);
         return;
       }
 
-      if (isTailoredSession && hasSessionStartedRef.current) {
-        trackTrackCompletion();
-        trackTailoredComplete();
-        handleSessionComplete();
+      if (isTailored && hasSessionStartedRef.current) {
+        trackTrackCompletionRef.current();
+        trackTailoredCompleteRef.current();
+        handleSessionCompleteRef.current();
         setHasSessionStarted(false);
         setPlaylistIndex(0);
       }
@@ -425,18 +471,14 @@ export function useWebAudioPlayerSession({
       audio.removeEventListener("waiting", handleWaiting);
       audio.removeEventListener("playing", handlePlaying);
       audio.removeEventListener("error", handleError);
+      preloadedAudios.forEach((item) => {
+        item.pause();
+        item.src = "";
+      });
+      preloadedAudios.clear();
       audioRef.current = null;
     };
-  }, [
-    clearFadeOutInterval,
-    getOrCreateAudio,
-    handleSessionComplete,
-    isTailoredSession,
-    normalizedPlaylistIds,
-    trackTailoredComplete,
-    trackTrackCompletion,
-    transitionToIndex,
-  ]);
+  }, [clearFadeOutInterval, getOrCreateAudio]);
 
   useEffect(() => {
     const preferredIndex = isTailoredSession
@@ -549,6 +591,10 @@ export function useWebAudioPlayerSession({
     transitionRequestRef.current += 1;
 
     if (audio.paused) {
+      if (!currentSourceRef.current) {
+        assignTrackSource(track);
+      }
+
       if (isTailoredSession && !hasSessionStarted) {
         hasTrackedTailoredStartRef.current = false;
         hasTrackedTailoredEndRef.current = false;
@@ -580,6 +626,7 @@ export function useWebAudioPlayerSession({
     normalizedPlaylistIds,
     pause,
     playAudio,
+    track,
     trackTailoredStart,
     trackTrackPlay,
   ]);
