@@ -18,3 +18,17 @@ function normalizeProviders(user: User | null | undefined) {
 export function canManagePassword(user: User | null | undefined) {
   return normalizeProviders(user).includes("email");
 }
+
+export function isUserVerified(user: User | null | undefined) {
+  if (!user) {
+    return false;
+  }
+
+  if (user.email_confirmed_at || user.phone_confirmed_at) {
+    return true;
+  }
+
+  // OAuth providers (e.g. Google) are already identity-verified by the provider,
+  // and may not populate `email_confirmed_at` in the same way as email/password.
+  return normalizeProviders(user).some((provider) => provider !== "email");
+}

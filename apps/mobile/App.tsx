@@ -26,6 +26,7 @@ import { clearPendingProfileName, getPendingProfileName } from "./src/services/p
 import WebAuthStatusScreen from "./src/components/auth/WebAuthStatusScreen";
 import { getWebAuthPath, replaceWebUrl } from "./src/services/webAuth";
 import AdminDashboardScreen from "./src/screens/Admin/AdminDashboardScreen.web";
+import { isUserVerified } from "./src/services/authProviders";
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
 
@@ -270,9 +271,7 @@ export default function App() {
   );
 
   const isVerified = useMemo(() => {
-    const user = session?.user;
-    // Supabase uses email_confirmed_at for email verification status
-    return Boolean(user?.email_confirmed_at);
+    return isUserVerified(session?.user);
   }, [session]);
 
   useEffect(() => {

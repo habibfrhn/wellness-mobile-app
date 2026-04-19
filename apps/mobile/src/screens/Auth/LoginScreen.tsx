@@ -21,6 +21,7 @@ import { continueWithGoogle } from "../../services/authOAuth";
 import PasswordToggle from "../../components/PasswordToggle";
 import LoginSignUpPrompt from "../../components/auth/LoginSignUpPrompt";
 import { getSafeAuthErrorMessage, isEmailNotConfirmedError, isInvalidCredentialsError } from "../../services/authSecurity";
+import { isUserVerified } from "../../services/authProviders";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
@@ -123,7 +124,7 @@ export default function LoginScreen({ navigation, route }: Props) {
         return;
       }
 
-      const verified = Boolean(data.user?.email_confirmed_at);
+      const verified = isUserVerified(data.user);
       if (!verified) {
         await supabase.auth.signOut();
         navigation.replace("VerifyEmail", { email: e, context: "login_unverified" });
