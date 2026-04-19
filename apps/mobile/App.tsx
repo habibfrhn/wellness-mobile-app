@@ -223,6 +223,7 @@ export default function App() {
   const [authStartRoute, setAuthStartRoute] = useState<keyof AuthStackParamList>("Welcome");
   const [webAuthStatus, setWebAuthStatus] = useState<"idle" | "loading" | "error" | "missing">("idle");
   const [isNavigationReady, setIsNavigationReady] = useState(false);
+  const [pendingPostAuthNavigation, setPendingPostAuthNavigation] = useState(false);
 
   const didCheckUpdatesRef = useRef(false);
   const webLinking = useMemo<LinkingOptions<RootStackParamList>>(
@@ -404,6 +405,8 @@ export default function App() {
       });
       setSession(res.session);
       replaceWebUrl(getWebPathForRoute("Home"));
+      void clearNextAuthRoute();
+      setPendingPostAuthNavigation(true);
       setWebAuthStatus("idle");
     }
 
@@ -503,6 +506,7 @@ export default function App() {
         if (event === "SIGNED_OUT") {
           setForceReset(false);
           setWebResetFlowActive(false);
+          setPendingPostAuthNavigation(false);
         }
       });
       authSubscription = authListener?.subscription;
@@ -658,6 +662,22 @@ export default function App() {
     setAuthStartRoute("Welcome");
     void clearNextAuthRoute();
   }, [webAuthStatus]);
+
+  useEffect(() => {
+    if (
+      Platform.OS !== "web" ||
+      !pendingPostAuthNavigation ||
+      !isNavigationReady ||
+      !ready ||
+      webAuthStatus !== "idle" ||
+      isAdminRoutePath()
+    ) {
+      return;
+    }
+
+    navigationRef.resetRoot({ index: 0, routes: [{ name: "App" }] });
+    setPendingPostAuthNavigation(false);
+  }, [isNavigationReady, pendingPostAuthNavigation, ready, webAuthStatus]);
 
   const shouldShowAuth = forceReset || !session || !isVerified;
   const initialAuthRoute =
