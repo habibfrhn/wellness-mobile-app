@@ -401,6 +401,7 @@ export default function App() {
         linkType: res.linkType,
         userId: res.session.user.id,
       });
+      setSession(res.session);
       replaceWebUrl("/");
       setWebAuthStatus("idle");
     }
