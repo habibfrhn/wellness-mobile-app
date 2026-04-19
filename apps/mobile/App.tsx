@@ -222,6 +222,7 @@ export default function App() {
   const [forceReset, setForceReset] = useState(false);
   const [authStartRoute, setAuthStartRoute] = useState<keyof AuthStackParamList>("Welcome");
   const [webAuthStatus, setWebAuthStatus] = useState<"idle" | "loading" | "error" | "missing">("idle");
+  const [isNavigationReady, setIsNavigationReady] = useState(false);
 
   const didCheckUpdatesRef = useRef(false);
   const webLinking = useMemo<LinkingOptions<RootStackParamList>>(
@@ -675,7 +676,7 @@ export default function App() {
   useEffect(() => {
     if (
       Platform.OS !== "web" ||
-      !navigationRef.isReady() ||
+      !isNavigationReady ||
       !ready ||
       webAuthStatus !== "idle" ||
       isAdminRoutePath()
@@ -716,6 +717,7 @@ export default function App() {
     shouldAutoOpenWebAuth,
     shouldShowAuth,
     webAuthStatus,
+    isNavigationReady,
   ]);
 
   if (!ready || (!session && !authStartResolved)) {
@@ -779,7 +781,10 @@ export default function App() {
         <NavigationContainer
           ref={navigationRef}
           linking={Platform.OS === "web" ? webLinking : undefined}
-          onReady={() => syncWebTitle(navigationRef.getCurrentRoute()?.name)}
+          onReady={() => {
+            setIsNavigationReady(true);
+            syncWebTitle(navigationRef.getCurrentRoute()?.name);
+          }}
           onStateChange={() => syncWebTitle(navigationRef.getCurrentRoute()?.name)}
         >
           {Platform.OS === "web" ? (
