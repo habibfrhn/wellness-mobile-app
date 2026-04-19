@@ -452,7 +452,20 @@ export default function App() {
       });
 
       const { data } = await supabase.auth.getSession();
-      setSession(data.session);
+      setSession((currentSession) => {
+        if (data.session) {
+          return data.session;
+        }
+
+        if (currentSession) {
+          logAuthDebugEvent("warn", "oauth_callback_get_session_empty_after_callback", {
+            userId: currentSession.user.id,
+          });
+          return currentSession;
+        }
+
+        return null;
+      });
 
       const hasResetHint =
         typeof initialUrl === "string" &&
