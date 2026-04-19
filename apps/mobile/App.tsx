@@ -479,7 +479,26 @@ export default function App() {
       }
 
       const { data: authListener } = supabase.auth.onAuthStateChange((event, sess) => {
-        setSession(sess);
+        setSession((currentSession) => {
+          if (sess) {
+            return sess;
+          }
+
+          if (event === "SIGNED_OUT") {
+            return null;
+          }
+
+          if (currentSession) {
+            logAuthDebugEvent("warn", "oauth_callback_auth_listener_empty_session", {
+              event,
+              userId: currentSession.user.id,
+            });
+            return currentSession;
+          }
+
+          return null;
+        });
+
         if (event === "SIGNED_OUT") {
           setForceReset(false);
           setWebResetFlowActive(false);
