@@ -10,11 +10,15 @@ type ContinueWithGoogleOptions = {
 };
 
 export async function continueWithGoogle({ nextRoute = "Login" }: ContinueWithGoogleOptions = {}) {
+  const currentOrigin =
+    Platform.OS === "web" && typeof window !== "undefined" ? window.location.origin : null;
+
   if (!hasValidAuthRedirects) {
     logAuthDebugEvent("error", "oauth_google_start_blocked", {
       reason: "AUTH_REDIRECT_MISCONFIGURED",
       nextRoute,
       redirectTo: AUTH_CALLBACK,
+      currentOrigin,
     });
     throw new Error("AUTH_REDIRECT_MISCONFIGURED");
   }
@@ -22,6 +26,7 @@ export async function continueWithGoogle({ nextRoute = "Login" }: ContinueWithGo
   logAuthDebugEvent("info", "oauth_google_start", {
     nextRoute,
     redirectTo: AUTH_CALLBACK,
+    currentOrigin,
   });
 
   await setNextAuthRoute(nextRoute);

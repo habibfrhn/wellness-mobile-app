@@ -6,6 +6,22 @@ import { logAuthDebugEvent } from "./authDebug";
 
 type AuthLinkType = "signup" | "recovery" | "magiclink" | "email_change" | "unknown";
 
+function summarizeAuthUrl(url: string) {
+  try {
+    const parsed = new URL(url);
+    const searchKeys = [...parsed.searchParams.keys()];
+    const hashParams = parseRawParams(parsed.hash);
+    return {
+      origin: parsed.origin,
+      pathname: parsed.pathname,
+      searchKeys,
+      hashKeys: [...hashParams.keys()],
+    };
+  } catch {
+    return { malformed: true };
+  }
+}
+
 function parseRawParams(raw: string) {
   const params = new Map<string, string>();
   const source = raw.replace(/^[#?]/, "");
@@ -116,14 +132,16 @@ function isTrustedAuthLinkUrl(parsedUrl: URL) {
  */
 export async function handleAuthLink(url: string) {
   logAuthDebugEvent("info", "oauth_callback_received", {
-    url,
+    summary: summarizeAuthUrl(url),
   });
 
   let parsedUrl: URL;
   try {
     parsedUrl = new URL(url);
   } catch {
-    logAuthDebugEvent("warn", "oauth_callback_invalid_url", { url });
+    logAuthDebugEvent("warn", "oauth_callback_invalid_url", {
+      summary: summarizeAuthUrl(url),
+    });
     return { handled: false as const };
   }
 

@@ -24,7 +24,7 @@ import { setPendingUpdate } from "./src/services/updatesState";
 import { clearNextAuthRoute, getNextAuthRoute, setNextAuthRoute } from "./src/services/authStart";
 import { clearPendingProfileName, getPendingProfileName } from "./src/services/pendingProfileName";
 import WebAuthStatusScreen from "./src/components/auth/WebAuthStatusScreen";
-import { getWebAuthPath, replaceWebUrl } from "./src/services/webAuth";
+import { getWebAppOrigin, getWebAuthPath, replaceWebUrl } from "./src/services/webAuth";
 import AdminDashboardScreen from "./src/screens/Admin/AdminDashboardScreen.web";
 import { isUserVerified } from "./src/services/authProviders";
 import { logAuthDebugEvent } from "./src/services/authDebug";
@@ -125,6 +125,28 @@ function normalizeWebPathForRoute(pathname: string) {
 
 function getWebPathForRoute(routeName: string, fallback = "/") {
   return WEB_ROUTE_PATHS[routeName] ?? fallback;
+}
+
+function summarizeAuthUrl(url?: string | null) {
+  if (!url) {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(url);
+    const searchKeys = [...parsed.searchParams.keys()];
+    const hashParams = new URLSearchParams(parsed.hash.replace(/^#/, ""));
+    const hashKeys = [...hashParams.keys()];
+
+    return {
+      origin: parsed.origin,
+      pathname: parsed.pathname,
+      searchKeys,
+      hashKeys,
+    };
+  } catch {
+    return { malformed: true };
+  }
 }
 
 function isAdminRoutePath() {
@@ -312,12 +334,16 @@ export default function App() {
     }
 
     async function processUrl(url: string) {
-      logAuthDebugEvent("info", "oauth_callback_process_start", { url });
+      logAuthDebugEvent("info", "oauth_callback_process_start", {
+        summary: summarizeAuthUrl(url),
+      });
       let res: Awaited<ReturnType<typeof handleAuthLink>>;
       try {
         res = await handleAuthLink(url);
       } catch {
-        logAuthDebugEvent("error", "oauth_callback_process_exception", { url });
+        logAuthDebugEvent("error", "oauth_callback_process_exception", {
+          summary: summarizeAuthUrl(url),
+        });
         if (Platform.OS === "web" && getWebAuthPath(typeof window !== "undefined" ? window.location.pathname : null)) {
           setWebAuthStatus("error");
         } else {
@@ -331,8 +357,19 @@ export default function App() {
         return;
       }
 
+      logAuthDebugEvent("info", "oauth_callback_process_result", {
+        handled: res.handled,
+        ok: "ok" in res ? res.ok : false,
+        path: "path" in res ? res.path : null,
+        linkType: "linkType" in res ? res.linkType : null,
+        hasSession: "session" in res ? Boolean(res.session) : false,
+        userId: "session" in res ? (res.session?.user.id ?? null) : null,
+      });
+
       if (!res.handled) {
-        logAuthDebugEvent("warn", "oauth_callback_not_handled", { url });
+        logAuthDebugEvent("warn", "oauth_callback_not_handled", {
+          summary: summarizeAuthUrl(url),
+        });
         await clearPendingProfileName();
         setWebAuthStatus("missing");
         return;
@@ -416,6 +453,14 @@ export default function App() {
       const initialWebAuthPath = Platform.OS === "web" && typeof window !== "undefined" ? getWebAuthPath(window.location.pathname) : null;
       const initialWebUrl = Platform.OS === "web" && typeof window !== "undefined" ? window.location.href : null;
       const initialAuthUrl = initialWebAuthPath && initialWebUrl ? initialWebUrl : initialUrl;
+      logAuthDebugEvent("info", "oauth_callback_bootstrap", {
+        detectedWebPath: initialWebAuthPath,
+        webLocation: summarizeAuthUrl(initialWebUrl),
+        initialLinkingUrl: summarizeAuthUrl(initialUrl),
+        shouldUseConfiguredOrigin: Platform.OS === "web",
+        configuredOrigin: Platform.OS === "web" ? getWebAppOrigin() : null,
+      });
+
       if (initialWebAuthPath) {
         setWebAuthStatus("loading");
       }
@@ -426,15 +471,15 @@ export default function App() {
 
       if (typeof initialAuthUrl === "string" && shouldProcessInitialUrl) {
         logAuthDebugEvent("info", "oauth_callback_initial_url", {
-          initialUrl,
-          initialAuthUrl,
+          initialUrl: summarizeAuthUrl(initialUrl),
+          initialAuthUrl: summarizeAuthUrl(initialAuthUrl),
           initialWebAuthPath,
         });
         await processUrl(initialAuthUrl);
       } else if (initialWebAuthPath) {
         logAuthDebugEvent("warn", "oauth_callback_initial_missing_params", {
-          initialUrl,
-          initialAuthUrl,
+          initialUrl: summarizeAuthUrl(initialUrl),
+          initialAuthUrl: summarizeAuthUrl(initialAuthUrl),
           initialWebAuthPath,
         });
         setWebAuthStatus("missing");
@@ -452,6 +497,10 @@ export default function App() {
       });
 
       const { data } = await supabase.auth.getSession();
+      logAuthDebugEvent("info", "oauth_session_after_init_get_session", {
+        hasSession: Boolean(data.session),
+        userId: data.session?.user.id ?? null,
+      });
       setSession((currentSession) => {
         if (data.session) {
           return data.session;
@@ -479,6 +528,12 @@ export default function App() {
       }
 
       const { data: authListener } = supabase.auth.onAuthStateChange((event, sess) => {
+        logAuthDebugEvent("info", "oauth_auth_state_change", {
+          event,
+          hasSession: Boolean(sess),
+          userId: sess?.user.id ?? null,
+          provider: sess?.user?.app_metadata?.provider ?? null,
+        });
         setSession(sess);
         if (event === "SIGNED_OUT") {
           setForceReset(false);
