@@ -208,7 +208,7 @@ function shouldSuppressKnownWebResponderWarning(args: unknown[]) {
   return WEB_KNOWN_RESPONDER_WARNINGS.some((warning) => firstArg.includes(warning));
 }
 
-if (Platform.OS === "web") {
+if (__DEV__ && Platform.OS === "web") {
   const originalConsoleWarn = console.warn.bind(console);
   const originalConsoleError = console.error.bind(console);
 
@@ -501,20 +501,7 @@ export default function App() {
         hasSession: Boolean(data.session),
         userId: data.session?.user.id ?? null,
       });
-      setSession((currentSession) => {
-        if (data.session) {
-          return data.session;
-        }
-
-        if (currentSession) {
-          logAuthDebugEvent("warn", "oauth_callback_get_session_empty_after_callback", {
-            userId: currentSession.user.id,
-          });
-          return currentSession;
-        }
-
-        return null;
-      });
+      setSession(data.session);
 
       const hasResetHint =
         typeof initialUrl === "string" &&
