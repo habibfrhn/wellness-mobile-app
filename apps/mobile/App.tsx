@@ -720,17 +720,21 @@ export default function App() {
     }
 
     const currentRoute = navigationRef.getCurrentRoute();
-    if (!currentRoute) {
+    const rootState = navigationRef.getRootState();
+    const currentRootRoute = rootState?.routes[rootState.index ?? 0];
+    if (!currentRoute || !currentRootRoute) {
       return;
     }
     const currentRouteName = String(currentRoute.name);
+    const currentRootRouteName = String(currentRootRoute.name);
 
     if (!shouldShowAuth) {
-      if (currentRouteName !== "App") {
+      if (currentRootRouteName !== "App") {
         logLogoutEvent("info", "logout_navigation_redirect", {
           destination: "App",
           reason: "authenticated_session",
           currentRouteName,
+          currentRootRouteName,
         });
         navigationRef.resetRoot({ index: 0, routes: [{ name: "App" }] });
       }
@@ -741,12 +745,13 @@ export default function App() {
       const requestedAuthScreen =
         authStartRoute === "SignUp" ? "SignUp" : initialAuthRoute === "ResetPassword" ? "ResetPassword" : "Login";
 
-      if (currentRouteName !== "Auth") {
+      if (currentRootRouteName !== "Auth") {
         logLogoutEvent("info", "logout_navigation_redirect", {
           destination: "Auth",
           reason: "missing_or_unverified_session",
           requestedAuthScreen,
           currentRouteName,
+          currentRootRouteName,
         });
         navigationRef.resetRoot({
           index: 0,
@@ -756,11 +761,12 @@ export default function App() {
       return;
     }
 
-    if (currentRouteName === "App") {
+    if (currentRootRouteName === "App") {
       logLogoutEvent("info", "logout_navigation_redirect", {
         destination: "Landing",
         reason: "show_landing_for_unauthenticated",
         currentRouteName,
+        currentRootRouteName,
       });
       navigationRef.navigate("Landing");
     }
