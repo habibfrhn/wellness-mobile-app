@@ -2,7 +2,7 @@ import { Platform } from "react-native";
 
 type AuthDebugLevel = "info" | "warn" | "error";
 
-const AUTH_DEBUG_STORAGE_KEY = "wellness.auth.lastEvent";
+const AUTH_DEBUG_ENABLED = __DEV__ && process.env.EXPO_PUBLIC_AUTH_DEBUG === "1";
 
 function safeSerialize(payload: Record<string, unknown>) {
   try {
@@ -13,6 +13,10 @@ function safeSerialize(payload: Record<string, unknown>) {
 }
 
 export function logAuthDebugEvent(level: AuthDebugLevel, event: string, details: Record<string, unknown> = {}) {
+  if (!AUTH_DEBUG_ENABLED) {
+    return;
+  }
+
   const payload = {
     event,
     platform: Platform.OS,
@@ -30,9 +34,7 @@ export function logAuthDebugEvent(level: AuthDebugLevel, event: string, details:
     console.info(line);
   }
 
-  if (Platform.OS !== "web" || typeof window === "undefined") {
-    return;
+  if (Platform.OS === "web" && typeof window !== "undefined") {
+    window.localStorage.setItem("wellness.auth.lastEvent", line);
   }
-
-  window.localStorage.setItem(AUTH_DEBUG_STORAGE_KEY, line);
 }
