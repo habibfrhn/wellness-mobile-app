@@ -9,6 +9,7 @@ import { useAdminAnalytics } from "../../hooks/useAdminAnalytics";
 import { isInvalidCredentialsError } from "../../services/authSecurity";
 import { supabase } from "../../services/supabase";
 import { signOutToLogin } from "../../services/authSession";
+import { logLogoutEvent } from "../../services/logoutDebug";
 import { colors, spacing, typography } from "../../theme/tokens";
 import WebResponsiveFrame from "../../components/WebResponsiveFrame";
 
@@ -102,7 +103,8 @@ export default function AdminDashboardScreen({ session }: Props) {
   }, []);
 
   const handleSignOut = useCallback(async () => {
-    await signOutToLogin();
+    logLogoutEvent("info", "logout_action_triggered", { source: "admin_dashboard" });
+    await signOutToLogin("global", { source: "admin_dashboard" });
     setIsAdmin(null);
   }, []);
 

@@ -8,6 +8,7 @@ import { colors, spacing, typography } from "../theme/tokens";
 import { id } from "../i18n/strings";
 import useViewportWidth from "../hooks/useViewportWidth";
 import { signOutToLogin } from "../services/authSession";
+import { logLogoutEvent } from "../services/logoutDebug";
 import type { AppStackParamList } from "../navigation/types";
 import AppActionModal from "./common/AppActionModal";
 
@@ -51,15 +52,20 @@ export default function HomeHeaderSettingsButton({ navigation }: Props) {
   };
 
   const onLogout = async () => {
+    logLogoutEvent("info", "logout_action_triggered", { source: "home_settings_button" });
     blurWebActiveElement();
     setShowLogoutModal(true);
   };
 
   const confirmLogout = async () => {
+    logLogoutEvent("info", "logout_action_confirmed", { source: "home_settings_button" });
     setBusyLogout(true);
-    const { error } = await signOutToLogin();
+    const { error } = await signOutToLogin("global", { source: "home_settings_button" });
     if (error) {
+      logLogoutEvent("error", "logout_action_failed", { source: "home_settings_button", error: error.message });
       setNotice(error.message);
+    } else {
+      logLogoutEvent("info", "logout_action_succeeded", { source: "home_settings_button" });
     }
     setBusyLogout(false);
     setShowLogoutModal(false);

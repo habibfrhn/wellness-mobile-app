@@ -6,6 +6,7 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { id } from "../i18n/strings";
 import type { AppStackParamList } from "../navigation/types";
 import { signOutToLogin } from "../services/authSession";
+import { logLogoutEvent } from "../services/logoutDebug";
 import { colors, radius, spacing, typography } from "../theme/tokens";
 import AppActionModal from "./common/AppActionModal";
 
@@ -116,16 +117,21 @@ export default function HomeHeaderMobileMenuButton({ navigation }: Props) {
   };
 
   const handleLogoutPress = async () => {
+    logLogoutEvent("info", "logout_action_triggered", { source: "home_mobile_menu" });
     blurWebActiveElement();
     closeMenu();
     setShowLogoutModal(true);
   };
 
   const confirmLogout = async () => {
+    logLogoutEvent("info", "logout_action_confirmed", { source: "home_mobile_menu" });
     setBusyLogout(true);
-    const { error } = await signOutToLogin();
+    const { error } = await signOutToLogin("global", { source: "home_mobile_menu" });
     if (error) {
+      logLogoutEvent("error", "logout_action_failed", { source: "home_mobile_menu", error: error.message });
       setNotice(error.message);
+    } else {
+      logLogoutEvent("info", "logout_action_succeeded", { source: "home_mobile_menu" });
     }
     setBusyLogout(false);
     setShowLogoutModal(false);

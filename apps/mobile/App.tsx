@@ -29,6 +29,7 @@ import AdminDashboardScreen from "./src/screens/Admin/AdminDashboardScreen.web";
 import { isUserVerified } from "./src/services/authProviders";
 import { logAuthDebugEvent } from "./src/services/authDebug";
 import { restoreSession, signOutToLogin } from "./src/services/authSession";
+import { logLogoutEvent } from "./src/services/logoutDebug";
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
 
@@ -414,7 +415,7 @@ export default function App() {
         logAuthDebugEvent("info", "oauth_callback_email_verification_link", {
           linkType: res.linkType,
         });
-        await signOutToLogin();
+        await signOutToLogin("global", { source: "email_verification_guard" });
         await setNextAuthRoute("Login");
         setAuthStartRoute("Login");
         setForceReset(false);
@@ -503,6 +504,11 @@ export default function App() {
         userId: restoredSession.session?.user.id ?? null,
         recovered: restoredSession.recovered,
       });
+      logLogoutEvent("info", "logout_init_session_rehydration_result", {
+        hasSession: Boolean(restoredSession.session),
+        userId: restoredSession.session?.user.id ?? null,
+        recovered: restoredSession.recovered,
+      });
       setSession(restoredSession.session);
 
       const hasResetHint =
@@ -522,6 +528,11 @@ export default function App() {
           hasSession: Boolean(sess),
           userId: sess?.user.id ?? null,
           provider: sess?.user?.app_metadata?.provider ?? null,
+        });
+        logLogoutEvent("info", "logout_auth_state_change", {
+          event,
+          hasSession: Boolean(sess),
+          userId: sess?.user.id ?? null,
         });
         setSession(sess);
         if (event === "SIGNED_OUT") {
@@ -716,6 +727,11 @@ export default function App() {
 
     if (!shouldShowAuth) {
       if (currentRouteName !== "App") {
+        logLogoutEvent("info", "logout_navigation_redirect", {
+          destination: "App",
+          reason: "authenticated_session",
+          currentRouteName,
+        });
         navigationRef.resetRoot({ index: 0, routes: [{ name: "App" }] });
       }
       return;
@@ -726,12 +742,23 @@ export default function App() {
         authStartRoute === "SignUp" ? "SignUp" : initialAuthRoute === "ResetPassword" ? "ResetPassword" : "Login";
 
       if (currentRouteName !== "Auth") {
+        logLogoutEvent("info", "logout_navigation_redirect", {
+          destination: "Auth",
+          reason: "missing_or_unverified_session",
+          requestedAuthScreen,
+          currentRouteName,
+        });
         navigationRef.navigate("Auth", { screen: requestedAuthScreen });
       }
       return;
     }
 
     if (currentRouteName === "App") {
+      logLogoutEvent("info", "logout_navigation_redirect", {
+        destination: "Landing",
+        reason: "show_landing_for_unauthenticated",
+        currentRouteName,
+      });
       navigationRef.navigate("Landing");
     }
   }, [
