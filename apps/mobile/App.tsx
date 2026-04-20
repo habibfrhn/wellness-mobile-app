@@ -28,6 +28,7 @@ import { getWebAppOrigin, getWebAuthPath, replaceWebUrl } from "./src/services/w
 import AdminDashboardScreen from "./src/screens/Admin/AdminDashboardScreen.web";
 import { isUserVerified } from "./src/services/authProviders";
 import { logAuthDebugEvent } from "./src/services/authDebug";
+import { restoreSession, signOutToLogin } from "./src/services/authSession";
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
 
@@ -413,7 +414,7 @@ export default function App() {
         logAuthDebugEvent("info", "oauth_callback_email_verification_link", {
           linkType: res.linkType,
         });
-        await supabase.auth.signOut();
+        await signOutToLogin();
         await setNextAuthRoute("Login");
         setAuthStartRoute("Login");
         setForceReset(false);
@@ -496,12 +497,13 @@ export default function App() {
         await processUrl(url);
       });
 
-      const { data } = await supabase.auth.getSession();
+      const restoredSession = await restoreSession();
       logAuthDebugEvent("info", "oauth_session_after_init_get_session", {
-        hasSession: Boolean(data.session),
-        userId: data.session?.user.id ?? null,
+        hasSession: Boolean(restoredSession.session),
+        userId: restoredSession.session?.user.id ?? null,
+        recovered: restoredSession.recovered,
       });
-      setSession(data.session);
+      setSession(restoredSession.session);
 
       const hasResetHint =
         typeof initialUrl === "string" &&
@@ -509,7 +511,7 @@ export default function App() {
           initialUrl.toLowerCase().includes("type=recovery") ||
           initialUrl.toLowerCase().includes("auth/reset"));
 
-      if (!data.session && !hasResetHint) {
+      if (!restoredSession.session && !hasResetHint) {
         setForceReset(false);
         setWebResetFlowActive(false);
       }

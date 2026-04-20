@@ -8,6 +8,7 @@ import { id } from "../../i18n/strings";
 import { useAdminAnalytics } from "../../hooks/useAdminAnalytics";
 import { isInvalidCredentialsError } from "../../services/authSecurity";
 import { supabase } from "../../services/supabase";
+import { signOutToLogin } from "../../services/authSession";
 import { colors, spacing, typography } from "../../theme/tokens";
 import WebResponsiveFrame from "../../components/WebResponsiveFrame";
 
@@ -101,7 +102,7 @@ export default function AdminDashboardScreen({ session }: Props) {
   }, []);
 
   const handleSignOut = useCallback(async () => {
-    await supabase.auth.signOut();
+    await signOutToLogin();
     setIsAdmin(null);
   }, []);
 

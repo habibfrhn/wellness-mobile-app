@@ -11,6 +11,7 @@ import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthSc
 import { getWebViewport } from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { PASSWORD_MAX_LENGTH, getResetLinkErrorType, isRateLimitedError, isValidPassword } from "../../services/authSecurity";
+import { signOutToLogin } from "../../services/authSession";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "ResetPassword">;
 
@@ -115,7 +116,7 @@ export default function ResetPasswordScreen({ navigation }: Props) {
         return;
       }
 
-      await supabase.auth.signOut();
+      await signOutToLogin();
       Alert.alert(id.reset.successTitle, id.reset.successBody, [{ text: id.common.ok, onPress: () => navigation.replace("Login") }]);
     } finally {
       setBusy(false);
