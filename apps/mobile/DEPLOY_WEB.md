@@ -35,7 +35,7 @@ Set the project configuration in Vercel to:
 ### Required web auth environment variables
 Set these environment variables in Vercel for **Preview** and **Production**:
 
-- `EXPO_PUBLIC_WEB_ORIGIN` = exact deployed app origin (`https://lumepo.com` for production).
+- `EXPO_PUBLIC_WEB_ORIGIN` = canonical deployed app origin (`https://lumepo.com` for production). OAuth redirects are always generated from this value to keep callback/session on one domain.
 - `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` = comma-separated allowlist that must include every valid web origin for auth callbacks and reset links, including:
   - `https://lumepo.com`
   - `https://www.lumepo.com`

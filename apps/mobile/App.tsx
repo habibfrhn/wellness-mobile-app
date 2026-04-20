@@ -402,7 +402,7 @@ export default function App() {
         userId: res.session.user.id,
       });
       setSession(res.session);
-      replaceWebUrl("/");
+      replaceWebUrl(getWebPathForRoute("Home"));
       setWebAuthStatus("idle");
     }
 

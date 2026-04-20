@@ -34,16 +34,17 @@ export function isAllowedWebOrigin(origin: string) {
 
 export function getWebAppOrigin() {
   const isProductionBuild = process.env.NODE_ENV === "production";
-  const configuredOrigin = process.env.EXPO_PUBLIC_WEB_ORIGIN?.trim();
+  const configuredOrigin = normalizeOrigin(process.env.EXPO_PUBLIC_WEB_ORIGIN?.trim() ?? "");
+
+  if (configuredOrigin && isAllowedWebOrigin(configuredOrigin)) {
+    return configuredOrigin;
+  }
+
   if (typeof window !== "undefined" && window.location?.origin) {
     const detectedOrigin = normalizeOrigin(window.location.origin);
     if (isAllowedWebOrigin(detectedOrigin)) {
       return detectedOrigin;
     }
-  }
-
-  if (configuredOrigin && isAllowedWebOrigin(configuredOrigin)) {
-    return normalizeOrigin(configuredOrigin);
   }
 
   if (isProductionBuild) {
