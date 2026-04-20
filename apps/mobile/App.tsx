@@ -748,7 +748,10 @@ export default function App() {
           requestedAuthScreen,
           currentRouteName,
         });
-        navigationRef.navigate("Auth", { screen: requestedAuthScreen });
+        navigationRef.resetRoot({
+          index: 0,
+          routes: [{ name: "Auth", params: { screen: requestedAuthScreen } }],
+        });
       }
       return;
     }
