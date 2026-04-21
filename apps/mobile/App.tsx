@@ -538,6 +538,7 @@ export default function App() {
         if (event === "SIGNED_OUT") {
           setForceReset(false);
           setWebResetFlowActive(false);
+          setAuthStartRoute("Login");
         }
       });
       authSubscription = authListener?.subscription;
@@ -768,7 +769,13 @@ export default function App() {
         currentRouteName,
         currentRootRouteName,
       });
-      navigationRef.navigate("Landing");
+      navigationRef.resetRoot({ index: 0, routes: [{ name: "Landing" }] });
+      const rootAfterReset = navigationRef.getRootState();
+      const currentRootAfterReset = rootAfterReset?.routes[rootAfterReset.index ?? 0];
+      logLogoutEvent("info", "logout_navigation_redirect_result", {
+        destination: "Landing",
+        currentRootRouteNameAfter: currentRootAfterReset?.name ?? null,
+      });
     }
   }, [
     authStartRoute,
