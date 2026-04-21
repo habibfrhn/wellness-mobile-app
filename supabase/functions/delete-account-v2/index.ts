@@ -68,23 +68,13 @@ function buildCorsHeaders(req: Request) {
   };
 }
 
-async function getUserJwt(req: Request) {
-  try {
-    const payload = (await req.clone().json()) as { userJwt?: string };
-    const bodyToken = typeof payload?.userJwt === "string" ? payload.userJwt.trim() : "";
-    if (bodyToken.length > 0) {
-      return { token: bodyToken, source: "body" as const };
-    }
-  } catch {
-    // ignore invalid/empty JSON payloads and continue to header fallback
-  }
-
+function getBearerToken(req: Request) {
   const authorization = req.headers.get("authorization") ?? req.headers.get("Authorization") ?? "";
   if (!authorization.startsWith("Bearer ")) {
-    return { token: "", source: "none" as const };
+    return "";
   }
 
-  return { token: authorization.slice(7), source: "authorization" as const };
+  return authorization.slice(7);
 }
 
 function getHourBucket() {
@@ -132,15 +122,15 @@ Deno.serve(async (req: Request) => {
     return fail(500, "Server misconfiguration", "SERVER_MISCONFIGURATION", corsHeaders);
   }
 
-  const userJwtResult = await getUserJwt(req);
-  if (!userJwtResult.token) {
-    console.error("delete-account-v2: missing user jwt from request body or authorization header");
+  const userJwt = getBearerToken(req);
+  if (!userJwt) {
+    console.error("delete-account-v2: missing bearer token");
     return fail(401, "Missing user token", "MISSING_USER_TOKEN", corsHeaders);
   }
 
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-  const { data: userData, error: userError } = await adminClient.auth.getUser(userJwtResult.token);
+  const { data: userData, error: userError } = await adminClient.auth.getUser(userJwt);
   const user = userData?.user;
   if (userError || !user) {
     console.error("delete-account-v2: invalid user session", userError?.message ?? "missing-user");

@@ -147,11 +147,10 @@ async function requestDeleteAccountViaFetch(accessToken: string) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${anonKey}`,
+      Authorization: `Bearer ${accessToken}`,
       apikey: anonKey,
       "x-client-info": "wellness-mobile-app/delete-account-v2",
     },
-    body: JSON.stringify({ userJwt: accessToken }),
   });
 
   if (!response.ok) {
@@ -175,9 +174,8 @@ async function requestDeleteAccountViaInvoke(accessToken: string) {
   const anonKey = getAnonKey();
 
   const { data, error } = await supabase.functions.invoke<DeleteAccountResponse>(DELETE_ACCOUNT_FUNCTION_NAME, {
-    body: { userJwt: accessToken },
     headers: {
-      Authorization: `Bearer ${anonKey}`,
+      Authorization: `Bearer ${accessToken}`,
       apikey: anonKey,
       "x-client-info": "wellness-mobile-app/delete-account-v2",
     },
