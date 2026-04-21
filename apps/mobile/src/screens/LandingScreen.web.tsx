@@ -869,7 +869,13 @@ export default function LandingScreen() {
                 isDesktop && styles.footerTopRowDesktop,
               ]}
             >
-              <View style={[styles.footerColumn, isMobile && styles.footerColumnMobile]}>
+              <View
+                style={[
+                  styles.footerColumn,
+                  isMobile && styles.footerColumnMobile,
+                  isTablet && styles.footerBrandColumnTablet,
+                ]}
+              >
                 <View style={styles.footerBrandBlock}>
                   <Text style={styles.footerBrandTitle}>Lumepo</Text>
                   <Text style={styles.footerDescription}>
@@ -878,7 +884,13 @@ export default function LandingScreen() {
                 </View>
               </View>
 
-              <View style={[styles.footerColumn, isMobile && styles.footerColumnMobile]}>
+              <View
+                style={[
+                  styles.footerColumn,
+                  isMobile && styles.footerColumnMobile,
+                  isTablet && styles.footerNavColumnTablet,
+                ]}
+              >
                 <Text style={[styles.footerHeading, isMobile && styles.footerHeadingMobile]}>Navigasi</Text>
                 <View style={[styles.footerLinksStack, isMobile && styles.footerLinksStackMobile]}>
                   <Pressable
@@ -924,6 +936,7 @@ export default function LandingScreen() {
                 style={[
                   styles.footerColumn,
                   isMobile && styles.footerColumnMobile,
+                  isTablet && styles.footerInfoColumnTablet,
                   isMobile && styles.footerInfoColumnMobile,
                 ]}
               >
@@ -957,7 +970,14 @@ export default function LandingScreen() {
                     <Text style={styles.footerLinkText}>Kontak</Text>
                   </Pressable>
                 </View>
-                <Text style={[styles.footerContact, isMobile && styles.footerContactMobile]}>hello@lumepo.id</Text>
+                <Text
+                  style={[
+                    styles.footerContact,
+                    isMobile && styles.footerContactMobile,
+                  ]}
+                >
+                  hello@lumepo.id
+                </Text>
               </View>
             </View>
           </View>
@@ -1501,48 +1521,67 @@ const styles = StyleSheet.create({
   },
   footerTopRow: {
     flexDirection: "column",
-    gap: spacing.lg,
-    paddingTop: 30,
-    paddingBottom: spacing.lg,
+    gap: spacing.xl,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.xl,
   },
   footerTopRowMobile: {
-    gap: spacing.xl,
+    gap: spacing.lg,
   },
   footerTopRowTablet: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
+    columnGap: spacing.xl,
+    rowGap: spacing.xl,
   },
   footerTopRowDesktop: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     alignItems: "flex-start",
-    gap: 64,
+    columnGap: 64,
   },
   footerColumn: {
-    flex: 1,
-    gap: spacing.sm,
+    flexBasis: 0,
+    flexGrow: 1,
+    minWidth: 0,
+    gap: spacing.md,
   },
   footerColumnMobile: {
-    flex: 0,
+    width: "100%",
+    flexBasis: "auto",
+    flexGrow: 0,
     gap: spacing.md,
+  },
+  footerBrandColumnTablet: {
+    flexBasis: "100%",
+  },
+  footerNavColumnTablet: {
+    flexBasis: "45%",
+    minWidth: 220,
+  },
+  footerInfoColumnTablet: {
+    flexBasis: "45%",
+    minWidth: 220,
   },
   footerBrandBlock: {
     gap: spacing.sm,
+    paddingRight: spacing.md,
   },
   footerLinksStack: {
-    gap: spacing.xs,
+    gap: spacing.sm,
+    width: "100%",
   },
   footerLinksStackMobile: {
     gap: spacing.sm,
   },
   footerInfoColumnMobile: {
-    paddingBottom: spacing.md,
+    paddingBottom: 0,
   },
   footerDivider: {
     width: "100%",
     height: 1,
-    marginTop: spacing.sm,
     backgroundColor: "rgba(255,255,255,0.12)",
   },
   footerDividerMobile: {
@@ -1554,10 +1593,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
     paddingTop: spacing.md,
-    paddingBottom: 16,
+    paddingBottom: spacing.md,
   },
   footerBottomRowMobile: {
-    paddingTop: spacing.lg,
+    paddingTop: spacing.md,
   },
   footerBottomRowTablet: {
     flexDirection: "row",
@@ -1576,26 +1615,30 @@ const styles = StyleSheet.create({
     fontSize: typography.body,
     color: "rgba(255,255,255,0.8)",
     lineHeight: 24,
-    maxWidth: 300,
+    maxWidth: 360,
+    minWidth: 0,
   },
   footerCopyright: {
     fontSize: typography.caption,
     color: "rgba(255,255,255,0.7)",
-    marginTop: spacing.xs,
+    marginTop: 0,
+    lineHeight: 20,
   },
   footerHeading: {
     fontSize: typography.body,
     fontWeight: "700",
     color: colors.white,
+    lineHeight: 24,
   },
   footerHeadingMobile: {
-    marginBottom: spacing.xs,
+    marginBottom: 0,
   },
   footerLinkPressable: {
-    alignSelf: "flex-start",
+    alignSelf: "stretch",
+    width: "100%",
     minHeight: 40,
     justifyContent: "center",
-    paddingVertical: 2,
+    paddingVertical: 4,
     opacity: 0.85,
   },
   footerLinkPressableHover: {
@@ -1605,13 +1648,17 @@ const styles = StyleSheet.create({
     fontSize: typography.body,
     color: "rgba(255,255,255,0.8)",
     lineHeight: 24,
+    flexShrink: 1,
+    width: "100%",
   },
   footerContact: {
     fontSize: typography.body,
     lineHeight: 24,
     color: colors.white,
-    marginTop: spacing.sm,
-    marginBottom: spacing.xs,
+    marginTop: spacing.md,
+    marginBottom: 0,
+    flexShrink: 1,
+    width: "100%",
   },
   footerContactMobile: {
     marginTop: spacing.md,
