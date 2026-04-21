@@ -7,6 +7,7 @@ import AdminLoginForm from "../../components/admin/AdminLoginForm";
 import { id } from "../../i18n/strings";
 import { useAdminAnalytics } from "../../hooks/useAdminAnalytics";
 import { isInvalidCredentialsError } from "../../services/authSecurity";
+import { getProviderLockErrorMessage, isBlockedByProviderLock, lookupProviderLockByEmail } from "../../services/authProviderLock";
 import { supabase } from "../../services/supabase";
 import { signOutToLogin } from "../../services/authSession";
 import { logLogoutEvent } from "../../services/logoutDebug";
@@ -71,6 +72,13 @@ export default function AdminDashboardScreen({ session }: Props) {
     setBusy(true);
     setErrorMessage(null);
 
+    const providerLock = await lookupProviderLockByEmail(normalizedEmail);
+    if (providerLock?.exists && isBlockedByProviderLock(providerLock.providerLock, "email_password", "email")) {
+      setErrorMessage(getProviderLockErrorMessage(providerLock.providerLock, "email_password"));
+      setBusy(false);
+      return;
+    }
+
     const { error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
     if (error) {
       setErrorMessage(getSafeAuthErrorMessage(error.message));
@@ -90,6 +98,14 @@ export default function AdminDashboardScreen({ session }: Props) {
 
     setBusy(true);
     setErrorMessage(null);
+
+    const providerLock = await lookupProviderLockByEmail(normalizedEmail);
+    if (providerLock?.exists && isBlockedByProviderLock(providerLock.providerLock, "password_reset", "email")) {
+      setErrorMessage(getProviderLockErrorMessage(providerLock.providerLock, "password_reset"));
+      setBusy(false);
+      return;
+    }
+
     const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/auth/reset` : undefined;
     const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, redirectTo ? { redirectTo } : undefined);
     if (error) {

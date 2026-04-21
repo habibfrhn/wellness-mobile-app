@@ -25,6 +25,7 @@ import {
   isRateLimitedError,
   isWeakPasswordError,
 } from "../../services/authSecurity";
+import { getProviderLockErrorMessage, isBlockedByProviderLock, lookupProviderLockByEmail } from "../../services/authProviderLock";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "SignUp">;
 type FieldErrors = {
@@ -159,6 +160,12 @@ export default function SignUpScreen({ navigation, route }: Props) {
     try {
       if (!hasValidAuthRedirects) {
         setFormError(id.forgot.failedBody);
+        return;
+      }
+
+      const providerLock = await lookupProviderLockByEmail(e);
+      if (providerLock?.exists && isBlockedByProviderLock(providerLock.providerLock, "email_password", "email")) {
+        setFormError(getProviderLockErrorMessage(providerLock.providerLock, "email_password"));
         return;
       }
 

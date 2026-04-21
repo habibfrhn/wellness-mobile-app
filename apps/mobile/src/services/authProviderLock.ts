@@ -1,0 +1,150 @@
+import { id } from "../i18n/strings";
+import { supabase } from "./supabase";
+
+export type LockedAuthProvider = "email" | "google" | "apple" | "github" | "unknown";
+export type AuthAttemptMethod = "email_password" | "google_oauth" | "password_reset";
+
+type ProviderLockResponse = {
+  ok?: boolean;
+  exists?: boolean;
+  providers?: string[];
+  primaryProvider?: string | null;
+  providerLock?: string | null;
+};
+
+export type ProviderLockLookupResult = {
+  exists: boolean;
+  providers: string[];
+  primaryProvider: LockedAuthProvider | null;
+  providerLock: LockedAuthProvider | null;
+};
+
+function normalizeProvider(value: string | null | undefined): LockedAuthProvider | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) {
+    return null;
+  }
+
+  if (normalized === "email" || normalized === "google" || normalized === "apple" || normalized === "github") {
+    return normalized;
+  }
+
+  return "unknown";
+}
+
+function toUniqueProviders(values: unknown): string[] {
+  if (!Array.isArray(values)) {
+    return [];
+  }
+
+  return Array.from(
+    new Set(
+      values
+        .filter((value): value is string => typeof value === "string")
+        .map((value) => value.trim().toLowerCase())
+        .filter(Boolean)
+    )
+  );
+}
+
+async function extractErrorPayload(error: unknown): Promise<ProviderLockResponse | null> {
+  if (!error || typeof error !== "object" || !("context" in error)) {
+    return null;
+  }
+
+  const context = (error as { context?: unknown }).context;
+  if (!context || typeof context !== "object" || !("json" in context)) {
+    return null;
+  }
+
+  const json = (context as { json?: () => Promise<unknown> }).json;
+  if (typeof json !== "function") {
+    return null;
+  }
+
+  try {
+    const payload = await json();
+    if (!payload || typeof payload !== "object") {
+      return null;
+    }
+    return payload as ProviderLockResponse;
+  } catch {
+    return null;
+  }
+}
+
+export async function lookupProviderLockByEmail(email: string): Promise<ProviderLockLookupResult | null> {
+  const normalizedEmail = email.trim().toLowerCase();
+  if (!normalizedEmail) {
+    return null;
+  }
+
+  const { data, error } = await supabase.functions.invoke<ProviderLockResponse>("resolve-auth-provider-lock", {
+    body: { email: normalizedEmail },
+  });
+
+  if (error) {
+    const errorPayload = await extractErrorPayload(error);
+    if (!errorPayload) {
+      return null;
+    }
+
+    return {
+      exists: Boolean(errorPayload.exists),
+      providers: toUniqueProviders(errorPayload.providers),
+      primaryProvider: normalizeProvider(errorPayload.primaryProvider),
+      providerLock: normalizeProvider(errorPayload.providerLock),
+    };
+  }
+
+  return {
+    exists: Boolean(data?.exists),
+    providers: toUniqueProviders(data?.providers),
+    primaryProvider: normalizeProvider(data?.primaryProvider),
+    providerLock: normalizeProvider(data?.providerLock),
+  };
+}
+
+export function getProviderLockErrorMessage(providerLock: LockedAuthProvider | null, attemptedMethod: AuthAttemptMethod): string {
+  if (attemptedMethod === "password_reset") {
+    return id.auth.providerLockPasswordResetBlocked;
+  }
+
+  if (providerLock === "email") {
+    return id.auth.providerLockEmailOnly;
+  }
+
+  if (providerLock === "google") {
+    return id.auth.providerLockGoogleOnly;
+  }
+
+  return id.auth.providerLockOAuthOnly;
+}
+
+export function isBlockedByProviderLock(
+  providerLock: LockedAuthProvider | null,
+  attemptedMethod: AuthAttemptMethod,
+  currentProvider: LockedAuthProvider | null
+): boolean {
+  if (!providerLock) {
+    return false;
+  }
+
+  if (attemptedMethod === "email_password" || attemptedMethod === "password_reset") {
+    return providerLock !== "email";
+  }
+
+  if (attemptedMethod === "google_oauth") {
+    if (providerLock === "email") {
+      return true;
+    }
+
+    return providerLock !== currentProvider;
+  }
+
+  return false;
+}

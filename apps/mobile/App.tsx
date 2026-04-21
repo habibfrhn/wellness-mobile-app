@@ -27,6 +27,7 @@ import WebAuthStatusScreen from "./src/components/auth/WebAuthStatusScreen";
 import { getWebAppOrigin, getWebAuthPath, replaceWebUrl } from "./src/services/webAuth";
 import AdminDashboardScreen from "./src/screens/Admin/AdminDashboardScreen.web";
 import { isUserVerified } from "./src/services/authProviders";
+import { getProviderLockErrorMessage, isBlockedByProviderLock, lookupProviderLockByEmail } from "./src/services/authProviderLock";
 import { logAuthDebugEvent } from "./src/services/authDebug";
 import { restoreSession, signOutToLogin } from "./src/services/authSession";
 import { logLogoutEvent } from "./src/services/logoutDebug";
@@ -252,6 +253,7 @@ export default function App() {
   const [forceReset, setForceReset] = useState(false);
   const [authStartRoute, setAuthStartRoute] = useState<keyof AuthStackParamList>("Welcome");
   const [webAuthStatus, setWebAuthStatus] = useState<"idle" | "loading" | "error" | "missing">("idle");
+  const [webAuthErrorBody, setWebAuthErrorBody] = useState<string | null>(null);
 
   const didCheckUpdatesRef = useRef(false);
   const webLinking = useMemo<LinkingOptions<RootStackParamList>>(
@@ -354,6 +356,7 @@ export default function App() {
         });
         if (Platform.OS === "web" && getWebAuthPath(typeof window !== "undefined" ? window.location.pathname : null)) {
           setWebAuthStatus("error");
+          setWebAuthErrorBody(null);
         } else {
           Alert.alert(id.common.errorTitle, id.common.tryAgain);
         }
@@ -392,6 +395,7 @@ export default function App() {
         const copy = getAuthLinkErrorCopy(res.error, res.linkType);
         if (Platform.OS === "web" && getWebAuthPath(typeof window !== "undefined" ? window.location.pathname : null)) {
           setWebAuthStatus("error");
+          setWebAuthErrorBody(copy.body);
         } else {
           Alert.alert(copy.title, copy.body);
         }
@@ -441,6 +445,34 @@ export default function App() {
         return;
       }
 
+      const callbackEmail = res.session.user.email?.trim().toLowerCase() ?? "";
+      const providerLock = callbackEmail ? await lookupProviderLockByEmail(callbackEmail) : null;
+      const currentProviderRaw =
+        (typeof res.session.user.app_metadata?.provider === "string" && res.session.user.app_metadata.provider) || "unknown";
+      const currentProvider = currentProviderRaw.toLowerCase() as "email" | "google" | "apple" | "github" | "unknown";
+      const hasProviderLockViolation =
+        Boolean(providerLock?.exists) &&
+        isBlockedByProviderLock(providerLock?.providerLock ?? null, "google_oauth", currentProvider);
+
+      if (hasProviderLockViolation) {
+        await signOutToLogin("global", { source: "provider_lock_oauth_callback" });
+        const providerLockMessage = getProviderLockErrorMessage(providerLock?.providerLock ?? null, "google_oauth");
+
+        if (Platform.OS === "web" && getWebAuthPath(typeof window !== "undefined" ? window.location.pathname : null)) {
+          setWebAuthErrorBody(providerLockMessage);
+          setWebAuthStatus("error");
+        } else {
+          Alert.alert(id.auth.providerLockTitle, providerLockMessage);
+        }
+
+        await setNextAuthRoute("Login");
+        setAuthStartRoute("Login");
+        setForceReset(false);
+        setWebResetFlowActive(false);
+        replaceWebUrl(getWebPathForRoute("Login"));
+        return;
+      }
+
       logAuthDebugEvent("info", "oauth_callback_success", {
         path: res.path,
         linkType: res.linkType,
@@ -448,6 +480,7 @@ export default function App() {
       });
       setSession(res.session);
       replaceWebUrl(getWebPathForRoute("Home"));
+      setWebAuthErrorBody(null);
       setWebAuthStatus("idle");
     }
 
@@ -825,6 +858,7 @@ export default function App() {
     const onReturnToLogin = () => {
       replaceWebUrl(getWebPathForRoute("Login"));
       setWebAuthStatus("idle");
+      setWebAuthErrorBody(null);
       void setNextAuthRoute("Login");
       setAuthStartRoute("Login");
     };
@@ -850,7 +884,7 @@ export default function App() {
     return (
       <WebAuthStatusScreen
         title={id.auth.callbackErrorTitle}
-        body={id.auth.callbackErrorBody}
+        body={webAuthErrorBody ?? id.auth.callbackErrorBody}
         actionLabel={id.auth.callbackAction}
         onAction={onReturnToLogin}
       />

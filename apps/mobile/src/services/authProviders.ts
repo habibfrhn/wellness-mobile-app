@@ -1,6 +1,6 @@
 import type { User } from "@supabase/supabase-js";
 
-function normalizeProviders(user: User | null | undefined) {
+export function getUserAuthProviders(user: User | null | undefined) {
   const providers = user?.app_metadata?.providers;
 
   if (Array.isArray(providers)) {
@@ -16,7 +16,7 @@ function normalizeProviders(user: User | null | undefined) {
 }
 
 export function canManagePassword(user: User | null | undefined) {
-  return normalizeProviders(user).includes("email");
+  return getUserAuthProviders(user).includes("email");
 }
 
 export function isUserVerified(user: User | null | undefined) {
@@ -30,5 +30,5 @@ export function isUserVerified(user: User | null | undefined) {
 
   // OAuth providers (e.g. Google) are already identity-verified by the provider,
   // and may not populate `email_confirmed_at` in the same way as email/password.
-  return normalizeProviders(user).some((provider) => provider !== "email");
+  return getUserAuthProviders(user).some((provider) => provider !== "email");
 }

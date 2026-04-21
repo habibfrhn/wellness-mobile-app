@@ -34,6 +34,7 @@ import LoginSignUpPrompt from "../../components/auth/LoginSignUpPrompt";
 import { getSafeAuthErrorMessage, isEmailNotConfirmedError, isInvalidCredentialsError } from "../../services/authSecurity";
 import { isUserVerified } from "../../services/authProviders";
 import { signOutToLogin } from "../../services/authSession";
+import { getProviderLockErrorMessage, isBlockedByProviderLock, lookupProviderLockByEmail } from "../../services/authProviderLock";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
@@ -128,6 +129,12 @@ export default function LoginScreen({ navigation, route }: Props) {
     setFormError(null);
     setBusy(true);
     try {
+      const providerLock = await lookupProviderLockByEmail(e);
+      if (providerLock?.exists && isBlockedByProviderLock(providerLock.providerLock, "email_password", "email")) {
+        setErrors({ password: id.login.errorInvalidCredentials });
+        setFormError(getProviderLockErrorMessage(providerLock.providerLock, "email_password"));
+        return;
+      }
       const { data, error } = await supabase.auth.signInWithPassword({
         email: e,
         password: p,
