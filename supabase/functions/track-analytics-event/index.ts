@@ -315,9 +315,7 @@ Deno.serve(async (req: Request) => {
   let userId: string | null = null;
   if (token) {
     const { data: userData, error: userError } = await userClient.auth.getUser();
-    if (userError || !userData.user?.id) {
-      console.info("track-analytics-event: invalid user jwt, falling back to anonymous principal");
-    } else {
+    if (!userError && userData.user?.id) {
       userId = userData.user.id;
     }
   }
@@ -336,7 +334,10 @@ Deno.serve(async (req: Request) => {
 
   const hasRateLimitCounter = !rateLimitError && typeof incrementedCount === "number";
   if (!hasRateLimitCounter) {
-    console.error("track-analytics-event: rate limit increment unavailable, continuing without enforcement", rateLimitError);
+    console.error(
+      "track-analytics-event: rate limit increment unavailable, continuing without enforcement",
+      rateLimitError?.message ?? "unknown"
+    );
   }
 
   if (hasRateLimitCounter) {
@@ -356,7 +357,7 @@ Deno.serve(async (req: Request) => {
   const { error: insertError } = await adminClient.from("analytics_events").insert(rows);
 
   if (insertError) {
-    console.error("track-analytics-event: insert failed", insertError);
+    console.error("track-analytics-event: insert failed", insertError.message);
     return error(500, "Failed to track event", "INSERT_FAILED", requestCorsHeaders);
   }
 

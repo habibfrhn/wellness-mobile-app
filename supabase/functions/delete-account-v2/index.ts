@@ -112,19 +112,12 @@ async function applyRateLimit(adminClient: ReturnType<typeof createClient>, user
 
 Deno.serve(async (req: Request) => {
   const corsHeaders = buildCorsHeaders(req);
-  console.log("delete-account-v2: request received", {
-    method: req.method,
-    origin: req.headers.get("origin"),
-    hasAuthorizationHeader: Boolean(req.headers.get("authorization") ?? req.headers.get("Authorization")),
-    hasApiKeyHeader: Boolean(req.headers.get("apikey")),
-  });
 
   if (req.headers.get("origin") && !corsHeaders["Access-Control-Allow-Origin"]) {
     return fail(403, "Origin not allowed", "METHOD_NOT_ALLOWED", corsHeaders);
   }
 
   if (req.method === "OPTIONS") {
-    console.log("delete-account-v2: OPTIONS preflight accepted");
     return new Response("ok", { headers: corsHeaders });
   }
 
@@ -145,8 +138,6 @@ Deno.serve(async (req: Request) => {
     return fail(401, "Missing user token", "MISSING_USER_TOKEN", corsHeaders);
   }
 
-  console.log("delete-account-v2: user jwt parsed", { source: userJwtResult.source });
-
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
   const { data: userData, error: userError } = await adminClient.auth.getUser(userJwtResult.token);
@@ -156,11 +147,6 @@ Deno.serve(async (req: Request) => {
     return fail(401, "Invalid user session", "INVALID_SESSION", corsHeaders);
   }
 
-  console.log("delete-account-v2: session validated", {
-    userId: user.id,
-    email: user.email ?? null,
-  });
-
   try {
     await applyRateLimit(adminClient, user.id);
   } catch (error) {
@@ -168,20 +154,17 @@ Deno.serve(async (req: Request) => {
       return fail(429, "Too many requests", "RATE_LIMITED", corsHeaders);
     }
 
-    console.error("delete-account-v2: rate-limit check unavailable", error);
+    const rateLimitMessage = error instanceof Error ? error.message : String(error);
+    console.error("delete-account-v2: rate-limit check unavailable", rateLimitMessage);
     return fail(503, "Service temporarily unavailable", "RATE_LIMIT_UNAVAILABLE", corsHeaders);
   }
 
   // Force hard-delete account (explicit false) so it is removed from auth.users dashboard and not anonymized.
   const { error: hardDeleteError } = await adminClient.auth.admin.deleteUser(user.id, false);
   if (hardDeleteError) {
-    console.error("delete-account-v2: hard delete failed", {
-      hardDeleteError: hardDeleteError.message,
-      hint: "Check foreign-key constraints or cleanup dependencies before deleting auth.users row",
-    });
+    console.error("delete-account-v2: hard delete failed", hardDeleteError.message);
     return fail(500, "Failed to delete account", "DELETE_FAILED", corsHeaders);
   }
 
-  console.log("delete-account-v2: hard account deletion succeeded", { userId: user.id });
   return json(200, { ok: true }, corsHeaders);
 });

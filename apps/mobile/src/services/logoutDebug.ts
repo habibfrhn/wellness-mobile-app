@@ -5,6 +5,7 @@ type LogoutLogLevel = "info" | "warn" | "error";
 const LOGOUT_DEBUG_STORAGE_KEY = "wellness.auth.logoutLogs";
 const LOGOUT_DEBUG_LAST_EVENT_KEY = "wellness.auth.lastLogoutEvent";
 const MAX_LOGOUT_LOG_ENTRIES = 80;
+const LOGOUT_DEBUG_ENABLED = __DEV__ && process.env.EXPO_PUBLIC_AUTH_DEBUG === "1";
 
 function serializeDetails(details: Record<string, unknown>) {
   try {
@@ -40,6 +41,10 @@ function persistWebLogoutLog(line: string) {
 }
 
 export function logLogoutEvent(level: LogoutLogLevel, event: string, details: Record<string, unknown> = {}) {
+  if (!LOGOUT_DEBUG_ENABLED && level !== "error") {
+    return;
+  }
+
   const payload = {
     event,
     at: new Date().toISOString(),
@@ -55,6 +60,10 @@ export function logLogoutEvent(level: LogoutLogLevel, event: string, details: Re
     console.warn(line);
   } else {
     console.info(line);
+  }
+
+  if (!LOGOUT_DEBUG_ENABLED) {
+    return;
   }
 
   persistWebLogoutLog(line);

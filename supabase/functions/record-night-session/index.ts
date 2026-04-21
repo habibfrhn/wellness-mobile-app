@@ -137,7 +137,7 @@ Deno.serve(async (req: Request) => {
   );
 
   if (rateLimitError || typeof incrementedCount !== "number") {
-    console.error("record-night-session: rate limit increment failed", rateLimitError);
+    console.error("record-night-session: rate limit increment failed", rateLimitError?.message ?? "unknown");
     return error(500, "Failed to process rate limit", "RATE_LIMIT_FAILED");
   }
 
@@ -161,7 +161,7 @@ Deno.serve(async (req: Request) => {
   );
 
   if (upsertError) {
-    console.error("record-night-session: upsert failed", upsertError);
+    console.error("record-night-session: upsert failed", upsertError.message);
     return error(500, "Failed to record night session", "UPSERT_FAILED");
   }
 
@@ -173,7 +173,7 @@ Deno.serve(async (req: Request) => {
   );
 
   if (streakError) {
-    console.error("record-night-session: streak update failed", streakError);
+    console.error("record-night-session: streak update failed", streakError.message);
     return error(500, "Failed to update streak", "STREAK_UPDATE_FAILED");
   }
 
