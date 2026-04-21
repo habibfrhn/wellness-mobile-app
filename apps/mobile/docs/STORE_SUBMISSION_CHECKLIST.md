@@ -1,32 +1,31 @@
 # Store Submission Checklist (iOS + Android)
 
 ## App metadata
-- [ ] App name, subtitle, and description finalized
+- [ ] App name, subtitle, and descriptions finalized
 - [ ] Keywords (iOS) and short description (Android) finalized
 - [ ] Categories and content ratings selected
-- [ ] Privacy policy URL and support URL live and correct
-- [ ] Marketing website URL (if required)
+- [ ] Privacy policy URL and support URL are live and correct
 
-## Assets
-- [ ] App icon and adaptive icon finalized
-- [ ] Splash screens finalized
-- [ ] Screenshots for all required device sizes
-- [ ] App preview video (if planned)
+## Visual assets
+- [ ] App icon / adaptive icon finalized
+- [ ] Splash assets finalized
+- [ ] Screenshots captured for required device sizes
+- [ ] Optional preview video prepared (if used)
 
 ## Compliance & privacy
-- [ ] App privacy details completed in App Store Connect
-- [ ] Data safety form completed in Play Console
-- [ ] Export compliance (if using encryption) reviewed
-- [ ] In-app purchase products configured (if applicable)
+- [ ] App Store privacy questionnaire completed
+- [ ] Google Play data safety form completed
+- [ ] Export compliance reviewed
+- [ ] Third-party integrations disclosed where required (Supabase auth/analytics usage)
 
-## Builds & configuration
-- [ ] iOS bundle identifier and Android package name match store records
-- [ ] Version and build numbers aligned with release notes
-- [ ] EAS production build completes successfully
-- [ ] Release notes drafted for both stores
+## Build & config
+- [ ] iOS bundle identifier and Android package match store records
+- [ ] Version + build numbers incremented correctly
+- [ ] EAS production builds succeed
+- [ ] Release notes drafted
 
-## QA & release operations
-- [ ] Release checklist completed (apps/mobile/docs/RELEASE_CHECKLIST.md)
-- [ ] Crash reporting and analytics verified (if enabled)
-- [ ] Rollout plan defined (phased release vs. full)
-- [ ] Support and monitoring plan ready for launch week
+## QA & operations
+- [ ] `apps/mobile/docs/RELEASE_CHECKLIST.md` completed
+- [ ] Monitoring/incident response owner identified for launch window
+- [ ] Rollout strategy decided (phased vs full)
+- [ ] Support channel readiness confirmed

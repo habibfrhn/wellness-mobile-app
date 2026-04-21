@@ -1,27 +1,31 @@
-# Admin Analytics Audit (MVP)
+# Admin Analytics Audit (Current MVP State)
 
-## Pipeline trace
+## End-to-end pipeline
 
-1. Client tracking emits events via `trackEvent()` in:
-   - `LandingScreen.web.tsx`
-   - `SignUpScreen.tsx`
-   - `useAudioPlayerSession.ts`
-2. Events are inserted into `public.analytics_events`.
-3. Admin-only RPCs aggregate metrics from `analytics_events` with a shared range filter.
-4. Admin dashboard fetches RPCs through `services/adminAnalytics.ts` + `useAdminAnalytics`.
-5. UI renders KPI/funnel/audio/monthly sections with loading/error/empty states.
+1. Client emits events via `trackEvent()` in screens/hooks/services.
+2. Events are queued/batched client-side (`src/services/analytics.ts`).
+3. Events are sent to edge function `track-analytics-event`.
+4. Edge function validates payload + applies rate limiting + inserts into analytics tables.
+5. Admin dashboard (`/admin`) loads server-guarded RPCs through:
+   - `src/services/adminAnalytics.ts`
+   - `src/hooks/useAdminAnalytics.ts`
+6. UI renders three sections:
+   - Product actions
+   - Audio engagement
+   - Tailored session performance
 
-## Findings (before refactor)
+## Authorization model
 
-- No reusable time range filtering across dashboard sections.
-- Audio completion/abandonment section could look blank when no rows.
-- Aggregation logic spread across views/UI with inconsistent metric definitions.
-- Direct view grants to authenticated role were broader than needed.
+- Admin route visibility on web is not sufficient by itself.
+- Backend `public.is_admin()` and RPC permissions enforce actual access.
+- `public.admin_users` is the source of admin mapping.
 
-## Fixes implemented
+## Current dashboard range/filter behavior
 
-- Added admin-only RPCs with consistent range filter (`7d`, `30d`, `90d`, `12m`, `all`).
-- Added 12-month monthly aggregation RPC.
-- Added derived abandonment (`max(plays - completes, 0)`) for robust reporting.
-- Revoked direct authenticated select on legacy summary views; use guarded RPCs.
-- Refactored dashboard into smaller components + data hook.
+- Supported ranges in current UI: `7d`, `30d`, `90d`, `all`.
+- All sections use the same selected range.
+
+## Notes
+
+- This dashboard is intentionally MVP-scoped and not a full BI system.
+- If schema/event names change, update client event emitter, edge function validation, and SQL/RPC consumers together.

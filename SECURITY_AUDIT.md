@@ -1,157 +1,80 @@
-# Post-Incident Security Audit & Hardening Report
+# Security Audit & Hardening Baseline
 
-Date: 2026-04-21  
-Scope: `apps/mobile` web app, Vercel deployment configuration, Supabase edge functions, auth/session flows, and repository-level deployment docs.
+Date updated: 2026-04-21  
+Scope: `apps/mobile` web app deployment surface, Supabase edge functions, auth/session handling, and operational documentation.
+
 Reference bulletin: https://vercel.com/kb/bulletin/vercel-april-2026-security-incident
 
-## Incident context considered
+## Executive summary
 
-Based on Vercel's April 2026 bulletin (last updated April 21, 2026), customer risk is concentrated around:
-- unauthorized access to some Vercel-hosted environment variables that were **not** marked sensitive,
-- potential exposure of tokens/credentials stored in Vercel env vars,
-- need to rotate deployment/access credentials and review activity/deploy logs,
-- recommendation to enforce MFA and stronger deployment protections.
+This repository currently follows a hardened MVP baseline for:
 
-## Assessment summary (repo + config review)
+- web deployment headers/caching/rewrites,
+- strict auth callback/reset origin controls,
+- server-enforced admin access,
+- validated + rate-limited edge-function ingestion paths,
+- reduced secret/token exposure in logs.
 
-### 1) Vercel setup and deployment flow
-Assessed:
-- `apps/mobile/vercel.json` headers, rewrites, and ignore command behavior.
-- Web deploy docs (`apps/mobile/DEPLOY_WEB.md`) for security controls and secret handling.
+No client-side service-role credential exposure was identified in the codebase.
 
-Result:
-- Project uses static export and SPA rewrites, with existing secure header baseline.
-- No Vercel runtime/server code in repo, so primary exposure surface is environment variables, deployment tokens, Git integration access, and project/team settings in Vercel UI.
+## Current security posture by area
 
-### 2) Environment variables and secret exposure paths
-Assessed:
-- Public client env usage (`EXPO_PUBLIC_*`) in `apps/mobile/src/services/*` and app bootstrap.
-- Supabase function secret usage (`Deno.env.get(...)`) in edge functions.
-- Existing docs for operational env setup.
+### 1) Web deployment (Vercel)
 
-Result:
-- Client code correctly uses only public keys for browser builds.
-- Service-role and backend secrets are referenced only in edge-function runtime.
-- If any non-sensitive Vercel variables were configured in Vercel UI during incident window, those should be treated as potentially exposed.
+Verified in `apps/mobile/vercel.json`:
 
-### 3) Auth/session/cookie/JWT/OAuth posture
-Assessed:
-- Deep-link and callback handling (`authLinks.ts`, `webAuth.ts`, `App.tsx`).
-- Session restore and sign-out cleanup (`authSession.ts`).
-- Admin gating path and backend constraints.
+- SPA rewrite excludes extension paths (`/((?!api/|.*\..*).*)`), preventing static asset rewrite breakage.
+- Auth routes (`/auth/callback`, `/auth/reset`, and Expo prefix variants) are marked `private, no-store`.
+- Static hashed assets are long-lived immutable cached.
+- Baseline hardening headers include CSP, HSTS, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, COOP/CORP, `Origin-Agent-Cluster`, and `X-Permitted-Cross-Domain-Policies`.
 
-Result:
-- Auth callback origins are validated.
-- Session artifacts and Supabase auth storage cleanup are present on logout.
-- Admin access remains backend-enforced via RPC/DB checks.
-- No evidence in repo of service-role key leakage to client.
-- Additional hardening added after post-deploy logout failures were reported:
-  - logout flow now tolerates storage write failures and network/sign-out exceptions and still performs local session cleanup.
-  - web origin fallback for auth callbacks is now explicit and no longer trusts arbitrary `https://` origins when allowlist env is missing.
+### 2) Auth/session safety
 
-### 4) Serverless/edge functions and abuse controls
-Assessed:
-- `track-analytics-event`, `record-night-session`, `delete-user-account` validation, auth checks, rate limiting, CORS, and logging.
+Verified in `apps/mobile/src/services/authLinks.ts`, `webAuth.ts`, `authSession.ts`, and `App.tsx`:
 
-Result:
-- Payload validation and rate limiting were already present.
-- We identified and hardened permissive CORS fallback behavior and removed sensitive token-preview logging.
+- Web auth links are accepted only from allowed origins.
+- Reset/callback flows support Expo web path variants while preserving validation.
+- Fallback behavior in production blocks invalid callback origin generation if required web origin config is missing.
+- Logout flow includes resilient local cleanup paths to avoid stuck sessions after storage/network failures.
 
-## Hardening changes applied in this patch
+### 3) Admin authorization model
 
-1. **Removed wildcard CORS fallback in web-exposed Supabase functions**
-   - File: `supabase/functions/track-analytics-event/index.ts`
-   - File: `supabase/functions/delete-user-account/index.ts`
-   - File: `supabase/functions/delete-account-v2/index.ts`
-   - File: `supabase/functions/resend-verification-email/index.ts`
-   - Change:
-     - Replaced permissive `*` fallback with explicit allowlist behavior in all web-exposed functions reviewed.
-     - Allowlist now always includes canonical production origins + explicit localhost dev origins.
-   - Security impact:
-     - Reduces browser-origin abuse risk if env-based CORS config is missing or misconfigured.
+Verified in app + SQL migration usage:
 
-2. **Stopped bearer-token preview logging in account deletion functions**
-   - File: `supabase/functions/delete-user-account/index.ts`
-   - File: `supabase/functions/delete-account-v2/index.ts`
-   - Change:
-     - Deleted token masking/preview logging lines.
-   - Security impact:
-     - Reduces credential leakage risk in function logs.
+- Admin UI route exists on web, but authorization is backend enforced.
+- `admin_users` mapping and `is_admin()` checks gate admin data access.
+- Admin analytics data is fetched via guarded RPC functions instead of broad direct table access.
 
-3. **Strengthened static web response hardening headers on Vercel**
-   - File: `apps/mobile/vercel.json`
-   - Added headers:
-     - `Origin-Agent-Cluster: ?1`
-     - `X-Permitted-Cross-Domain-Policies: none`
-   - Security impact:
-     - Tighter browser isolation baseline and reduced legacy cross-domain policy exposure.
+### 4) Edge-function controls
 
-4. **Added incident-specific deployment/security runbook updates**
-   - File: `apps/mobile/DEPLOY_WEB.md`
-   - Change:
-     - Added Vercel April 2026 incident response checklist and least-privilege/rotation guidance.
+Verified in `supabase/functions/*`:
 
-5. **Updated repository security docs**
-   - File: `README.md`
-   - Change:
-     - Added explicit pointer to incident response and credential-rotation checklist.
+- Method checks, payload validation, and explicit CORS allowlist handling are present for web-facing functions.
+- Rate limiting exists for analytics ingestion and night-session recording paths.
+- Account deletion flows no longer include bearer token preview logging.
 
-6. **Hardened auth logout resiliency and fallback OAuth origin policy**
-   - File: `apps/mobile/src/services/authSession.ts`
-   - File: `apps/mobile/src/services/webAuth.ts`
-   - Change:
-     - Added guarded error handling for logout persistence, remote signout, session refresh retry, and browser storage cleanup paths.
-     - Restricted no-env fallback web auth origins to explicit known production + local dev origins.
-   - Security/availability impact:
-     - Prevents hidden logout failures from storage/runtime exceptions.
-     - Reduces risk of permissive callback-origin acceptance from unapproved origins.
+## Incident-response controls (April 2026 Vercel bulletin)
 
-## Risk summary
+Repository docs now include a required operational checklist in `apps/mobile/DEPLOY_WEB.md` covering:
 
-### What was vulnerable
-- Potentially permissive CORS defaults (`*`) in multiple web-exposed Supabase edge functions when `CORS_ALLOWED_ORIGINS` was not set.
-- Partial credential fingerprint logging (`tokenPreview`) in account deletion function logs.
-- Standard Vercel customer exposure risk if non-sensitive env vars were set in Vercel during incident window.
+- credential rotation,
+- MFA/passkey enforcement,
+- deployment/activity review,
+- elevated monitoring window.
 
-### What was fixed
-- CORS defaults hardened to explicit allowlists.
-- Token preview logging removed from account deletion flow.
-- Additional browser hardening headers added to web deployment config.
-- Incident-response and least-privilege checklist documented in deploy docs.
-- Logout flow reliability and auth callback fallback-origin checks were strengthened.
+## Remaining manual responsibilities (outside repo code)
 
-### What still requires manual action
-- Verify Vercel team/project audit logs for suspicious activity and unexpected deployments.
-- Enforce Vercel MFA/passkeys and deployment protection settings in dashboard.
-- Confirm GitHub integration scope is minimum required repos and branch protections are enforced.
-- Validate Supabase dashboard auth logs and Edge Function invocation anomalies across incident window.
+The following controls must be maintained in dashboards/infra and cannot be enforced purely by this repo:
 
-### Credentials that must be rotated manually
-Rotate these in provider dashboards/secrets managers (repo cannot rotate automatically):
-- Vercel access tokens (user + CI + bot tokens).
-- Vercel project environment variables that were non-sensitive or potentially readable.
-- Supabase service-role key and any function secrets used in Vercel-managed env vars.
-- Supabase JWT secret **if compromise is suspected** (requires coordinated token invalidation window).
-- OAuth provider credentials (Google client secret and any other OAuth client secrets used by auth stack).
-- Webhook signing secrets for all inbound/outbound integrations.
-- Database credentials/connection strings exposed through deployment env configuration.
-- GitHub PATs/app tokens used by CI/CD or Vercel integration.
+- Rotate Vercel tokens, Supabase service-role keys, OAuth client secrets, and webhook secrets as needed.
+- Enforce MFA/passkeys for Vercel + GitHub org/team members.
+- Monitor Vercel activity/deploy logs and Supabase auth/function anomaly signals.
+- Keep Supabase Auth URL config, Google OAuth client settings, and `EXPO_PUBLIC_WEB_*` environment values in sync.
 
-### Post-incident monitoring to keep in place
-- Vercel:
-  - Daily review of deployment/activity logs until at least 30 days after full rotation.
-  - Alerts for unusual deploy frequency, environment variable edits, and protection-token usage.
-- Supabase:
-  - Monitor auth anomalies (sudden sign-in spikes, geographic anomalies, repeated refresh/session failures).
-  - Monitor edge-function 401/403/429/5xx deltas and per-origin request outliers.
-- App/Auth:
-  - Monitor reset-password and callback failure rates; investigate spikes.
-  - Continue strict origin/path validation for auth links.
-- GitHub:
-  - Monitor security log, token usage, unusual OAuth app authorizations, and workflow permission drift.
+## Validation commands used during audit
 
-## Validation commands run
-
-- `rg -n "CORS_ALLOWED_ORIGINS|Access-Control-Allow-Origin|tokenPreview|maskToken" supabase/functions`
-- `pnpm --filter mobile lint`
-- `pnpm --filter mobile typecheck`
+```bash
+rg -n "EXPO_PUBLIC_WEB_ALLOWED_ORIGINS|buildAuthRedirectPath|is_admin\(|admin_analytics_|track-analytics-event|record-night-session|delete-user-account|delete-account-v2|resend-verification-email" apps/mobile/src supabase/functions supabase/migrations
+pnpm -C apps/mobile lint
+pnpm -C apps/mobile typecheck
+```
