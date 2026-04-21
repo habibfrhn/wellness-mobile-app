@@ -2,6 +2,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 
 type ErrorCode =
   | "METHOD_NOT_ALLOWED"
+  | "ORIGIN_NOT_ALLOWED"
   | "MISSING_USER_TOKEN"
   | "SERVER_MISCONFIGURATION"
   | "INVALID_SESSION"
@@ -79,14 +80,6 @@ async function getUserJwt(req: Request) {
   return { token: authorization.slice(7), source: "authorization" as const };
 }
 
-function maskToken(token: string) {
-  if (token.length <= 14) {
-    return `${token.slice(0, 3)}...`;
-  }
-
-  return `${token.slice(0, 7)}...${token.slice(-5)}`;
-}
-
 function getHourBucket() {
   const date = new Date();
   date.setUTCMinutes(0, 0, 0);
@@ -120,7 +113,7 @@ Deno.serve(async (req: Request) => {
   });
 
   if (req.headers.get("origin") && !corsHeaders["Access-Control-Allow-Origin"]) {
-    return fail(403, "Origin not allowed", "METHOD_NOT_ALLOWED", corsHeaders);
+    return fail(403, "Origin not allowed", "ORIGIN_NOT_ALLOWED", corsHeaders);
   }
 
   if (req.method === "OPTIONS") {
@@ -145,10 +138,7 @@ Deno.serve(async (req: Request) => {
     return fail(401, "Missing user token", "MISSING_USER_TOKEN", corsHeaders);
   }
 
-  console.log("delete-account-v2: user jwt parsed", {
-    tokenPreview: maskToken(userJwtResult.token),
-    source: userJwtResult.source,
-  });
+  console.log("delete-account-v2: user jwt source parsed", { source: userJwtResult.source });
 
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
 

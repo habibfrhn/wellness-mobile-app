@@ -32,6 +32,12 @@ Set the project configuration in Vercel to:
 - **Output Directory**: `dist`
 - **Ignored Build Step**: keep the repo `ignoreCommand` in `apps/mobile/vercel.json` enabled so markdown/docs-only commits do not trigger preview builds.
 
+### Incident hardening (April 2026 Vercel bulletin)
+- Ensure all security-relevant environment variables in Vercel are marked **Sensitive**.
+- Rotate any pre-existing non-sensitive env vars that contain credentials/tokens/keys.
+- Rotate Deployment Protection tokens and Vercel personal/team tokens after security events.
+- Review Vercel activity logs and deployment history for unknown env edits, team invites, or suspicious deployments before promoting releases.
+
 ### Required web auth environment variables
 Set these environment variables in Vercel for **Preview** and **Production**:
 

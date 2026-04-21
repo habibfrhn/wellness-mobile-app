@@ -26,6 +26,7 @@ type TrackAnalyticsBatchBody = {
 
 type ErrorCode =
   | "METHOD_NOT_ALLOWED"
+  | "ORIGIN_NOT_ALLOWED"
   | "INVALID_JSON"
   | "INVALID_PAYLOAD"
   | "INVALID_SESSION"
@@ -84,7 +85,7 @@ function getAllowedCorsOrigin(req: Request): string | null {
 
   const allowedOriginsRaw = Deno.env.get("CORS_ALLOWED_ORIGINS")?.trim();
   if (!allowedOriginsRaw) {
-    return "*";
+    return REQUIRED_WEB_ORIGINS.includes(normalizedOrigin) ? origin : null;
   }
 
   const allowedOrigins = allowedOriginsRaw
@@ -269,7 +270,7 @@ Deno.serve(async (req: Request) => {
 
   if (req.headers.get("origin") && !requestCorsHeaders["Access-Control-Allow-Origin"]) {
     return new Response(
-      JSON.stringify({ ok: false, error: "Origin not allowed", code: "METHOD_NOT_ALLOWED" }),
+      JSON.stringify({ ok: false, error: "Origin not allowed", code: "ORIGIN_NOT_ALLOWED" }),
       { status: 403, headers: { "Content-Type": "application/json", ...requestCorsHeaders } },
     );
   }
@@ -332,7 +333,8 @@ Deno.serve(async (req: Request) => {
 
   const hasRateLimitCounter = !rateLimitError && typeof incrementedCount === "number";
   if (!hasRateLimitCounter) {
-    console.error("track-analytics-event: rate limit increment unavailable, continuing without enforcement", rateLimitError);
+    console.error("track-analytics-event: rate limit increment unavailable", rateLimitError);
+    return error(503, "Service temporarily unavailable", "RATE_LIMIT_FAILED", requestCorsHeaders);
   }
 
   if (hasRateLimitCounter) {
