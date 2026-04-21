@@ -41,6 +41,7 @@ const MAX_EVENTS_PER_REQUEST = 25;
 const EVENT_PROP_ID_REGEX = /^[A-Za-z0-9_-]+$/;
 const REQUIRED_WEB_ORIGINS = ["https://www.lumepo.com", "https://lumepo.com"];
 const LOCAL_DEV_ORIGINS = ["http://localhost:8081", "http://127.0.0.1:8081"];
+const VERCEL_PREVIEW_ORIGIN_REGEX = /^https:\/\/wellness-mobile-[a-z0-9-]+\.vercel\.app$/i;
 
 const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-user-jwt",
@@ -94,7 +95,15 @@ function getAllowedCorsOrigin(req: Request): string | null {
     new Set([...configuredAllowedOrigins, ...REQUIRED_WEB_ORIGINS, ...LOCAL_DEV_ORIGINS])
   );
 
-  return expandedAllowedOrigins.includes(normalizedOrigin) ? origin : null;
+  if (expandedAllowedOrigins.includes(normalizedOrigin)) {
+    return origin;
+  }
+
+  if (VERCEL_PREVIEW_ORIGIN_REGEX.test(origin)) {
+    return origin;
+  }
+
+  return null;
 }
 
 function buildCorsHeaders(req: Request) {

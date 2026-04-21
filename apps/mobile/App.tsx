@@ -129,6 +129,12 @@ function getWebPathForRoute(routeName: string, fallback = "/") {
   return WEB_ROUTE_PATHS[routeName] ?? fallback;
 }
 
+function getCurrentRootRouteName() {
+  const rootState = navigationRef.getRootState();
+  const currentRootRoute = rootState?.routes[rootState.index ?? 0];
+  return currentRootRoute ? String(currentRootRoute.name) : null;
+}
+
 function summarizeAuthUrl(url?: string | null) {
   if (!url) {
     return null;
@@ -758,6 +764,21 @@ export default function App() {
           index: 0,
           routes: [{ name: "Auth", params: { screen: requestedAuthScreen } }],
         });
+
+        const currentRootAfterReset = getCurrentRootRouteName();
+        logLogoutEvent("info", "logout_navigation_redirect_result", {
+          destination: "Auth",
+          requestedAuthScreen,
+          currentRootRouteNameAfter: currentRootAfterReset,
+        });
+
+        if (Platform.OS === "web" && currentRootAfterReset !== "Auth") {
+          const webPath = getWebPathForRoute(requestedAuthScreen, "/masuk");
+          replaceWebUrl(webPath);
+          if (typeof window !== "undefined") {
+            window.location.assign(webPath);
+          }
+        }
       }
       return;
     }
@@ -770,12 +791,18 @@ export default function App() {
         currentRootRouteName,
       });
       navigationRef.resetRoot({ index: 0, routes: [{ name: "Landing" }] });
-      const rootAfterReset = navigationRef.getRootState();
-      const currentRootAfterReset = rootAfterReset?.routes[rootAfterReset.index ?? 0];
+      const currentRootAfterReset = getCurrentRootRouteName();
       logLogoutEvent("info", "logout_navigation_redirect_result", {
         destination: "Landing",
-        currentRootRouteNameAfter: currentRootAfterReset?.name ?? null,
+        currentRootRouteNameAfter: currentRootAfterReset,
       });
+
+      if (Platform.OS === "web" && currentRootAfterReset !== "Landing") {
+        replaceWebUrl("/");
+        if (typeof window !== "undefined") {
+          window.location.assign("/");
+        }
+      }
     }
   }, [
     authStartRoute,

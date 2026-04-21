@@ -13,6 +13,7 @@ const ACTION_NAME = "delete_user_account";
 const MAX_REQUESTS_PER_HOUR = 3;
 const REQUIRED_WEB_ORIGINS = ["https://www.lumepo.com", "https://lumepo.com"];
 const LOCAL_DEV_ORIGINS = ["http://localhost:8081", "http://127.0.0.1:8081"];
+const VERCEL_PREVIEW_ORIGIN_REGEX = /^https:\/\/wellness-mobile-[a-z0-9-]+\.vercel\.app$/i;
 
 const baseCorsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -48,7 +49,15 @@ function getAllowedCorsOrigin(req: Request) {
     new Set([...configuredAllowedOrigins, ...REQUIRED_WEB_ORIGINS, ...LOCAL_DEV_ORIGINS])
   );
 
-  return allowedOrigins.includes(requestOrigin) ? requestOrigin : null;
+  if (allowedOrigins.includes(requestOrigin)) {
+    return requestOrigin;
+  }
+
+  if (VERCEL_PREVIEW_ORIGIN_REGEX.test(requestOrigin)) {
+    return requestOrigin;
+  }
+
+  return null;
 }
 
 function buildCorsHeaders(req: Request) {
