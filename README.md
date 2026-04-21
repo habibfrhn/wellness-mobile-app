@@ -219,4 +219,5 @@ If lint/typecheck fail, verify whether failures are from current changes or exis
 ## Security and operational docs
 
 - `SECURITY_AUDIT.md` contains the latest pre-deployment security review notes and required environment/infrastructure follow-ups.
+- `apps/mobile/DEPLOY_WEB.md` includes the post-incident credential-rotation and Vercel hardening checklist (April 2026 bulletin response).
 - For Supabase deployment hardening, keep function secrets, auth redirect URLs, and admin bootstrap SQL aligned with deployed domains.

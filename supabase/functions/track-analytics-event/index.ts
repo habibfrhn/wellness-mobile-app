@@ -40,6 +40,7 @@ const MAX_REQUESTS_PER_MINUTE_AUTH = 90;
 const MAX_EVENTS_PER_REQUEST = 25;
 const EVENT_PROP_ID_REGEX = /^[A-Za-z0-9_-]+$/;
 const REQUIRED_WEB_ORIGINS = ["https://www.lumepo.com", "https://lumepo.com"];
+const LOCAL_DEV_ORIGINS = ["http://localhost:8081", "http://127.0.0.1:8081"];
 
 const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-user-jwt",
@@ -82,22 +83,16 @@ function getAllowedCorsOrigin(req: Request): string | null {
 
   const normalizedOrigin = origin.trim().toLowerCase();
 
-  const allowedOriginsRaw = Deno.env.get("CORS_ALLOWED_ORIGINS")?.trim();
-  if (!allowedOriginsRaw) {
-    return "*";
-  }
-
-  const allowedOrigins = allowedOriginsRaw
+  const allowedOriginsRaw = Deno.env.get("CORS_ALLOWED_ORIGINS")?.trim() ?? "";
+  const configuredAllowedOrigins = allowedOriginsRaw
     .split(",")
     .map((value) => value.trim())
     .filter(Boolean)
     .map((value) => value.toLowerCase());
 
-  if (allowedOrigins.includes("*")) {
-    return "*";
-  }
-
-  const expandedAllowedOrigins = Array.from(new Set([...allowedOrigins, ...REQUIRED_WEB_ORIGINS]));
+  const expandedAllowedOrigins = Array.from(
+    new Set([...configuredAllowedOrigins, ...REQUIRED_WEB_ORIGINS, ...LOCAL_DEV_ORIGINS])
+  );
 
   return expandedAllowedOrigins.includes(normalizedOrigin) ? origin : null;
 }

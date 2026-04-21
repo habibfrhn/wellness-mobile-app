@@ -32,6 +32,27 @@ Set the project configuration in Vercel to:
 - **Output Directory**: `dist`
 - **Ignored Build Step**: keep the repo `ignoreCommand` in `apps/mobile/vercel.json` enabled so markdown/docs-only commits do not trigger preview builds.
 
+## April 2026 Vercel incident response checklist (required)
+If this project was deployed on Vercel during the April 2026 incident window, complete all steps below in dashboards/secrets managers:
+
+1. **Rotate credentials**
+   - Rotate Vercel user/team API tokens and CI tokens.
+   - Rotate all non-sensitive Vercel environment variables used by this project.
+   - Rotate Supabase service-role key and any third-party API keys stored in Vercel.
+   - Rotate OAuth client secrets (Google and any additional providers) and webhook signing secrets.
+2. **Harden account access**
+   - Enforce MFA/passkeys on Vercel and GitHub org members.
+   - Remove stale users, bots, and integration tokens.
+   - Re-check GitHub app/repo scopes used by Vercel integration (least privilege only).
+3. **Review activity and deployments**
+   - Inspect Vercel activity logs for unexpected env edits, team invites, or deployment token usage.
+   - Inspect recent deployments and remove unknown/unauthorized deployments.
+   - Verify Deployment Protection is enabled (Standard minimum) and rotate protection tokens.
+4. **Keep stronger monitoring for at least 30 days**
+   - Alert on unexpected deployment bursts.
+   - Alert on spikes in auth callback/reset failures.
+   - Alert on edge-function rate-limit/authorization anomalies.
+
 ### Required web auth environment variables
 Set these environment variables in Vercel for **Preview** and **Production**:
 

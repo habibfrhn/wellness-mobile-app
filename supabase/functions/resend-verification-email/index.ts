@@ -20,6 +20,7 @@ const ACTION_RESEND_VALID_WINDOW = "resend_verification_email_valid_window";
 const RESEND_COOLDOWN_SECONDS = 60;
 const LINK_VALID_WINDOW_SECONDS = 3600;
 const REQUIRED_WEB_ORIGINS = ["https://www.lumepo.com", "https://lumepo.com"];
+const LOCAL_DEV_ORIGINS = ["http://localhost:8081", "http://127.0.0.1:8081"];
 
 const baseCorsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -51,11 +52,9 @@ function getAllowedCorsOrigin(req: Request) {
     .split(",")
     .map((value) => value.trim())
     .filter(Boolean);
-  const allowedOrigins = Array.from(new Set([...configuredAllowedOrigins, ...REQUIRED_WEB_ORIGINS]));
-
-  if (configuredAllowedOrigins.length === 0) {
-    return "*";
-  }
+  const allowedOrigins = Array.from(
+    new Set([...configuredAllowedOrigins, ...REQUIRED_WEB_ORIGINS, ...LOCAL_DEV_ORIGINS])
+  );
 
   return allowedOrigins.includes(requestOrigin) ? requestOrigin : null;
 }
