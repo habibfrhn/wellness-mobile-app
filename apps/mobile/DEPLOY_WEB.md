@@ -31,7 +31,7 @@ Set Vercel project config to:
 - SPA rewrites for extensionless routes,
 - cache headers for app shell/auth/static assets,
 - security headers baseline,
-- `ignoreCommand` to skip markdown/docs-only preview builds.
+- no `ignoreCommand`, so every production-branch commit triggers a fresh deployment.
 
 ## 3) Required web auth environment variables
 
