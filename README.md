@@ -127,7 +127,6 @@ pnpm pre-release
 
 - `track-analytics-event`
 - `record-night-session`
-- `delete-user-account`
 - `delete-account-v2`
 - `resend-verification-email`
 
