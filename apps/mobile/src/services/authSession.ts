@@ -18,6 +18,18 @@ type SignOutSource =
 
 let signOutInFlight: Promise<{ error: Error | null }> | null = null;
 
+function toError(value: unknown, fallbackMessage: string) {
+  if (value instanceof Error) {
+    return value;
+  }
+
+  if (typeof value === "string" && value.trim().length > 0) {
+    return new Error(value);
+  }
+
+  return new Error(fallbackMessage);
+}
+
 function normalizeAuthErrorMessage(error: unknown) {
   if (!error || typeof error !== "object" || !("message" in error)) {
     return "";
@@ -106,8 +118,23 @@ async function clearPersistedSessionArtifacts() {
   if (Platform.OS === "web" && typeof window !== "undefined") {
     const keys = getWebStorageKeysToClear(storageKey);
     keys.forEach((key) => {
-      window.localStorage.removeItem(key);
-      window.sessionStorage.removeItem(key);
+      try {
+        window.localStorage.removeItem(key);
+      } catch (error) {
+        logLogoutEvent("warn", "logout_storage_cleanup_localstorage_failed", {
+          key,
+          error: toError(error, "failed to remove localStorage key").message,
+        });
+      }
+
+      try {
+        window.sessionStorage.removeItem(key);
+      } catch (error) {
+        logLogoutEvent("warn", "logout_storage_cleanup_sessionstorage_failed", {
+          key,
+          error: toError(error, "failed to remove sessionStorage key").message,
+        });
+      }
     });
 
     const removedCookies = clearWebAuthCookies();
@@ -134,7 +161,18 @@ async function clearPersistedSessionArtifacts() {
 
 async function clearLocalSession() {
   logLogoutEvent("info", "logout_signout_local_start");
-  const localResult = await supabase.auth.signOut({ scope: "local" });
+  let localResult: Awaited<ReturnType<typeof supabase.auth.signOut>>;
+  try {
+    localResult = await supabase.auth.signOut({ scope: "local" });
+  } catch (error) {
+    const resolvedError = toError(error, "Local sign out failed");
+    logLogoutEvent("warn", "logout_signout_local_result", {
+      ok: false,
+      error: resolvedError.message,
+    });
+    return resolvedError;
+  }
+
   logLogoutEvent(localResult.error ? "warn" : "info", "logout_signout_local_result", {
     ok: !localResult.error,
     error: localResult.error?.message ?? null,
@@ -144,7 +182,19 @@ async function clearLocalSession() {
 
 async function tryGlobalSignOut(scope: SignOutScope) {
   logLogoutEvent("info", "logout_signout_remote_start", { scope });
-  const result = await supabase.auth.signOut({ scope });
+  let result: Awaited<ReturnType<typeof supabase.auth.signOut>>;
+  try {
+    result = await supabase.auth.signOut({ scope });
+  } catch (error) {
+    const resolvedError = toError(error, "Remote sign out failed");
+    logLogoutEvent("warn", "logout_signout_remote_result", {
+      scope,
+      ok: false,
+      error: resolvedError.message,
+    });
+    return resolvedError;
+  }
+
   logLogoutEvent(result.error ? "warn" : "info", "logout_signout_remote_result", {
     scope,
     ok: !result.error,
@@ -219,7 +269,14 @@ export async function signOutToLogin(
     });
 
     await logSessionSnapshot("logout_session_snapshot_before");
-    await setNextAuthRoute("Login");
+
+    try {
+      await setNextAuthRoute("Login");
+    } catch (error) {
+      logLogoutEvent("warn", "logout_set_next_auth_route_failed", {
+        error: toError(error, "Failed to persist auth start route").message,
+      });
+    }
 
     let finalError: Error | null = null;
 
@@ -230,8 +287,12 @@ export async function signOutToLogin(
         logLogoutEvent("warn", "logout_signout_remote_retrying_after_refresh", {
           reason: globalError.message,
         });
-        await supabase.auth.refreshSession();
-        globalError = await tryGlobalSignOut(scope);
+        try {
+          await supabase.auth.refreshSession();
+          globalError = await tryGlobalSignOut(scope);
+        } catch (error) {
+          globalError = toError(error, "Failed to refresh session before retrying logout");
+        }
       }
 
       if (globalError && !isSessionMissingError(globalError)) {

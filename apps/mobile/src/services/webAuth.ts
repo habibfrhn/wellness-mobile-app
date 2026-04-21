@@ -1,6 +1,7 @@
 import { Platform } from "react-native";
 
 const DEFAULT_LOCAL_WEB_ORIGIN = "http://localhost:8081";
+const DEFAULT_PRODUCTION_WEB_ORIGINS = ["https://lumepo.com", "https://www.lumepo.com"];
 
 export const WEB_AUTH_CALLBACK_PATH = "/auth/callback";
 export const WEB_AUTH_RESET_PATH = "/auth/reset";
@@ -15,6 +16,7 @@ function isLocalDevOrigin(origin: string) {
 }
 
 export function isAllowedWebOrigin(origin: string) {
+  const normalizedOrigin = normalizeOrigin(origin.toLowerCase());
   const configuredOrigins = (process.env.EXPO_PUBLIC_WEB_ALLOWED_ORIGINS ?? "")
     .split(",")
     .map((value: string) => value.trim())
@@ -22,10 +24,14 @@ export function isAllowedWebOrigin(origin: string) {
     .map((value: string) => normalizeOrigin(value.toLowerCase()));
 
   if (configuredOrigins.length > 0) {
-    return configuredOrigins.includes(normalizeOrigin(origin.toLowerCase()));
+    return configuredOrigins.includes(normalizedOrigin);
   }
 
-  if (origin.startsWith("https://")) {
+  const defaultAllowedOrigins = [...DEFAULT_PRODUCTION_WEB_ORIGINS, DEFAULT_LOCAL_WEB_ORIGIN, "http://127.0.0.1:8081"].map(
+    (value) => normalizeOrigin(value.toLowerCase())
+  );
+
+  if (defaultAllowedOrigins.includes(normalizedOrigin)) {
     return true;
   }
 

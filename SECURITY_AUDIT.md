@@ -45,6 +45,9 @@ Result:
 - Session artifacts and Supabase auth storage cleanup are present on logout.
 - Admin access remains backend-enforced via RPC/DB checks.
 - No evidence in repo of service-role key leakage to client.
+- Additional hardening added after post-deploy logout failures were reported:
+  - logout flow now tolerates storage write failures and network/sign-out exceptions and still performs local session cleanup.
+  - web origin fallback for auth callbacks is now explicit and no longer trusts arbitrary `https://` origins when allowlist env is missing.
 
 ### 4) Serverless/edge functions and abuse controls
 Assessed:
@@ -93,6 +96,16 @@ Result:
    - Change:
      - Added explicit pointer to incident response and credential-rotation checklist.
 
+6. **Hardened auth logout resiliency and fallback OAuth origin policy**
+   - File: `apps/mobile/src/services/authSession.ts`
+   - File: `apps/mobile/src/services/webAuth.ts`
+   - Change:
+     - Added guarded error handling for logout persistence, remote signout, session refresh retry, and browser storage cleanup paths.
+     - Restricted no-env fallback web auth origins to explicit known production + local dev origins.
+   - Security/availability impact:
+     - Prevents hidden logout failures from storage/runtime exceptions.
+     - Reduces risk of permissive callback-origin acceptance from unapproved origins.
+
 ## Risk summary
 
 ### What was vulnerable
@@ -105,6 +118,7 @@ Result:
 - Token preview logging removed from account deletion flow.
 - Additional browser hardening headers added to web deployment config.
 - Incident-response and least-privilege checklist documented in deploy docs.
+- Logout flow reliability and auth callback fallback-origin checks were strengthened.
 
 ### What still requires manual action
 - Verify Vercel team/project audit logs for suspicious activity and unexpected deployments.
