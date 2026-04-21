@@ -90,6 +90,7 @@ export default function LandingScreen() {
   const viewport = getWebViewport(viewportWidth);
   const isDesktop = viewport === "desktop";
   const isTablet = viewport === "tablet";
+  const isMobile = viewport === "mobile";
   const heroTitleText = id.landing.heroTitle.replace(", ", ",\n");
 
   const goToLogin = () => {
@@ -863,11 +864,12 @@ export default function LandingScreen() {
             <View
               style={[
                 styles.footerTopRow,
+                isMobile && styles.footerTopRowMobile,
                 isTablet && styles.footerTopRowTablet,
                 isDesktop && styles.footerTopRowDesktop,
               ]}
             >
-              <View style={styles.footerColumn}>
+              <View style={[styles.footerColumn, isMobile && styles.footerColumnMobile]}>
                 <View style={styles.footerBrandBlock}>
                   <Text style={styles.footerBrandTitle}>Lumepo</Text>
                   <Text style={styles.footerDescription}>
@@ -876,9 +878,9 @@ export default function LandingScreen() {
                 </View>
               </View>
 
-              <View style={styles.footerColumn}>
-                <Text style={styles.footerHeading}>Navigasi</Text>
-                <View style={styles.footerLinksStack}>
+              <View style={[styles.footerColumn, isMobile && styles.footerColumnMobile]}>
+                <Text style={[styles.footerHeading, isMobile && styles.footerHeadingMobile]}>Navigasi</Text>
+                <View style={[styles.footerLinksStack, isMobile && styles.footerLinksStackMobile]}>
                   <Pressable
                     onPress={() => goToSection("beranda")}
                     style={({ hovered }: any) => [
@@ -921,11 +923,12 @@ export default function LandingScreen() {
               <View
                 style={[
                   styles.footerColumn,
-                  !isDesktop && !isTablet && styles.footerInfoColumnMobile,
+                  isMobile && styles.footerColumnMobile,
+                  isMobile && styles.footerInfoColumnMobile,
                 ]}
               >
-                <Text style={styles.footerHeading}>Informasi</Text>
-                <View style={styles.footerLinksStack}>
+                <Text style={[styles.footerHeading, isMobile && styles.footerHeadingMobile]}>Informasi</Text>
+                <View style={[styles.footerLinksStack, isMobile && styles.footerLinksStackMobile]}>
                   <Pressable
                     onPress={goToPrivacyPolicy}
                     style={({ hovered }: any) => [
@@ -954,7 +957,7 @@ export default function LandingScreen() {
                     <Text style={styles.footerLinkText}>Kontak</Text>
                   </Pressable>
                 </View>
-                <Text style={styles.footerContact}>hello@lumepo.id</Text>
+                <Text style={[styles.footerContact, isMobile && styles.footerContactMobile]}>hello@lumepo.id</Text>
               </View>
             </View>
           </View>
@@ -1502,6 +1505,9 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     paddingBottom: spacing.lg,
   },
+  footerTopRowMobile: {
+    gap: spacing.xl,
+  },
   footerTopRowTablet: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -1517,11 +1523,18 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: spacing.sm,
   },
+  footerColumnMobile: {
+    flex: 0,
+    gap: spacing.md,
+  },
   footerBrandBlock: {
     gap: spacing.sm,
   },
   footerLinksStack: {
     gap: spacing.xs,
+  },
+  footerLinksStackMobile: {
+    gap: spacing.sm,
   },
   footerInfoColumnMobile: {
     paddingBottom: spacing.md,
@@ -1575,6 +1588,9 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: colors.white,
   },
+  footerHeadingMobile: {
+    marginBottom: spacing.xs,
+  },
   footerLinkPressable: {
     alignSelf: "flex-start",
     minHeight: 40,
@@ -1596,5 +1612,9 @@ const styles = StyleSheet.create({
     color: colors.white,
     marginTop: spacing.sm,
     marginBottom: spacing.xs,
+  },
+  footerContactMobile: {
+    marginTop: spacing.md,
+    marginBottom: 0,
   },
 });
