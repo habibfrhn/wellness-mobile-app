@@ -65,7 +65,12 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
     setRateLimitHelperText(null);
     try {
       const providerLock = await lookupProviderLockByEmail(e);
-      if (providerLock?.exists && isBlockedByProviderLock(providerLock.providerLock, "password_reset", "email")) {
+      if (providerLock.status === "unavailable") {
+        Alert.alert(id.auth.providerLockTitle, id.auth.providerLockUnavailable);
+        return;
+      }
+
+      if (providerLock.exists && isBlockedByProviderLock(providerLock.providerLock, "password_reset", "email")) {
         Alert.alert(id.auth.providerLockTitle, getProviderLockErrorMessage(providerLock.providerLock, "password_reset"));
         return;
       }

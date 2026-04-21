@@ -130,7 +130,12 @@ export default function LoginScreen({ navigation, route }: Props) {
     setBusy(true);
     try {
       const providerLock = await lookupProviderLockByEmail(e);
-      if (providerLock?.exists && isBlockedByProviderLock(providerLock.providerLock, "email_password", "email")) {
+      if (providerLock.status === "unavailable") {
+        setFormError(id.auth.providerLockUnavailable);
+        return;
+      }
+
+      if (providerLock.exists && isBlockedByProviderLock(providerLock.providerLock, "email_password", "email")) {
         setErrors({ password: id.login.errorInvalidCredentials });
         setFormError(getProviderLockErrorMessage(providerLock.providerLock, "email_password"));
         return;

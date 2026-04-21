@@ -34,6 +34,8 @@ export const id = {
     providerLockOAuthOnly: "Email ini terdaftar dengan metode login berbeda. Silakan gunakan metode login yang sama seperti sebelumnya.",
     providerLockPasswordResetBlocked:
       "Akun ini tidak menggunakan kata sandi. Silakan masuk dengan metode yang sebelumnya Anda gunakan.",
+    providerLockUnavailable:
+      "Metode login tidak dapat diverifikasi saat ini. Coba lagi beberapa saat.",
     callbackLoadingTitle: "Menyelesaikan login",
     callbackLoadingBody: "Mohon tunggu sebentar, kami sedang menghubungkan akun Anda.",
     callbackErrorTitle: "Login Google gagal",

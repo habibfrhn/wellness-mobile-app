@@ -26,7 +26,7 @@ import { clearPendingProfileName, getPendingProfileName } from "./src/services/p
 import WebAuthStatusScreen from "./src/components/auth/WebAuthStatusScreen";
 import { getWebAppOrigin, getWebAuthPath, replaceWebUrl } from "./src/services/webAuth";
 import AdminDashboardScreen from "./src/screens/Admin/AdminDashboardScreen.web";
-import { isUserVerified } from "./src/services/authProviders";
+import { getUserAuthProviders, isUserVerified } from "./src/services/authProviders";
 import { getProviderLockErrorMessage, isBlockedByProviderLock, lookupProviderLockByEmail } from "./src/services/authProviderLock";
 import { logAuthDebugEvent } from "./src/services/authDebug";
 import { restoreSession, signOutToLogin } from "./src/services/authSession";
@@ -446,17 +446,35 @@ export default function App() {
       }
 
       const callbackEmail = res.session.user.email?.trim().toLowerCase() ?? "";
-      const providerLock = callbackEmail ? await lookupProviderLockByEmail(callbackEmail) : null;
-      const currentProviderRaw =
-        (typeof res.session.user.app_metadata?.provider === "string" && res.session.user.app_metadata.provider) || "unknown";
-      const currentProvider = currentProviderRaw.toLowerCase() as "email" | "google" | "apple" | "github" | "unknown";
+      const providerLock = callbackEmail ? await lookupProviderLockByEmail(callbackEmail) : { status: "ok" as const, exists: false, providers: [], primaryProvider: null, providerLock: null };
+      const currentProviders = getUserAuthProviders(res.session.user).map((provider) => provider.toLowerCase());
+      const currentProviderRaw = currentProviders.find((provider) => provider !== "email") ?? currentProviders[0] ?? "unknown";
+      const currentProvider = currentProviderRaw as "email" | "google" | "apple" | "github" | "unknown";
+
+      if (providerLock.status === "unavailable") {
+        await signOutToLogin("global", { source: "provider_lock_oauth_callback" });
+        if (Platform.OS === "web" && getWebAuthPath(typeof window !== "undefined" ? window.location.pathname : null)) {
+          setWebAuthErrorBody(id.auth.providerLockUnavailable);
+          setWebAuthStatus("error");
+        } else {
+          Alert.alert(id.auth.providerLockTitle, id.auth.providerLockUnavailable);
+        }
+
+        await setNextAuthRoute("Login");
+        setAuthStartRoute("Login");
+        setForceReset(false);
+        setWebResetFlowActive(false);
+        replaceWebUrl(getWebPathForRoute("Login"));
+        return;
+      }
+
       const hasProviderLockViolation =
-        Boolean(providerLock?.exists) &&
-        isBlockedByProviderLock(providerLock?.providerLock ?? null, "google_oauth", currentProvider);
+        providerLock.exists &&
+        isBlockedByProviderLock(providerLock.providerLock, "google_oauth", currentProvider);
 
       if (hasProviderLockViolation) {
         await signOutToLogin("global", { source: "provider_lock_oauth_callback" });
-        const providerLockMessage = getProviderLockErrorMessage(providerLock?.providerLock ?? null, "google_oauth");
+        const providerLockMessage = getProviderLockErrorMessage(providerLock.providerLock, "google_oauth");
 
         if (Platform.OS === "web" && getWebAuthPath(typeof window !== "undefined" ? window.location.pathname : null)) {
           setWebAuthErrorBody(providerLockMessage);

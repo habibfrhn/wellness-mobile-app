@@ -10,14 +10,20 @@ type ProviderLockResponse = {
   providers?: string[];
   primaryProvider?: string | null;
   providerLock?: string | null;
+  code?: string;
 };
 
-export type ProviderLockLookupResult = {
-  exists: boolean;
-  providers: string[];
-  primaryProvider: LockedAuthProvider | null;
-  providerLock: LockedAuthProvider | null;
-};
+export type ProviderLockLookupResult =
+  | {
+      status: "ok";
+      exists: boolean;
+      providers: string[];
+      primaryProvider: LockedAuthProvider | null;
+      providerLock: LockedAuthProvider | null;
+    }
+  | {
+      status: "unavailable";
+    };
 
 function normalizeProvider(value: string | null | undefined): LockedAuthProvider | null {
   if (!value) {
@@ -51,61 +57,26 @@ function toUniqueProviders(values: unknown): string[] {
   );
 }
 
-async function extractErrorPayload(error: unknown): Promise<ProviderLockResponse | null> {
-  if (!error || typeof error !== "object" || !("context" in error)) {
-    return null;
-  }
-
-  const context = (error as { context?: unknown }).context;
-  if (!context || typeof context !== "object" || !("json" in context)) {
-    return null;
-  }
-
-  const json = (context as { json?: () => Promise<unknown> }).json;
-  if (typeof json !== "function") {
-    return null;
-  }
-
-  try {
-    const payload = await json();
-    if (!payload || typeof payload !== "object") {
-      return null;
-    }
-    return payload as ProviderLockResponse;
-  } catch {
-    return null;
-  }
-}
-
-export async function lookupProviderLockByEmail(email: string): Promise<ProviderLockLookupResult | null> {
+export async function lookupProviderLockByEmail(email: string): Promise<ProviderLockLookupResult> {
   const normalizedEmail = email.trim().toLowerCase();
   if (!normalizedEmail) {
-    return null;
+    return { status: "ok", exists: false, providers: [], primaryProvider: null, providerLock: null };
   }
 
   const { data, error } = await supabase.functions.invoke<ProviderLockResponse>("resolve-auth-provider-lock", {
     body: { email: normalizedEmail },
   });
 
-  if (error) {
-    const errorPayload = await extractErrorPayload(error);
-    if (!errorPayload) {
-      return null;
-    }
-
-    return {
-      exists: Boolean(errorPayload.exists),
-      providers: toUniqueProviders(errorPayload.providers),
-      primaryProvider: normalizeProvider(errorPayload.primaryProvider),
-      providerLock: normalizeProvider(errorPayload.providerLock),
-    };
+  if (error || !data?.ok) {
+    return { status: "unavailable" };
   }
 
   return {
-    exists: Boolean(data?.exists),
-    providers: toUniqueProviders(data?.providers),
-    primaryProvider: normalizeProvider(data?.primaryProvider),
-    providerLock: normalizeProvider(data?.providerLock),
+    status: "ok",
+    exists: Boolean(data.exists),
+    providers: toUniqueProviders(data.providers),
+    primaryProvider: normalizeProvider(data.primaryProvider),
+    providerLock: normalizeProvider(data.providerLock),
   };
 }
 

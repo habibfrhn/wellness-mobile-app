@@ -73,7 +73,13 @@ export default function AdminDashboardScreen({ session }: Props) {
     setErrorMessage(null);
 
     const providerLock = await lookupProviderLockByEmail(normalizedEmail);
-    if (providerLock?.exists && isBlockedByProviderLock(providerLock.providerLock, "email_password", "email")) {
+    if (providerLock.status === "unavailable") {
+      setErrorMessage(id.auth.providerLockUnavailable);
+      setBusy(false);
+      return;
+    }
+
+    if (providerLock.exists && isBlockedByProviderLock(providerLock.providerLock, "email_password", "email")) {
       setErrorMessage(getProviderLockErrorMessage(providerLock.providerLock, "email_password"));
       setBusy(false);
       return;
@@ -100,7 +106,13 @@ export default function AdminDashboardScreen({ session }: Props) {
     setErrorMessage(null);
 
     const providerLock = await lookupProviderLockByEmail(normalizedEmail);
-    if (providerLock?.exists && isBlockedByProviderLock(providerLock.providerLock, "password_reset", "email")) {
+    if (providerLock.status === "unavailable") {
+      setErrorMessage(id.auth.providerLockUnavailable);
+      setBusy(false);
+      return;
+    }
+
+    if (providerLock.exists && isBlockedByProviderLock(providerLock.providerLock, "password_reset", "email")) {
       setErrorMessage(getProviderLockErrorMessage(providerLock.providerLock, "password_reset"));
       setBusy(false);
       return;

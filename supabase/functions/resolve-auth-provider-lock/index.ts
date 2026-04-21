@@ -5,6 +5,7 @@ type ErrorCode =
   | "INVALID_JSON"
   | "INVALID_PAYLOAD"
   | "SERVER_MISCONFIGURATION"
+  | "RATE_LIMITED"
   | "LOOKUP_FAILED";
 
 type RequestBody = {
@@ -13,6 +14,9 @@ type RequestBody = {
 
 type AuthUserRow = {
   id: string;
+  created_at?: string | null;
+  encrypted_password?: string | null;
+  is_sso_user?: boolean | null;
   raw_app_meta_data?: {
     provider?: unknown;
     providers?: unknown;
@@ -26,6 +30,9 @@ type AuthIdentityRow = {
 const REQUIRED_WEB_ORIGINS = ["https://www.lumepo.com", "https://lumepo.com"];
 const LOCAL_DEV_ORIGINS = ["http://localhost:8081", "http://127.0.0.1:8081"];
 const VERCEL_PREVIEW_ORIGIN_REGEX = /^https:\/\/wellness-mobile-[a-z0-9-]+\.vercel\.app$/i;
+
+const ACTION_PROVIDER_LOCK_LOOKUP = "auth_provider_lock_lookup";
+const LOOKUP_LIMIT_PER_MINUTE = 30;
 
 const baseCorsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -105,6 +112,20 @@ function getMetaProviders(user: AuthUserRow) {
   return [];
 }
 
+function inferProviderFromUserRow(user: AuthUserRow) {
+  const inferredProviders: string[] = [];
+
+  if (user.encrypted_password) {
+    inferredProviders.push("email");
+  }
+
+  if (user.is_sso_user) {
+    inferredProviders.push("unknown");
+  }
+
+  return inferredProviders;
+}
+
 function resolveProviderLock(providers: string[]) {
   const uniqueProviders = Array.from(new Set(providers));
   if (uniqueProviders.length === 0) {
@@ -123,6 +144,46 @@ function resolveProviderLock(providers: string[]) {
   // Legacy accounts can already have linked multi-provider identities.
   // Keep them functional by not enforcing a strict lock in that case.
   return null;
+}
+
+function getClientIp(req: Request) {
+  const xff = req.headers.get("x-forwarded-for") ?? "";
+  const firstIp = xff.split(",")[0]?.trim();
+  if (firstIp) {
+    return firstIp;
+  }
+
+  const realIp = req.headers.get("x-real-ip")?.trim();
+  return realIp || "unknown";
+}
+
+async function sha256(value: string) {
+  const encoded = new TextEncoder().encode(value);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", encoded);
+  return Array.from(new Uint8Array(hashBuffer)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function getMinuteBucket(date: Date) {
+  return `60s:${Math.floor(date.getTime() / 60_000)}`;
+}
+
+async function incrementRateLimit(
+  adminClient: ReturnType<typeof createClient>,
+  principalKey: string,
+  action: string,
+  bucket: string
+): Promise<number> {
+  const { data, error } = await adminClient.rpc("increment_analytics_ingest_rate_limit", {
+    p_principal_key: principalKey,
+    p_action: action,
+    p_bucket: bucket,
+  });
+
+  if (error || typeof data !== "number") {
+    throw new Error("RATE_LIMIT_FAILED");
+  }
+
+  return data;
 }
 
 Deno.serve(async (req: Request) => {
@@ -160,28 +221,42 @@ Deno.serve(async (req: Request) => {
 
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
+  try {
+    const now = new Date();
+    const principalKey = await sha256(`${getClientIp(req)}|${email}`);
+    const count = await incrementRateLimit(adminClient, principalKey, ACTION_PROVIDER_LOCK_LOOKUP, getMinuteBucket(now));
+    if (count > LOOKUP_LIMIT_PER_MINUTE) {
+      return fail(429, "Rate limited", "RATE_LIMITED", corsHeaders);
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("resolve-auth-provider-lock: rate-limit subsystem unavailable", message);
+  }
+
   const { data: users, error: usersError } = await adminClient
     .schema("auth")
     .from("users")
-    .select("id, raw_app_meta_data")
+    .select("id, created_at, encrypted_password, is_sso_user, raw_app_meta_data")
     .ilike("email", email)
-    .limit(1);
+    .order("created_at", { ascending: true })
+    .limit(10);
 
   if (usersError) {
     console.error("resolve-auth-provider-lock: user lookup failed", usersError.message);
     return fail(500, "Provider lookup failed", "LOOKUP_FAILED", corsHeaders);
   }
 
-  const user = (users ?? [])[0] as AuthUserRow | undefined;
-  if (!user) {
+  const normalizedUsers = (users ?? []) as AuthUserRow[];
+  if (!normalizedUsers.length) {
     return json(200, { ok: true, exists: false, providers: [], primaryProvider: null, providerLock: null }, corsHeaders);
   }
 
+  const userIds = normalizedUsers.map((user) => user.id);
   const { data: identities, error: identitiesError } = await adminClient
     .schema("auth")
     .from("identities")
     .select("provider")
-    .eq("user_id", user.id);
+    .in("user_id", userIds);
 
   if (identitiesError) {
     console.error("resolve-auth-provider-lock: identities lookup failed", identitiesError.message);
@@ -191,7 +266,13 @@ Deno.serve(async (req: Request) => {
   const identityProviders = (identities ?? [])
     .map((identity) => normalizeProvider((identity as AuthIdentityRow).provider ?? ""))
     .filter((provider): provider is string => Boolean(provider));
-  const providers = Array.from(new Set([...identityProviders, ...getMetaProviders(user)]));
+
+  const metaAndInferredProviders = normalizedUsers.flatMap((user) => [
+    ...getMetaProviders(user),
+    ...inferProviderFromUserRow(user),
+  ]);
+
+  const providers = Array.from(new Set([...identityProviders, ...metaAndInferredProviders]));
 
   return json(
     200,

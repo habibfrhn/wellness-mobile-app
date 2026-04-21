@@ -164,7 +164,12 @@ export default function SignUpScreen({ navigation, route }: Props) {
       }
 
       const providerLock = await lookupProviderLockByEmail(e);
-      if (providerLock?.exists && isBlockedByProviderLock(providerLock.providerLock, "email_password", "email")) {
+      if (providerLock.status === "unavailable") {
+        setFormError(id.auth.providerLockUnavailable);
+        return;
+      }
+
+      if (providerLock.exists && isBlockedByProviderLock(providerLock.providerLock, "email_password", "email")) {
         setFormError(getProviderLockErrorMessage(providerLock.providerLock, "email_password"));
         return;
       }
