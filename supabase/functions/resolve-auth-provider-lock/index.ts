@@ -14,6 +14,7 @@ type RequestBody = {
 
 type AuthUserRow = {
   id: string;
+  email?: string | null;
   created_at?: string | null;
   encrypted_password?: string | null;
   is_sso_user?: boolean | null;
@@ -21,11 +22,15 @@ type AuthUserRow = {
     provider?: unknown;
     providers?: unknown;
   } | null;
+  identities?: AuthIdentityRow[] | null;
 };
 
 type AuthIdentityRow = {
   provider?: string | null;
   created_at?: string | null;
+  identity_data?: {
+    provider?: unknown;
+  } | null;
 };
 
 const REQUIRED_WEB_ORIGINS = ["https://www.lumepo.com", "https://lumepo.com"];
@@ -193,6 +198,107 @@ async function incrementRateLimit(
   return data;
 }
 
+function mapAdminUserToAuthRow(user: {
+  id: string;
+  email?: string | null;
+  created_at?: string | null;
+  encrypted_password?: string | null;
+  is_sso_user?: boolean | null;
+  app_metadata?: {
+    provider?: unknown;
+    providers?: unknown;
+  } | null;
+  identities?: AuthIdentityRow[] | null;
+}): AuthUserRow {
+  return {
+    id: user.id,
+    email: user.email ?? null,
+    created_at: user.created_at ?? null,
+    encrypted_password: user.encrypted_password ?? null,
+    is_sso_user: user.is_sso_user ?? null,
+    raw_app_meta_data: user.app_metadata
+      ? {
+          provider: user.app_metadata.provider,
+          providers: user.app_metadata.providers,
+        }
+      : null,
+    identities: Array.isArray(user.identities) ? user.identities : [],
+  };
+}
+
+async function listUsersByEmail(adminClient: ReturnType<typeof createClient>, normalizedEmail: string): Promise<AuthUserRow[]> {
+  const matchedUsers: AuthUserRow[] = [];
+  const maxPagesToScan = 25;
+  const perPage = 200;
+  let page = 1;
+
+  while (page <= maxPagesToScan && matchedUsers.length < 10) {
+    const { data, error } = await adminClient.auth.admin.listUsers({ page, perPage });
+    if (error) {
+      throw error;
+    }
+
+    const users = data?.users ?? [];
+    for (const user of users) {
+      const userEmail = typeof user.email === "string" ? user.email.trim().toLowerCase() : "";
+      if (userEmail === normalizedEmail) {
+        matchedUsers.push(mapAdminUserToAuthRow(user));
+        if (matchedUsers.length >= 10) {
+          break;
+        }
+      }
+    }
+
+    if (users.length < perPage) {
+      break;
+    }
+
+    page += 1;
+  }
+
+  return matchedUsers.sort((left, right) => {
+    const leftCreatedAt = left.created_at ? Date.parse(left.created_at) : Number.NaN;
+    const rightCreatedAt = right.created_at ? Date.parse(right.created_at) : Number.NaN;
+
+    if (Number.isNaN(leftCreatedAt) && Number.isNaN(rightCreatedAt)) {
+      return 0;
+    }
+    if (Number.isNaN(leftCreatedAt)) {
+      return 1;
+    }
+    if (Number.isNaN(rightCreatedAt)) {
+      return -1;
+    }
+    return leftCreatedAt - rightCreatedAt;
+  });
+}
+
+function getIdentityProvidersFromUsers(users: AuthUserRow[]) {
+  return users
+    .flatMap((user) => (Array.isArray(user.identities) ? user.identities : []))
+    .map((identity) => ({
+      provider: normalizeProvider(
+        identity.provider ??
+          (typeof identity.identity_data?.provider === "string" ? identity.identity_data.provider : "")
+      ),
+      createdAt: identity.created_at ? Date.parse(identity.created_at) : Number.NaN,
+    }))
+    .filter((identity): identity is { provider: string; createdAt: number } => Boolean(identity.provider))
+    .sort((left, right) => {
+      if (Number.isNaN(left.createdAt) && Number.isNaN(right.createdAt)) {
+        return 0;
+      }
+      if (Number.isNaN(left.createdAt)) {
+        return 1;
+      }
+      if (Number.isNaN(right.createdAt)) {
+        return -1;
+      }
+      return left.createdAt - right.createdAt;
+    })
+    .map((identity) => identity.provider);
+}
+
 Deno.serve(async (req: Request) => {
   const corsHeaders = buildCorsHeaders(req);
 
@@ -241,59 +347,20 @@ Deno.serve(async (req: Request) => {
     console.error("resolve-auth-provider-lock: rate-limit subsystem unavailable", message);
   }
 
-  const { data: users, error: usersError } = await adminClient
-    .schema("auth")
-    .from("users")
-    .select("id, created_at, encrypted_password, is_sso_user, raw_app_meta_data")
-    .ilike("email", email)
-    .order("created_at", { ascending: true })
-    .limit(10);
-
-  if (usersError) {
-    console.error("resolve-auth-provider-lock: user lookup failed", usersError.message);
+  let normalizedUsers: AuthUserRow[] = [];
+  try {
+    normalizedUsers = await listUsersByEmail(adminClient, email);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("resolve-auth-provider-lock: user lookup failed", message);
     return fail(500, "Provider lookup failed", "LOOKUP_FAILED", corsHeaders);
   }
 
-  const normalizedUsers = (users ?? []) as AuthUserRow[];
   if (!normalizedUsers.length) {
     return json(200, { ok: true, exists: false, providers: [], primaryProvider: null, providerLock: null }, corsHeaders);
   }
 
-  const userIds = normalizedUsers.map((user) => user.id);
-  const { data: identities, error: identitiesError } = await adminClient
-    .schema("auth")
-    .from("identities")
-    .select("provider, created_at")
-    .in("user_id", userIds);
-
-  if (identitiesError) {
-    console.error("resolve-auth-provider-lock: identities lookup failed", identitiesError.message);
-    return fail(500, "Provider lookup failed", "LOOKUP_FAILED", corsHeaders);
-  }
-
-  const normalizedIdentities = (identities ?? []) as AuthIdentityRow[];
-  const identityProviders = normalizedIdentities
-    .map((identity) => ({
-      provider: normalizeProvider(identity.provider ?? ""),
-      createdAt: identity.created_at ? Date.parse(identity.created_at) : Number.NaN,
-    }))
-    .filter((identity): identity is { provider: string; createdAt: number } => Boolean(identity.provider))
-    .sort((left, right) => {
-      if (Number.isNaN(left.createdAt) && Number.isNaN(right.createdAt)) {
-        return 0;
-      }
-
-      if (Number.isNaN(left.createdAt)) {
-        return 1;
-      }
-
-      if (Number.isNaN(right.createdAt)) {
-        return -1;
-      }
-
-      return left.createdAt - right.createdAt;
-    })
-    .map((identity) => identity.provider);
+  const identityProviders = getIdentityProvidersFromUsers(normalizedUsers);
 
   const metaAndInferredProviders = normalizedUsers.flatMap((user) => [
     ...getMetaProviders(user),
