@@ -163,18 +163,8 @@ function isAdminRoutePath() {
     return false;
   }
 
-  const { pathname, search, hash } = window.location;
-  if (pathname.startsWith("/admin") || pathname.startsWith("/--/admin")) {
-    return true;
-  }
-
-  const adminQuery = new URLSearchParams(search).get("admin");
-  if (adminQuery === "1" || adminQuery === "true") {
-    return true;
-  }
-
-  const normalizedHash = hash.replace(/^#/, "");
-  return normalizedHash.startsWith("/admin");
+  const { pathname } = window.location;
+  return pathname.startsWith("/admin") || pathname.startsWith("/--/admin");
 }
 
 function isWebResetFlowActive() {

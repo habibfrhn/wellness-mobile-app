@@ -84,8 +84,6 @@ pnpm -C apps/mobile web
 Open one of:
 
 - `http://localhost:8081/admin`
-- `http://localhost:8081/?admin=1`
-- `http://localhost:8081/#/admin`
 
 Expected behavior:
 

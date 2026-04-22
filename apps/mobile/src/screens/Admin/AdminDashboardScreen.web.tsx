@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import type { Session } from "@supabase/supabase-js";
 
@@ -22,6 +22,7 @@ export default function AdminDashboardScreen({ session }: Props) {
   const [busy, setBusy] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const adminCheckRequestIdRef = useRef(0);
   const { range, setRange, busy: analyticsBusy, errorMessage: analyticsError, unauthorized: analyticsUnauthorized, productActions, audioRows, tailoredRows, reload } =
     useAdminAnalytics(Boolean(session) && isAdmin === true);
 
@@ -34,6 +35,9 @@ export default function AdminDashboardScreen({ session }: Props) {
   }, []);
 
   const runAdminCheck = useCallback(async () => {
+    const currentRequestId = adminCheckRequestIdRef.current + 1;
+    adminCheckRequestIdRef.current = currentRequestId;
+
     if (!session) {
       setIsAdmin(null);
       return;
@@ -42,8 +46,18 @@ export default function AdminDashboardScreen({ session }: Props) {
     setBusy(true);
     setErrorMessage(null);
     const { data, error } = await supabase.rpc("is_admin");
+    if (adminCheckRequestIdRef.current !== currentRequestId) {
+      return;
+    }
+
     if (error) {
-      setErrorMessage(id.admin.accessCheckFailed);
+      if (isInvalidCredentialsError(error.message)) {
+        await signOutToLogin("global", { source: "admin_dashboard" });
+        setIsAdmin(null);
+        setErrorMessage(id.admin.loginFailed);
+      } else {
+        setErrorMessage(id.admin.accessCheckFailed);
+      }
       setBusy(false);
       return;
     }
@@ -56,6 +70,12 @@ export default function AdminDashboardScreen({ session }: Props) {
   useEffect(() => {
     void runAdminCheck();
   }, [runAdminCheck]);
+
+  useEffect(() => {
+    return () => {
+      adminCheckRequestIdRef.current += 1;
+    };
+  }, []);
 
   useEffect(() => {
     if (!analyticsUnauthorized) {

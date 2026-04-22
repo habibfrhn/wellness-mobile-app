@@ -59,7 +59,7 @@ export default function AdminDashboardView({
         </View>
       </View>
 
-      <AdminDateRangeFilter value={range} onChange={onRangeChange} />
+      <AdminDateRangeFilter value={range} onChange={onRangeChange} disabled={busy} />
 
       {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 

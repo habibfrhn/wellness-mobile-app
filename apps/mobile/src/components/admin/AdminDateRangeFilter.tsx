@@ -10,9 +10,10 @@ const OPTIONS: AdminAnalyticsRange[] = ["7d", "30d", "90d", "all"];
 type Props = {
   value: AdminAnalyticsRange;
   onChange: (next: AdminAnalyticsRange) => void;
+  disabled?: boolean;
 };
 
-export default function AdminDateRangeFilter({ value, onChange }: Props) {
+export default function AdminDateRangeFilter({ value, onChange, disabled = false }: Props) {
   return (
     <View style={styles.row}>
       {OPTIONS.map((option) => {
@@ -21,6 +22,7 @@ export default function AdminDateRangeFilter({ value, onChange }: Props) {
         return (
           <Pressable
             key={option}
+            disabled={disabled}
             onPress={() => onChange(option)}
             style={({ pressed }) => [styles.chip, active && styles.chipActive, pressed && styles.chipPressed]}
           >
