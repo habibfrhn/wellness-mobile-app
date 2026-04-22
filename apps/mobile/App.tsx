@@ -436,7 +436,29 @@ export default function App() {
       }
 
       const callbackEmail = res.session.user.email?.trim().toLowerCase() ?? "";
-      const providerLock = callbackEmail ? await lookupProviderLockByEmail(callbackEmail) : { status: "ok" as const, exists: false, providers: [], primaryProvider: null, providerLock: null };
+      if (!callbackEmail) {
+        logAuthDebugEvent("warn", "oauth_callback_missing_email", {
+          linkType: res.linkType,
+          userId: res.session.user.id,
+        });
+        await signOutToLogin("global", { source: "provider_lock_oauth_callback_missing_email" });
+
+        if (Platform.OS === "web" && getWebAuthPath(typeof window !== "undefined" ? window.location.pathname : null)) {
+          setWebAuthErrorBody(id.auth.callbackErrorBody);
+          setWebAuthStatus("error");
+        } else {
+          Alert.alert(id.auth.callbackErrorTitle, id.auth.callbackErrorBody);
+        }
+
+        await setNextAuthRoute("Login");
+        setAuthStartRoute("Login");
+        setForceReset(false);
+        setWebResetFlowActive(false);
+        replaceWebUrl(getWebPathForRoute("Login"));
+        return;
+      }
+
+      const providerLock = await lookupProviderLockByEmail(callbackEmail);
       const currentProviders = getUserAuthProviders(res.session.user).map((provider) => provider.toLowerCase());
       const currentProviderRaw = currentProviders.find((provider) => provider !== "email") ?? currentProviders[0] ?? "unknown";
       const currentProvider = currentProviderRaw as "email" | "google" | "apple" | "github" | "unknown";

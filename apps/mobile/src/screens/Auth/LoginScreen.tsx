@@ -170,47 +170,13 @@ export default function LoginScreen({ navigation, route }: Props) {
       return;
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
-    if (normalizedEmail && !isValidEmail(normalizedEmail)) {
-      logAuthDebugEvent("warn", "oauth_google_preflight_blocked", {
-        reason: "INVALID_EMAIL",
-        screen: "login_native",
-      });
-      setErrors((prev) => ({ ...prev, email: id.common.invalidEmail }));
-      return;
-    }
-
     setErrors((prev) => ({ ...prev, email: undefined }));
     setFormError(null);
     setBusyGoogle(true);
     try {
-      if (normalizedEmail) {
-        const providerLock = await lookupProviderLockByEmail(normalizedEmail);
-        if (providerLock.status === "unavailable") {
-          logAuthDebugEvent("warn", "oauth_google_preflight_unavailable", {
-            screen: "login_native",
-          });
-          setFormError(id.auth.providerLockUnavailable);
-          return;
-        }
-
-        if (providerLock.exists && isBlockedByProviderLock(providerLock.providerLock, "google_oauth", "google")) {
-          logAuthDebugEvent("warn", "oauth_google_preflight_blocked", {
-            reason: "PROVIDER_LOCK_MISMATCH",
-            screen: "login_native",
-            providerLock: providerLock.providerLock,
-            providers: providerLock.providers,
-          });
-          setFormError(getProviderLockErrorMessage(providerLock.providerLock, "google_oauth"));
-          return;
-        }
-      } else {
-        logAuthDebugEvent("info", "oauth_google_preflight_skipped", {
-          reason: "EMAIL_NOT_TYPED",
-          screen: "login_native",
-        });
-      }
-
+      logAuthDebugEvent("info", "oauth_google_start_requested", {
+        screen: "login_native",
+      });
       await clearPendingProfileName();
       await continueWithGoogle({ nextRoute: "Login" });
     } catch {
