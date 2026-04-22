@@ -27,6 +27,21 @@ export type AdminTailoredSessionRow = {
   completion_rate: number;
 };
 
+type SupabaseLikeError = {
+  message?: string | null;
+  code?: string | null;
+};
+
+export function isAdminUnauthorizedError(error: SupabaseLikeError | null | undefined) {
+  const normalizedMessage = (error?.message ?? "").toLowerCase();
+  const normalizedCode = (error?.code ?? "").toLowerCase();
+  return (
+    normalizedMessage.includes("admin access required") ||
+    normalizedMessage.includes("not authorized") ||
+    normalizedCode === "42501"
+  );
+}
+
 export async function fetchAdminProductActions(range: AdminAnalyticsRange) {
   const { data, error } = await supabase.rpc("admin_analytics_product_actions", { range_key: range }).single();
   const row = (data as AdminProductActions | null) ?? null;

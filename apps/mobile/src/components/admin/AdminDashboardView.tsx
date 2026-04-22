@@ -50,10 +50,10 @@ export default function AdminDashboardView({
           <Text style={styles.subtitle}>{id.admin.dashboardSubtitle}</Text>
         </View>
         <View style={styles.headerActions}>
-          <Pressable style={styles.secondaryButton} onPress={() => void onRefresh()}>
+          <Pressable disabled={busy} style={styles.secondaryButton} onPress={() => void onRefresh()}>
             <Text style={styles.secondaryButtonText}>{busy ? id.admin.loadingLabel : id.admin.refreshCta}</Text>
           </Pressable>
-          <Pressable style={styles.secondaryButton} onPress={() => void onSignOut()}>
+          <Pressable disabled={busy} style={styles.secondaryButton} onPress={() => void onSignOut()}>
             <Text style={styles.secondaryButtonText}>{id.admin.signOutCta}</Text>
           </Pressable>
         </View>

@@ -22,7 +22,7 @@ export default function AdminDashboardScreen({ session }: Props) {
   const [busy, setBusy] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const { range, setRange, busy: analyticsBusy, errorMessage: analyticsError, productActions, audioRows, tailoredRows, reload } =
+  const { range, setRange, busy: analyticsBusy, errorMessage: analyticsError, unauthorized: analyticsUnauthorized, productActions, audioRows, tailoredRows, reload } =
     useAdminAnalytics(Boolean(session) && isAdmin === true);
 
   const getSafeAuthErrorMessage = useCallback((message: string) => {
@@ -57,6 +57,13 @@ export default function AdminDashboardScreen({ session }: Props) {
     void runAdminCheck();
   }, [runAdminCheck]);
 
+  useEffect(() => {
+    if (!analyticsUnauthorized) {
+      return;
+    }
+    setIsAdmin(false);
+  }, [analyticsUnauthorized]);
+
   const handleLogin = useCallback(async ({ email, password }: { email: string; password: string }) => {
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail) {
@@ -71,28 +78,26 @@ export default function AdminDashboardScreen({ session }: Props) {
 
     setBusy(true);
     setErrorMessage(null);
+    try {
+      const providerLock = await lookupProviderLockByEmail(normalizedEmail);
+      if (providerLock.status === "unavailable") {
+        setErrorMessage(id.auth.providerLockUnavailable);
+        return;
+      }
 
-    const providerLock = await lookupProviderLockByEmail(normalizedEmail);
-    if (providerLock.status === "unavailable") {
-      setErrorMessage(id.auth.providerLockUnavailable);
+      if (providerLock.exists && isBlockedByProviderLock(providerLock.providerLock, "email_password", "email")) {
+        setErrorMessage(getProviderLockErrorMessage(providerLock.providerLock, "email_password"));
+        return;
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
+      if (error) {
+        setErrorMessage(getSafeAuthErrorMessage(error.message));
+        return;
+      }
+    } finally {
       setBusy(false);
-      return;
     }
-
-    if (providerLock.exists && isBlockedByProviderLock(providerLock.providerLock, "email_password", "email")) {
-      setErrorMessage(getProviderLockErrorMessage(providerLock.providerLock, "email_password"));
-      setBusy(false);
-      return;
-    }
-
-    const { error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
-    if (error) {
-      setErrorMessage(getSafeAuthErrorMessage(error.message));
-      setBusy(false);
-      return;
-    }
-
-    setBusy(false);
   }, [getSafeAuthErrorMessage]);
 
   const handleForgotPassword = useCallback(async (email: string) => {
@@ -104,30 +109,29 @@ export default function AdminDashboardScreen({ session }: Props) {
 
     setBusy(true);
     setErrorMessage(null);
+    try {
+      const providerLock = await lookupProviderLockByEmail(normalizedEmail);
+      if (providerLock.status === "unavailable") {
+        setErrorMessage(id.auth.providerLockUnavailable);
+        return;
+      }
 
-    const providerLock = await lookupProviderLockByEmail(normalizedEmail);
-    if (providerLock.status === "unavailable") {
-      setErrorMessage(id.auth.providerLockUnavailable);
+      if (providerLock.exists && isBlockedByProviderLock(providerLock.providerLock, "password_reset", "email")) {
+        setErrorMessage(getProviderLockErrorMessage(providerLock.providerLock, "password_reset"));
+        return;
+      }
+
+      const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/auth/reset` : undefined;
+      const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, redirectTo ? { redirectTo } : undefined);
+      if (error) {
+        setErrorMessage(id.common.tryAgain);
+        return;
+      }
+
+      setErrorMessage(id.admin.forgotPasswordSent);
+    } finally {
       setBusy(false);
-      return;
     }
-
-    if (providerLock.exists && isBlockedByProviderLock(providerLock.providerLock, "password_reset", "email")) {
-      setErrorMessage(getProviderLockErrorMessage(providerLock.providerLock, "password_reset"));
-      setBusy(false);
-      return;
-    }
-
-    const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/auth/reset` : undefined;
-    const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, redirectTo ? { redirectTo } : undefined);
-    if (error) {
-      setErrorMessage(id.common.tryAgain);
-      setBusy(false);
-      return;
-    }
-
-    setErrorMessage(id.admin.forgotPasswordSent);
-    setBusy(false);
   }, []);
 
   const handleSignOut = useCallback(async () => {
