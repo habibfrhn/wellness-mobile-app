@@ -26,6 +26,14 @@ export type ProviderLockLookupResult =
       status: "unavailable";
     };
 
+const FAIL_OPEN_PROVIDER_LOCK_RESULT: ProviderLockLookupResult = {
+  status: "ok",
+  exists: false,
+  providers: [],
+  primaryProvider: null,
+  providerLock: null,
+};
+
 function normalizeProvider(value: string | null | undefined): LockedAuthProvider | null {
   if (!value) {
     return null;
@@ -66,7 +74,7 @@ export async function lookupProviderLockByEmail(email: string): Promise<Provider
   });
 
   if (!normalizedEmail) {
-    return { status: "ok", exists: false, providers: [], primaryProvider: null, providerLock: null };
+    return FAIL_OPEN_PROVIDER_LOCK_RESULT;
   }
 
   const { data, error } = await supabase.functions.invoke<ProviderLockResponse>("resolve-auth-provider-lock", {
@@ -80,7 +88,10 @@ export async function lookupProviderLockByEmail(email: string): Promise<Provider
       errorMessage: error?.message ?? null,
       code: data?.code ?? null,
     });
-    return { status: "unavailable" };
+    // Fail open when provider-lock lookup infrastructure is unavailable so
+    // sign-in and sign-up are still possible; Supabase Auth remains the
+    // source of truth for credential validation.
+    return FAIL_OPEN_PROVIDER_LOCK_RESULT;
   }
 
   const result: ProviderLockLookupResult = {
