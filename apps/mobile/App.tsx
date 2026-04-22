@@ -334,6 +334,23 @@ export default function App() {
         : { title: id.common.linkInvalidTitle, body: id.common.linkInvalidBody };
     }
 
+    function resolveOAuthCallbackEmail(user: { email?: string | null; identities?: Array<{ identity_data?: { email?: string | null } | null }> | null }) {
+      const sessionEmail = user.email?.trim().toLowerCase() ?? "";
+      if (sessionEmail) {
+        return { email: sessionEmail, source: "user.email" as const };
+      }
+
+      const identities = Array.isArray(user.identities) ? user.identities : [];
+      for (const identity of identities) {
+        const identityEmail = identity?.identity_data?.email?.trim().toLowerCase() ?? "";
+        if (identityEmail) {
+          return { email: identityEmail, source: "user.identities.identity_data.email" as const };
+        }
+      }
+
+      return { email: "", source: "missing" as const };
+    }
+
     async function processUrl(url: string) {
       logAuthDebugEvent("info", "oauth_callback_process_start", {
         summary: summarizeAuthUrl(url),
@@ -436,11 +453,13 @@ export default function App() {
         return;
       }
 
-      const callbackEmail = res.session.user.email?.trim().toLowerCase() ?? "";
+      const callbackEmailResolution = resolveOAuthCallbackEmail(res.session.user);
+      const callbackEmail = callbackEmailResolution.email;
       if (!callbackEmail) {
         logAuthDebugEvent("warn", "oauth_callback_missing_email", {
           linkType: res.linkType,
           userId: res.session.user.id,
+          emailSource: callbackEmailResolution.source,
         });
         await signOutToLogin("global", { source: "provider_lock_oauth_callback_missing_email" });
 
@@ -470,6 +489,7 @@ export default function App() {
 
       logAuthDebugEvent("info", "oauth_callback_provider_decision", {
         emailDomain: callbackEmail.split("@")[1] ?? null,
+        emailSource: callbackEmailResolution.source,
         callbackEmailPresent: Boolean(callbackEmail),
         lookupStatus: providerLock.status,
         lookupExists,
