@@ -31,6 +31,7 @@ import { getProviderLockErrorMessage, isBlockedByProviderLock, lookupProviderLoc
 import { logAuthDebugEvent } from "./src/services/authDebug";
 import { restoreSession, signOutToLogin } from "./src/services/authSession";
 import { logLogoutEvent } from "./src/services/logoutDebug";
+import { cleanupOAuthIdentityOnProviderMismatch } from "./src/services/authIdentityCleanup";
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
 
@@ -525,6 +526,11 @@ export default function App() {
           lookupProviders,
           sessionProviders: currentProviders,
           sessionDetectedProvider: currentProvider,
+        });
+        await cleanupOAuthIdentityOnProviderMismatch({
+          session: res.session,
+          expectedProviderLock: lookupProviderLock ?? lookupPrimaryProvider,
+          source: "oauth_callback_provider_blocked",
         });
         await signOutToLogin("global", { source: "provider_lock_oauth_callback" });
         const providerLockMessage = getProviderLockErrorMessage(lookupProviderLock ?? lookupPrimaryProvider, "google_oauth");

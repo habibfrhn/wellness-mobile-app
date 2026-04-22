@@ -174,11 +174,34 @@ export default function LoginScreen({ navigation, route }: Props) {
     setFormError(null);
     setBusyGoogle(true);
     try {
+      const normalizedEmail = email.trim().toLowerCase();
       logAuthDebugEvent("info", "oauth_google_start_requested", {
         screen: "login_native",
+        emailDomain: normalizedEmail.split("@")[1] ?? null,
       });
       await clearPendingProfileName();
-      await continueWithGoogle({ nextRoute: "Login" });
+      const result = await continueWithGoogle({ nextRoute: "Login", email: normalizedEmail });
+      if (result.status === "blocked") {
+        if (result.reason === "missing_email") {
+          setErrors({ email: id.login.errorEmailRequired });
+          return;
+        }
+
+        if (result.reason === "invalid_email") {
+          setErrors({ email: id.common.invalidEmail });
+          return;
+        }
+
+        if (result.reason === "provider_lookup_unavailable") {
+          setFormError(id.auth.providerLockUnavailable);
+          return;
+        }
+
+        setFormError(
+          getProviderLockErrorMessage(result.providerLockResult?.status === "ok" ? result.providerLockResult.providerLock : null, "google_oauth")
+        );
+        return;
+      }
     } catch {
       Alert.alert(id.common.errorTitle, id.common.genericAuthError);
       setFormError(id.common.genericAuthError);
