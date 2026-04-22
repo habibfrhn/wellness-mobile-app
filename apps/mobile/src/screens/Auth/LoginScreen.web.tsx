@@ -35,6 +35,7 @@ import { getSafeAuthErrorMessage, isEmailNotConfirmedError, isInvalidCredentials
 import { isUserVerified } from "../../services/authProviders";
 import { signOutToLogin } from "../../services/authSession";
 import { getProviderLockErrorMessage, isBlockedByProviderLock, lookupProviderLockByEmail } from "../../services/authProviderLock";
+import { logAuthDebugEvent } from "../../services/authDebug";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
@@ -174,11 +175,19 @@ export default function LoginScreen({ navigation, route }: Props) {
 
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail) {
+      logAuthDebugEvent("warn", "oauth_google_preflight_blocked", {
+        reason: "MISSING_EMAIL",
+        screen: "login_web",
+      });
       setErrors((prev) => ({ ...prev, email: id.login.errorEmailRequired }));
       return;
     }
 
     if (!isValidEmail(normalizedEmail)) {
+      logAuthDebugEvent("warn", "oauth_google_preflight_blocked", {
+        reason: "INVALID_EMAIL",
+        screen: "login_web",
+      });
       setErrors((prev) => ({ ...prev, email: id.common.invalidEmail }));
       return;
     }
@@ -189,11 +198,20 @@ export default function LoginScreen({ navigation, route }: Props) {
     try {
       const providerLock = await lookupProviderLockByEmail(normalizedEmail);
       if (providerLock.status === "unavailable") {
+        logAuthDebugEvent("warn", "oauth_google_preflight_unavailable", {
+          screen: "login_web",
+        });
         setFormError(id.auth.providerLockUnavailable);
         return;
       }
 
       if (providerLock.exists && isBlockedByProviderLock(providerLock.providerLock, "google_oauth", "google")) {
+        logAuthDebugEvent("warn", "oauth_google_preflight_blocked", {
+          reason: "PROVIDER_LOCK_MISMATCH",
+          screen: "login_web",
+          providerLock: providerLock.providerLock,
+          providers: providerLock.providers,
+        });
         setFormError(getProviderLockErrorMessage(providerLock.providerLock, "google_oauth"));
         return;
       }

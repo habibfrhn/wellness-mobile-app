@@ -299,6 +299,18 @@ Deno.serve(async (req: Request) => {
 
   const providers = Array.from(new Set([...identityProviders, ...metaAndInferredProviders]));
   const primaryProvider = identityProviders[0] ?? metaAndInferredProviders[0] ?? null;
+  const providerLock = resolveProviderLock(providers, primaryProvider);
+
+  console.info(
+    "resolve-auth-provider-lock: resolved",
+    JSON.stringify({
+      userCount: normalizedUsers.length,
+      identityProviderCount: identityProviders.length,
+      providerCount: providers.length,
+      primaryProvider,
+      providerLock,
+    })
+  );
 
   return json(
     200,
@@ -307,7 +319,7 @@ Deno.serve(async (req: Request) => {
       exists: true,
       providers,
       primaryProvider,
-      providerLock: resolveProviderLock(providers, primaryProvider),
+      providerLock,
     },
     corsHeaders
   );

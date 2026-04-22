@@ -26,6 +26,7 @@ import {
   isWeakPasswordError,
 } from "../../services/authSecurity";
 import { getProviderLockErrorMessage, isBlockedByProviderLock, lookupProviderLockByEmail } from "../../services/authProviderLock";
+import { logAuthDebugEvent } from "../../services/authDebug";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "SignUp">;
 type FieldErrors = {
@@ -227,11 +228,19 @@ export default function SignUpScreen({ navigation, route }: Props) {
 
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail) {
+      logAuthDebugEvent("warn", "oauth_google_preflight_blocked", {
+        reason: "MISSING_EMAIL",
+        screen: "signup",
+      });
       setErrors((prev) => ({ ...prev, email: id.login.errorEmailRequired }));
       return;
     }
 
     if (!isValidEmail(normalizedEmail)) {
+      logAuthDebugEvent("warn", "oauth_google_preflight_blocked", {
+        reason: "INVALID_EMAIL",
+        screen: "signup",
+      });
       setErrors((prev) => ({ ...prev, email: id.common.invalidEmail }));
       return;
     }
@@ -242,11 +251,20 @@ export default function SignUpScreen({ navigation, route }: Props) {
     try {
       const providerLock = await lookupProviderLockByEmail(normalizedEmail);
       if (providerLock.status === "unavailable") {
+        logAuthDebugEvent("warn", "oauth_google_preflight_unavailable", {
+          screen: "signup",
+        });
         setFormError(id.auth.providerLockUnavailable);
         return;
       }
 
       if (providerLock.exists && isBlockedByProviderLock(providerLock.providerLock, "google_oauth", "google")) {
+        logAuthDebugEvent("warn", "oauth_google_preflight_blocked", {
+          reason: "PROVIDER_LOCK_MISMATCH",
+          screen: "signup",
+          providerLock: providerLock.providerLock,
+          providers: providerLock.providers,
+        });
         setFormError(getProviderLockErrorMessage(providerLock.providerLock, "google_oauth"));
         return;
       }
