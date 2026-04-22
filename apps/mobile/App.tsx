@@ -551,6 +551,7 @@ export default function App() {
           session: res.session,
           expectedProviderLock: lookupProviderLock ?? lookupPrimaryProvider,
           source: "oauth_callback_provider_blocked",
+          attemptedProvider: "google",
         });
         await signOutToLogin("global", { source: "provider_lock_oauth_callback" });
         const providerLockMessage = getProviderLockErrorMessage(lookupProviderLock ?? lookupPrimaryProvider, "google_oauth");
