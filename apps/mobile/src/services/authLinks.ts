@@ -202,6 +202,13 @@ export async function handleAuthLink(url: string) {
       };
     }
 
+    logAuthDebugEvent("info", "oauth_callback_exchange_code_success", {
+      inferredPath,
+      linkType,
+      hasSession: Boolean(data.session),
+      userId: data.session?.user.id ?? null,
+    });
+
     return {
       handled: true as const,
       ok: true as const,
@@ -235,6 +242,13 @@ export async function handleAuthLink(url: string) {
         error: error.message,
       };
     }
+
+    logAuthDebugEvent("info", "oauth_callback_set_session_success", {
+      inferredPath,
+      linkType,
+      hasSession: Boolean(data.session),
+      userId: data.session?.user.id ?? null,
+    });
 
     const resolvedPath = linkType === "recovery" ? "auth/reset" : inferredPath;
 

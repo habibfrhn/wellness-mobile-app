@@ -112,6 +112,13 @@ export default function LoginScreen({ navigation, route }: Props) {
     setBusy(true);
     try {
       const providerLock = await lookupProviderLockByEmail(e);
+      logAuthDebugEvent("info", "email_password_login_provider_lookup", {
+        screen: "login_native",
+        emailDomain: e.split("@")[1] ?? null,
+        lookupStatus: providerLock.status,
+        lookupExists: providerLock.status === "ok" ? providerLock.exists : null,
+        lookupProviderLock: providerLock.status === "ok" ? providerLock.providerLock : null,
+      });
       if (providerLock.status === "unavailable") {
         setFormError(id.auth.providerLockUnavailable);
         return;
@@ -125,6 +132,15 @@ export default function LoginScreen({ navigation, route }: Props) {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: e,
         password: p,
+      });
+
+      logAuthDebugEvent(error ? "warn" : "info", "email_password_login_result", {
+        screen: "login_native",
+        emailDomain: e.split("@")[1] ?? null,
+        ok: !error,
+        error: error?.message ?? null,
+        hasSession: Boolean(data.session),
+        userId: data.user?.id ?? null,
       });
 
       if (error) {

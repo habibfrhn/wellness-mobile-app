@@ -165,6 +165,13 @@ export default function SignUpScreen({ navigation, route }: Props) {
       }
 
       const providerLock = await lookupProviderLockByEmail(e);
+      logAuthDebugEvent("info", "email_password_signup_provider_lookup", {
+        screen: "signup",
+        emailDomain: e.split("@")[1] ?? null,
+        lookupStatus: providerLock.status,
+        lookupExists: providerLock.status === "ok" ? providerLock.exists : null,
+        lookupProviderLock: providerLock.status === "ok" ? providerLock.providerLock : null,
+      });
       if (providerLock.status === "unavailable") {
         setFormError(id.auth.providerLockUnavailable);
         return;
@@ -183,6 +190,16 @@ export default function SignUpScreen({ navigation, route }: Props) {
           emailRedirectTo: AUTH_CALLBACK,
           data: trimmedName ? { full_name: trimmedName } : undefined,
         },
+      });
+
+      logAuthDebugEvent(error ? "warn" : "info", "email_password_signup_result", {
+        screen: "signup",
+        emailDomain: e.split("@")[1] ?? null,
+        ok: !error,
+        error: error?.message ?? null,
+        hasUser: Boolean(data.user),
+        hasSession: Boolean(data.session),
+        identityCount: data.user?.identities?.length ?? null,
       });
 
       if (error) {

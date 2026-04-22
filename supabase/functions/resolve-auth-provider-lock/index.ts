@@ -128,13 +128,13 @@ function inferProviderFromUserRow(user: AuthUserRow) {
 }
 
 function resolveProviderLock(providers: string[], primaryProvider: string | null) {
-  if (primaryProvider && primaryProvider !== "unknown") {
-    return primaryProvider;
-  }
-
   const uniqueProviders = Array.from(new Set(providers));
   if (uniqueProviders.length === 0) {
     return null;
+  }
+
+  if (primaryProvider && primaryProvider !== "unknown") {
+    return primaryProvider;
   }
 
   if (uniqueProviders.includes("email") && uniqueProviders.length === 1) {
@@ -146,9 +146,11 @@ function resolveProviderLock(providers: string[], primaryProvider: string | null
     return oauthProviders[0];
   }
 
-  // Legacy accounts can already have linked multi-provider identities.
-  // Fall back to a relaxed lock only when a primary provider cannot be inferred.
-  return null;
+  if (uniqueProviders.includes("email")) {
+    return "email";
+  }
+
+  return oauthProviders[0] ?? null;
 }
 
 function getClientIp(req: Request) {

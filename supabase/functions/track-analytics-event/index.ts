@@ -1,4 +1,4 @@
-import { createClient } from "supabase";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 type AnalyticsEventName =
   | "landing_page_view"
@@ -272,6 +272,7 @@ Deno.serve(async (req: Request) => {
   const requestCorsHeaders = buildCorsHeaders(req);
 
   if (req.headers.get("origin") && !requestCorsHeaders["Access-Control-Allow-Origin"]) {
+    console.warn("track-analytics-event: blocked origin", req.headers.get("origin"));
     return new Response(
       JSON.stringify({ ok: false, error: "Origin not allowed", code: "METHOD_NOT_ALLOWED" }),
       { status: 403, headers: { "Content-Type": "application/json", ...requestCorsHeaders } },

@@ -60,6 +60,11 @@ function toUniqueProviders(values: unknown): string[] {
 
 export async function lookupProviderLockByEmail(email: string): Promise<ProviderLockLookupResult> {
   const normalizedEmail = email.trim().toLowerCase();
+  logAuthDebugEvent("info", "provider_lock_lookup_start", {
+    emailDomain: normalizedEmail.split("@")[1] ?? null,
+    hasEmail: Boolean(normalizedEmail),
+  });
+
   if (!normalizedEmail) {
     return { status: "ok", exists: false, providers: [], primaryProvider: null, providerLock: null };
   }
@@ -78,13 +83,23 @@ export async function lookupProviderLockByEmail(email: string): Promise<Provider
     return { status: "unavailable" };
   }
 
-  return {
+  const result: ProviderLockLookupResult = {
     status: "ok",
     exists: Boolean(data.exists),
     providers: toUniqueProviders(data.providers),
     primaryProvider: normalizeProvider(data.primaryProvider),
     providerLock: normalizeProvider(data.providerLock),
   };
+
+  logAuthDebugEvent("info", "provider_lock_lookup_result", {
+    emailDomain: normalizedEmail.split("@")[1] ?? null,
+    exists: result.exists,
+    providers: result.providers,
+    primaryProvider: result.primaryProvider,
+    providerLock: result.providerLock,
+  });
+
+  return result;
 }
 
 export function getProviderLockErrorMessage(providerLock: LockedAuthProvider | null, attemptedMethod: AuthAttemptMethod): string {
