@@ -532,7 +532,15 @@ export default function App() {
           expectedProviderLock: lookupProviderLock ?? lookupPrimaryProvider,
           source: "oauth_callback_provider_blocked",
         });
+        logAuthDebugEvent("info", "oauth_callback_provider_blocked_cleanup_finished", {
+          reason: blockReason,
+          userId: res.session.user.id,
+        });
         await signOutToLogin("global", { source: "provider_lock_oauth_callback" });
+        logAuthDebugEvent("info", "oauth_callback_provider_blocked_signed_out", {
+          reason: blockReason,
+          userId: res.session.user.id,
+        });
         const providerLockMessage = getProviderLockErrorMessage(lookupProviderLock ?? lookupPrimaryProvider, "google_oauth");
 
         if (Platform.OS === "web" && getWebAuthPath(typeof window !== "undefined" ? window.location.pathname : null)) {

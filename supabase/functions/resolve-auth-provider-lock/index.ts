@@ -300,10 +300,23 @@ function getIdentityProvidersFromUsers(users: AuthUserRow[]) {
 }
 
 Deno.serve(async (req: Request) => {
+  const requestId = crypto.randomUUID();
   const corsHeaders = buildCorsHeaders(req);
+  const requestOrigin = req.headers.get("origin");
+  const clientIp = getClientIp(req);
 
-  if (req.headers.get("origin") && !corsHeaders["Access-Control-Allow-Origin"]) {
-    console.warn("resolve-auth-provider-lock: blocked origin", req.headers.get("origin"));
+  console.info(
+    "resolve-auth-provider-lock: request:start",
+    JSON.stringify({
+      requestId,
+      method: req.method,
+      hasOrigin: Boolean(requestOrigin),
+      clientIpPresent: Boolean(clientIp),
+    })
+  );
+
+  if (requestOrigin && !corsHeaders["Access-Control-Allow-Origin"]) {
+    console.warn("resolve-auth-provider-lock: blocked origin", requestOrigin);
     return fail(403, "Origin not allowed", "METHOD_NOT_ALLOWED", corsHeaders);
   }
 
@@ -318,6 +331,7 @@ Deno.serve(async (req: Request) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   if (!supabaseUrl || !serviceRoleKey) {
+    console.error("resolve-auth-provider-lock: request:misconfigured", JSON.stringify({ requestId }));
     return fail(500, "Server misconfiguration", "SERVER_MISCONFIGURATION", corsHeaders);
   }
 
@@ -325,11 +339,17 @@ Deno.serve(async (req: Request) => {
   try {
     payload = (await req.json()) as RequestBody;
   } catch {
+    console.warn("resolve-auth-provider-lock: request:invalid-json", JSON.stringify({ requestId }));
     return fail(400, "Invalid JSON body", "INVALID_JSON", corsHeaders);
   }
 
   const email = (payload.email ?? "").trim().toLowerCase();
+  const emailDomain = email.split("@")[1] ?? null;
   if (!email || !isValidEmail(email)) {
+    console.warn(
+      "resolve-auth-provider-lock: request:invalid-payload",
+      JSON.stringify({ requestId, emailDomain, hasEmail: Boolean(email) })
+    );
     return fail(400, "Invalid request payload", "INVALID_PAYLOAD", corsHeaders);
   }
 
@@ -337,14 +357,18 @@ Deno.serve(async (req: Request) => {
 
   try {
     const now = new Date();
-    const principalKey = await sha256(`${getClientIp(req)}|${email}`);
+    const principalKey = await sha256(`${clientIp}|${email}`);
     const count = await incrementRateLimit(adminClient, principalKey, ACTION_PROVIDER_LOCK_LOOKUP, getMinuteBucket(now));
     if (count > LOOKUP_LIMIT_PER_MINUTE) {
+      console.warn(
+        "resolve-auth-provider-lock: request:rate-limited",
+        JSON.stringify({ requestId, emailDomain, count, limit: LOOKUP_LIMIT_PER_MINUTE })
+      );
       return fail(429, "Rate limited", "RATE_LIMITED", corsHeaders);
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error("resolve-auth-provider-lock: rate-limit subsystem unavailable", message);
+    console.error("resolve-auth-provider-lock: rate-limit subsystem unavailable", JSON.stringify({ requestId, emailDomain, message }));
   }
 
   let normalizedUsers: AuthUserRow[] = [];
@@ -352,11 +376,12 @@ Deno.serve(async (req: Request) => {
     normalizedUsers = await listUsersByEmail(adminClient, email);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error("resolve-auth-provider-lock: user lookup failed", message);
+    console.error("resolve-auth-provider-lock: user lookup failed", JSON.stringify({ requestId, emailDomain, message }));
     return fail(500, "Provider lookup failed", "LOOKUP_FAILED", corsHeaders);
   }
 
   if (!normalizedUsers.length) {
+    console.info("resolve-auth-provider-lock: request:resolved-empty", JSON.stringify({ requestId, emailDomain }));
     return json(200, { ok: true, exists: false, providers: [], primaryProvider: null, providerLock: null }, corsHeaders);
   }
 
@@ -374,6 +399,8 @@ Deno.serve(async (req: Request) => {
   console.info(
     "resolve-auth-provider-lock: resolved",
     JSON.stringify({
+      requestId,
+      emailDomain,
       userCount: normalizedUsers.length,
       identityProviderCount: identityProviders.length,
       providerCount: providers.length,

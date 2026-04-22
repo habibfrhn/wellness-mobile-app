@@ -103,9 +103,18 @@ export async function cleanupOAuthIdentityOnProviderMismatch({
     return;
   }
 
+  let successBodyPreview: string | null = null;
+  try {
+    const successBody = await response.text();
+    successBodyPreview = successBody.slice(0, 300);
+  } catch {
+    successBodyPreview = null;
+  }
+
   logAuthDebugEvent("info", "provider_lock_cleanup_success", {
     source,
     removedProvider: oauthIdentity.provider,
     sessionUserId: session.user.id,
+    responseBody: successBodyPreview,
   });
 }
