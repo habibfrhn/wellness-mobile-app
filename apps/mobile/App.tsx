@@ -447,6 +447,7 @@ export default function App() {
 
       logAuthDebugEvent("info", "oauth_callback_provider_decision", {
         emailDomain: callbackEmail.split("@")[1] ?? null,
+        callbackEmailPresent: Boolean(callbackEmail),
         lookupStatus: providerLock.status,
         lookupExists,
         lookupProviders,
@@ -484,12 +485,23 @@ export default function App() {
         currentProvider !== "email" &&
         (lookupProviderLock === "email" || lookupPrimaryProvider === "email");
 
-      if (hasProviderLockViolation || hasLinkedProviderStateViolation) {
+      const hasSessionProviderLinkViolation =
+        currentProviders.includes("email") &&
+        currentProviders.some((provider) => provider !== "email") &&
+        (lookupProviderLock === "email" || lookupPrimaryProvider === "email");
+
+      if (hasProviderLockViolation || hasLinkedProviderStateViolation || hasSessionProviderLinkViolation) {
+        const blockReason = hasSessionProviderLinkViolation
+          ? "SESSION_PROVIDER_LINK_VIOLATION"
+          : hasLinkedProviderStateViolation
+            ? "LOOKUP_PROVIDER_LINK_VIOLATION"
+            : "PROVIDER_LOCK_MISMATCH";
         logAuthDebugEvent("warn", "oauth_callback_provider_blocked", {
-          reason: hasLinkedProviderStateViolation ? "LINKED_PROVIDER_STATE_VIOLATION" : "PROVIDER_LOCK_MISMATCH",
+          reason: blockReason,
           lookupProviderLock,
           lookupPrimaryProvider,
           lookupProviders,
+          sessionProviders: currentProviders,
           sessionDetectedProvider: currentProvider,
         });
         await signOutToLogin("global", { source: "provider_lock_oauth_callback" });

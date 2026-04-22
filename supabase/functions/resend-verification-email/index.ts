@@ -214,9 +214,21 @@ Deno.serve(async (req: Request) => {
       normalizedMessage.includes("too many") ||
       normalizedMessage.includes("over_email_send_rate_limit") ||
       normalizedMessage.includes("over_request_rate_limit");
+    const isLinkStillValid =
+      normalizedMessage.includes("already been sent") ||
+      normalizedMessage.includes("already sent") ||
+      normalizedMessage.includes("link is valid") ||
+      normalizedMessage.includes("otp is valid") ||
+      normalizedMessage.includes("email not confirmed");
 
     if (isRateLimited) {
+      console.info("resend-verification-email: mapped resend error to RATE_LIMITED");
       return json(429, { ok: false, code: "RATE_LIMITED", retryAfterSec: RESEND_COOLDOWN_SECONDS }, corsHeaders);
+    }
+
+    if (isLinkStillValid) {
+      console.info("resend-verification-email: mapped resend error to LINK_STILL_VALID");
+      return json(409, { ok: false, code: "LINK_STILL_VALID", retryAfterSec: LINK_VALID_WINDOW_SECONDS }, corsHeaders);
     }
 
     return fail(500, "Failed to resend verification email", "RESEND_FAILED", corsHeaders);
