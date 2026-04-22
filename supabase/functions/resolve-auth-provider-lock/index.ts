@@ -25,6 +25,7 @@ type AuthUserRow = {
 
 type AuthIdentityRow = {
   provider?: string | null;
+  created_at?: string | null;
 };
 
 const REQUIRED_WEB_ORIGINS = ["https://www.lumepo.com", "https://lumepo.com"];
@@ -126,7 +127,11 @@ function inferProviderFromUserRow(user: AuthUserRow) {
   return inferredProviders;
 }
 
-function resolveProviderLock(providers: string[]) {
+function resolveProviderLock(providers: string[], primaryProvider: string | null) {
+  if (primaryProvider) {
+    return primaryProvider;
+  }
+
   const uniqueProviders = Array.from(new Set(providers));
   if (uniqueProviders.length === 0) {
     return null;
@@ -142,7 +147,7 @@ function resolveProviderLock(providers: string[]) {
   }
 
   // Legacy accounts can already have linked multi-provider identities.
-  // Keep them functional by not enforcing a strict lock in that case.
+  // Fall back to a relaxed lock only when a primary provider cannot be inferred.
   return null;
 }
 
@@ -255,7 +260,7 @@ Deno.serve(async (req: Request) => {
   const { data: identities, error: identitiesError } = await adminClient
     .schema("auth")
     .from("identities")
-    .select("provider")
+    .select("provider, created_at")
     .in("user_id", userIds);
 
   if (identitiesError) {
@@ -263,9 +268,29 @@ Deno.serve(async (req: Request) => {
     return fail(500, "Provider lookup failed", "LOOKUP_FAILED", corsHeaders);
   }
 
-  const identityProviders = (identities ?? [])
-    .map((identity) => normalizeProvider((identity as AuthIdentityRow).provider ?? ""))
-    .filter((provider): provider is string => Boolean(provider));
+  const normalizedIdentities = (identities ?? []) as AuthIdentityRow[];
+  const identityProviders = normalizedIdentities
+    .map((identity) => ({
+      provider: normalizeProvider(identity.provider ?? ""),
+      createdAt: identity.created_at ? Date.parse(identity.created_at) : Number.NaN,
+    }))
+    .filter((identity): identity is { provider: string; createdAt: number } => Boolean(identity.provider))
+    .sort((left, right) => {
+      if (Number.isNaN(left.createdAt) && Number.isNaN(right.createdAt)) {
+        return 0;
+      }
+
+      if (Number.isNaN(left.createdAt)) {
+        return 1;
+      }
+
+      if (Number.isNaN(right.createdAt)) {
+        return -1;
+      }
+
+      return left.createdAt - right.createdAt;
+    })
+    .map((identity) => identity.provider);
 
   const metaAndInferredProviders = normalizedUsers.flatMap((user) => [
     ...getMetaProviders(user),
@@ -273,6 +298,7 @@ Deno.serve(async (req: Request) => {
   ]);
 
   const providers = Array.from(new Set([...identityProviders, ...metaAndInferredProviders]));
+  const primaryProvider = identityProviders[0] ?? metaAndInferredProviders[0] ?? null;
 
   return json(
     200,
@@ -280,8 +306,8 @@ Deno.serve(async (req: Request) => {
       ok: true,
       exists: true,
       providers,
-      primaryProvider: providers[0] ?? null,
-      providerLock: resolveProviderLock(providers),
+      primaryProvider,
+      providerLock: resolveProviderLock(providers, primaryProvider),
     },
     corsHeaders
   );

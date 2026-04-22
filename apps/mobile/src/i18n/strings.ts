@@ -29,6 +29,7 @@ export const id = {
     continueWithGoogle: "Lanjutkan dengan Google",
     googleBusy: "Mengarahkan ke Google...",
     providerLockTitle: "Metode login tidak sesuai",
+    providerLockSimple: "Please log in with the way you signed up.",
     providerLockEmailOnly: "Email ini terdaftar dengan email dan kata sandi. Silakan masuk menggunakan email dan kata sandi.",
     providerLockGoogleOnly: "Email ini terdaftar dengan Google. Silakan lanjutkan dengan Google.",
     providerLockOAuthOnly: "Email ini terdaftar dengan metode login berbeda. Silakan gunakan metode login yang sama seperti sebelumnya.",

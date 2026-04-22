@@ -85,15 +85,11 @@ export function getProviderLockErrorMessage(providerLock: LockedAuthProvider | n
     return id.auth.providerLockPasswordResetBlocked;
   }
 
-  if (providerLock === "email") {
-    return id.auth.providerLockEmailOnly;
+  if (providerLock === "email" || providerLock === "google" || providerLock === "apple" || providerLock === "github" || providerLock === "unknown") {
+    return id.auth.providerLockSimple;
   }
 
-  if (providerLock === "google") {
-    return id.auth.providerLockGoogleOnly;
-  }
-
-  return id.auth.providerLockOAuthOnly;
+  return id.auth.providerLockSimple;
 }
 
 export function isBlockedByProviderLock(

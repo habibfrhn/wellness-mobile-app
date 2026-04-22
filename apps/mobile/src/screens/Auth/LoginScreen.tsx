@@ -153,13 +153,38 @@ export default function LoginScreen({ navigation, route }: Props) {
       return;
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail) {
+      setErrors((prev) => ({ ...prev, email: id.login.errorEmailRequired }));
+      return;
+    }
+
+    if (!isValidEmail(normalizedEmail)) {
+      setErrors((prev) => ({ ...prev, email: id.common.invalidEmail }));
+      return;
+    }
+
+    setErrors((prev) => ({ ...prev, email: undefined }));
+    setFormError(null);
     setBusyGoogle(true);
     try {
+      const providerLock = await lookupProviderLockByEmail(normalizedEmail);
+      if (providerLock.status === "unavailable") {
+        setFormError(id.auth.providerLockUnavailable);
+        return;
+      }
+
+      if (providerLock.exists && isBlockedByProviderLock(providerLock.providerLock, "google_oauth", "google")) {
+        setFormError(getProviderLockErrorMessage(providerLock.providerLock, "google_oauth"));
+        return;
+      }
+
       await clearPendingProfileName();
       await continueWithGoogle({ nextRoute: "Login" });
     } catch {
       Alert.alert(id.common.errorTitle, id.common.genericAuthError);
       setFormError(id.common.genericAuthError);
+    } finally {
       setBusyGoogle(false);
     }
   }
