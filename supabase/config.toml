@@ -389,3 +389,5 @@ verify_jwt = true
 verify_jwt = true
 [functions.track-analytics-event]
 verify_jwt = false
+[functions.resolve-auth-provider-lock]
+verify_jwt = false

@@ -1,5 +1,6 @@
 import { id } from "../i18n/strings";
 import { supabase } from "./supabase";
+import { logAuthDebugEvent } from "./authDebug";
 
 export type LockedAuthProvider = "email" | "google" | "apple" | "github" | "unknown";
 export type AuthAttemptMethod = "email_password" | "google_oauth" | "password_reset";
@@ -68,6 +69,12 @@ export async function lookupProviderLockByEmail(email: string): Promise<Provider
   });
 
   if (error || !data?.ok) {
+    logAuthDebugEvent("warn", "provider_lock_lookup_unavailable", {
+      emailDomain: normalizedEmail.split("@")[1] ?? null,
+      hasError: Boolean(error),
+      errorMessage: error?.message ?? null,
+      code: data?.code ?? null,
+    });
     return { status: "unavailable" };
   }
 
@@ -83,6 +90,18 @@ export async function lookupProviderLockByEmail(email: string): Promise<Provider
 export function getProviderLockErrorMessage(providerLock: LockedAuthProvider | null, attemptedMethod: AuthAttemptMethod): string {
   if (attemptedMethod === "password_reset") {
     return id.auth.providerLockPasswordResetBlocked;
+  }
+
+  if (providerLock === "email") {
+    return id.auth.providerLockEmailOnly;
+  }
+
+  if (providerLock === "google") {
+    return id.auth.providerLockGoogleOnly;
+  }
+
+  if (providerLock && providerLock !== "unknown") {
+    return id.auth.providerLockOAuthOnly;
   }
 
   return id.auth.providerLockSimple;
@@ -102,6 +121,10 @@ export function isBlockedByProviderLock(
   }
 
   if (attemptedMethod === "google_oauth") {
+    if (providerLock === "unknown") {
+      return false;
+    }
+
     if (providerLock === "email") {
       return true;
     }

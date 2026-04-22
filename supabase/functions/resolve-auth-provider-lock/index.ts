@@ -128,7 +128,7 @@ function inferProviderFromUserRow(user: AuthUserRow) {
 }
 
 function resolveProviderLock(providers: string[], primaryProvider: string | null) {
-  if (primaryProvider) {
+  if (primaryProvider && primaryProvider !== "unknown") {
     return primaryProvider;
   }
 
@@ -141,7 +141,7 @@ function resolveProviderLock(providers: string[], primaryProvider: string | null
     return "email";
   }
 
-  const oauthProviders = uniqueProviders.filter((provider) => provider !== "email");
+  const oauthProviders = uniqueProviders.filter((provider) => provider !== "email" && provider !== "unknown");
   if (oauthProviders.length === 1) {
     return oauthProviders[0];
   }
@@ -195,6 +195,7 @@ Deno.serve(async (req: Request) => {
   const corsHeaders = buildCorsHeaders(req);
 
   if (req.headers.get("origin") && !corsHeaders["Access-Control-Allow-Origin"]) {
+    console.warn("resolve-auth-provider-lock: blocked origin", req.headers.get("origin"));
     return fail(403, "Origin not allowed", "METHOD_NOT_ALLOWED", corsHeaders);
   }
 
