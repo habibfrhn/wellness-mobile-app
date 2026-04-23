@@ -82,6 +82,23 @@ function getBearerToken(req: Request) {
   return authorization.slice(7);
 }
 
+
+function decodeJwtPayload(token: string) {
+  try {
+    const [, payload = ""] = token.split(".");
+    if (!payload) {
+      return null;
+    }
+
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const base64 = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+    const jsonPayload = atob(base64);
+    return JSON.parse(jsonPayload) as { sub?: string; exp?: number; aud?: string; role?: string };
+  } catch {
+    return null;
+  }
+}
+
 function getHourBucket() {
   const date = new Date();
   date.setUTCMinutes(0, 0, 0);
@@ -136,10 +153,19 @@ Deno.serve(async (req: Request) => {
 
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
+  const jwtPayload = decodeJwtPayload(userJwt);
   const { data: userData, error: userError } = await adminClient.auth.getUser(userJwt);
   const user = userData?.user;
   if (userError || !user) {
-    console.error("delete-account-v2: invalid user session", userError?.message ?? "missing-user");
+    const nowEpoch = Math.floor(Date.now() / 1000);
+    const expiryDeltaSec = typeof jwtPayload?.exp === "number" ? jwtPayload.exp - nowEpoch : null;
+    console.error("delete-account-v2: invalid user session", {
+      error: userError?.message ?? "missing-user",
+      tokenSub: jwtPayload?.sub ?? null,
+      tokenAud: jwtPayload?.aud ?? null,
+      tokenRole: jwtPayload?.role ?? null,
+      tokenExpiresInSec: expiryDeltaSec,
+    });
     return fail(401, "Invalid user session", "INVALID_SESSION", corsHeaders);
   }
 

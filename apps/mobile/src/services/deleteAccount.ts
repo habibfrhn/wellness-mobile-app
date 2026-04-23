@@ -71,65 +71,34 @@ async function signOutAfterDeletion() {
 }
 
 async function getCurrentAccessToken(forceRefresh = false) {
+  if (forceRefresh) {
+    const { data, error } = await supabase.auth.refreshSession();
+    if (error) {
+      throw error;
+    }
+
+    const refreshedAccessToken = data.session?.access_token;
+    if (!refreshedAccessToken) {
+      throw new Error(id.account.sessionMissing);
+    }
+
+    return refreshedAccessToken;
+  }
+
   const {
     data: { session },
-    error: sessionError,
+    error,
   } = await supabase.auth.getSession();
 
-  if (sessionError) {
-    throw sessionError;
+  if (error) {
+    throw error;
   }
 
-  if (session?.access_token && !forceRefresh) {
-    return session.access_token;
-  }
-
-  const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
-  if (refreshError) {
-    throw refreshError;
-  }
-
-  const refreshedAccessToken = refreshed.session?.access_token;
-  if (!refreshedAccessToken) {
+  if (!session?.access_token) {
     throw new Error(id.account.sessionMissing);
   }
 
-  return refreshedAccessToken;
-}
-
-function getFunctionUrl() {
-  const baseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
-  if (!baseUrl) {
-    throw new Error(id.account.deleteUnavailable);
-  }
-
-  return `${baseUrl}/functions/v1/${DELETE_ACCOUNT_FUNCTION_NAME}`;
-}
-
-function getAnonKey() {
-  const anonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
-  if (!anonKey) {
-    throw new Error(id.account.deleteUnavailable);
-  }
-
-  return anonKey;
-}
-
-async function parseFailure(response: Response): Promise<DeleteAccountFailure> {
-  let payload: DeleteAccountResponse | null = null;
-
-  try {
-    const rawBody = await response.text();
-    payload = rawBody ? (JSON.parse(rawBody) as DeleteAccountResponse) : null;
-  } catch {
-    payload = null;
-  }
-
-  return {
-    status: response.status,
-    code: payload?.code ?? null,
-    error: payload?.error ?? null,
-  };
+  return session.access_token;
 }
 
 function mapDeleteFailureToMessage(failure: DeleteAccountFailure) {
@@ -160,73 +129,36 @@ async function validateTokenLocally(accessToken: string) {
   }
 }
 
-async function requestDeleteAccountViaFetch(accessToken: string) {
-  const functionUrl = getFunctionUrl();
-  const anonKey = getAnonKey();
-
-  const response = await fetch(functionUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-      apikey: anonKey,
-      "x-client-info": "wellness-mobile-app/delete-account-v2",
-    },
-  });
-
-  if (!response.ok) {
-    const failure = await parseFailure(response);
-    throw new Error(mapDeleteFailureToMessage(failure));
-  }
-
-  let payload: DeleteAccountResponse | null = null;
-  try {
-    payload = (await response.json()) as DeleteAccountResponse;
-  } catch {
-    payload = null;
-  }
-
-  if (!payload?.ok) {
-    throw new Error(id.account.deleteFailed);
-  }
+function parseDeleteFailure(result: DeleteAccountResponse | null, error: unknown): DeleteAccountFailure {
+  const invokeError = error as { context?: { status?: number }; message?: string } | null;
+  return {
+    status: typeof invokeError?.context?.status === "number" ? invokeError.context.status : null,
+    code: result?.code ?? null,
+    error: result?.error ?? invokeError?.message ?? null,
+  };
 }
 
-async function requestDeleteAccountViaInvoke(accessToken: string) {
-  const anonKey = getAnonKey();
-
+async function requestDeleteAccount(accessToken: string) {
   const { data, error } = await supabase.functions.invoke<DeleteAccountResponse>(DELETE_ACCOUNT_FUNCTION_NAME, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
-      apikey: anonKey,
       "x-client-info": "wellness-mobile-app/delete-account-v2",
     },
   });
 
   if (error || !data?.ok) {
-    const details = error as { context?: { status?: number } };
-    const failure: DeleteAccountFailure = {
-      status: typeof details?.context?.status === "number" ? details.context.status : null,
-      code: data?.code ?? null,
-      error: data?.error ?? error?.message ?? null,
-    };
-
+    const failure = parseDeleteFailure(data ?? null, error);
+    console.warn("delete-account: function invoke failed", failure);
     throw new Error(mapDeleteFailureToMessage(failure));
   }
 }
 
-async function requestDeleteAccount(accessToken: string) {
-  try {
-    await requestDeleteAccountViaFetch(accessToken);
-  } catch {
-    await requestDeleteAccountViaInvoke(accessToken);
-  }
-}
-
 async function deleteAccountViaFunction() {
+  const initialAccessToken = await getCurrentAccessToken(false);
+  await validateTokenLocally(initialAccessToken);
+
   try {
-    const accessToken = await getCurrentAccessToken(false);
-    await validateTokenLocally(accessToken);
-    await requestDeleteAccount(accessToken);
+    await requestDeleteAccount(initialAccessToken);
     return;
   } catch (error) {
     const message = error instanceof Error ? error.message : "";
