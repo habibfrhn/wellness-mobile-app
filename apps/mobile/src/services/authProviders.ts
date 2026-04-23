@@ -1,22 +1,65 @@
 import type { User } from "@supabase/supabase-js";
 
 export function getUserAuthProviders(user: User | null | undefined) {
+  const providerSet = new Set<string>();
+
+  const identities = user?.identities;
+  if (Array.isArray(identities)) {
+    for (const identity of identities) {
+      const provider = identity?.provider;
+      if (typeof provider === "string" && provider.trim().length > 0) {
+        providerSet.add(provider.trim().toLowerCase());
+      }
+    }
+  }
+
   const providers = user?.app_metadata?.providers;
 
   if (Array.isArray(providers)) {
-    return providers.filter((value): value is string => typeof value === "string");
+    for (const provider of providers) {
+      if (typeof provider === "string" && provider.trim().length > 0) {
+        providerSet.add(provider.trim().toLowerCase());
+      }
+    }
   }
 
   const singleProvider = user?.app_metadata?.provider;
   if (typeof singleProvider === "string" && singleProvider.length > 0) {
-    return [singleProvider];
+    providerSet.add(singleProvider.trim().toLowerCase());
   }
 
-  return [];
+  const sortedProviders = Array.from(providerSet);
+  const priority = new Map<string, number>([
+    ["email", 0],
+    ["google", 1],
+  ]);
+
+  sortedProviders.sort((a, b) => {
+    const aRank = priority.get(a) ?? 99;
+    const bRank = priority.get(b) ?? 99;
+    if (aRank !== bRank) {
+      return aRank - bRank;
+    }
+    return a.localeCompare(b);
+  });
+
+  return sortedProviders;
 }
 
 export function canManagePassword(user: User | null | undefined) {
   return getUserAuthProviders(user).includes("email");
+}
+
+export function getAuthProviderLabel(provider: string) {
+  if (provider === "email") {
+    return "Email + Password";
+  }
+
+  if (provider === "google") {
+    return "Google";
+  }
+
+  return provider;
 }
 
 export function isUserVerified(user: User | null | undefined) {

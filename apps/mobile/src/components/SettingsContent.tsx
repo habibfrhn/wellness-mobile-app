@@ -5,7 +5,7 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 import { id } from "../i18n/strings";
 import type { AppStackParamList } from "../navigation/types";
-import { canManagePassword } from "../services/authProviders";
+import { canManagePassword, getAuthProviderLabel, getUserAuthProviders } from "../services/authProviders";
 import { supabase } from "../services/supabase";
 import { colors, radius, spacing, typography } from "../theme/tokens";
 import SettingsRow from "./settings/SettingsRow";
@@ -58,6 +58,7 @@ export default function SettingsContent({ navigation }: Props) {
   const [nameValue, setNameValue] = useState("");
   const [initialName, setInitialName] = useState("");
   const [showResetPassword, setShowResetPassword] = useState(false);
+  const [authProvidersValue, setAuthProvidersValue] = useState("-");
   const [showCopiedFeedback, setShowCopiedFeedback] = useState(false);
 
   const appVersion = useMemo(() => readAppVersionFromAppJson(), []);
@@ -72,10 +73,14 @@ export default function SettingsContent({ navigation }: Props) {
       }
 
       const userName = (data.user?.user_metadata?.full_name as string | undefined) ?? "";
+      const authProviders = getUserAuthProviders(data.user)
+        .map(getAuthProviderLabel)
+        .join(", ");
       setNameValue(userName);
       setInitialName(userName);
       setEmailValue(data.user?.email ?? "-");
       setShowResetPassword(canManagePassword(data.user));
+      setAuthProvidersValue(authProviders || "-");
     })();
 
     return () => {
@@ -157,7 +162,8 @@ export default function SettingsContent({ navigation }: Props) {
             />
           }
         />
-        <SettingsRow label={id.account.emailLabel} value={emailValue} showDivider={false} />
+        <SettingsRow label={id.account.emailLabel} value={emailValue} />
+        <SettingsRow label={id.account.loginMethodsLabel} value={authProvidersValue} showDivider={!showResetPassword} />
         {showResetPassword ? (
           <SettingsRow label={id.account.resetPasswordButton} onPress={() => navigateFromSettings("ResetPassword")} showChevron />
         ) : null}

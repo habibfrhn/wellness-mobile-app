@@ -3,6 +3,7 @@ import { Alert } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { id } from "../../i18n/strings";
+import { getAuthProviderLabel, getUserAuthProviders } from "../../services/authProviders";
 import { signOutToLogin } from "../../services/authSession";
 import { supabase } from "../../services/supabase";
 import ProfileContent from "../../components/ProfileContent";
@@ -14,6 +15,7 @@ type Props = NativeStackScreenProps<AppStackParamList, "Account">;
 export default function ProfileScreen(_props: Props) {
   const [emailValue, setEmailValue] = useState<string>("");
   const [nameValue, setNameValue] = useState<string>("");
+  const [loginMethods, setLoginMethods] = useState<string>("-");
   const [initialName, setInitialName] = useState<string>("");
   const maxNameLength = 15;
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -32,6 +34,8 @@ export default function ProfileScreen(_props: Props) {
         setInitialName("");
       } else {
         setEmailValue(data.user?.email ?? "");
+        const providers = getUserAuthProviders(data.user).map(getAuthProviderLabel).join(", ");
+        setLoginMethods(providers || "-");
         const userName = (data.user?.user_metadata?.full_name as string | undefined) ?? "";
         setNameValue(userName);
         setInitialName(userName);
@@ -84,6 +88,7 @@ export default function ProfileScreen(_props: Props) {
     <>
       <ProfileContent
         email={emailValue}
+        loginMethods={loginMethods}
         name={nameValue}
         onNameChange={setNameValue}
         onSaveName={onSaveName}

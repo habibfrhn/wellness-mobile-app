@@ -332,6 +332,7 @@ export const id = {
     reminderSaveFailed: "Gagal menyimpan pengingat. Silakan coba lagi.",
     securityTitle: "Keamanan",
     securityBody: "Perbarui kata sandi Anda secara berkala untuk menjaga keamanan akun.",
+    loginMethodsLabel: "Metode login",
     resetPasswordButton: "Ubah kata sandi",
 
     logout: "Keluar",

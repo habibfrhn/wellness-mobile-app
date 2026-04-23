@@ -6,6 +6,7 @@ import { id } from "../i18n/strings";
 
 type Props = {
   email: string;
+  loginMethods: string;
   name: string;
   onNameChange: (value: string) => void;
   onSaveName: () => void;
@@ -16,6 +17,7 @@ type Props = {
 
 export default function ProfileContent({
   email,
+  loginMethods,
   name,
   onNameChange,
   onSaveName,
@@ -53,6 +55,11 @@ export default function ProfileContent({
       <View>
         <Text style={styles.sectionTitle}>{id.account.emailLabel}</Text>
         <Text style={styles.email}>{email || "-"}</Text>
+      </View>
+
+      <View>
+        <Text style={styles.sectionTitle}>{id.account.loginMethodsLabel}</Text>
+        <Text style={styles.email}>{loginMethods || "-"}</Text>
       </View>
 
       <Pressable onPress={onLogout} style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>

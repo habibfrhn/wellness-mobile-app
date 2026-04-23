@@ -24,6 +24,23 @@ function isMissingSessionError(error: unknown) {
   return error instanceof AuthError && error.name === "AuthSessionMissingError";
 }
 
+function isIgnorableSignOutErrorAfterDeletion(error: unknown) {
+  if (!error) {
+    return false;
+  }
+
+  if (isMissingSessionError(error)) {
+    return true;
+  }
+
+  const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+  return (
+    message.includes("session") ||
+    message.includes("refresh token") ||
+    message.includes("user from sub claim in jwt does not exist")
+  );
+}
+
 async function clearPersistedSession() {
   const storageKey = (supabase.auth as unknown as { storageKey?: string }).storageKey;
   if (!storageKey) {
@@ -42,8 +59,12 @@ async function signOutAfterDeletion() {
   await setNextAuthRoute("Login");
 
   const { error } = await supabase.auth.signOut({ scope: "global" });
-  if (error && !isMissingSessionError(error)) {
+  if (error && !isIgnorableSignOutErrorAfterDeletion(error)) {
     throw error;
+  }
+
+  if (error) {
+    console.warn("delete-account: signOut fallback cleanup triggered", error.message);
   }
 
   await clearPersistedSession();
