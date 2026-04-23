@@ -34,7 +34,6 @@ import LoginSignUpPrompt from "../../components/auth/LoginSignUpPrompt";
 import { getSafeAuthErrorMessage, isEmailNotConfirmedError, isInvalidCredentialsError } from "../../services/authSecurity";
 import { isUserVerified } from "../../services/authProviders";
 import { signOutToLogin } from "../../services/authSession";
-import { getProviderLockErrorMessage, isBlockedByProviderLock, lookupProviderLockByEmail } from "../../services/authProviderLock";
 import { logAuthDebugEvent } from "../../services/authDebug";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
@@ -130,24 +129,6 @@ export default function LoginScreen({ navigation, route }: Props) {
     setFormError(null);
     setBusy(true);
     try {
-      const providerLock = await lookupProviderLockByEmail(e);
-      logAuthDebugEvent("info", "email_password_login_provider_lookup", {
-        screen: "login_web",
-        emailDomain: e.split("@")[1] ?? null,
-        lookupStatus: providerLock.status,
-        lookupExists: providerLock.status === "ok" ? providerLock.exists : null,
-        lookupProviderLock: providerLock.status === "ok" ? providerLock.providerLock : null,
-      });
-      if (providerLock.status === "unavailable") {
-        setFormError(id.auth.providerLockUnavailable);
-        return;
-      }
-
-      if (providerLock.exists && isBlockedByProviderLock(providerLock.providerLock, "email_password", "email")) {
-        setErrors({ password: id.login.errorInvalidCredentials });
-        setFormError(getProviderLockErrorMessage(providerLock.providerLock, "email_password"));
-        return;
-      }
       const { data, error } = await supabase.auth.signInWithPassword({
         email: e,
         password: p,

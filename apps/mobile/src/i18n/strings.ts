@@ -28,15 +28,6 @@ export const id = {
   auth: {
     continueWithGoogle: "Lanjutkan dengan Google",
     googleBusy: "Mengarahkan ke Google...",
-    providerLockTitle: "Metode login tidak sesuai",
-    providerLockSimple: "Silakan login dengan metode saat Anda mendaftar, email ini sudah digunakan.",
-    providerLockEmailOnly: "Silakan login dengan metode saat Anda mendaftar, email ini sudah digunakan.",
-    providerLockGoogleOnly: "Silakan login dengan metode saat Anda mendaftar, email ini sudah digunakan.",
-    providerLockOAuthOnly: "Silakan login dengan metode saat Anda mendaftar, email ini sudah digunakan.",
-    providerLockPasswordResetBlocked:
-      "Akun ini tidak menggunakan kata sandi. Silakan masuk dengan metode yang sebelumnya Anda gunakan.",
-    providerLockUnavailable:
-      "Metode login tidak dapat diverifikasi saat ini. Coba lagi beberapa saat.",
     callbackLoadingTitle: "Menyelesaikan login",
     callbackLoadingBody: "Mohon tunggu sebentar, kami sedang menghubungkan akun Anda.",
     callbackErrorTitle: "Login Google gagal",

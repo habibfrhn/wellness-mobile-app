@@ -27,11 +27,9 @@ import WebAuthStatusScreen from "./src/components/auth/WebAuthStatusScreen";
 import { getWebAppOrigin, getWebAuthPath, replaceWebUrl } from "./src/services/webAuth";
 import AdminDashboardScreen from "./src/screens/Admin/AdminDashboardScreen.web";
 import { getUserAuthProviders, isUserVerified } from "./src/services/authProviders";
-import { getProviderLockErrorMessage, isBlockedByProviderLock, lookupProviderLockByEmail } from "./src/services/authProviderLock";
 import { logAuthDebugEvent } from "./src/services/authDebug";
 import { restoreSession, signOutToLogin } from "./src/services/authSession";
 import { logLogoutEvent } from "./src/services/logoutDebug";
-import { cleanupOAuthIdentityOnProviderMismatch } from "./src/services/authIdentityCleanup";
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
 
@@ -478,98 +476,14 @@ export default function App() {
         return;
       }
 
-      const providerLock = await lookupProviderLockByEmail(callbackEmail);
       const currentProviders = getUserAuthProviders(res.session.user).map((provider) => provider.toLowerCase());
-      const currentProviderRaw = currentProviders.find((provider) => provider !== "email") ?? currentProviders[0] ?? "unknown";
-      const currentProvider = currentProviderRaw as "email" | "google" | "apple" | "github" | "unknown";
-      const lookupExists = providerLock.status === "ok" ? providerLock.exists : null;
-      const lookupProviders = providerLock.status === "ok" ? providerLock.providers : [];
-      const lookupPrimaryProvider = providerLock.status === "ok" ? providerLock.primaryProvider : null;
-      const lookupProviderLock = providerLock.status === "ok" ? providerLock.providerLock : null;
 
-      logAuthDebugEvent("info", "oauth_callback_provider_decision", {
+      logAuthDebugEvent("info", "oauth_callback_provider_linked", {
         emailDomain: callbackEmail.split("@")[1] ?? null,
         emailSource: callbackEmailResolution.source,
         callbackEmailPresent: Boolean(callbackEmail),
-        lookupStatus: providerLock.status,
-        lookupExists,
-        lookupProviders,
-        lookupPrimaryProvider,
-        lookupProviderLock,
         sessionProviders: currentProviders,
-        sessionDetectedProvider: currentProvider,
       });
-
-      if (providerLock.status === "unavailable") {
-        await signOutToLogin("global", { source: "provider_lock_oauth_callback" });
-        if (Platform.OS === "web" && getWebAuthPath(typeof window !== "undefined" ? window.location.pathname : null)) {
-          setWebAuthErrorBody(id.auth.providerLockUnavailable);
-          setWebAuthStatus("error");
-        } else {
-          Alert.alert(id.auth.providerLockTitle, id.auth.providerLockUnavailable);
-        }
-
-        await setNextAuthRoute("Login");
-        setAuthStartRoute("Login");
-        setForceReset(false);
-        setWebResetFlowActive(false);
-        replaceWebUrl(getWebPathForRoute("Login"));
-        return;
-      }
-
-      const hasProviderLockViolation =
-        providerLock.exists &&
-        isBlockedByProviderLock(providerLock.providerLock, "google_oauth", currentProvider);
-
-      const hasLinkedProviderStateViolation =
-        Boolean(lookupExists) &&
-        lookupProviders.includes("email") &&
-        lookupProviders.some((provider) => provider !== "email") &&
-        currentProvider !== "email" &&
-        (lookupProviderLock === "email" || lookupPrimaryProvider === "email");
-
-      const hasSessionProviderLinkViolation =
-        currentProviders.includes("email") &&
-        currentProviders.some((provider) => provider !== "email") &&
-        (lookupProviderLock === "email" || lookupPrimaryProvider === "email");
-
-      if (hasProviderLockViolation || hasLinkedProviderStateViolation || hasSessionProviderLinkViolation) {
-        const blockReason = hasSessionProviderLinkViolation
-          ? "SESSION_PROVIDER_LINK_VIOLATION"
-          : hasLinkedProviderStateViolation
-            ? "LOOKUP_PROVIDER_LINK_VIOLATION"
-            : "PROVIDER_LOCK_MISMATCH";
-        logAuthDebugEvent("warn", "oauth_callback_provider_blocked", {
-          reason: blockReason,
-          lookupProviderLock,
-          lookupPrimaryProvider,
-          lookupProviders,
-          sessionProviders: currentProviders,
-          sessionDetectedProvider: currentProvider,
-        });
-        await cleanupOAuthIdentityOnProviderMismatch({
-          session: res.session,
-          expectedProviderLock: lookupProviderLock ?? lookupPrimaryProvider,
-          source: "oauth_callback_provider_blocked",
-          attemptedProvider: "google",
-        });
-        await signOutToLogin("global", { source: "provider_lock_oauth_callback" });
-        const providerLockMessage = getProviderLockErrorMessage(lookupProviderLock ?? lookupPrimaryProvider, "google_oauth");
-
-        if (Platform.OS === "web" && getWebAuthPath(typeof window !== "undefined" ? window.location.pathname : null)) {
-          setWebAuthErrorBody(providerLockMessage);
-          setWebAuthStatus("error");
-        } else {
-          Alert.alert(id.auth.providerLockTitle, providerLockMessage);
-        }
-
-        await setNextAuthRoute("Login");
-        setAuthStartRoute("Login");
-        setForceReset(false);
-        setWebResetFlowActive(false);
-        replaceWebUrl(getWebPathForRoute("Login"));
-        return;
-      }
 
       logAuthDebugEvent("info", "oauth_callback_success", {
         path: res.path,

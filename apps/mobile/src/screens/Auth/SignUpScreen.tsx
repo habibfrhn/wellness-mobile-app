@@ -25,7 +25,6 @@ import {
   isRateLimitedError,
   isWeakPasswordError,
 } from "../../services/authSecurity";
-import { getProviderLockErrorMessage, isBlockedByProviderLock, lookupProviderLockByEmail } from "../../services/authProviderLock";
 import { logAuthDebugEvent } from "../../services/authDebug";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "SignUp">;
@@ -161,24 +160,6 @@ export default function SignUpScreen({ navigation, route }: Props) {
     try {
       if (!hasValidAuthRedirects) {
         setFormError(id.forgot.failedBody);
-        return;
-      }
-
-      const providerLock = await lookupProviderLockByEmail(e);
-      logAuthDebugEvent("info", "email_password_signup_provider_lookup", {
-        screen: "signup",
-        emailDomain: e.split("@")[1] ?? null,
-        lookupStatus: providerLock.status,
-        lookupExists: providerLock.status === "ok" ? providerLock.exists : null,
-        lookupProviderLock: providerLock.status === "ok" ? providerLock.providerLock : null,
-      });
-      if (providerLock.status === "unavailable") {
-        setFormError(id.auth.providerLockUnavailable);
-        return;
-      }
-
-      if (providerLock.exists && isBlockedByProviderLock(providerLock.providerLock, "email_password", "email")) {
-        setFormError(getProviderLockErrorMessage(providerLock.providerLock, "email_password"));
         return;
       }
 

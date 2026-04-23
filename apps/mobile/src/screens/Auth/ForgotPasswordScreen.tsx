@@ -8,7 +8,6 @@ import { id } from "../../i18n/strings";
 import { supabase, AUTH_RESET, hasValidAuthRedirects } from "../../services/supabase";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
 import { isRateLimitedError } from "../../services/authSecurity";
-import { getProviderLockErrorMessage, isBlockedByProviderLock, lookupProviderLockByEmail } from "../../services/authProviderLock";
 import { getWebViewport } from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
 
@@ -64,16 +63,6 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
     setBusy(true);
     setRateLimitHelperText(null);
     try {
-      const providerLock = await lookupProviderLockByEmail(e);
-      if (providerLock.status === "unavailable") {
-        Alert.alert(id.auth.providerLockTitle, id.auth.providerLockUnavailable);
-        return;
-      }
-
-      if (providerLock.exists && isBlockedByProviderLock(providerLock.providerLock, "password_reset", "email")) {
-        Alert.alert(id.auth.providerLockTitle, getProviderLockErrorMessage(providerLock.providerLock, "password_reset"));
-        return;
-      }
       if (!hasValidAuthRedirects) {
         Alert.alert(id.forgot.failedTitle, id.forgot.failedBody);
         return;
