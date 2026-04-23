@@ -291,7 +291,7 @@ export default function LoginScreen({ navigation, route }: Props) {
                   autoCorrect={false}
                   autoComplete="password"
                   textContentType="password"
-                  secureTextEntry={false}
+                  secureTextEntry={!showPassword}
                   placeholder={id.login.passwordPlaceholder}
                   placeholderTextColor={colors.mutedText}
                   style={[

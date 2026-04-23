@@ -14,7 +14,7 @@ type SignOutSource =
   | "admin_dashboard"
   | "password_reset"
   | "email_verification_guard"
-  | "provider_lock_oauth_callback_missing_email"
+  | "oauth_callback_missing_email"
   | "unknown";
 
 let signOutInFlight: Promise<{ error: Error | null }> | null = null;

@@ -459,7 +459,7 @@ export default function App() {
           userId: res.session.user.id,
           emailSource: callbackEmailResolution.source,
         });
-        await signOutToLogin("global", { source: "provider_lock_oauth_callback_missing_email" });
+        await signOutToLogin("global", { source: "oauth_callback_missing_email" });
 
         if (Platform.OS === "web" && getWebAuthPath(typeof window !== "undefined" ? window.location.pathname : null)) {
           setWebAuthErrorBody(id.auth.callbackErrorBody);
