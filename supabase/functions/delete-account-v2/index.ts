@@ -12,8 +12,13 @@ type ErrorCode =
 const ACTION_NAME = "delete_user_account";
 const MAX_REQUESTS_PER_HOUR = 3;
 const REQUIRED_WEB_ORIGINS = ["https://www.lumepo.com", "https://lumepo.com"];
-const LOCAL_DEV_ORIGINS = ["http://localhost:8081", "http://127.0.0.1:8081"];
-const VERCEL_PREVIEW_ORIGIN_REGEX = /^https:\/\/wellness-mobile-[a-z0-9-]+\.vercel\.app$/i;
+const LOCAL_DEV_ORIGINS = [
+  "http://localhost:8081",
+  "http://127.0.0.1:8081",
+  "http://localhost:19006",
+  "http://127.0.0.1:19006",
+];
+const VERCEL_PREVIEW_ORIGIN_REGEX = /^https:\/\/wellness-mobile(?:-app)?(?:-[a-z0-9-]+)?\.vercel\.app$/i;
 
 const baseCorsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -104,6 +109,7 @@ Deno.serve(async (req: Request) => {
   const corsHeaders = buildCorsHeaders(req);
 
   if (req.headers.get("origin") && !corsHeaders["Access-Control-Allow-Origin"]) {
+    console.warn("delete-account-v2: blocked origin", req.headers.get("origin"));
     return fail(403, "Origin not allowed", "METHOD_NOT_ALLOWED", corsHeaders);
   }
 
