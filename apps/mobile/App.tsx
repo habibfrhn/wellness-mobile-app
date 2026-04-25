@@ -116,6 +116,26 @@ function syncWebTitle(routeName?: string) {
   document.title = formatWebTitle(routeName);
 }
 
+function syncWebMetaDescription(routeName?: string) {
+  if (Platform.OS !== "web" || typeof document === "undefined") {
+    return;
+  }
+
+  const metaDescription =
+    routeName === "Landing"
+      ? "Ritual malam 15 menit untuk menutup hari dengan tenang bersama Lumepo."
+      : "Lumepo membantu kamu menutup hari dengan ritual malam yang tenang dan konsisten.";
+  let tag = document.querySelector('meta[name="description"]');
+
+  if (!tag) {
+    tag = document.createElement("meta");
+    tag.setAttribute("name", "description");
+    document.head.appendChild(tag);
+  }
+
+  tag.setAttribute("content", metaDescription);
+}
+
 function normalizeWebPathForRoute(pathname: string) {
   const trimmedPath = pathname.replace(/\/+$/, "") || "/";
   const withoutExpoPrefix = trimmedPath.startsWith(WEB_EXPO_ROUTE_PREFIX)
@@ -923,8 +943,16 @@ export default function App() {
         <NavigationContainer
           ref={navigationRef}
           linking={Platform.OS === "web" ? webLinking : undefined}
-          onReady={() => syncWebTitle(navigationRef.getCurrentRoute()?.name)}
-          onStateChange={() => syncWebTitle(navigationRef.getCurrentRoute()?.name)}
+          onReady={() => {
+            const routeName = navigationRef.getCurrentRoute()?.name;
+            syncWebTitle(routeName);
+            syncWebMetaDescription(routeName);
+          }}
+          onStateChange={() => {
+            const routeName = navigationRef.getCurrentRoute()?.name;
+            syncWebTitle(routeName);
+            syncWebMetaDescription(routeName);
+          }}
         >
           {Platform.OS === "web" ? (
             <RootStack.Navigator

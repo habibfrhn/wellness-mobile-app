@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   NavigationProp,
   NavigatorScreenParams,
@@ -118,18 +118,8 @@ function OptimizedLandingImage({
 
 export default function LandingScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const scrollRef = useRef<ScrollView | null>(null);
   const [activeSection, setActiveSection] = useState<SectionKey>("beranda");
   const viewportWidth = useViewportWidth();
-  const sectionOffsets = useRef<Record<SectionKey, number>>({
-    beranda: 0,
-    hero: 0,
-    "cara-kerja": 0,
-    manfaat: 0,
-    trust: 0,
-    faq: 0,
-    "closing-cta": 0,
-  });
 
   const viewport = getWebViewport(viewportWidth);
   const isDesktop = viewport === "desktop";
@@ -166,10 +156,25 @@ export default function LandingScreen() {
   };
 
   const goToSection = (key: SectionKey) => {
-    scrollRef.current?.scrollTo({
-      y: sectionOffsets.current[key],
-      animated: true,
-    });
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    const section = document.getElementById(key);
+    if (!section) {
+      return;
+    }
+
+    const runScroll = () => {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    if (typeof window !== "undefined" && typeof window.requestAnimationFrame === "function") {
+      window.requestAnimationFrame(runScroll);
+      return;
+    }
+
+    runScroll();
   };
 
   const headerNavItems: {
@@ -306,7 +311,6 @@ export default function LandingScreen() {
   return (
     <WebResponsiveFrame disableFrame>
       <ScrollView
-        ref={scrollRef}
         style={styles.page}
         contentContainerStyle={[
           styles.content,
@@ -331,9 +335,6 @@ export default function LandingScreen() {
         >
           <View
             nativeID="beranda"
-            onLayout={(event) => {
-              sectionOffsets.current.beranda = event.nativeEvent.layout.y;
-            }}
             style={[
               styles.section,
               isDesktop && styles.sectionDesktop,
@@ -415,9 +416,6 @@ export default function LandingScreen() {
 
           <View
             nativeID="hero"
-            onLayout={(event) => {
-              sectionOffsets.current.hero = event.nativeEvent.layout.y;
-            }}
             style={[
               styles.section,
               isTablet && styles.sectionTablet,
@@ -505,9 +503,6 @@ export default function LandingScreen() {
             <>
           <View
             nativeID="cara-kerja"
-            onLayout={(event) => {
-              sectionOffsets.current["cara-kerja"] = event.nativeEvent.layout.y;
-            }}
             style={[styles.section, (isDesktop || isTablet) && styles.sectionDesktop]}
           >
             <View
@@ -580,9 +575,6 @@ export default function LandingScreen() {
 
           <View
             nativeID="manfaat"
-            onLayout={(event) => {
-              sectionOffsets.current.manfaat = event.nativeEvent.layout.y;
-            }}
             style={[styles.section, (isDesktop || isTablet) && styles.sectionDesktop]}
           >
             <View
@@ -655,9 +647,6 @@ export default function LandingScreen() {
 
           <View
             nativeID="trust"
-            onLayout={(event) => {
-              sectionOffsets.current.trust = event.nativeEvent.layout.y;
-            }}
             style={[styles.section, (isDesktop || isTablet) && styles.sectionDesktop]}
           >
             <View
@@ -734,10 +723,6 @@ export default function LandingScreen() {
 
           <View
             nativeID="closing-cta"
-            onLayout={(event) => {
-              sectionOffsets.current["closing-cta"] =
-                event.nativeEvent.layout.y;
-            }}
             style={[
               styles.section,
               (isDesktop || isTablet) && styles.sectionDesktop,
@@ -850,9 +835,6 @@ export default function LandingScreen() {
 
           <View
             nativeID="faq"
-            onLayout={(event) => {
-              sectionOffsets.current.faq = event.nativeEvent.layout.y;
-            }}
             style={[styles.section, (isDesktop || isTablet) && styles.sectionDesktop]}
           >
             <Text
