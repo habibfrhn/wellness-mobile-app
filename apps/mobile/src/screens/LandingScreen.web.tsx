@@ -119,6 +119,10 @@ export default function LandingScreen() {
   const isDesktop = viewport === "desktop";
   const isTablet = viewport === "tablet";
   const isMobile = viewport === "mobile";
+  const shouldDeferSecondarySections = isMobile || isTablet;
+  const [isSecondarySectionsReady, setIsSecondarySectionsReady] = useState(
+    !shouldDeferSecondarySections,
+  );
   const heroTitleText = id.landing.heroTitle.replace(", ", ",\n");
 
   const goToLogin = () => {
@@ -185,6 +189,51 @@ export default function LandingScreen() {
   }, []);
 
   useEffect(() => {
+    if (!shouldDeferSecondarySections) {
+      setIsSecondarySectionsReady(true);
+      return;
+    }
+
+    const idleWindow = window as Window & {
+      requestIdleCallback?: (
+        callback: () => void,
+        options?: { timeout: number },
+      ) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+
+    const requestIdle = idleWindow.requestIdleCallback;
+    const cancelIdle = idleWindow.cancelIdleCallback;
+
+    if (typeof requestIdle === "function") {
+      const idleId = requestIdle(
+        () => {
+          setIsSecondarySectionsReady(true);
+        },
+        { timeout: 500 },
+      );
+
+      return () => {
+        if (typeof cancelIdle === "function") {
+          cancelIdle(idleId);
+        }
+      };
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setIsSecondarySectionsReady(true);
+    }, 180);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [shouldDeferSecondarySections]);
+
+  useEffect(() => {
+    if (!isSecondarySectionsReady) {
+      return;
+    }
+
     const hasObserver =
       typeof window !== "undefined" &&
       typeof IntersectionObserver !== "undefined";
@@ -236,7 +285,7 @@ export default function LandingScreen() {
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [isSecondarySectionsReady]);
 
   return (
     <WebResponsiveFrame disableFrame>
@@ -435,7 +484,8 @@ export default function LandingScreen() {
             </View>
           </View>
 
-
+          {isSecondarySectionsReady ? (
+            <>
           <View
             nativeID="cara-kerja"
             onLayout={(event) => {
@@ -851,6 +901,10 @@ export default function LandingScreen() {
               </View>
             </View>
           </View>
+            </>
+          ) : (
+            <View style={styles.secondarySectionsPlaceholder} />
+          )}
         </View>
 
         <View style={styles.footerOuter}>
@@ -1655,5 +1709,8 @@ const styles = StyleSheet.create({
   footerContactMobile: {
     marginTop: spacing.md,
     marginBottom: 0,
+  },
+  secondarySectionsPlaceholder: {
+    minHeight: 1,
   },
 });
