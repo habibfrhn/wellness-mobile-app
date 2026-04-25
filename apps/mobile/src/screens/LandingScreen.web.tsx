@@ -14,7 +14,6 @@ import useViewportWidth from "../hooks/useViewportWidth";
 import WebResponsiveFrame from "../components/WebResponsiveFrame";
 import LandingMobileAuthMenu from "../components/landing/LandingMobileAuthMenu";
 import { id } from "../i18n/strings";
-import { trackEvent } from "../services/analytics";
 
 type RootStackParamList = {
   Landing: undefined;
@@ -78,6 +77,13 @@ type OptimizedLandingImageProps = {
   alt: string;
   priority?: boolean;
 };
+async function trackLandingEvent(
+  name: "landing_page_view" | "landing_cta_click",
+  properties: Record<string, string>,
+) {
+  const { trackEvent } = await import("../services/analytics");
+  await trackEvent(name, properties);
+}
 
 function OptimizedLandingImage({
   source,
@@ -126,12 +132,12 @@ export default function LandingScreen() {
   const heroTitleText = id.landing.heroTitle.replace(", ", ",\n");
 
   const goToLogin = () => {
-    void trackEvent("landing_cta_click", { cta: "login" });
+    void trackLandingEvent("landing_cta_click", { cta: "login" });
     navigation.navigate("Auth", { screen: "Login" });
   };
 
   const goToSignUp = () => {
-    void trackEvent("landing_cta_click", { cta: "signup" });
+    void trackLandingEvent("landing_cta_click", { cta: "signup" });
     navigation.navigate("Auth", { screen: "SignUp" });
   };
 
@@ -185,7 +191,34 @@ export default function LandingScreen() {
   const activeNavKey = activeSection === "faq" ? "faq" : "home";
 
   useEffect(() => {
-    void trackEvent("landing_page_view", { surface: "landing_web" });
+    void trackLandingEvent("landing_page_view", { surface: "landing_web" });
+  }, []);
+
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    const heroAsset = Asset.fromModule(HERO_IMAGE);
+    if (!heroAsset.uri) {
+      return;
+    }
+
+    const existingLink = document.querySelector(
+      'link[data-lumepo-preload="landing-hero"]',
+    );
+    if (existingLink instanceof HTMLLinkElement) {
+      existingLink.href = heroAsset.uri;
+      return;
+    }
+
+    const preloadLink = document.createElement("link");
+    preloadLink.rel = "preload";
+    preloadLink.as = "image";
+    preloadLink.href = heroAsset.uri;
+    preloadLink.setAttribute("fetchpriority", "high");
+    preloadLink.setAttribute("data-lumepo-preload", "landing-hero");
+    document.head.appendChild(preloadLink);
   }, []);
 
   useEffect(() => {

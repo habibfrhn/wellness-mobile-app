@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Modal, Platform, Pressable, StyleSheet, Text, View } from "react-native";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 import { id } from "../../i18n/strings";
 import { colors, radius, spacing, typography } from "../../theme/tokens";
@@ -76,11 +75,23 @@ export default function LandingMobileAuthMenu({
           pressed && styles.menuButtonPressed,
         ]}
       >
-        <MaterialCommunityIcons
-          name="menu"
-          size={typography.iconMd}
-          color={isOpen ? colors.white : colors.text}
-        />
+        <View style={styles.menuIcon} pointerEvents="none">
+          <View
+            style={[
+              styles.menuIconLine,
+              isOpen && styles.menuIconLineOpen,
+              styles.menuIconLineTop,
+            ]}
+          />
+          <View style={[styles.menuIconLine, isOpen && styles.menuIconLineOpen]} />
+          <View
+            style={[
+              styles.menuIconLine,
+              isOpen && styles.menuIconLineOpen,
+              styles.menuIconLineBottom,
+            ]}
+          />
+        </View>
       </Pressable>
 
       <Modal
@@ -133,6 +144,26 @@ const styles = StyleSheet.create({
   },
   menuButtonPressed: {
     opacity: 0.85,
+  },
+  menuIcon: {
+    width: 18,
+    height: 14,
+    justifyContent: "space-between",
+  },
+  menuIconLine: {
+    height: 2,
+    borderRadius: 1,
+    backgroundColor: colors.text,
+  },
+  menuIconLineOpen: {
+    backgroundColor: colors.white,
+  },
+  menuIconLineTop: {
+    width: 18,
+  },
+  menuIconLineBottom: {
+    width: 14,
+    alignSelf: "flex-end",
   },
   overlay: {
     flex: 1,

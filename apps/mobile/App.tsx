@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Alert, LogBox, Platform, View } from "react-native";
 import * as Linking from "expo-linking";
 import * as Updates from "expo-updates";
@@ -14,8 +14,6 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { hasSupabaseEnv, missingSupabaseEnvMessage, supabase } from "./src/services/supabase";
 import { handleAuthLink, isPotentialAuthLink } from "./src/services/authLinks";
-import AuthStack from "./src/navigation/AuthStack";
-import AppStack from "./src/navigation/AppStack";
 import type { AuthStackParamList } from "./src/navigation/types";
 import LandingScreen from "./src/screens/LandingScreen";
 import { id } from "./src/i18n/strings";
@@ -25,7 +23,6 @@ import { clearNextAuthRoute, getNextAuthRoute, setNextAuthRoute } from "./src/se
 import { clearPendingProfileName, getPendingProfileName } from "./src/services/pendingProfileName";
 import WebAuthStatusScreen from "./src/components/auth/WebAuthStatusScreen";
 import { getWebAppOrigin, getWebAuthPath, replaceWebUrl } from "./src/services/webAuth";
-import AdminDashboardScreen from "./src/screens/Admin/AdminDashboardScreen.web";
 import { getUserAuthProviders, isUserVerified } from "./src/services/authProviders";
 import { logAuthDebugEvent } from "./src/services/authDebug";
 import { restoreSession, signOutToLogin } from "./src/services/authSession";
@@ -40,6 +37,9 @@ type RootStackParamList = {
 };
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
+const AuthStack = lazy(() => import("./src/navigation/AuthStack"));
+const AppStack = lazy(() => import("./src/navigation/AppStack"));
+const AdminDashboardScreen = lazy(() => import("./src/screens/Admin/AdminDashboardScreen.web"));
 
 const WEB_RESET_FLOW_KEY = "wellness.webResetFlow";
 
@@ -232,6 +232,14 @@ LogBox.ignoreLogs([
 preventAutoHideSplashScreen().catch(() => {
   // no-op if it's already hidden
 });
+
+function FullScreenLoader() {
+  return (
+    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+      <ActivityIndicator />
+    </View>
+  );
+}
 
 export default function App() {
   const [ready, setReady] = useState(false);
@@ -860,11 +868,7 @@ export default function App() {
   ]);
 
   if (!ready || (!session && !authStartResolved)) {
-    return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <ActivityIndicator />
-      </View>
-    );
+    return <FullScreenLoader />;
   }
 
   if (Platform.OS === "web" && webAuthStatus !== "idle") {
@@ -887,11 +891,7 @@ export default function App() {
     }
 
     if (webAuthStatus === "missing") {
-      return (
-        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-          <ActivityIndicator />
-        </View>
-      );
+      return <FullScreenLoader />;
     }
 
     return (
@@ -909,7 +909,9 @@ export default function App() {
     return (
       <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
         <SafeAreaProvider>
-          <AdminDashboardScreen session={session} />
+          <Suspense fallback={<FullScreenLoader />}>
+            <AdminDashboardScreen session={session} />
+          </Suspense>
         </SafeAreaProvider>
       </View>
     );
@@ -940,15 +942,29 @@ export default function App() {
                         ? "ResetPassword"
                         : "Login";
 
-                  return <AuthStack initialRouteName={resolvedInitialRoute} includeWelcome={false} />;
+                  return (
+                    <Suspense fallback={<FullScreenLoader />}>
+                      <AuthStack initialRouteName={resolvedInitialRoute} includeWelcome={false} />
+                    </Suspense>
+                  );
                 }}
               </RootStack.Screen>
-              <RootStack.Screen name="App" component={AppStack} />
+              <RootStack.Screen name="App">
+                {() => (
+                  <Suspense fallback={<FullScreenLoader />}>
+                    <AppStack />
+                  </Suspense>
+                )}
+              </RootStack.Screen>
             </RootStack.Navigator>
           ) : shouldShowAuth ? (
-            <AuthStack key={`auth-${initialAuthRoute}`} initialRouteName={initialAuthRoute} />
+            <Suspense fallback={<FullScreenLoader />}>
+              <AuthStack key={`auth-${initialAuthRoute}`} initialRouteName={initialAuthRoute} />
+            </Suspense>
           ) : (
-            <AppStack />
+            <Suspense fallback={<FullScreenLoader />}>
+              <AppStack />
+            </Suspense>
           )}
         </NavigationContainer>
       </SafeAreaProvider>
