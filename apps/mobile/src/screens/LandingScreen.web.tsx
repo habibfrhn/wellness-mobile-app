@@ -4,14 +4,8 @@ import {
   NavigatorScreenParams,
   useNavigation,
 } from "@react-navigation/native";
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Asset } from "expo-asset";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { colors, radius, spacing, typography } from "../theme/tokens";
 import { getWebPageTopSpacing, getWebViewport } from "../constants/webLayout";
@@ -90,14 +84,14 @@ function OptimizedLandingImage({
   alt,
   priority = false,
 }: OptimizedLandingImageProps) {
-  const resolved = Image.resolveAssetSource(source);
+  const resolved = Asset.fromModule(source);
 
   return (
     <img
       src={resolved.uri}
       alt={alt}
-      width={resolved.width}
-      height={resolved.height}
+      width={resolved.width ?? undefined}
+      height={resolved.height ?? undefined}
       decoding="async"
       loading={priority ? "eager" : "lazy"}
       fetchPriority={priority ? "high" : "low"}
