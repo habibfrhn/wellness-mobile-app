@@ -329,9 +329,9 @@ export default function LandingScreen() {
           styles.content,
           {
             paddingTop:
-              !isDesktop && !isTablet
-                ? getWebPageTopSpacing(viewport)
-                : getWebPageTopSpacing(viewport) + spacing.md,
+              isDesktop || isTablet
+                ? getWebPageTopSpacing(viewport) + spacing.md
+                : 0,
           },
           isTablet && styles.contentTablet,
           isDesktop && styles.contentDesktop,
@@ -356,6 +356,7 @@ export default function LandingScreen() {
               isDesktop && styles.sectionDesktop,
               styles.headerSection,
               isDesktop && styles.headerSectionDesktop,
+              !isDesktop && !isTablet && styles.headerSectionMobile,
               styles.headerSectionSticky,
             ]}
           >
@@ -1130,7 +1131,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
   },
   mainContentMobile: {
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: 0,
   },
   section: {
     width: "100%",
@@ -1161,6 +1162,12 @@ const styles = StyleSheet.create({
   headerSectionDesktop: {
     paddingTop: spacing.md,
     paddingBottom: spacing.sm,
+  },
+  headerSectionMobile: {
+    maxWidth: "100%",
+    marginHorizontal: 0,
+    borderRadius: 0,
+    paddingTop: spacing.sm,
   },
   headerSectionSticky: {
     position: "sticky" as any,
