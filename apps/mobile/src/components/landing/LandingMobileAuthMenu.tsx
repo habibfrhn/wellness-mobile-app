@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Modal, Platform, Pressable, StyleSheet, Text, View } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 import { id } from "../../i18n/strings";
 import { colors, radius, spacing, typography } from "../../theme/tokens";

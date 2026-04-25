@@ -72,6 +72,40 @@ const TRACKED_SECTIONS: SectionKey[] = [
   "manfaat",
   "faq",
 ];
+const OPTIMIZED_LANDING_IMAGE_STYLE: React.CSSProperties = {
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+  display: "block",
+};
+
+type OptimizedLandingImageProps = {
+  source: number;
+  alt: string;
+  priority?: boolean;
+};
+
+function OptimizedLandingImage({
+  source,
+  alt,
+  priority = false,
+}: OptimizedLandingImageProps) {
+  const resolved = Image.resolveAssetSource(source);
+
+  return (
+    <img
+      src={resolved.uri}
+      alt={alt}
+      width={resolved.width}
+      height={resolved.height}
+      decoding="async"
+      loading={priority ? "eager" : "lazy"}
+      fetchPriority={priority ? "high" : "low"}
+      style={OPTIMIZED_LANDING_IMAGE_STYLE}
+    />
+  );
+}
+
 export default function LandingScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const scrollRef = useRef<ScrollView | null>(null);
@@ -398,10 +432,10 @@ export default function LandingScreen() {
                   (isDesktop || isTablet) && styles.heroImageCardDesktop,
                 ]}
               >
-                <Image
+                <OptimizedLandingImage
                   source={HERO_IMAGE}
-                  style={styles.heroImage}
-                  resizeMode="cover"
+                  alt={id.landing.heroTitle}
+                  priority
                 />
               </View>
             </View>
@@ -442,11 +476,7 @@ export default function LandingScreen() {
                   </View>
 
                   <View style={styles.heroImageCard}>
-                    <Image
-                      source={EMPATHY_IMAGE_FOUR}
-                      style={styles.heroImage}
-                      resizeMode="cover"
-                    />
+                    <OptimizedLandingImage source={EMPATHY_IMAGE_FOUR} alt="" />
                   </View>
                 </>
               ) : (
@@ -457,11 +487,7 @@ export default function LandingScreen() {
                       (isDesktop || isTablet) && styles.heroImageCardDesktop,
                     ]}
                   >
-                    <Image
-                      source={EMPATHY_IMAGE_FOUR}
-                      style={styles.heroImage}
-                      resizeMode="cover"
-                    />
+                    <OptimizedLandingImage source={EMPATHY_IMAGE_FOUR} alt="" />
                   </View>
 
                   <View
@@ -525,11 +551,7 @@ export default function LandingScreen() {
                   </View>
 
                   <View style={styles.benefitsImageCard}>
-                    <Image
-                      source={BENEFITS_IMAGE}
-                      style={styles.heroImage}
-                      resizeMode="cover"
-                    />
+                    <OptimizedLandingImage source={BENEFITS_IMAGE} alt="" />
                   </View>
                 </>
               ) : (
@@ -563,11 +585,7 @@ export default function LandingScreen() {
                       (isDesktop || isTablet) && styles.benefitsImageCardDesktop,
                     ]}
                   >
-                    <Image
-                      source={BENEFITS_IMAGE}
-                      style={styles.heroImage}
-                      resizeMode="cover"
-                    />
+                    <OptimizedLandingImage source={BENEFITS_IMAGE} alt="" />
                   </View>
                 </>
               )}
@@ -610,11 +628,7 @@ export default function LandingScreen() {
                   </View>
 
                   <View style={styles.trustImageCard}>
-                    <Image
-                      source={TRUST_IMAGE}
-                      style={styles.heroImage}
-                      resizeMode="cover"
-                    />
+                    <OptimizedLandingImage source={TRUST_IMAGE} alt="" />
                   </View>
                 </>
               ) : (
@@ -625,11 +639,7 @@ export default function LandingScreen() {
                       (isDesktop || isTablet) && styles.trustImageCardDesktop,
                     ]}
                   >
-                    <Image
-                      source={TRUST_IMAGE}
-                      style={styles.heroImage}
-                      resizeMode="cover"
-                    />
+                    <OptimizedLandingImage source={TRUST_IMAGE} alt="" />
                   </View>
 
                   <View
@@ -718,11 +728,7 @@ export default function LandingScreen() {
                   </View>
 
                   <View style={styles.closingCtaImageCard}>
-                    <Image
-                      source={CLOSING_CTA_IMAGE}
-                      style={styles.heroImage}
-                      resizeMode="cover"
-                    />
+                    <OptimizedLandingImage source={CLOSING_CTA_IMAGE} alt="" />
                   </View>
                 </>
               ) : (
@@ -774,11 +780,7 @@ export default function LandingScreen() {
                       (isDesktop || isTablet) && styles.closingCtaImageCardDesktop,
                     ]}
                   >
-                    <Image
-                      source={CLOSING_CTA_IMAGE}
-                      style={styles.heroImage}
-                      resizeMode="cover"
-                    />
+                    <OptimizedLandingImage source={CLOSING_CTA_IMAGE} alt="" />
                   </View>
                 </>
               )}
@@ -1267,10 +1269,6 @@ const styles = StyleSheet.create({
   heroImageCardDesktop: {
     flex: 1,
     maxWidth: 460,
-  },
-  heroImage: {
-    width: "100%",
-    height: "100%",
   },
 
   processLayout: {

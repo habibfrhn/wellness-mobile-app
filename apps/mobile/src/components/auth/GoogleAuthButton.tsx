@@ -1,6 +1,6 @@
 import React from "react";
 import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 import { getWebViewport } from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
