@@ -4,7 +4,6 @@ import {
   NavigatorScreenParams,
   useNavigation,
 } from "@react-navigation/native";
-import { Asset } from "expo-asset";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { colors, radius, spacing, typography } from "../theme/tokens";
@@ -30,11 +29,15 @@ type SectionKey =
   | "faq"
   | "closing-cta";
 
-const HERO_IMAGE = require("../../assets/image/landing-page/1.jpg");
-const EMPATHY_IMAGE_FOUR = require("../../assets/image/landing-page/4.jpg");
-const BENEFITS_IMAGE = require("../../assets/image/landing-page/8.jpg");
-const TRUST_IMAGE = require("../../assets/image/landing-page/9.jpg");
-const CLOSING_CTA_IMAGE = require("../../assets/image/landing-page/10.jpg");
+const LANDING_IMAGE_DIMENSIONS = {
+  width: 1024,
+  height: 1536,
+} as const;
+const HERO_IMAGE = "/assets/image/landing-page/1.jpg";
+const EMPATHY_IMAGE_FOUR = "/assets/image/landing-page/4.jpg";
+const BENEFITS_IMAGE = "/assets/image/landing-page/8.jpg";
+const TRUST_IMAGE = "/assets/image/landing-page/9.jpg";
+const CLOSING_CTA_IMAGE = "/assets/image/landing-page/10.jpg";
 const HERO_GAP = 20;
 const HERO_IMAGE_RATIO = 4 / 5;
 const BUTTON_PADDING_VERTICAL_DESKTOP = 12;
@@ -73,7 +76,7 @@ const OPTIMIZED_LANDING_IMAGE_STYLE: React.CSSProperties = {
 };
 
 type OptimizedLandingImageProps = {
-  source: number;
+  source: string;
   alt: string;
   priority?: boolean;
 };
@@ -90,14 +93,12 @@ function OptimizedLandingImage({
   alt,
   priority = false,
 }: OptimizedLandingImageProps) {
-  const resolved = Asset.fromModule(source);
-
   return (
     <img
-      src={resolved.uri}
+      src={source}
       alt={alt}
-      width={resolved.width ?? undefined}
-      height={resolved.height ?? undefined}
+      width={LANDING_IMAGE_DIMENSIONS.width}
+      height={LANDING_IMAGE_DIMENSIONS.height}
       decoding="async"
       loading={priority ? "eager" : "lazy"}
       fetchPriority={priority ? "high" : "low"}
@@ -192,33 +193,6 @@ export default function LandingScreen() {
 
   useEffect(() => {
     void trackLandingEvent("landing_page_view", { surface: "landing_web" });
-  }, []);
-
-  useEffect(() => {
-    if (typeof document === "undefined") {
-      return;
-    }
-
-    const heroAsset = Asset.fromModule(HERO_IMAGE);
-    if (!heroAsset.uri) {
-      return;
-    }
-
-    const existingLink = document.querySelector(
-      'link[data-lumepo-preload="landing-hero"]',
-    );
-    if (existingLink instanceof HTMLLinkElement) {
-      existingLink.href = heroAsset.uri;
-      return;
-    }
-
-    const preloadLink = document.createElement("link");
-    preloadLink.rel = "preload";
-    preloadLink.as = "image";
-    preloadLink.href = heroAsset.uri;
-    preloadLink.setAttribute("fetchpriority", "high");
-    preloadLink.setAttribute("data-lumepo-preload", "landing-hero");
-    document.head.appendChild(preloadLink);
   }, []);
 
   useEffect(() => {
