@@ -1,3 +1,5 @@
+import { id } from "../i18n/strings";
+
 const EMAIL_EXISTS_MARKERS = ["already registered", "already been registered", "user already registered", "already exists"];
 const RATE_LIMIT_MARKERS = ["rate limit", "too many", "over_email_send_rate_limit", "over_request_rate_limit"];
 const NETWORK_MARKERS = ["network", "fetch", "timeout", "timed out"];
@@ -53,6 +55,10 @@ export function isWeakPasswordError(message: string | null | undefined) {
 }
 
 export function getSafeAuthErrorMessage(message: string | null | undefined, fallback: string) {
+  if (isNetworkLikeError(message) || isRateLimitedError(message)) {
+    return id.common.tryAgain;
+  }
+
   return fallback;
 }
 

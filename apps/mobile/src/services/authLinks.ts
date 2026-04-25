@@ -5,6 +5,7 @@ import { isAllowedWebOrigin } from "./webAuth";
 import { logAuthDebugEvent } from "./authDebug";
 
 type AuthLinkType = "signup" | "recovery" | "magiclink" | "email_change" | "unknown";
+type VerifyOtpType = Exclude<AuthLinkType, "unknown">;
 
 function summarizeAuthUrl(url: string) {
   try {
@@ -78,6 +79,10 @@ function mapLinkType(type: string | null): AuthLinkType {
     return type;
   }
   return "unknown";
+}
+
+function isVerifyOtpType(type: string | null): type is VerifyOtpType {
+  return type === "signup" || type === "recovery" || type === "magiclink" || type === "email_change";
 }
 
 export function isPotentialAuthLink(url: string) {
@@ -261,10 +266,8 @@ export async function handleAuthLink(url: string) {
     };
   }
 
-  if (type && (tokenHash || (token && email))) {
-    const params = tokenHash
-      ? { type: type as any, token_hash: tokenHash }
-      : { type: type as any, email: email as string, token: token as string };
+  if (isVerifyOtpType(type) && (tokenHash || (token && email))) {
+    const params = tokenHash ? { type, token_hash: tokenHash } : { type, email: email as string, token: token as string };
 
     const { data, error } = await supabase.auth.verifyOtp(params);
 

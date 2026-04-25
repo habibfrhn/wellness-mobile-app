@@ -36,7 +36,11 @@ export const supabaseAuthStorage = {
         return null;
       }
 
-      return window.localStorage.getItem(storageKey);
+      try {
+        return window.localStorage.getItem(storageKey);
+      } catch {
+        return null;
+      }
     }
 
     const secureValue = await secureStoreChunked.getItem(storageKey);
@@ -52,7 +56,11 @@ export const supabaseAuthStorage = {
         return;
       }
 
-      window.localStorage.setItem(storageKey, value);
+      try {
+        window.localStorage.setItem(storageKey, value);
+      } catch {
+        // Ignore browser storage failures; auth SDK will continue using in-memory state.
+      }
       return;
     }
 
@@ -64,7 +72,11 @@ export const supabaseAuthStorage = {
         return;
       }
 
-      window.localStorage.removeItem(storageKey);
+      try {
+        window.localStorage.removeItem(storageKey);
+      } catch {
+        // Ignore browser storage failures; best-effort cleanup only.
+      }
       return;
     }
 

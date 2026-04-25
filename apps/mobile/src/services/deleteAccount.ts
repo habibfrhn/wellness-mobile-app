@@ -47,8 +47,16 @@ async function clearPersistedSession() {
   if (Platform.OS === "web" && typeof window !== "undefined") {
     const keys = getRelatedAuthStorageKeys(storageKey);
     for (const key of keys) {
-      window.localStorage.removeItem(key);
-      window.sessionStorage.removeItem(key);
+      try {
+        window.localStorage.removeItem(key);
+      } catch {
+        // best-effort
+      }
+      try {
+        window.sessionStorage.removeItem(key);
+      } catch {
+        // best-effort
+      }
     }
     return;
   }
