@@ -1,7 +1,7 @@
 import { Platform } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { supabase } from "./supabase";
 import { setNextAuthRoute } from "./authStart";
+import { clearSupabaseNativeAuthArtifacts, getRelatedAuthStorageKeys } from "./authStorage";
 import { logLogoutEvent } from "./logoutDebug";
 
 type SignOutScope = "global" | "local" | "others";
@@ -64,11 +64,7 @@ function getSupabaseStorageKey() {
 }
 
 function getWebStorageKeysToClear(storageKey: string | null) {
-  const keys = new Set<string>();
-  if (storageKey) {
-    keys.add(storageKey);
-    keys.add(`${storageKey}-code-verifier`);
-  }
+  const keys = new Set<string>(getRelatedAuthStorageKeys(storageKey));
 
   if (Platform.OS === "web" && typeof window !== "undefined") {
     for (let i = 0; i < window.localStorage.length; i += 1) {
@@ -148,14 +144,11 @@ async function clearPersistedSessionArtifacts() {
     return;
   }
 
-  if (storageKey) {
-    await AsyncStorage.removeItem(storageKey);
-    await AsyncStorage.removeItem(`${storageKey}-code-verifier`);
-  }
+  const removedNativeKeys = await clearSupabaseNativeAuthArtifacts(storageKey);
 
   logLogoutEvent("info", "logout_storage_cleanup_complete", {
     storageKey,
-    removedLocalStorageKeys: storageKey ? [storageKey, `${storageKey}-code-verifier`] : [],
+    removedLocalStorageKeys: removedNativeKeys,
     removedCookieCount: 0,
   });
 }

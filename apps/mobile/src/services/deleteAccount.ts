@@ -1,9 +1,9 @@
 import { Platform } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthError } from "@supabase/supabase-js";
 
 import { id } from "../i18n/strings";
 import { setNextAuthRoute } from "./authStart";
+import { clearSupabaseNativeAuthArtifacts, getRelatedAuthStorageKeys } from "./authStorage";
 import { supabase } from "./supabase";
 
 type DeleteAccountResponse = {
@@ -42,17 +42,18 @@ function isIgnorableSignOutErrorAfterDeletion(error: unknown) {
 }
 
 async function clearPersistedSession() {
-  const storageKey = (supabase.auth as unknown as { storageKey?: string }).storageKey;
-  if (!storageKey) {
-    return;
-  }
+  const storageKey = (supabase.auth as unknown as { storageKey?: string }).storageKey ?? null;
 
   if (Platform.OS === "web" && typeof window !== "undefined") {
-    window.localStorage.removeItem(storageKey);
+    const keys = getRelatedAuthStorageKeys(storageKey);
+    for (const key of keys) {
+      window.localStorage.removeItem(key);
+      window.sessionStorage.removeItem(key);
+    }
     return;
   }
 
-  await AsyncStorage.removeItem(storageKey);
+  await clearSupabaseNativeAuthArtifacts(storageKey);
 }
 
 async function signOutAfterDeletion() {
