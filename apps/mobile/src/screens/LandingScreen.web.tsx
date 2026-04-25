@@ -4,6 +4,7 @@ import {
   NavigatorScreenParams,
   useNavigation,
 } from "@react-navigation/native";
+import { Asset } from "expo-asset";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { colors, radius, spacing, typography } from "../theme/tokens";
@@ -33,11 +34,11 @@ const LANDING_IMAGE_DIMENSIONS = {
   width: 1024,
   height: 1536,
 } as const;
-const HERO_IMAGE = "/assets/image/landing-page/1.jpg";
-const EMPATHY_IMAGE_FOUR = "/assets/image/landing-page/4.jpg";
-const BENEFITS_IMAGE = "/assets/image/landing-page/8.jpg";
-const TRUST_IMAGE = "/assets/image/landing-page/9.jpg";
-const CLOSING_CTA_IMAGE = "/assets/image/landing-page/10.jpg";
+const HERO_IMAGE = require("../../assets/image/landing-page/1.jpg");
+const EMPATHY_IMAGE_FOUR = require("../../assets/image/landing-page/4.jpg");
+const BENEFITS_IMAGE = require("../../assets/image/landing-page/8.jpg");
+const TRUST_IMAGE = require("../../assets/image/landing-page/9.jpg");
+const CLOSING_CTA_IMAGE = require("../../assets/image/landing-page/10.jpg");
 const HERO_GAP = 20;
 const HERO_IMAGE_RATIO = 4 / 5;
 const BUTTON_PADDING_VERTICAL_DESKTOP = 12;
@@ -76,10 +77,16 @@ const OPTIMIZED_LANDING_IMAGE_STYLE: React.CSSProperties = {
 };
 
 type OptimizedLandingImageProps = {
-  source: string;
+  source: number;
   alt: string;
   priority?: boolean;
 };
+
+function getImageUri(moduleId: number) {
+  const asset = Asset.fromModule(moduleId);
+  return asset.localUri ?? asset.uri;
+}
+
 async function trackLandingEvent(
   name: "landing_page_view" | "landing_cta_click",
   properties: Record<string, string>,
@@ -93,9 +100,11 @@ function OptimizedLandingImage({
   alt,
   priority = false,
 }: OptimizedLandingImageProps) {
+  const imageUri = getImageUri(source);
+
   return (
     <img
-      src={source}
+      src={imageUri}
       alt={alt}
       width={LANDING_IMAGE_DIMENSIONS.width}
       height={LANDING_IMAGE_DIMENSIONS.height}
