@@ -49,7 +49,8 @@ function isValidEmail(email: string) {
 }
 
 export default function LoginScreen({ navigation, route }: Props) {
-  const [email, setEmail] = useState(route.params?.initialEmail ?? "");
+  const initialEmailFromRoute = route.params?.initialEmail;
+  const [email, setEmail] = useState(initialEmailFromRoute ?? "");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -63,7 +64,17 @@ export default function LoginScreen({ navigation, route }: Props) {
   const isTabletWeb = viewport === "tablet";
   const isDesktopWeb = viewport === "desktop";
 
+  logAuthDebugEvent("info", "login_screen_render", {
+    screen: "login_web",
+    hasInitialEmail: Boolean(initialEmailFromRoute),
+    viewport,
+  });
+
   useLayoutEffect(() => {
+    logAuthDebugEvent("info", "login_screen_mount", {
+      screen: "login_web",
+      hasInitialEmail: Boolean(initialEmailFromRoute),
+    });
     navigation.setOptions({
       headerTitle: "",
       headerShown: false,
@@ -81,7 +92,7 @@ export default function LoginScreen({ navigation, route }: Props) {
         />
       ),
     });
-  }, [navigation]);
+  }, [initialEmailFromRoute, navigation]);
 
   function togglePasswordVisibility() {
     setShowPassword((value) => !value);
@@ -122,6 +133,11 @@ export default function LoginScreen({ navigation, route }: Props) {
     setErrors({});
     setFormError(null);
     setBusy(true);
+    logAuthDebugEvent("info", "email_password_login_submit_start", {
+      screen: "login_web",
+      emailDomain: e.split("@")[1] ?? null,
+      hasPassword: p.length > 0,
+    });
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: e,
@@ -150,10 +166,26 @@ export default function LoginScreen({ navigation, route }: Props) {
 
       const verified = isUserVerified(data.user);
       if (!verified) {
+        logAuthDebugEvent("warn", "email_password_login_unverified_user", {
+          screen: "login_web",
+          userId: data.user?.id ?? null,
+        });
         await signOutToLogin();
         navigation.replace("VerifyEmail", { email: e, context: "login_unverified" });
         return;
       }
+      logAuthDebugEvent("info", "email_password_login_submit_success", {
+        screen: "login_web",
+        userId: data.user?.id ?? null,
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "unknown_login_exception";
+      logAuthDebugEvent("error", "email_password_login_submit_exception", {
+        screen: "login_web",
+        emailDomain: e.split("@")[1] ?? null,
+        error: errorMessage,
+      });
+      setFormError(id.common.genericAuthError);
     } finally {
       setBusy(false);
     }

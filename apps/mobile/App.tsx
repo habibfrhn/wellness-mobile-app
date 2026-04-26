@@ -526,6 +526,19 @@ export default function App() {
     }
 
     async function init() {
+      if (Platform.OS === "web" && typeof window !== "undefined") {
+        const authStorageKeys = Array.from({ length: window.localStorage.length })
+          .map((_, index) => window.localStorage.key(index))
+          .filter((key): key is string => Boolean(key) && /^(sb-|wellness\.)/i.test(key ?? ""));
+
+        logAuthDebugEvent("info", "auth_provider_init_web_storage_snapshot", {
+          keyCount: authStorageKeys.length,
+          hasAuthStartRoute: authStorageKeys.includes("wellness.authStartRoute"),
+          hasWebResetFlow: authStorageKeys.includes(WEB_RESET_FLOW_KEY),
+          hasSupabaseAuthTokenKey: authStorageKeys.some((key) => /-auth-token$/i.test(key)),
+        });
+      }
+
       if (isWebResetFlowActive()) {
         setForceReset(true);
         setAuthStartRoute("ResetPassword");
@@ -810,6 +823,14 @@ export default function App() {
     const currentRootRouteName = String(currentRootRoute.name);
 
     if (!shouldShowAuth) {
+      logAuthDebugEvent("info", "auth_route_guard_decision", {
+        decision: "app",
+        shouldShowAuth,
+        shouldAutoOpenWebAuth,
+        authStartRoute,
+        initialAuthRoute,
+        currentRootRouteName,
+      });
       if (currentRootRouteName !== "App") {
         logLogoutEvent("info", "logout_navigation_redirect", {
           destination: "App",
@@ -825,6 +846,15 @@ export default function App() {
     if (shouldAutoOpenWebAuth) {
       const requestedAuthScreen =
         authStartRoute === "SignUp" ? "SignUp" : initialAuthRoute === "ResetPassword" ? "ResetPassword" : "Login";
+      logAuthDebugEvent("info", "auth_route_guard_decision", {
+        decision: "auth",
+        requestedAuthScreen,
+        shouldShowAuth,
+        shouldAutoOpenWebAuth,
+        authStartRoute,
+        initialAuthRoute,
+        currentRootRouteName,
+      });
 
       if (currentRootRouteName !== "Auth") {
         logLogoutEvent("info", "logout_navigation_redirect", {
@@ -858,6 +888,14 @@ export default function App() {
     }
 
     if (currentRootRouteName === "App") {
+      logAuthDebugEvent("info", "auth_route_guard_decision", {
+        decision: "landing",
+        shouldShowAuth,
+        shouldAutoOpenWebAuth,
+        authStartRoute,
+        initialAuthRoute,
+        currentRootRouteName,
+      });
       logLogoutEvent("info", "logout_navigation_redirect", {
         destination: "Landing",
         reason: "show_landing_for_unauthenticated",

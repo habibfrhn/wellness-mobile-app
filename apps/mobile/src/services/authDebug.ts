@@ -13,7 +13,8 @@ function safeSerialize(payload: Record<string, unknown>) {
 }
 
 export function logAuthDebugEvent(level: AuthDebugLevel, event: string, details: Record<string, unknown> = {}) {
-  if (!AUTH_DEBUG_ENABLED) {
+  const shouldLog = AUTH_DEBUG_ENABLED || Platform.OS === "web" || level !== "info";
+  if (!shouldLog) {
     return;
   }
 

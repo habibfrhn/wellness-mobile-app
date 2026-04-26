@@ -82,6 +82,60 @@ function getWebStorageKeysToClear(storageKey: string | null) {
   return [...keys];
 }
 
+function isLikelySupabaseTokenPayload(value: string) {
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    if (!Array.isArray(parsed) || parsed.length < 2) {
+      return false;
+    }
+
+    const [accessToken, refreshToken] = parsed;
+    return typeof accessToken === "string" && typeof refreshToken === "string";
+  } catch {
+    return false;
+  }
+}
+
+function sanitizeWebPersistedAuthState(storageKey: string | null) {
+  if (Platform.OS !== "web" || typeof window === "undefined") {
+    return { removedKeys: [] as string[] };
+  }
+
+  const keys = getWebStorageKeysToClear(storageKey);
+  const removedKeys: string[] = [];
+
+  keys.forEach((key) => {
+    let value: string | null = null;
+    try {
+      value = window.localStorage.getItem(key);
+    } catch {
+      return;
+    }
+
+    if (!value) {
+      return;
+    }
+
+    if (!/-auth-token$/i.test(key)) {
+      return;
+    }
+
+    if (isLikelySupabaseTokenPayload(value)) {
+      return;
+    }
+
+    try {
+      window.localStorage.removeItem(key);
+      window.sessionStorage.removeItem(key);
+      removedKeys.push(key);
+    } catch {
+      // best effort cleanup
+    }
+  });
+
+  return { removedKeys };
+}
+
 function clearWebAuthCookies() {
   if (Platform.OS !== "web" || typeof document === "undefined") {
     return 0;
@@ -208,6 +262,15 @@ async function logSessionSnapshot(event: string) {
 }
 
 export async function restoreSession() {
+  const storageKey = getSupabaseStorageKey();
+  const { removedKeys } = sanitizeWebPersistedAuthState(storageKey);
+  if (removedKeys.length > 0) {
+    logLogoutEvent("warn", "logout_restore_session_storage_sanitized", {
+      storageKey,
+      removedStorageKeys: removedKeys,
+    });
+  }
+
   const { data, error } = await supabase.auth.getSession();
 
   logLogoutEvent(error ? "warn" : "info", "logout_restore_session_start", {
