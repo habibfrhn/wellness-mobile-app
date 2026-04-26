@@ -8,6 +8,7 @@ import LoginScreen from "../screens/Auth/LoginScreen";
 import VerifyEmailScreen from "../screens/Auth/VerifyEmailScreen";
 import ForgotPasswordScreen from "../screens/Auth/ForgotPasswordScreen";
 import ResetPasswordScreen from "../screens/Auth/ResetPasswordScreen";
+import HeaderBackButton from "../components/navigation/HeaderBackButton";
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
@@ -15,7 +16,11 @@ export default function AuthStack(props: { initialRouteName?: keyof AuthStackPar
   return (
     <Stack.Navigator
       initialRouteName={props.initialRouteName ?? (props.includeWelcome === false ? "Login" : "Welcome")}
-      screenOptions={{ headerTitleAlign: "center" }}
+      screenOptions={({ navigation }) => ({
+        headerTitleAlign: "center",
+        headerBackVisible: false,
+        headerLeft: ({ canGoBack }) => (canGoBack ? <HeaderBackButton onPress={() => navigation.goBack()} /> : null),
+      })}
     >
       {props.includeWelcome === false ? null : <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerTitle: "" }} />}
       <Stack.Screen name="SignUp" component={SignUpScreen} options={{ title: "Daftar" }} />

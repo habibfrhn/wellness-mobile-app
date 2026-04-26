@@ -18,6 +18,7 @@ import TermsConditionsScreen from "../screens/App/TermsConditionsScreen";
 import ReminderSettingsScreen from "../screens/App/ReminderSettingsScreen";
 import HomeHeaderLogo from "../components/HomeHeaderLogo";
 import HomeHeaderSettingsButton from "../components/HomeHeaderSettingsButton";
+import HeaderBackButton from "../components/navigation/HeaderBackButton";
 import type { AppStackParamList } from "./types";
 import { colors } from "../theme/tokens";
 import useViewportWidth from "../hooks/useViewportWidth";
@@ -34,11 +35,13 @@ export default function AppStack() {
 
   return (
     <Stack.Navigator
-      screenOptions={{
+      screenOptions={({ navigation }) => ({
         headerTitleAlign: "center",
         headerStyle: { backgroundColor: isDesktopWeb ? colors.white : colors.bg },
         headerShadowVisible: false,
-      }}
+        headerBackVisible: false,
+        headerLeft: ({ canGoBack }) => (canGoBack ? <HeaderBackButton onPress={() => navigation.goBack()} /> : undefined),
+      })}
     >
       <Stack.Screen
         name="Home"

@@ -31,6 +31,7 @@ import { supabase } from "../../services/supabase";
 import { continueWithGoogle } from "../../services/authOAuth";
 import PasswordToggle from "../../components/PasswordToggle";
 import LoginSignUpPrompt from "../../components/auth/LoginSignUpPrompt";
+import HeaderCloseButton from "../../components/navigation/HeaderCloseButton";
 import { getSafeAuthErrorMessage, isEmailNotConfirmedError, isInvalidCredentialsError } from "../../services/authSecurity";
 import { isUserVerified } from "../../services/authProviders";
 import { signOutToLogin } from "../../services/authSession";
@@ -67,7 +68,7 @@ export default function LoginScreen({ navigation, route }: Props) {
       headerTitle: "",
       headerShown: false,
       headerLeft: () => (
-        <Pressable
+        <HeaderCloseButton
           onPress={() => {
             const parent = navigation.getParent();
             if (parent) {
@@ -76,15 +77,7 @@ export default function LoginScreen({ navigation, route }: Props) {
             }
             navigation.navigate("Welcome");
           }}
-          style={({ pressed }) => [
-            styles.closeButton,
-            pressed && styles.pressed,
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel={id.login.closeLabel}
-        >
-          <Text style={styles.closeText}>✕</Text>
-        </Pressable>
+        />
       ),
     });
   }, [navigation]);
@@ -203,7 +196,7 @@ export default function LoginScreen({ navigation, route }: Props) {
       contentInsetAdjustmentBehavior="automatic"
     >
       <View style={styles.inlineHeader}>
-        <Pressable
+        <HeaderCloseButton
           onPress={() => {
             const parent = navigation.getParent();
             if (parent) {
@@ -212,15 +205,7 @@ export default function LoginScreen({ navigation, route }: Props) {
             }
             navigation.navigate("Welcome");
           }}
-          style={({ pressed }) => [
-            styles.closeButton,
-            pressed && styles.pressed,
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel={id.login.closeLabel}
-        >
-          <Text style={styles.closeText}>✕</Text>
-        </Pressable>
+        />
       </View>
       <View style={styles.contentColumn}>
         <View
@@ -411,19 +396,6 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     boxShadow: "none",
     borderRadius: radius.sm,
-  },
-  closeButton: {
-    width: 24,
-    height: 24,
-    marginLeft: 0,
-    marginTop: 0,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  closeText: {
-    fontSize: typography.title,
-    color: colors.text,
-    fontWeight: "700",
   },
   contentColumn: {
     width: "100%",
