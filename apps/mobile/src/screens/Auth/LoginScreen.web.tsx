@@ -44,6 +44,29 @@ type FieldErrors = {
   password?: string;
 };
 
+
+function getWebAuthStorageSnapshot() {
+  if (typeof window === "undefined") {
+    return { available: false };
+  }
+
+  const keys = Array.from({ length: window.localStorage.length })
+    .map((_, index) => window.localStorage.key(index))
+    .filter((key): key is string => Boolean(key) && /^sb-/i.test(key ?? ""));
+
+  const authTokenKeys = keys.filter((key) => /-auth-token$/i.test(key));
+
+  return {
+    available: true,
+    authStorageKeyCount: keys.length,
+    authTokenKeyCount: authTokenKeys.length,
+    hasTokenPayload: authTokenKeys.some((key) => {
+      const raw = window.localStorage.getItem(key);
+      return Boolean(raw && raw.length > 0);
+    }),
+  };
+}
+
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim().toLowerCase());
 }
@@ -64,11 +87,6 @@ export default function LoginScreen({ navigation, route }: Props) {
   const isTabletWeb = viewport === "tablet";
   const isDesktopWeb = viewport === "desktop";
 
-  logAuthDebugEvent("info", "login_screen_render", {
-    screen: "login_web",
-    hasInitialEmail: Boolean(initialEmailFromRoute),
-    viewport,
-  });
 
   useLayoutEffect(() => {
     logAuthDebugEvent("info", "login_screen_mount", {
@@ -207,6 +225,7 @@ export default function LoginScreen({ navigation, route }: Props) {
         screen: "login_web",
         hasSession: Boolean(currentSession.session),
         userId: currentSession.session?.user.id ?? null,
+        storage: getWebAuthStorageSnapshot(),
       });
 
       if (!currentSession.session) {
@@ -215,6 +234,14 @@ export default function LoginScreen({ navigation, route }: Props) {
       }
 
       if (typeof window !== "undefined") {
+        await new Promise<void>((resolve) => {
+          window.setTimeout(() => resolve(), 0);
+        });
+        logAuthDebugEvent("info", "email_password_login_redirect_home", {
+          screen: "login_web",
+          userId: currentSession.session.user.id,
+          storage: getWebAuthStorageSnapshot(),
+        });
         window.location.assign("/");
         return;
       }

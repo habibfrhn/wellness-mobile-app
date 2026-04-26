@@ -85,12 +85,28 @@ function getWebStorageKeysToClear(storageKey: string | null) {
 function isLikelySupabaseTokenPayload(value: string) {
   try {
     const parsed = JSON.parse(value) as unknown;
-    if (!Array.isArray(parsed) || parsed.length < 2) {
-      return false;
+
+    // Legacy format used by older supabase-js versions.
+    if (Array.isArray(parsed) && parsed.length >= 2) {
+      const [accessToken, refreshToken] = parsed;
+      return typeof accessToken === "string" && typeof refreshToken === "string";
     }
 
-    const [accessToken, refreshToken] = parsed;
-    return typeof accessToken === "string" && typeof refreshToken === "string";
+    // Current supabase-js format persisted in browser storage.
+    if (parsed && typeof parsed === "object") {
+      const candidate = parsed as { access_token?: unknown; refresh_token?: unknown; currentSession?: unknown };
+
+      if (typeof candidate.access_token === "string" && typeof candidate.refresh_token === "string") {
+        return true;
+      }
+
+      const nested = candidate.currentSession as { access_token?: unknown; refresh_token?: unknown } | undefined;
+      if (nested && typeof nested.access_token === "string" && typeof nested.refresh_token === "string") {
+        return true;
+      }
+    }
+
+    return false;
   } catch {
     return false;
   }
@@ -120,9 +136,15 @@ function sanitizeWebPersistedAuthState(storageKey: string | null) {
       return;
     }
 
-    if (isLikelySupabaseTokenPayload(value)) {
+    const looksLikeTokenPayload = isLikelySupabaseTokenPayload(value);
+    if (looksLikeTokenPayload) {
       return;
     }
+
+    logLogoutEvent("warn", "logout_storage_cleanup_skip_invalid_auth_payload", {
+      key,
+      valueLength: value.length,
+    });
 
     try {
       window.localStorage.removeItem(key);
