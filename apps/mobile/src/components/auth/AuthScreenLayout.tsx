@@ -1,8 +1,9 @@
 import React, { useLayoutEffect } from "react";
-import { ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 import { colors, lineHeights, radius, spacing, typography } from "../../theme/tokens";
+import HeaderCloseButton from "../navigation/HeaderCloseButton";
 
 type Props = {
   title: string;
@@ -20,7 +21,7 @@ export default function AuthScreenLayout({ title, subtitle, children, showCloseB
       headerShadowVisible: false,
       headerLeft: showCloseButton
         ? () => (
-            <Pressable
+            <HeaderCloseButton
               onPress={() => {
                 const parent = navigation.getParent();
                 if (parent) {
@@ -29,12 +30,8 @@ export default function AuthScreenLayout({ title, subtitle, children, showCloseB
                 }
                 navigation.navigate("Welcome" as never);
               }}
-              style={({ pressed }) => [styles.closeButton, pressed && authSharedStyles.pressed]}
-              accessibilityRole="button"
-              accessibilityLabel="Tutup"
-            >
-              <Text style={styles.closeText}>✕</Text>
-            </Pressable>
+              containerStyle={styles.closeButton}
+            />
           )
         : undefined,
     });
@@ -147,17 +144,8 @@ const styles = StyleSheet.create({
     boxShadow: "0px 8px 28px rgba(33,50,94,0.12)",
   },
   closeButton: {
-    width: 36,
-    height: 36,
     marginLeft: spacing.sm,
     marginTop: spacing.xs,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  closeText: {
-    fontSize: typography.title,
-    color: colors.text,
-    fontWeight: "700",
   },
   headerStack: {
     alignItems: "flex-start",

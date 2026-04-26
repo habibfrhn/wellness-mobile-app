@@ -452,7 +452,7 @@ export const id = {
     privacyPolicyContactEmailLabel: "Email",
     privacyPolicyContactEmailValue: "lumepoapp@gmail.com",
 
-    termsScreenTitle: "Ketentuan & Syarat",
+    termsScreenTitle: "Syarat dan Ketentuan",
     termsUpdatedAtLabel: "Terakhir diperbarui:",
     termsUpdatedAtValue: "07/04/2026",
     termsGeneralTitle: "1) Ketentuan Umum",

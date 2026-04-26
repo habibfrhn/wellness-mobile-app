@@ -20,6 +20,7 @@ import { supabase } from "../../services/supabase";
 import { continueWithGoogle } from "../../services/authOAuth";
 import PasswordToggle from "../../components/PasswordToggle";
 import LoginSignUpPrompt from "../../components/auth/LoginSignUpPrompt";
+import HeaderCloseButton from "../../components/navigation/HeaderCloseButton";
 import { getSafeAuthErrorMessage, isEmailNotConfirmedError, isInvalidCredentialsError } from "../../services/authSecurity";
 import { isUserVerified } from "../../services/authProviders";
 import { signOutToLogin } from "../../services/authSession";
@@ -51,7 +52,7 @@ export default function LoginScreen({ navigation, route }: Props) {
       headerTitle: "",
       headerShadowVisible: false,
       headerLeft: () => (
-        <Pressable
+        <HeaderCloseButton
           onPress={() => {
             const parent = navigation.getParent();
             if (parent) {
@@ -60,12 +61,8 @@ export default function LoginScreen({ navigation, route }: Props) {
             }
             navigation.navigate("Welcome");
           }}
-          style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]}
-          accessibilityRole="button"
-          accessibilityLabel={id.login.closeLabel}
-        >
-          <Text style={styles.closeText}>✕</Text>
-        </Pressable>
+          containerStyle={styles.closeButton}
+        />
       ),
     });
   }, [navigation]);
@@ -299,17 +296,8 @@ const styles = StyleSheet.create({
     boxShadow: "0px 8px 28px rgba(33,50,94,0.12)",
   },
   closeButton: {
-    width: 36,
-    height: 36,
     marginLeft: spacing.sm,
     marginTop: spacing.xs,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  closeText: {
-    fontSize: typography.title,
-    color: colors.text,
-    fontWeight: "700",
   },
   headerStack: {
     alignItems: "flex-start",
