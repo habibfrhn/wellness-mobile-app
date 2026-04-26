@@ -692,6 +692,9 @@ export default function App() {
   };
 
   useEffect(() => {
+    logAuthDebugEvent(hasSupabaseEnv ? "info" : "error", "auth_env_presence_check", {
+      hasSupabaseEnv,
+    });
     if (hasSupabaseEnv) return;
 
     Alert.alert(id.common.errorTitle, missingSupabaseEnvMessage);

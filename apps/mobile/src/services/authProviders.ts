@@ -67,7 +67,16 @@ export function isUserVerified(user: User | null | undefined) {
     return false;
   }
 
-  if (user.email_confirmed_at || user.phone_confirmed_at) {
+  const legacyConfirmedAt =
+    typeof (user as { confirmed_at?: unknown }).confirmed_at === "string"
+      ? ((user as { confirmed_at?: string }).confirmed_at ?? null)
+      : null;
+  const metadataEmailVerified =
+    typeof (user.user_metadata as { email_verified?: unknown } | undefined)?.email_verified === "boolean"
+      ? ((user.user_metadata as { email_verified?: boolean }).email_verified ?? false)
+      : false;
+
+  if (user.email_confirmed_at || user.phone_confirmed_at || legacyConfirmedAt || metadataEmailVerified) {
     return true;
   }
 

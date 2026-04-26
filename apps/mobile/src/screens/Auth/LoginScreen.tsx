@@ -106,6 +106,11 @@ export default function LoginScreen({ navigation, route }: Props) {
     setErrors({});
     setFormError(null);
     setBusy(true);
+    logAuthDebugEvent("info", "email_password_login_submit_start", {
+      screen: "login_native",
+      emailDomain: e.split("@")[1] ?? null,
+      hasPassword: p.length > 0,
+    });
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: e,
@@ -134,10 +139,26 @@ export default function LoginScreen({ navigation, route }: Props) {
 
       const verified = isUserVerified(data.user);
       if (!verified) {
+        logAuthDebugEvent("warn", "email_password_login_unverified_user", {
+          screen: "login_native",
+          userId: data.user?.id ?? null,
+        });
         await signOutToLogin();
         navigation.replace("VerifyEmail", { email: e, context: "login_unverified" });
         return;
       }
+      logAuthDebugEvent("info", "email_password_login_submit_success", {
+        screen: "login_native",
+        userId: data.user?.id ?? null,
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "unknown_login_exception";
+      logAuthDebugEvent("error", "email_password_login_submit_exception", {
+        screen: "login_native",
+        emailDomain: e.split("@")[1] ?? null,
+        error: errorMessage,
+      });
+      setFormError(id.common.genericAuthError);
     } finally {
       setBusy(false);
     }

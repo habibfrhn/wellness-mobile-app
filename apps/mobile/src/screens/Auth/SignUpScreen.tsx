@@ -157,8 +157,18 @@ export default function SignUpScreen({ navigation, route }: Props) {
     const trimmedName = name.trim();
 
     setBusy(true);
+    logAuthDebugEvent("info", "email_password_signup_submit_start", {
+      screen: "signup",
+      emailDomain: e.split("@")[1] ?? null,
+      hasPassword: password.length > 0,
+      hasName: Boolean(trimmedName),
+    });
     try {
       if (!hasValidAuthRedirects) {
+        logAuthDebugEvent("error", "email_password_signup_blocked", {
+          screen: "signup",
+          reason: "AUTH_REDIRECT_MISCONFIGURED",
+        });
         setFormError(id.forgot.failedBody);
         return;
       }
@@ -194,7 +204,15 @@ export default function SignUpScreen({ navigation, route }: Props) {
         }
 
         if (isEmailAlreadyRegisteredError(error.message)) {
-          navigation.replace("VerifyEmail", { email: e, context: "recovery" });
+          logAuthDebugEvent("warn", "email_password_signup_duplicate_email", {
+            screen: "signup",
+            emailDomain: e.split("@")[1] ?? null,
+            source: "error_message",
+          });
+          setErrors((prev) => ({
+            ...prev,
+            email: id.signup.emailAlreadyUsedError,
+          }));
           return;
         }
 
@@ -206,13 +224,32 @@ export default function SignUpScreen({ navigation, route }: Props) {
       }
 
       if (isExistingUserSignupResponse(data.user?.identities)) {
-        navigation.replace("VerifyEmail", { email: e, context: "recovery" });
+        logAuthDebugEvent("warn", "email_password_signup_duplicate_email", {
+          screen: "signup",
+          emailDomain: e.split("@")[1] ?? null,
+          source: "empty_identities",
+        });
+        setErrors((prev) => ({
+          ...prev,
+          email: id.signup.emailAlreadyUsedError,
+        }));
         return;
       }
 
+      logAuthDebugEvent("info", "email_password_signup_submit_success", {
+        screen: "signup",
+        userId: data.user?.id ?? null,
+        requiresEmailVerification: !Boolean(data.session),
+      });
       void trackEvent("signup_complete", { method: "email" });
       navigation.replace("VerifyEmail", { email: e, context: "signup" });
-    } catch {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "unknown_signup_exception";
+      logAuthDebugEvent("error", "email_password_signup_submit_exception", {
+        screen: "signup",
+        emailDomain: e.split("@")[1] ?? null,
+        error: errorMessage,
+      });
       setFormError(id.common.genericAuthError);
     } finally {
       setBusy(false);

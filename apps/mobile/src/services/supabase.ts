@@ -3,6 +3,7 @@ import { AppState, Platform } from "react-native";
 import { createClient, processLock, type SupabaseClient } from "@supabase/supabase-js";
 import { buildAuthRedirectPath } from "./webAuth";
 import { supabaseAuthStorage } from "./authStorage";
+import { logAuthDebugEvent } from "./authDebug";
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
@@ -27,6 +28,12 @@ type GlobalWithSupabase = typeof globalThis & {
 const globalRef = globalThis as GlobalWithSupabase;
 
 function createSupabaseClient(): SupabaseClientSingleton {
+  logAuthDebugEvent("info", "supabase_client_init", {
+    hasSupabaseUrl: Boolean(supabaseUrl),
+    hasSupabaseAnonKey: Boolean(supabaseAnonKey),
+    hasSupabaseEnv,
+    platform: Platform.OS,
+  });
   return createClient(supabaseUrl ?? FALLBACK_SUPABASE_URL, supabaseAnonKey ?? FALLBACK_SUPABASE_ANON_KEY, {
     auth: {
       storage: supabaseAuthStorage,
@@ -54,3 +61,10 @@ if (Platform.OS !== "web") {
 export const AUTH_CALLBACK = buildAuthRedirectPath("callback");
 export const AUTH_RESET = buildAuthRedirectPath("reset");
 export const hasValidAuthRedirects = Platform.OS !== "web" || (AUTH_CALLBACK.length > 0 && AUTH_RESET.length > 0);
+
+logAuthDebugEvent(hasValidAuthRedirects ? "info" : "warn", "supabase_auth_redirect_config", {
+  platform: Platform.OS,
+  hasValidAuthRedirects,
+  hasCallbackRedirect: AUTH_CALLBACK.length > 0,
+  hasResetRedirect: AUTH_RESET.length > 0,
+});
