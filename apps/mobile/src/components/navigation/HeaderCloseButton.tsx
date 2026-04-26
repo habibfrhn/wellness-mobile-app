@@ -1,5 +1,5 @@
 import React from "react";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { Pressable, StyleProp, StyleSheet, ViewStyle } from "react-native";
 
 import { id } from "../../i18n/strings";
