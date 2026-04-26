@@ -177,6 +177,17 @@ export default function LoginScreen({ navigation, route }: Props) {
       }
 
       const verified = isUserVerified(data.user);
+      logAuthDebugEvent("info", "email_password_login_verification_status", {
+        screen: "login_web",
+        userId: data.user?.id ?? null,
+        verified,
+        hasEmailConfirmedAt: Boolean(data.user?.email_confirmed_at),
+        hasPhoneConfirmedAt: Boolean(data.user?.phone_confirmed_at),
+        providers:
+          Array.isArray(data.user?.app_metadata?.providers) && data.user?.app_metadata?.providers.length > 0
+            ? data.user.app_metadata.providers
+            : data.user?.app_metadata?.provider ?? null,
+      });
       if (!verified) {
         logAuthDebugEvent("warn", "email_password_login_unverified_user", {
           screen: "login_web",
@@ -190,6 +201,24 @@ export default function LoginScreen({ navigation, route }: Props) {
         screen: "login_web",
         userId: data.user?.id ?? null,
       });
+
+      const { data: currentSession } = await supabase.auth.getSession();
+      logAuthDebugEvent("info", "email_password_login_post_success_session_check", {
+        screen: "login_web",
+        hasSession: Boolean(currentSession.session),
+        userId: currentSession.session?.user.id ?? null,
+      });
+
+      if (!currentSession.session) {
+        setFormError(id.common.genericAuthError);
+        return;
+      }
+
+      if (typeof window !== "undefined") {
+        window.location.assign("/");
+        return;
+      }
+
       navigateToAppRoot();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "unknown_login_exception";
