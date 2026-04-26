@@ -20,18 +20,46 @@ Expected output directory:
 
 ## 2) Vercel project settings
 
-Set Vercel project config to:
+Use repository-level `vercel.json` (at `/vercel.json`) as the source of truth for deploy settings.
 
-- **Root Directory**: `apps/mobile`
-- **Build Command**: `pnpm export:web`
-- **Output Directory**: `dist`
+Expected project config in Vercel dashboard:
 
-`apps/mobile/vercel.json` already defines:
+- **Production Branch**: `main`
+- **Install Command**: `pnpm install --frozen-lockfile`
+- **Build Command**: `pnpm -C apps/mobile export:web`
+- **Output Directory**: `apps/mobile/dist`
+
+`/vercel.json` enforces:
+
+- deploy build/export from this monorepo root,
+- production deployment enabled for `main`,
+- the same SPA/cache/security headers previously defined in `apps/mobile/vercel.json`.
+
+`apps/mobile/vercel.json` remains for backward compatibility with projects that keep `apps/mobile` as Root Directory.
 
 - SPA rewrites for extensionless routes,
 - cache headers for app shell/auth/static assets,
 - security headers baseline,
 - no `ignoreCommand`, so every production-branch commit triggers a fresh deployment.
+
+
+## 2.1) If latest `main` commit is not live in Production
+
+Check in this exact order:
+
+1. Vercel **Project → Settings → Git**
+   - Repository must be this repo.
+   - **Production Branch** must be `main` (not `master`/`work`/custom).
+   - Auto-assign custom production domains must be enabled.
+2. Vercel **Deployments**
+   - Find newest deployment for branch `main`.
+   - Confirm its state is **Ready** and environment is **Production** (not Preview).
+3. Open that deployment and verify: commit SHA matches latest `main`.
+4. If the latest `main` deployment is Ready but not serving traffic, open deployment menu and click **Promote to Production**.
+5. In **Settings → Domains**, verify production domain aliases point to the newest production deployment.
+6. In **Settings → Environment Variables**, confirm required `EXPO_PUBLIC_*` vars exist in **Production**, not only Preview/Development.
+
+Manual dashboard action is expected when a previous deployment is still pinned/promoted or when a ready deployment has not been aliased to production domain yet.
 
 ## 3) Required web auth environment variables
 

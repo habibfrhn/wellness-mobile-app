@@ -17,7 +17,7 @@ This app guides users through a nightly wind-down ritual with Indonesian-first U
 ## Platform targets
 
 - **iOS / Android:** Expo + React Native native builds.
-- **Web:** Expo static export deployed as SPA (Vercel rewrites/headers in `apps/mobile/vercel.json`).
+- **Web:** Expo static export deployed as SPA (repo-level Vercel config in `vercel.json`, with app-level compatibility config in `apps/mobile/vercel.json`).
 
 ## Architecture map
 
@@ -112,7 +112,8 @@ pnpm pre-release
 ## Web deployment (Vercel)
 
 - Build/export: `pnpm -C apps/mobile export:web`
-- Output directory: `apps/mobile/dist`
+- Monorepo deploy config: `vercel.json` (production branch `main`, install/build/output commands, headers, rewrites)
+- Compatibility config when `apps/mobile` is used as Vercel root: `apps/mobile/vercel.json`
 - Deployment and hardening checklist: `apps/mobile/DEPLOY_WEB.md`
 - Security review and incident-response baseline: `SECURITY_AUDIT.md`
 
