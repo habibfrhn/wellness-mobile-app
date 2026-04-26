@@ -76,30 +76,51 @@ function error(status: number, message: string, code: ErrorCode, requestCorsHead
   return json(status, { ok: false, error: message, code }, requestCorsHeaders);
 }
 
+function normalizeOriginForAllowList(origin: string): string | null {
+  const trimmedOrigin = origin.trim();
+  if (!trimmedOrigin) {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(trimmedOrigin);
+    const normalizedProtocol = parsed.protocol.toLowerCase();
+    const normalizedHost = parsed.hostname.toLowerCase();
+    const hasDefaultHttpsPort = normalizedProtocol === "https:" && (parsed.port === "" || parsed.port === "443");
+    const hasDefaultHttpPort = normalizedProtocol === "http:" && (parsed.port === "" || parsed.port === "80");
+    const normalizedPort = hasDefaultHttpsPort || hasDefaultHttpPort ? "" : `:${parsed.port}`;
+    return `${normalizedProtocol}//${normalizedHost}${normalizedPort}`;
+  } catch {
+    return trimmedOrigin.toLowerCase();
+  }
+}
+
 function getAllowedCorsOrigin(req: Request): string | null {
   const origin = req.headers.get("origin");
   if (!origin) {
     return null;
   }
 
-  const normalizedOrigin = origin.trim().toLowerCase();
+  const normalizedOrigin = normalizeOriginForAllowList(origin);
+  if (!normalizedOrigin) {
+    return null;
+  }
 
   const allowedOriginsRaw = Deno.env.get("CORS_ALLOWED_ORIGINS")?.trim() ?? "";
   const configuredAllowedOrigins = allowedOriginsRaw
     .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean)
-    .map((value) => value.toLowerCase());
+    .map((value) => normalizeOriginForAllowList(value))
+    .filter((value): value is string => Boolean(value));
 
   const expandedAllowedOrigins = Array.from(
     new Set([...configuredAllowedOrigins, ...REQUIRED_WEB_ORIGINS, ...LOCAL_DEV_ORIGINS])
-  );
+  ).map((value) => normalizeOriginForAllowList(value)).filter((value): value is string => Boolean(value));
 
   if (expandedAllowedOrigins.includes(normalizedOrigin)) {
     return origin;
   }
 
-  if (VERCEL_PREVIEW_ORIGIN_REGEX.test(origin)) {
+  if (VERCEL_PREVIEW_ORIGIN_REGEX.test(origin.trim())) {
     return origin;
   }
 
