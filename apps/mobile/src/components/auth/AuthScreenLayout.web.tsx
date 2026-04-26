@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from "react";
+import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
@@ -34,27 +34,6 @@ export default function AuthScreenLayout({
   const viewport = getWebViewport(viewportWidth);
   const isMobileWeb = viewport === "mobile";
   const isTabletWeb = viewport === "tablet";
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: "",
-      headerShown: false,
-      headerLeft: showCloseButton
-        ? () => (
-            <HeaderCloseButton
-              onPress={() => {
-                const parent = navigation.getParent();
-                if (parent) {
-                  parent.navigate("Landing" as never);
-                  return;
-                }
-                navigation.navigate("Welcome" as never);
-              }}
-            />
-          )
-        : undefined,
-    });
-  }, [navigation, showCloseButton]);
 
   return (
     <ScrollView
@@ -231,7 +210,7 @@ const styles = StyleSheet.create({
   inlineHeader: {
     width: "100%",
     alignSelf: "stretch",
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
     alignItems: "flex-start",
   },
   headerStack: {

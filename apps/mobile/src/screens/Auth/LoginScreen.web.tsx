@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   Text,
@@ -62,25 +62,6 @@ export default function LoginScreen({ navigation, route }: Props) {
   const isMobileWeb = viewport === "mobile";
   const isTabletWeb = viewport === "tablet";
   const isDesktopWeb = viewport === "desktop";
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: "",
-      headerShown: false,
-      headerLeft: () => (
-        <HeaderCloseButton
-          onPress={() => {
-            const parent = navigation.getParent();
-            if (parent) {
-              parent.navigate("Landing" as never);
-              return;
-            }
-            navigation.navigate("Welcome");
-          }}
-        />
-      ),
-    });
-  }, [navigation]);
 
   function togglePasswordVisibility() {
     setShowPassword((value) => !value);
