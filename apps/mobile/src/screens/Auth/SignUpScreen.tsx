@@ -104,6 +104,13 @@ export default function SignUpScreen({ navigation, route }: Props) {
   }, [hasStartedPasswordInput, missingPasswordRules, passwordIsValid]);
 
   useEffect(() => {
+    logAuthDebugEvent("info", "signup_screen_mount", {
+      screen: Platform.OS === "web" ? "signup_web" : "signup_native",
+      hasInitialEmail: Boolean(route.params?.initialEmail),
+    });
+  }, [route.params?.initialEmail]);
+
+  useEffect(() => {
     void trackEvent("signup_start", { method: "email" });
   }, []);
 

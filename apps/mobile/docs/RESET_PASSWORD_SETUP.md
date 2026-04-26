@@ -10,7 +10,7 @@ In `apps/mobile/.env` (local) and Vercel env vars (Preview + Production):
 EXPO_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
 EXPO_PUBLIC_WEB_ORIGIN=http://localhost:8081
-EXPO_PUBLIC_WEB_ALLOWED_ORIGINS=http://localhost:8081,https://lumepo.com,https://www.lumepo.com
+EXPO_PUBLIC_WEB_ALLOWED_ORIGINS=http://localhost:8081,https://lumepo.com,https://www.lumepo.com,https://*.lumepo.com
 ```
 
 ## 2) Supabase Auth URL configuration
@@ -59,3 +59,4 @@ Then verify:
 
 - Repeated reset requests may return rate limiting (`429`).
 - Reset flow behavior is handled in app auth link parsing/session exchange; no dedicated migration is required just for reset flow.
+- Web auth redirects now support wildcard allowlist matching and HTTPS same-origin fallback to reduce production auth breakage due to stale allowlist values.

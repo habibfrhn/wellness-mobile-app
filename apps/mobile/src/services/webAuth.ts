@@ -11,20 +11,50 @@ function normalizeOrigin(origin: string) {
   return origin.endsWith("/") ? origin.slice(0, -1) : origin;
 }
 
+function parseConfiguredOrigins() {
+  return (process.env.EXPO_PUBLIC_WEB_ALLOWED_ORIGINS ?? "")
+    .split(",")
+    .map((value: string) => value.trim())
+    .filter(Boolean)
+    .map((value: string) => normalizeOrigin(value.toLowerCase()));
+}
+
+function matchesWildcardOrigin(pattern: string, normalizedOrigin: string) {
+  if (!pattern.includes("*")) {
+    return false;
+  }
+
+  const [protocolPart, hostPart] = pattern.split("://");
+  if (!protocolPart || !hostPart) {
+    return false;
+  }
+
+  if (!hostPart.startsWith("*.")) {
+    return false;
+  }
+
+  const wildcardSuffix = hostPart.slice(1); // ".example.com"
+  if (!wildcardSuffix) {
+    return false;
+  }
+
+  return normalizedOrigin.startsWith(`${protocolPart}://`) && normalizedOrigin.endsWith(wildcardSuffix);
+}
+
 function isLocalDevOrigin(origin: string) {
   return /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin);
 }
 
 export function isAllowedWebOrigin(origin: string) {
   const normalizedOrigin = normalizeOrigin(origin.toLowerCase());
-  const configuredOrigins = (process.env.EXPO_PUBLIC_WEB_ALLOWED_ORIGINS ?? "")
-    .split(",")
-    .map((value: string) => value.trim())
-    .filter(Boolean)
-    .map((value: string) => normalizeOrigin(value.toLowerCase()));
+  const configuredOrigins = parseConfiguredOrigins();
 
   if (configuredOrigins.length > 0) {
-    return configuredOrigins.includes(normalizedOrigin);
+    if (configuredOrigins.includes(normalizedOrigin)) {
+      return true;
+    }
+
+    return configuredOrigins.some((pattern: string) => matchesWildcardOrigin(pattern, normalizedOrigin));
   }
 
   const defaultAllowedOrigins = [...DEFAULT_PRODUCTION_WEB_ORIGINS, DEFAULT_LOCAL_WEB_ORIGIN, "http://127.0.0.1:8081"].map(
@@ -45,6 +75,11 @@ export function getWebAppOrigin() {
   if (typeof window !== "undefined" && window.location?.origin) {
     const detectedOrigin = normalizeOrigin(window.location.origin);
     if (isAllowedWebOrigin(detectedOrigin)) {
+      return detectedOrigin;
+    }
+
+    const detectedProtocol = window.location.protocol.toLowerCase();
+    if (detectedProtocol === "https:" || isLocalDevOrigin(detectedOrigin)) {
       return detectedOrigin;
     }
   }

@@ -25,6 +25,7 @@
 - [ ] Bundle/package identifiers match store records
 - [ ] Version + build numbers incremented correctly
 - [ ] Production builds succeed
+- [ ] Auth smoke checks pass (login, sign-up, session persistence, logout)
 - [ ] Release notes drafted
 - [ ] `apps/mobile/docs/RELEASE_CHECKLIST.md` completed
 

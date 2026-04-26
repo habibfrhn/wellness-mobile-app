@@ -20,10 +20,15 @@ Use this checklist before and after releasing.
 
 ## C) Core functional checks
 
+- [ ] Login screen opens from landing and via direct URL (`/masuk`)
+- [ ] Sign-up screen opens from landing and via direct URL (`/daftar`)
 - [ ] Sign up → verify email → login flow works
 - [ ] Email/password login works
 - [ ] Google OAuth login works
 - [ ] Forgot/reset password works (`/auth/reset`)
+- [ ] Auth callback works (`/auth/callback`) and returns user to app
+- [ ] Session persists after browser refresh/re-open
+- [ ] Token refresh works after session nears expiry
 - [ ] Logout clears session and returns to auth entry
 - [ ] Delete account flow works
 - [ ] Night flow works end-to-end
@@ -49,6 +54,8 @@ Use this checklist before and after releasing.
 ## F) Post-deploy smoke test
 
 - [ ] Login/logout on production
+- [ ] New user sign-up on production
+- [ ] OAuth login on production
 - [ ] Reset password link flow on production
 - [ ] `/admin` access behavior on production
 - [ ] Audio playback + analytics event ingestion sanity check

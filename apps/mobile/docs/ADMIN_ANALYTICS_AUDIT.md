@@ -13,6 +13,7 @@
 - `/admin` is web-only UI route.
 - Real authorization is backend-enforced (`public.is_admin()` + admin RPC permissions).
 - `public.admin_users` is the admin source-of-truth mapping.
+- Admin login still relies on the same central auth session/callback pipeline used by the main app (`supabase.ts`, `authLinks.ts`, `webAuth.ts`).
 
 ## Current dashboard coverage
 

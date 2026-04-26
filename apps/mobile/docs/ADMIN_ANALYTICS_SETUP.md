@@ -62,6 +62,7 @@ pnpm -C apps/mobile web
 
 - Admin user should see dashboard data.
 - Non-admin user should see unauthorized state.
+- Auth callback/login should succeed first (verify `/masuk` and `/auth/callback` work on the same deployed origin).
 
 ## 6) Troubleshooting
 

@@ -59,7 +59,7 @@ Create `apps/mobile/.env` for local development:
 EXPO_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
 EXPO_PUBLIC_WEB_ORIGIN=http://localhost:8081
-EXPO_PUBLIC_WEB_ALLOWED_ORIGINS=http://localhost:8081,https://lumepo.com,https://www.lumepo.com
+EXPO_PUBLIC_WEB_ALLOWED_ORIGINS=http://localhost:8081,https://lumepo.com,https://www.lumepo.com,https://*.lumepo.com
 EXPO_PUBLIC_ANALYTICS_ENABLED=true
 EXPO_PUBLIC_AUTH_DEBUG=0
 ```
@@ -69,7 +69,7 @@ EXPO_PUBLIC_AUTH_DEBUG=0
 - `EXPO_PUBLIC_SUPABASE_URL` (required): Supabase project URL.
 - `EXPO_PUBLIC_SUPABASE_ANON_KEY` (required): Supabase anon key.
 - `EXPO_PUBLIC_WEB_ORIGIN` (required for production-safe web redirects): canonical web origin.
-- `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` (recommended): comma-separated allowlist for trusted auth callback/reset origins.
+- `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` (recommended): comma-separated allowlist for trusted auth callback/reset origins. Supports wildcard subdomains like `https://*.lumepo.com`.
 - `EXPO_PUBLIC_ANALYTICS_ENABLED` (optional, default enabled unless set to `false`).
 - `EXPO_PUBLIC_AUTH_DEBUG` (optional; set `1` to enable auth debug logs).
 
@@ -93,6 +93,8 @@ Auth/session logic is centralized in:
 - `apps/mobile/src/services/authLinks.ts`
 - `apps/mobile/src/services/webAuth.ts`
 - `apps/mobile/src/services/authOAuth.ts`
+
+Production note: on web, redirect origin resolution now safely falls back to the current browser origin when it is HTTPS (or localhost in development). This prevents production auth outages caused by stale/missing `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` while still enforcing trusted callback handling.
 
 ## Production web deployment (Vercel)
 

@@ -26,6 +26,8 @@ Compatibility fallback config exists in `apps/mobile/vercel.json` for setups tha
 Implemented in `apps/mobile/src/services/*` and `apps/mobile/App.tsx`:
 
 - web callback/reset origins validated against allowed origins
+- wildcard callback/reset origin support for controlled subdomains (`https://*.domain.tld`)
+- same-origin HTTPS fallback for redirect generation to prevent production lockouts when env allowlist drifts
 - callback/reset flow normalization supports Expo web path variants
 - production-safe behavior when required web auth redirect config is invalid
 - OAuth/session exchanges handled centrally (no UI-only trust)

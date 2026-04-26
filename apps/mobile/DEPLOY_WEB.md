@@ -36,6 +36,8 @@ Optional:
 - `EXPO_PUBLIC_ANALYTICS_ENABLED=true`
 - `EXPO_PUBLIC_AUTH_DEBUG=0`
 
+`EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` supports wildcard subdomains (for example `https://*.lumepo.com`). Keep canonical origins explicit when possible, then add wildcard only when you intentionally serve auth callbacks on multiple subdomains.
+
 ## 4) Deployment steps
 
 From repository root:
@@ -84,6 +86,10 @@ Push to `main`.
 - Supabase Redirect URLs include `/auth/callback` and `/auth/reset` for all allowed origins.
 - Google OAuth redirect includes: `https://<project-ref>.supabase.co/auth/v1/callback`.
 - `EXPO_PUBLIC_WEB_ORIGIN` and `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` match deployed domains.
+- For production auth reliability, verify at least one of these is true:
+  - canonical origin is explicitly listed in `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS`, or
+  - wildcard includes the deployed subdomain, or
+  - runtime origin is HTTPS and matches the active deployment origin.
 
 ## 9) Related docs
 
