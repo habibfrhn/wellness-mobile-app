@@ -2,67 +2,54 @@
 
 Sleep-focused wellness MVP built with Expo (React Native) + Supabase.
 
-This app guides users through a nightly wind-down ritual with Indonesian-first UI, guided audio, a check-in/check-out flow, and a web-only admin analytics dashboard.
+## Repository structure
 
-## Current product scope
+- `apps/mobile`: Expo app (iOS, Android, Web)
+- `supabase/migrations`: SQL migrations (RLS, RPCs, analytics schema)
+- `supabase/functions`: Edge Functions (`track-analytics-event`, `record-night-session`, `delete-account-v2`, `resend-verification-email`)
+- `vercel.json`: production web deployment config for Vercel (repo-root build)
 
-- **Auth-gated experience** using Supabase Auth (email/password + Google OAuth).
-- **Verification-gated login** (verified email required before entering the app flow).
-- **Night flow journey** (`NightMode` → `NightCheckIn` → `NightStep1` → `NightStep2` → `NightStep3` → `NightCheckOut`).
-- **Audio playback** with catalog items, progress handling, and tailored session modes.
-- **Settings/account** including reminder settings, legal screens, password update, and account deletion.
-- **Web admin dashboard** at `/admin` (server-enforced by `is_admin()` + admin RPC permissions).
-- **Behavior analytics ingestion** through Supabase Edge Function (`track-analytics-event`) with server-side validation/rate limits.
+## Product scope (current)
 
-## Platform targets
+- Auth-gated app (email/password + Google OAuth)
+- Verified-email gating before entering app stack
+- Night flow: `NightMode` → `NightCheckIn` → `NightStep1/2/3` → `NightCheckOut`
+- Audio playback with progress + tailored sessions
+- Account/settings/legal flows
+- Web-only admin analytics dashboard at `/admin` with backend authorization
 
-- **iOS / Android:** Expo + React Native native builds.
-- **Web:** Expo static export deployed as SPA (repo-level Vercel config in `vercel.json`, with app-level compatibility config in `apps/mobile/vercel.json`).
+## Local setup
 
-## Architecture map
+### Prerequisites
 
-- App bootstrap + route orchestration: `apps/mobile/App.tsx`
-- Navigation stacks: `apps/mobile/src/navigation/*`
-- Screens: `apps/mobile/src/screens/*`
-- Reusable UI: `apps/mobile/src/components/*`
-- Services/business logic: `apps/mobile/src/services/*`
-- Design tokens: `apps/mobile/src/theme/tokens.ts`
-- Shared strings: `apps/mobile/src/i18n/strings.ts`
-- Supabase SQL: `supabase/migrations/*`
-- Edge functions: `supabase/functions/*`
+- Node + pnpm (repo uses `pnpm@10.27.0`)
+- Supabase project with required migrations/functions applied
 
-## Route behavior (web)
+### Install + run
 
-`App.tsx` normalizes Expo web path variants (`/`, `/#/...`, `/--/...`) and maps localized routes:
+From repo root:
 
-- `/` (Landing)
-- `/masuk`, `/daftar`
-- `/lupa-kata-sandi`, `/atur-ulang-kata-sandi`, `/verifikasi-email`
-- `/beranda`, `/pemutar-audio`, `/akun`, `/pengaturan`
-- `/kebijakan-privasi`, `/syarat-ketentuan`
-- `/pengingat-tidur`
-- `/mode-malam`, `/check-in-malam`, `/langkah-1`, `/langkah-2`, `/langkah-3`, `/check-out-malam`
-- `/admin`
+```bash
+pnpm install
+pnpm -C apps/mobile start
+```
 
-Legacy aliases (`/login`, `/signup`, `/privacy-policy`, `/terms-conditions`) are normalized to current localized paths.
+Useful app commands:
 
-## Auth flow (current)
+```bash
+pnpm -C apps/mobile ios
+pnpm -C apps/mobile android
+pnpm -C apps/mobile web
+pnpm -C apps/mobile export:web
+```
 
-1. Session restore runs at bootstrap.
-2. Auth deep links/callbacks are parsed in `authLinks.ts`.
-3. Web callback/reset paths are constrained by `webAuth.ts` allowlist logic.
-4. User must pass email verification (`email_confirmed_at`) to enter the app stack.
-5. Reset-password links route to `/auth/reset` (or Expo prefix equivalent), then the auth reset screen.
+Root-level quality checks:
 
-## Admin analytics (current)
-
-- UI route is web-only (`/admin`, plus supported admin query/hash variants).
-- Backend authorization is mandatory (`public.is_admin()` + guarded RPCs).
-- Dashboard currently uses these RPC-backed fetches:
-  - `admin_analytics_product_actions`
-  - `admin_analytics_audio_engagement`
-  - `admin_analytics_tailored_sessions`
-- Supported dashboard ranges in the UI: `7d`, `30d`, `90d`, `all`.
+```bash
+pnpm lint
+pnpm typecheck
+pnpm pre-release
+```
 
 ## Environment variables
 
@@ -73,75 +60,72 @@ EXPO_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
 EXPO_PUBLIC_WEB_ORIGIN=http://localhost:8081
 EXPO_PUBLIC_WEB_ALLOWED_ORIGINS=http://localhost:8081,https://lumepo.com,https://www.lumepo.com
+EXPO_PUBLIC_ANALYTICS_ENABLED=true
+EXPO_PUBLIC_AUTH_DEBUG=0
 ```
 
-Optional toggles used by the app:
+### Variable reference
 
-```bash
-EXPO_PUBLIC_ANALYTICS_ENABLED=true   # set false to disable client analytics queue
-EXPO_PUBLIC_AUTH_DEBUG=0             # set 1 in dev to emit auth debug logs
-```
+- `EXPO_PUBLIC_SUPABASE_URL` (required): Supabase project URL.
+- `EXPO_PUBLIC_SUPABASE_ANON_KEY` (required): Supabase anon key.
+- `EXPO_PUBLIC_WEB_ORIGIN` (required for production-safe web redirects): canonical web origin.
+- `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` (recommended): comma-separated allowlist for trusted auth callback/reset origins.
+- `EXPO_PUBLIC_ANALYTICS_ENABLED` (optional, default enabled unless set to `false`).
+- `EXPO_PUBLIC_AUTH_DEBUG` (optional; set `1` to enable auth debug logs).
 
-> Never place service-role or other backend secrets in `EXPO_PUBLIC_*` vars.
+> Never put service-role secrets in `EXPO_PUBLIC_*` variables.
 
-## Local development
+## Routing + auth behavior (web)
 
-From repo root:
+Primary web routes include localized paths such as:
 
-```bash
-pnpm install
-pnpm -C apps/mobile start
-```
+- `/`, `/masuk`, `/daftar`, `/verifikasi-email`
+- `/lupa-kata-sandi`, `/atur-ulang-kata-sandi`
+- `/beranda`, `/pemutar-audio`, `/akun`, `/pengaturan`
+- `/mode-malam`, `/check-in-malam`, `/langkah-1`, `/langkah-2`, `/langkah-3`, `/check-out-malam`
+- `/admin`
 
-Platform shortcuts:
+Auth links support `/auth/callback` and `/auth/reset` plus Expo web variants (`/#/...`, `/--/...`).
 
-```bash
-pnpm -C apps/mobile ios
-pnpm -C apps/mobile android
-pnpm -C apps/mobile web
-```
+Auth/session logic is centralized in:
 
-Quality checks:
+- `apps/mobile/src/services/supabase.ts`
+- `apps/mobile/src/services/authLinks.ts`
+- `apps/mobile/src/services/webAuth.ts`
+- `apps/mobile/src/services/authOAuth.ts`
 
-```bash
-pnpm lint
-pnpm typecheck
-pnpm pre-release
-```
+## Production web deployment (Vercel)
 
-## Web deployment (Vercel)
+See full runbook: `apps/mobile/DEPLOY_WEB.md`.
 
-- Build/export: `pnpm -C apps/mobile export:web`
-- Monorepo deploy config: `vercel.json` (production branch `main`, install/build/output commands, headers, rewrites)
-- Compatibility config when `apps/mobile` is used as Vercel root: `apps/mobile/vercel.json`
-- Deployment and hardening checklist: `apps/mobile/DEPLOY_WEB.md`
-- Security review and incident-response baseline: `SECURITY_AUDIT.md`
+Key facts:
 
-## Mobile release docs
+- Production branch: `main`
+- Deploy config source of truth: repo-level `vercel.json`
+- Build command: `pnpm -C apps/mobile export:web`
+- Output directory: `apps/mobile/dist`
 
-- `apps/mobile/docs/RELEASE_CHECKLIST.md`
-- `apps/mobile/docs/STORE_SUBMISSION_CHECKLIST.md`
+## Preventing “latest main commit not visible in production”
 
-## Supabase backend footprint
+Use this quick check:
 
-### Edge functions in this repository
+1. Confirm commit is on `main` in GitHub.
+2. In Vercel, open **Deployments** and filter to branch `main`.
+3. Verify latest `main` deployment is **Ready** and environment is **Production**.
+4. Open deployment details and confirm commit SHA.
+5. Check build logs for install/build failures.
+6. Confirm production domain aliases point to the newest production deployment.
+7. Confirm required env vars exist in **Production** scope (not only Preview/Development).
+8. If latest deploy is ready but not live, **Promote to Production**.
 
-- `track-analytics-event`
-- `record-night-session`
-- `delete-account-v2`
-- `resend-verification-email`
+Detailed troubleshooting: `apps/mobile/docs/TROUBLESHOOTING.md`.
 
-### Key backend entities used by app flows
+## Additional docs
 
-- `night_sessions`
-- `night_streak_progress`
-- `analytics_events`
-- `admin_users`
-- admin analytics RPCs and `is_admin()` policy helpers
-
-## Known limitations (MVP)
-
-- No offline-first mode or service-worker caching strategy.
-- Admin dashboard is web-only.
-- Analytics dashboard focuses on product action/audio/tailored-session metrics (not full BI/reporting).
-- Production setup still requires manual provider/dashboard alignment (Vercel + Supabase + Google OAuth settings).
+- Web deploy runbook: `apps/mobile/DEPLOY_WEB.md`
+- Release checklist: `apps/mobile/docs/RELEASE_CHECKLIST.md`
+- Reset password setup: `apps/mobile/docs/RESET_PASSWORD_SETUP.md`
+- Admin analytics setup: `apps/mobile/docs/ADMIN_ANALYTICS_SETUP.md`
+- Admin analytics audit: `apps/mobile/docs/ADMIN_ANALYTICS_AUDIT.md`
+- Security baseline: `SECURITY_AUDIT.md`
+- Store submission checklist: `apps/mobile/docs/STORE_SUBMISSION_CHECKLIST.md`

@@ -1,19 +1,8 @@
-# Admin Analytics Setup (Remote Supabase)
+# Admin Analytics Setup
 
-This guide documents the **current** setup path for the web admin dashboard (`/admin`) using a remote Supabase project.
+Setup guide for web admin analytics (`/admin`) using Supabase.
 
-## Current architecture
-
-- User identities live in `auth.users`.
-- Admin authorization is mapped in `public.admin_users(user_id uuid primary key)`.
-- Admin data access is server-enforced with `public.is_admin()` and guarded RPCs.
-- Client analytics events are ingested through `track-analytics-event` edge function.
-- Dashboard currently reads:
-  - `admin_analytics_product_actions(range_key)`
-  - `admin_analytics_audio_engagement(range_key)`
-  - `admin_analytics_tailored_sessions(range_key)`
-
-## 1) Push SQL migrations
+## 1) Apply backend schema
 
 From repo root (linked to target Supabase project):
 
@@ -22,8 +11,6 @@ supabase migration list
 supabase db push
 ```
 
-If `migration list` reports remote/local drift, repair as needed then run `supabase db push` again.
-
 ## 2) Deploy analytics ingestion function
 
 ```bash
@@ -31,17 +18,9 @@ supabase functions deploy track-analytics-event --no-verify-jwt
 supabase functions list
 ```
 
-`track-analytics-event` must be deployed; otherwise dashboard metrics will remain empty because client no longer writes directly to tables.
+## 3) Ensure admin user exists
 
-## 3) Ensure an admin auth user exists
-
-Create or verify an email/password user in Supabase Auth (`auth.users`), for example:
-
-- `admin@yourdomain.com`
-
-## 4) Map user to `admin_users`
-
-Run in Supabase SQL editor:
+Create/verify a user in Supabase Auth (`auth.users`), then map that user in `public.admin_users`:
 
 ```sql
 insert into public.admin_users (user_id)
@@ -51,7 +30,7 @@ where email = 'admin@yourdomain.com'
 on conflict (user_id) do nothing;
 ```
 
-Quick verification:
+Verify mapping:
 
 ```sql
 select
@@ -62,9 +41,9 @@ from auth.users u
 where u.email = 'admin@yourdomain.com';
 ```
 
-## 5) Verify dashboard RPCs are callable for admin
+## 4) Validate RPC access
 
-Log in as admin user on web, then validate manually in SQL editor if needed:
+As admin session:
 
 ```sql
 select public.is_admin();
@@ -73,44 +52,19 @@ select * from public.admin_analytics_audio_engagement('30d') limit 20;
 select * from public.admin_analytics_tailored_sessions('30d');
 ```
 
-## 6) Validate `/admin` UI
+## 5) Validate UI behavior
 
-Run local web app:
+Run web app locally:
 
 ```bash
 pnpm -C apps/mobile web
 ```
 
-Open one of:
+- Admin user should see dashboard data.
+- Non-admin user should see unauthorized state.
 
-- `http://localhost:8081/admin`
+## 6) Troubleshooting
 
-Expected behavior:
-
-- Admin user: dashboard cards/tables render.
-- Non-admin user: unauthorized state.
-
-## 7) Generate test events
-
-In a non-admin session:
-
-1. Visit landing page.
-2. Start auth flow.
-3. Complete signup/login.
-4. Play at least one audio and complete/abandon another.
-5. Run a tailored session.
-
-Then verify data exists:
-
-```sql
-select event_name, count(*)
-from public.analytics_events
-group by event_name
-order by count(*) desc, event_name asc;
-```
-
-## Troubleshooting
-
-- `relation "public.admin_users" does not exist` → migrations not pushed to selected project.
-- Admin login works but `/admin` unauthorized → user not mapped in `admin_users`.
-- Dashboard empty but admin authorized → `track-analytics-event` not deployed or no qualifying events yet.
+- `admin_users` missing: migrations not applied to that project.
+- Admin user unauthorized: missing `admin_users` mapping.
+- Empty metrics: function not deployed yet or no qualifying events ingested.

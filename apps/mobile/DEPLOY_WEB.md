@@ -1,120 +1,94 @@
 # Deploy Web (Expo + Vercel)
 
-## 1) Build static web export
+This runbook is for production web deployments of `apps/mobile`.
 
-From repo root:
+## 1) Source of truth
 
-```bash
-pnpm -C apps/mobile export:web
-```
+- Vercel config: repository root `vercel.json`
+- Production branch: `main`
+- Build command: `pnpm -C apps/mobile export:web`
+- Output directory: `apps/mobile/dist`
 
-Alternative workspace form:
+`apps/mobile/vercel.json` exists only as compatibility fallback for projects that intentionally set Vercel Root Directory to `apps/mobile`.
 
-```bash
-pnpm --filter mobile export:web
-```
+## 2) Vercel project settings to verify
 
-Expected output directory:
+In **Vercel → Project → Settings**:
 
-- `apps/mobile/dist`
+- Git repository points to this repo
+- Production Branch is `main`
+- Install Command is `pnpm install --frozen-lockfile`
+- Build Command is `pnpm -C apps/mobile export:web`
+- Output Directory is `apps/mobile/dist`
+- Root Directory is repository root (`.`) when using repo-level `vercel.json`
 
-## 2) Vercel project settings
+## 3) Required environment variables
 
-Use repository-level `vercel.json` (at `/vercel.json`) as the source of truth for deploy settings.
-
-Expected project config in Vercel dashboard:
-
-- **Production Branch**: `main`
-- **Install Command**: `pnpm install --frozen-lockfile`
-- **Build Command**: `pnpm -C apps/mobile export:web`
-- **Output Directory**: `apps/mobile/dist`
-
-`/vercel.json` enforces:
-
-- deploy build/export from this monorepo root,
-- production deployment enabled for `main`,
-- the same SPA/cache/security headers previously defined in `apps/mobile/vercel.json`.
-
-`apps/mobile/vercel.json` remains for backward compatibility with projects that keep `apps/mobile` as Root Directory.
-
-- SPA rewrites for extensionless routes,
-- cache headers for app shell/auth/static assets,
-- security headers baseline,
-- no `ignoreCommand`, so every production-branch commit triggers a fresh deployment.
-
-
-## 2.1) If latest `main` commit is not live in Production
-
-Check in this exact order:
-
-1. Vercel **Project → Settings → Git**
-   - Repository must be this repo.
-   - **Production Branch** must be `main` (not `master`/`work`/custom).
-   - Auto-assign custom production domains must be enabled.
-2. Vercel **Deployments**
-   - Find newest deployment for branch `main`.
-   - Confirm its state is **Ready** and environment is **Production** (not Preview).
-3. Open that deployment and verify: commit SHA matches latest `main`.
-4. If the latest `main` deployment is Ready but not serving traffic, open deployment menu and click **Promote to Production**.
-5. In **Settings → Domains**, verify production domain aliases point to the newest production deployment.
-6. In **Settings → Environment Variables**, confirm required `EXPO_PUBLIC_*` vars exist in **Production**, not only Preview/Development.
-
-Manual dashboard action is expected when a previous deployment is still pinned/promoted or when a ready deployment has not been aliased to production domain yet.
-
-## 3) Required web auth environment variables
-
-Set these in Vercel for **Preview** and **Production**:
+Set these for **Production** and **Preview** environments:
 
 - `EXPO_PUBLIC_SUPABASE_URL`
 - `EXPO_PUBLIC_SUPABASE_ANON_KEY`
-- `EXPO_PUBLIC_WEB_ORIGIN` (canonical deployed origin, e.g. `https://lumepo.com`)
-- `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` (comma-separated allowlist including all valid origins)
+- `EXPO_PUBLIC_WEB_ORIGIN`
+- `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS`
 
-Recommended optional toggles:
+Optional:
 
 - `EXPO_PUBLIC_ANALYTICS_ENABLED=true`
 - `EXPO_PUBLIC_AUTH_DEBUG=0`
 
-## 4) Supabase and OAuth parity checklist
+## 4) Deployment steps
 
-To keep login/reset/OAuth stable, these must match exactly:
+From repository root:
 
-1. **Google OAuth client**
-   - Authorized redirect URI includes:
-     - `https://<project-ref>.supabase.co/auth/v1/callback`
-2. **Supabase Auth URL config**
-   - Site URL: canonical web origin (`https://lumepo.com` in production)
-   - Redirect URLs include callback + reset for all allowed origins.
-3. **Vercel env vars**
-   - `EXPO_PUBLIC_WEB_ORIGIN` and `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` align with the same domain set.
+```bash
+pnpm install
+pnpm lint
+pnpm typecheck
+pnpm -C apps/mobile export:web
+```
 
-## 5) Post-deploy verification
+Push to `main`.
 
-- Open deployed `/` landing page and auth entry points.
-- Verify email/password login + signup + verify flow.
-- Verify forgot/reset password (`/auth/reset`) end-to-end.
-- Verify Google OAuth callback completion.
-- Verify `/admin` access behavior for admin vs non-admin users.
-- Verify audio playback and analytics event ingestion.
+## 5) Verify latest `main` commit is serving Production
 
-## 6) April 2026 incident-response checklist (required when applicable)
+1. In GitHub, copy latest commit SHA from `main`.
+2. In **Vercel → Deployments**, find newest deployment for branch `main`.
+3. Confirm deployment status is **Ready**.
+4. Confirm environment is **Production** (not Preview).
+5. Open deployment details and verify commit SHA matches latest `main`.
+6. Open deployment **Build Logs** and confirm install/build/export completed successfully.
+7. In **Vercel → Settings → Domains**, confirm production domain alias points to that deployment.
+8. Load production URL and verify expected UI/version behavior.
 
-If this project was deployed during the April 2026 Vercel incident window, complete:
+## 6) Common reasons latest commit is not in production
 
-1. Rotate Vercel tokens, Supabase sensitive keys, OAuth secrets, webhook secrets.
-2. Enforce MFA/passkeys for Vercel + GitHub org/team members.
-3. Review Vercel activity + deployment logs for suspicious changes.
-4. Keep elevated monitoring on auth/deploy/function anomalies for at least 30 days.
+- Build failed in Vercel logs
+- Deployment skipped/cancelled
+- Wrong Production Branch configured (not `main`)
+- Wrong Root Directory/build/output settings
+- Required env vars missing in **Production** scope
+- Commit deployed to Preview but not promoted to Production
+- Production domain alias still points to older deployment
 
-## 7) Operational guardrails
+## 7) Fast recovery steps
 
-- Keep `/api/*` and auth redirect routes uncacheable.
-- Keep static asset caching immutable only for hashed asset paths.
-- Keep SPA rewrite restricted to extensionless routes.
-- Never store service-role credentials in `EXPO_PUBLIC_*` env variables.
+1. Fix the underlying setting/build/env issue.
+2. Re-deploy the latest `main` commit.
+3. If deployment is Ready but not live, use **Promote to Production**.
+4. Re-check domain alias assignment.
+5. Re-run smoke checks: auth login, reset password, `/admin` authorization, audio playback.
 
-## 8) Related docs
+## 8) OAuth/Supabase alignment checklist
 
-- Reset flow setup: `apps/mobile/docs/RESET_PASSWORD_SETUP.md`
-- Admin analytics setup: `apps/mobile/docs/ADMIN_ANALYTICS_SETUP.md`
-- Security baseline: `SECURITY_AUDIT.md`
+- Supabase Auth Site URL matches canonical production origin.
+- Supabase Redirect URLs include `/auth/callback` and `/auth/reset` for all allowed origins.
+- Google OAuth redirect includes: `https://<project-ref>.supabase.co/auth/v1/callback`.
+- `EXPO_PUBLIC_WEB_ORIGIN` and `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` match deployed domains.
+
+## 9) Related docs
+
+- `README.md`
+- `apps/mobile/docs/RELEASE_CHECKLIST.md`
+- `apps/mobile/docs/TROUBLESHOOTING.md`
+- `apps/mobile/docs/RESET_PASSWORD_SETUP.md`
+- `SECURITY_AUDIT.md`

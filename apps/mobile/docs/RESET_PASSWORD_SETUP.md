@@ -1,27 +1,10 @@
 # Reset Password Setup & Validation
 
-This guide covers the **current** reset-password flow for `apps/mobile` across local, preview, and production web environments.
+Current setup for reset-password flow in `apps/mobile` (local + preview + production web).
 
-## 1) Supabase Auth URL configuration (required)
+## 1) Required app env vars
 
-In **Supabase Dashboard → Authentication → URL Configuration**:
-
-1. Set **Site URL** to canonical app origin.
-   - Local: `http://localhost:8081`
-   - Production: `https://lumepo.com`
-2. Add redirect URLs for callback + reset on every allowed web origin:
-   - `http://localhost:8081/auth/callback`
-   - `http://localhost:8081/auth/reset`
-   - `https://lumepo.com/auth/callback`
-   - `https://lumepo.com/auth/reset`
-   - `https://www.lumepo.com/auth/callback`
-   - `https://www.lumepo.com/auth/reset`
-
-If these are missing/mismatched, users may open the email link but fail session exchange.
-
-## 2) App environment variables (required)
-
-Create/update `apps/mobile/.env`:
+In `apps/mobile/.env` (local) and Vercel env vars (Preview + Production):
 
 ```bash
 EXPO_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
@@ -30,7 +13,25 @@ EXPO_PUBLIC_WEB_ORIGIN=http://localhost:8081
 EXPO_PUBLIC_WEB_ALLOWED_ORIGINS=http://localhost:8081,https://lumepo.com,https://www.lumepo.com
 ```
 
-## 3) Local runtime steps
+## 2) Supabase Auth URL configuration
+
+In **Supabase Dashboard → Authentication → URL Configuration**:
+
+- Set **Site URL** to canonical production origin.
+- Add Redirect URLs for all allowed origins with both paths:
+  - `/auth/callback`
+  - `/auth/reset`
+
+Example URLs:
+
+- `http://localhost:8081/auth/callback`
+- `http://localhost:8081/auth/reset`
+- `https://lumepo.com/auth/callback`
+- `https://lumepo.com/auth/reset`
+- `https://www.lumepo.com/auth/callback`
+- `https://www.lumepo.com/auth/reset`
+
+## 3) Local verification
 
 From repo root:
 
@@ -39,22 +40,22 @@ pnpm install
 pnpm -C apps/mobile web
 ```
 
-Use the actual host/port printed by Expo if it differs from `localhost:8081`.
+Then verify:
 
-## 4) End-to-end verification checklist
+1. Open `/lupa-kata-sandi`.
+2. Submit registered email.
+3. Open reset link from email.
+4. Confirm app resolves to reset flow (`/auth/reset`, `/#/auth/reset`, or `/--/auth/reset`).
+5. Submit new password.
+6. Confirm login succeeds with new password.
 
-1. Open **Lupa kata sandi** (`/lupa-kata-sandi`).
-2. Submit an existing email.
-3. Confirm generic success feedback appears.
-4. Open email and click reset link.
-5. Confirm app resolves into reset flow (`/auth/reset` or Expo-prefixed equivalent).
-6. Submit new password on **Atur ulang kata sandi** screen.
-7. Confirm success and return to login.
-8. Re-open used link.
-9. Confirm app shows invalid/expired guidance and asks user to request a new link.
+## 4) Failure patterns
 
-## 5) Operational notes
+- Link opens but reset flow fails: usually missing/mismatched Supabase Redirect URLs.
+- Callback/reset rejected: usually `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` missing origin.
+- Works in Preview but not Production: Production env vars are missing or different.
 
-- Supabase can return `429` for repeated reset requests; UI includes rate-limit feedback/cooldown behavior.
-- Expo web path variants (`/auth/reset`, `/#/auth/reset`, `/--/auth/reset`) are handled by auth link normalization logic.
-- This reset flow does **not** require migration or edge-function deployment changes by itself.
+## 5) Notes
+
+- Repeated reset requests may return rate limiting (`429`).
+- Reset flow behavior is handled in app auth link parsing/session exchange; no dedicated migration is required just for reset flow.

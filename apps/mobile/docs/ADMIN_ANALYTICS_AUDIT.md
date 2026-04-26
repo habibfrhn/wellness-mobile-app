@@ -1,31 +1,31 @@
-# Admin Analytics Audit (Current MVP State)
+# Admin Analytics Audit (Current)
 
-## End-to-end pipeline
+## Data pipeline
 
-1. Client emits events via `trackEvent()` in screens/hooks/services.
-2. Events are queued/batched client-side (`src/services/analytics.ts`).
-3. Events are sent to edge function `track-analytics-event`.
-4. Edge function validates payload + applies rate limiting + inserts into analytics tables.
-5. Admin dashboard (`/admin`) loads server-guarded RPCs through:
-   - `src/services/adminAnalytics.ts`
-   - `src/hooks/useAdminAnalytics.ts`
-6. UI renders three sections:
-   - Product actions
-   - Audio engagement
-   - Tailored session performance
+1. Client emits events via `trackEvent()`.
+2. Client queues/batches in `src/services/analytics.ts`.
+3. Client posts to Edge Function: `track-analytics-event`.
+4. Edge Function validates payload and applies rate limiting.
+5. Dashboard fetches RPC-backed summaries via admin-only queries.
 
-## Authorization model
+## Authorization
 
-- Admin route visibility on web is not sufficient by itself.
-- Backend `public.is_admin()` and RPC permissions enforce actual access.
-- `public.admin_users` is the source of admin mapping.
+- `/admin` is web-only UI route.
+- Real authorization is backend-enforced (`public.is_admin()` + admin RPC permissions).
+- `public.admin_users` is the admin source-of-truth mapping.
 
-## Current dashboard range/filter behavior
+## Current dashboard coverage
 
-- Supported ranges in current UI: `7d`, `30d`, `90d`, `all`.
-- All sections use the same selected range.
+- Product actions
+- Audio engagement
+- Tailored session performance
 
-## Notes
+Supported range filters in UI: `7d`, `30d`, `90d`, `all`.
 
-- This dashboard is intentionally MVP-scoped and not a full BI system.
-- If schema/event names change, update client event emitter, edge function validation, and SQL/RPC consumers together.
+## Change safety rules
+
+If analytics event schema changes, update all of the following in one change:
+
+- client event names/payload (`src/services/analytics.ts`)
+- edge function validation (`supabase/functions/track-analytics-event`)
+- SQL constraints/RPC consumers (`supabase/migrations/*`)

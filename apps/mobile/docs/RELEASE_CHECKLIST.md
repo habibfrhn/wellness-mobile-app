@@ -1,32 +1,54 @@
-# Release Checklist (MVP)
+# Release Checklist (Production Readiness)
 
-## 1) Code quality gates
+Use this checklist before and after releasing.
+
+## A) Pre-merge / pre-release checks
+
 - [ ] `pnpm lint`
 - [ ] `pnpm typecheck`
 - [ ] `pnpm pre-release`
+- [ ] `pnpm -C apps/mobile export:web`
 
-## 2) Auth & session
-- [ ] Sign up → verify email → session established
+## B) Environment + config checks
+
+- [ ] `EXPO_PUBLIC_SUPABASE_URL` set for target environment
+- [ ] `EXPO_PUBLIC_SUPABASE_ANON_KEY` set for target environment
+- [ ] `EXPO_PUBLIC_WEB_ORIGIN` matches canonical domain
+- [ ] `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` includes all allowed callback/reset origins
+- [ ] Supabase Auth Site URL + Redirect URLs match deployed domains
+- [ ] Google OAuth redirect URI includes Supabase callback endpoint
+
+## C) Core functional checks
+
+- [ ] Sign up → verify email → login flow works
 - [ ] Email/password login works
 - [ ] Google OAuth login works
-- [ ] Forgot/reset password works end-to-end (`/auth/reset` flow)
-- [ ] Logout fully clears session and returns to auth entry
-- [ ] Delete account works (user removed from Supabase Auth)
+- [ ] Forgot/reset password works (`/auth/reset`)
+- [ ] Logout clears session and returns to auth entry
+- [ ] Delete account flow works
+- [ ] Night flow works end-to-end
+- [ ] Audio play/pause/seek/progress works
+- [ ] Reminder settings persist correctly
 
-## 3) Core app flows
-- [ ] Home loads and renders correctly
-- [ ] Night flow works (`NightMode` → `NightCheckIn` → `NightStep1/2/3` → `NightCheckOut`)
-- [ ] Audio player play/pause/seek/progress behaviors are correct
-- [ ] Reminder settings save and load correctly
+## D) Web checks
 
-## 4) Web-specific checks
-- [ ] Landing/auth/app routes resolve on direct URL open and refresh
-- [ ] `/admin` renders authorized dashboard for admin user
-- [ ] `/admin` shows unauthorized state for non-admin user
-- [ ] Desktop responsive layouts render correctly
+- [ ] Route refresh and direct URL open work
+- [ ] `/admin` authorized state works for admin
+- [ ] `/admin` unauthorized state works for non-admin
+- [ ] Desktop/tablet/mobile web layouts are usable
 
-## 5) Environment + deployment readiness
-- [ ] `EXPO_PUBLIC_SUPABASE_URL` set in target env
-- [ ] `EXPO_PUBLIC_SUPABASE_ANON_KEY` set in target env
-- [ ] `EXPO_PUBLIC_WEB_ORIGIN` and `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` match deployed domain set
-- [ ] Supabase Auth URL config and Google OAuth redirect URI are aligned with deployed web origin(s)
+## E) Production deployment verification (Vercel)
+
+- [ ] Latest release commit is on `main`
+- [ ] Vercel deployment from branch `main` is `Ready`
+- [ ] Deployment environment is `Production` (not Preview)
+- [ ] Build logs show successful install/build/export
+- [ ] Production domain alias points to newest deployment
+- [ ] Live production URL serves expected latest behavior
+
+## F) Post-deploy smoke test
+
+- [ ] Login/logout on production
+- [ ] Reset password link flow on production
+- [ ] `/admin` access behavior on production
+- [ ] Audio playback + analytics event ingestion sanity check
