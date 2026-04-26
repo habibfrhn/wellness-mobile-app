@@ -99,6 +99,18 @@ export default function LoginScreen({ navigation, route }: Props) {
     setTimeout(() => passwordInputRef.current?.focus(), 0);
   }
 
+  function navigateToAppRoot() {
+    const rootNavigation = navigation.getParent();
+    if (!rootNavigation) {
+      return;
+    }
+
+    rootNavigation.reset({
+      index: 0,
+      routes: [{ name: "App" as never }],
+    });
+  }
+
   async function onSubmit() {
     if (busy) {
       return;
@@ -178,6 +190,7 @@ export default function LoginScreen({ navigation, route }: Props) {
         screen: "login_web",
         userId: data.user?.id ?? null,
       });
+      navigateToAppRoot();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "unknown_login_exception";
       logAuthDebugEvent("error", "email_password_login_submit_exception", {
