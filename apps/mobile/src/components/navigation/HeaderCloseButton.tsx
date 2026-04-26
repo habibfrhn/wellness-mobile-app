@@ -1,9 +1,8 @@
 import React from "react";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Pressable, StyleProp, StyleSheet, ViewStyle } from "react-native";
+import { Pressable, StyleProp, StyleSheet, Text, ViewStyle } from "react-native";
 
 import { id } from "../../i18n/strings";
-import { colors, spacing } from "../../theme/tokens";
+import { colors, spacing, typography } from "../../theme/tokens";
 
 type Props = {
   onPress: () => void;
@@ -19,7 +18,7 @@ export default function HeaderCloseButton({ onPress, containerStyle }: Props) {
       accessibilityRole="button"
       accessibilityLabel={id.login.closeLabel}
     >
-      <MaterialIcons name="close" size={28} color={colors.text} />
+      <Text style={styles.closeText}>✕</Text>
     </Pressable>
   );
 }
@@ -32,6 +31,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginLeft: spacing.xs,
     borderRadius: 22,
+  },
+  closeText: {
+    fontSize: typography.title,
+    lineHeight: typography.title,
+    color: colors.text,
+    fontWeight: "700",
   },
   pressed: {
     opacity: 0.7,

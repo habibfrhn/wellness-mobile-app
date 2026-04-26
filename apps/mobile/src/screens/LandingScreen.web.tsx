@@ -160,21 +160,26 @@ export default function LandingScreen() {
       return;
     }
 
-    const section = document.getElementById(key);
-    if (!section) {
-      return;
-    }
+    const scrollToSection = (attempt = 0) => {
+      const section = document.getElementById(key);
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
 
-    const runScroll = () => {
-      section.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (attempt >= 8 || typeof window === "undefined") {
+        return;
+      }
+
+      window.setTimeout(() => scrollToSection(attempt + 1), 75);
     };
 
     if (typeof window !== "undefined" && typeof window.requestAnimationFrame === "function") {
-      window.requestAnimationFrame(runScroll);
+      window.requestAnimationFrame(() => scrollToSection());
       return;
     }
 
-    runScroll();
+    scrollToSection();
   };
 
   const headerNavItems: {
