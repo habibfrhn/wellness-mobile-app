@@ -35,6 +35,7 @@ import { getSafeAuthErrorMessage, isEmailNotConfirmedError, isInvalidCredentials
 import { isUserVerified } from "../../services/authProviders";
 import { signOutToLogin } from "../../services/authSession";
 import { logAuthDebugEvent } from "../../services/authDebug";
+import HeaderCloseButton from "../../components/navigation/HeaderCloseButton";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
@@ -67,7 +68,7 @@ export default function LoginScreen({ navigation, route }: Props) {
       headerTitle: "",
       headerShown: false,
       headerLeft: () => (
-        <Pressable
+        <HeaderCloseButton
           onPress={() => {
             const parent = navigation.getParent();
             if (parent) {
@@ -76,15 +77,8 @@ export default function LoginScreen({ navigation, route }: Props) {
             }
             navigation.navigate("Welcome");
           }}
-          style={({ pressed }) => [
-            styles.closeButton,
-            pressed && styles.pressed,
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel={id.login.closeLabel}
-        >
-          <Text style={styles.closeText}>✕</Text>
-        </Pressable>
+          containerStyle={styles.closeButton}
+        />
       ),
     });
   }, [navigation]);
@@ -203,7 +197,7 @@ export default function LoginScreen({ navigation, route }: Props) {
       contentInsetAdjustmentBehavior="automatic"
     >
       <View style={styles.inlineHeader}>
-        <Pressable
+        <HeaderCloseButton
           onPress={() => {
             const parent = navigation.getParent();
             if (parent) {
@@ -212,15 +206,8 @@ export default function LoginScreen({ navigation, route }: Props) {
             }
             navigation.navigate("Welcome");
           }}
-          style={({ pressed }) => [
-            styles.closeButton,
-            pressed && styles.pressed,
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel={id.login.closeLabel}
-        >
-          <Text style={styles.closeText}>✕</Text>
-        </Pressable>
+          containerStyle={styles.closeButton}
+        />
       </View>
       <View style={styles.contentColumn}>
         <View
@@ -413,17 +400,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
   },
   closeButton: {
-    width: 24,
-    height: 24,
     marginLeft: 0,
     marginTop: 0,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  closeText: {
-    fontSize: typography.title,
-    color: colors.text,
-    fontWeight: "700",
   },
   contentColumn: {
     width: "100%",
@@ -541,5 +519,4 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   disabled: { opacity: 0.75 },
-  pressed: { opacity: 0.85 },
 });

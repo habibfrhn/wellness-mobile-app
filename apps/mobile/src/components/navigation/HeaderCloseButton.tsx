@@ -1,21 +1,23 @@
 import React from "react";
-import { Pressable, StyleSheet, Text } from "react-native";
+import { Pressable, StyleProp, StyleSheet, Text, ViewStyle } from "react-native";
 
 import { id } from "../../i18n/strings";
-import { colors, spacing, typography } from "../../theme/tokens";
+import { colors } from "../../theme/tokens";
 
 type Props = {
   onPress: () => void;
+  containerStyle?: StyleProp<ViewStyle>;
+  accessibilityLabel?: string;
 };
 
-export default function HeaderCloseButton({ onPress }: Props) {
+export default function HeaderCloseButton({ onPress, containerStyle, accessibilityLabel = id.login.closeLabel }: Props) {
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]}
-      hitSlop={8}
+      style={({ pressed }) => [styles.closeButton, containerStyle, pressed && styles.pressed]}
+      hitSlop={10}
       accessibilityRole="button"
-      accessibilityLabel={id.login.closeLabel}
+      accessibilityLabel={accessibilityLabel}
     >
       <Text style={styles.closeText}>✕</Text>
     </Pressable>
@@ -24,17 +26,16 @@ export default function HeaderCloseButton({ onPress }: Props) {
 
 const styles = StyleSheet.create({
   closeButton: {
-    minWidth: 32,
-    minHeight: 32,
+    width: 44,
+    height: 44,
     alignItems: "center",
     justifyContent: "center",
-    marginLeft: spacing.xs,
   },
   closeText: {
-    fontSize: typography.title,
-    lineHeight: typography.title,
+    fontSize: 26,
+    lineHeight: 26,
     color: colors.text,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   pressed: {
     opacity: 0.7,

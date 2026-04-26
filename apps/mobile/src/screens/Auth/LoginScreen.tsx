@@ -24,6 +24,7 @@ import { getSafeAuthErrorMessage, isEmailNotConfirmedError, isInvalidCredentials
 import { isUserVerified } from "../../services/authProviders";
 import { signOutToLogin } from "../../services/authSession";
 import { logAuthDebugEvent } from "../../services/authDebug";
+import HeaderCloseButton from "../../components/navigation/HeaderCloseButton";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
@@ -51,7 +52,7 @@ export default function LoginScreen({ navigation, route }: Props) {
       headerTitle: "",
       headerShadowVisible: false,
       headerLeft: () => (
-        <Pressable
+        <HeaderCloseButton
           onPress={() => {
             const parent = navigation.getParent();
             if (parent) {
@@ -60,12 +61,8 @@ export default function LoginScreen({ navigation, route }: Props) {
             }
             navigation.navigate("Welcome");
           }}
-          style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]}
-          accessibilityRole="button"
-          accessibilityLabel={id.login.closeLabel}
-        >
-          <Text style={styles.closeText}>✕</Text>
-        </Pressable>
+          containerStyle={styles.closeButton}
+        />
       ),
     });
   }, [navigation]);
@@ -299,17 +296,8 @@ const styles = StyleSheet.create({
     boxShadow: "0px 8px 28px rgba(33,50,94,0.12)",
   },
   closeButton: {
-    width: 36,
-    height: 36,
     marginLeft: spacing.sm,
     marginTop: spacing.xs,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  closeText: {
-    fontSize: typography.title,
-    color: colors.text,
-    fontWeight: "700",
   },
   headerStack: {
     alignItems: "flex-start",
@@ -408,5 +396,4 @@ const styles = StyleSheet.create({
   },
   disabled: { opacity: 0.75 },
   primaryButtonPressed: { backgroundColor: colors.primaryPressed },
-  pressed: { opacity: 0.85 },
 });

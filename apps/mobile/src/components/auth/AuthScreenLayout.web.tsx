@@ -1,5 +1,5 @@
 import React, { useLayoutEffect } from "react";
-import { ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 import {
@@ -14,6 +14,7 @@ import {
   spacing,
   typography,
 } from "../../theme/tokens";
+import HeaderCloseButton from "../navigation/HeaderCloseButton";
 
 type Props = {
   title: string;
@@ -40,7 +41,7 @@ export default function AuthScreenLayout({
       headerShown: false,
       headerLeft: showCloseButton
         ? () => (
-            <Pressable
+            <HeaderCloseButton
               onPress={() => {
                 const parent = navigation.getParent();
                 if (parent) {
@@ -49,15 +50,9 @@ export default function AuthScreenLayout({
                 }
                 navigation.navigate("Welcome" as never);
               }}
-              style={({ pressed }) => [
-                styles.closeButton,
-                pressed && authSharedStyles.pressed,
-              ]}
-              accessibilityRole="button"
+              containerStyle={styles.closeButton}
               accessibilityLabel="Tutup"
-            >
-              <Text style={styles.closeText}>✕</Text>
-            </Pressable>
+            />
           )
         : undefined,
     });
@@ -80,7 +75,7 @@ export default function AuthScreenLayout({
     >
       {showCloseButton ? (
         <View style={styles.inlineHeader}>
-          <Pressable
+          <HeaderCloseButton
             onPress={() => {
               const parent = navigation.getParent();
               if (parent) {
@@ -89,15 +84,9 @@ export default function AuthScreenLayout({
               }
               navigation.navigate("Welcome" as never);
             }}
-            style={({ pressed }) => [
-              styles.closeButton,
-              pressed && authSharedStyles.pressed,
-            ]}
-            accessibilityRole="button"
+            containerStyle={styles.closeButton}
             accessibilityLabel="Tutup"
-          >
-            <Text style={styles.closeText}>✕</Text>
-          </Pressable>
+          />
         </View>
       ) : null}
       <View style={styles.contentColumn}>
@@ -239,17 +228,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
   },
   closeButton: {
-    width: 24,
-    height: 24,
     marginLeft: 0,
     marginTop: 0,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  closeText: {
-    fontSize: typography.title,
-    color: colors.text,
-    fontWeight: "700",
   },
   contentColumn: {
     width: "100%",
