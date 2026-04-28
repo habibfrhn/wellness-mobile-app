@@ -1,31 +1,35 @@
 # Store Submission Checklist (iOS + Android)
 
 ## App metadata
-- [ ] App name, subtitle, and descriptions finalized
-- [ ] Keywords (iOS) and short description (Android) finalized
-- [ ] Categories and content ratings selected
-- [ ] Privacy policy URL and support URL are live and correct
+
+- [ ] App name, subtitle/short description, and full descriptions finalized.
+- [ ] Categories and content ratings selected.
+- [ ] Privacy policy URL and support URL are live and accurate.
 
 ## Visual assets
-- [ ] App icon / adaptive icon finalized
-- [ ] Splash assets finalized
-- [ ] Screenshots captured for required device sizes
-- [ ] Optional preview video prepared (if used)
+
+- [ ] App icon/adaptive icon match current app branding.
+- [ ] Splash assets match current production build.
+- [ ] Screenshots captured from current app version for required sizes.
+- [ ] Optional preview/promotional video prepared (if used).
 
 ## Compliance & privacy
-- [ ] App Store privacy questionnaire completed
-- [ ] Google Play data safety form completed
-- [ ] Export compliance reviewed
-- [ ] Third-party integrations disclosed where required (Supabase auth/analytics usage)
 
-## Build & config
-- [ ] iOS bundle identifier and Android package match store records
-- [ ] Version + build numbers incremented correctly
-- [ ] EAS production builds succeed
-- [ ] Release notes drafted
+- [ ] Apple privacy questionnaire completed.
+- [ ] Google Play data safety form completed.
+- [ ] Export compliance reviewed.
+- [ ] Third-party integrations disclosed where required (Supabase auth/analytics, Google OAuth).
 
-## QA & operations
-- [ ] `apps/mobile/docs/RELEASE_CHECKLIST.md` completed
-- [ ] Monitoring/incident response owner identified for launch window
-- [ ] Rollout strategy decided (phased vs full)
-- [ ] Support channel readiness confirmed
+## Build & configuration
+
+- [ ] iOS bundle identifier and Android package match store records (`com.wellnessapp.mobile`).
+- [ ] Version + build numbers incremented correctly.
+- [ ] EAS production builds succeed for both platforms.
+- [ ] Release notes prepared.
+
+## QA & launch operations
+
+- [ ] `apps/mobile/docs/RELEASE_CHECKLIST.md` fully completed.
+- [ ] Launch window owner for monitoring/incident response is assigned.
+- [ ] Rollout strategy is chosen (phased vs full rollout).
+- [ ] Support channel readiness is confirmed.

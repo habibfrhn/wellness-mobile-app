@@ -1,31 +1,48 @@
-# Admin Analytics Audit (Current MVP State)
+# Admin Analytics Audit (Current MVP)
 
 ## End-to-end pipeline
 
-1. Client emits events via `trackEvent()` in screens/hooks/services.
-2. Events are queued/batched client-side (`src/services/analytics.ts`).
-3. Events are sent to edge function `track-analytics-event`.
-4. Edge function validates payload + applies rate limiting + inserts into analytics tables.
-5. Admin dashboard (`/admin`) loads server-guarded RPCs through:
-   - `src/services/adminAnalytics.ts`
-   - `src/hooks/useAdminAnalytics.ts`
+1. Client emits analytics events via `trackEvent()`.
+2. Events are queued/batched in `src/services/analytics.ts`.
+3. Batches are sent to edge function `track-analytics-event`.
+4. Function enforces payload validation + CORS + rate limiting and inserts into `analytics_events`.
+5. Admin dashboard (`/admin`) fetches data through guarded RPCs in `src/services/adminAnalytics.ts`.
 6. UI renders three sections:
    - Product actions
    - Audio engagement
    - Tailored session performance
 
+## Event schema currently accepted by ingestion function
+
+- `landing_page_view`
+- `landing_cta_click`
+- `home_sleep_cta_click`
+- `audio_click`
+- `signup_start`
+- `signup_complete`
+- `audio_play`
+- `audio_complete`
+- `audio_abandon`
+- `tailored_session_select`
+- `tailored_session_start`
+- `tailored_session_complete`
+- `tailored_session_dropoff`
+
 ## Authorization model
 
-- Admin route visibility on web is not sufficient by itself.
-- Backend `public.is_admin()` and RPC permissions enforce actual access.
-- `public.admin_users` is the source of admin mapping.
+- Web route visibility alone is not authorization.
+- Backend enforcement is through `public.is_admin()` + RPC permissions.
+- `public.admin_users` is the admin mapping source.
 
-## Current dashboard range/filter behavior
+## Dashboard range behavior
 
-- Supported ranges in current UI: `7d`, `30d`, `90d`, `all`.
-- All sections use the same selected range.
+- Supported ranges: `7d`, `30d`, `90d`, `all`.
+- All dashboard sections use the currently selected range.
 
-## Notes
+## MVP note
 
-- This dashboard is intentionally MVP-scoped and not a full BI system.
-- If schema/event names change, update client event emitter, edge function validation, and SQL/RPC consumers together.
+If event schema changes, update these together in one change:
+
+- client emitter/sanitization (`src/services/analytics.ts`),
+- ingestion function validation (`supabase/functions/track-analytics-event/index.ts`),
+- SQL constraints/RPC consumers in migrations.
