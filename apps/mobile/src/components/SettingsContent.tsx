@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Alert, Clipboard, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { id } from "../i18n/strings";
 import type { AppStackParamList } from "../navigation/types";

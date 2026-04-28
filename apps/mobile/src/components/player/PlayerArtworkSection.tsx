@@ -1,4 +1,4 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { FontAwesome } from "@expo/vector-icons";
 import React from "react";
 import {
   Image,
