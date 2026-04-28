@@ -30,12 +30,16 @@ test('adminAnalyticsCore normalizes product and audio rows', () => {
     },
   );
 
+  assert.equal(normalizeProductActions(null), null);
+
   assert.deepEqual(
     normalizeAudioRows([
       { audio_id: '', clicks: '5' as unknown as number, starts: 2, completes: null as unknown as number, abandons: 1, completion_rate: '50' as unknown as number },
     ]),
     [{ audio_id: 'unknown_audio', clicks: 5, starts: 2, completes: 0, abandons: 1, completion_rate: 50 }],
   );
+
+  assert.deepEqual(normalizeAudioRows(null), []);
 });
 
 test('adminAnalyticsCore filters tailored session modes', () => {
@@ -46,4 +50,5 @@ test('adminAnalyticsCore filters tailored session modes', () => {
   ]);
 
   assert.equal(rows.length, 2);
+  assert.deepEqual(normalizeTailoredRows(null), []);
 });

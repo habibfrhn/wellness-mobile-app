@@ -9,6 +9,11 @@ test('webAuthCore enforces origin allowlist', () => {
   assert.equal(isAllowedWebOriginWithEnv('https://malicious.example', env), false);
 });
 
+test('webAuthCore allows localhost fallback when allowlist env is missing', () => {
+  assert.equal(isAllowedWebOriginWithEnv('http://localhost:9999', undefined), true);
+  assert.equal(isAllowedWebOriginWithEnv('http://127.0.0.1:8081', ''), true);
+});
+
 test('webAuthCore derives origin by context and production constraints', () => {
   assert.equal(
     getWebAppOriginForContext({
@@ -22,6 +27,16 @@ test('webAuthCore derives origin by context and production constraints', () => {
 
   assert.equal(
     getWebAppOriginForContext({
+      nodeEnv: 'development',
+      configuredOrigin: 'https://bad.example',
+      detectedOrigin: null,
+      allowedOriginsEnv: 'https://lumepo.com',
+    }),
+    'http://localhost:8081',
+  );
+
+  assert.equal(
+    getWebAppOriginForContext({
       nodeEnv: 'production',
       configuredOrigin: 'https://bad.example',
       detectedOrigin: null,
@@ -31,8 +46,21 @@ test('webAuthCore derives origin by context and production constraints', () => {
   );
 });
 
+test('webAuthCore prefers detected origin when valid', () => {
+  assert.equal(
+    getWebAppOriginForContext({
+      nodeEnv: 'production',
+      configuredOrigin: 'https://lumepo.com/',
+      detectedOrigin: 'https://www.lumepo.com/',
+      allowedOriginsEnv: 'https://lumepo.com,https://www.lumepo.com',
+    }),
+    'https://www.lumepo.com',
+  );
+});
+
 test('webAuthCore normalizes auth callback/reset paths', () => {
   assert.equal(getWebAuthPathFromPathname('/auth/callback'), 'callback');
   assert.equal(getWebAuthPathFromPathname('/--/auth/reset'), 'reset');
+  assert.equal(getWebAuthPathFromPathname('/auth/reset/'), 'reset');
   assert.equal(getWebAuthPathFromPathname('/random'), null);
 });

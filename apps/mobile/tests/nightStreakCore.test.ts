@@ -28,3 +28,31 @@ test('nightStreakCore derives no_streak, active, and broken states', () => {
     kind: 'broken',
   });
 });
+
+test('nightStreakCore handles invalid lastCompletedDate and zero-streak day gap', () => {
+  const invalidDateProgress = {
+    userId: 'u2',
+    currentStreak: 1,
+    longestStreak: 1,
+    lastCompletedDate: 'not-a-date',
+    totalCompletedSessions: 1,
+    createdAt: '',
+    updatedAt: '',
+  };
+  assert.deepEqual(deriveNightStreakHeroStateAt(invalidDateProgress), { kind: 'no_streak' });
+
+  const sameDayProgress = {
+    userId: 'u3',
+    currentStreak: 2,
+    longestStreak: 3,
+    lastCompletedDate: '2026-04-28',
+    totalCompletedSessions: 4,
+    createdAt: '',
+    updatedAt: '',
+  };
+
+  assert.deepEqual(deriveNightStreakHeroStateAt(sameDayProgress, new Date('2026-04-28T12:00:00.000Z')), {
+    kind: 'active',
+    count: 2,
+  });
+});
