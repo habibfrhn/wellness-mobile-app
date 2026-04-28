@@ -96,6 +96,13 @@ pnpm typecheck
 pnpm pre-release
 ```
 
+
+## Documentation maintenance (best practice)
+
+- Follow `apps/mobile/docs/DOCUMENTATION_STANDARDS.md` when changing routes, env vars, auth flows, edge functions, or deploy scripts.
+- Keep setup/deploy/security docs in the same PR as implementation changes.
+- Treat stale onboarding/deployment docs as release-blocking issues.
+
 ## Deployment + operations docs
 
 - Web deployment (Vercel): `apps/mobile/DEPLOY_WEB.md`
@@ -104,6 +111,7 @@ pnpm pre-release
 - Reset password setup: `apps/mobile/docs/RESET_PASSWORD_SETUP.md`
 - Admin analytics setup: `apps/mobile/docs/ADMIN_ANALYTICS_SETUP.md`
 - Security hardening baseline: `SECURITY_AUDIT.md`
+- Documentation standards: `apps/mobile/docs/DOCUMENTATION_STANDARDS.md`
 
 ## Backend footprint in this repo
 

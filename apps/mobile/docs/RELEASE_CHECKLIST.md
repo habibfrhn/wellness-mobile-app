@@ -37,3 +37,9 @@
 - [ ] Supabase Auth URL config and Google OAuth redirect URI match deployed origins
 - [ ] Supabase function secrets (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `CORS_ALLOWED_ORIGINS`) are set
 - [ ] Required edge functions are deployed (`track-analytics-event`, `record-night-session`, `delete-account-v2`, `resend-verification-email`)
+
+## 6) Documentation readiness
+
+- [ ] `README.md`, `apps/mobile/DEPLOY_WEB.md`, and `SECURITY_AUDIT.md` match current implementation
+- [ ] Feature setup docs under `apps/mobile/docs/*` are updated in the same release PR
+- [ ] `apps/mobile/docs/DOCUMENTATION_STANDARDS.md` checks completed

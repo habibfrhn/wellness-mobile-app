@@ -73,6 +73,7 @@ These controls still require dashboard/infra ownership:
 - Monitor Vercel activity/deploy logs and Supabase auth/function anomaly signals.
 - Keep Supabase Auth URL config, Google OAuth settings, and `EXPO_PUBLIC_WEB_*` values aligned.
 - Keep `CORS_ALLOWED_ORIGINS` synced with current deployed web origins.
+- Keep security-sensitive docs synchronized using `apps/mobile/docs/DOCUMENTATION_STANDARDS.md`.
 
 ## Validation commands used
 

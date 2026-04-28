@@ -108,3 +108,11 @@ If your deployment window overlaps the April 2026 Vercel incident:
 - `apps/mobile/docs/RESET_PASSWORD_SETUP.md`
 - `apps/mobile/docs/ADMIN_ANALYTICS_SETUP.md`
 - `SECURITY_AUDIT.md`
+
+## 10) Documentation sync requirement
+
+When deployment/auth/origin settings change, update the same PR:
+
+- `README.md` (onboarding + env variables)
+- `SECURITY_AUDIT.md` (security posture/manual controls)
+- `apps/mobile/docs/RESET_PASSWORD_SETUP.md` and `apps/mobile/docs/ADMIN_ANALYTICS_SETUP.md` (flow-specific runbooks)
