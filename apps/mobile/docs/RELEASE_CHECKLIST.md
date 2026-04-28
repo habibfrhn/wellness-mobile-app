@@ -1,32 +1,42 @@
 # Release Checklist (MVP)
 
+Use this before shipping preview/production mobile or web changes.
+
 ## 1) Code quality gates
+
 - [ ] `pnpm lint`
 - [ ] `pnpm typecheck`
 - [ ] `pnpm pre-release`
 
-## 2) Auth & session
-- [ ] Sign up → verify email → session established
-- [ ] Email/password login works
-- [ ] Google OAuth login works
-- [ ] Forgot/reset password works end-to-end (`/auth/reset` flow)
-- [ ] Logout fully clears session and returns to auth entry
-- [ ] Delete account works (user removed from Supabase Auth)
+## 2) Auth & account flows
 
-## 3) Core app flows
-- [ ] Home loads and renders correctly
-- [ ] Night flow works (`NightMode` → `NightCheckIn` → `NightStep1/2/3` → `NightCheckOut`)
-- [ ] Audio player play/pause/seek/progress behaviors are correct
-- [ ] Reminder settings save and load correctly
+- [ ] Sign up → verify email → verified login works.
+- [ ] Email/password login works.
+- [ ] Google OAuth login works.
+- [ ] Forgot/reset password flow works from email link (`/auth/reset` handling).
+- [ ] Resend verification email works with expected cooldown behavior.
+- [ ] Logout clears session and returns to auth entry.
+- [ ] Delete account succeeds and user is removed from Supabase Auth.
+
+## 3) Core user flows
+
+- [ ] Home loads and personalized data renders.
+- [ ] Night flow works (`NightMode` → `NightCheckIn` → `NightStep1/2/3` → `NightCheckOut`).
+- [ ] Night session save/streak update works (no edge-function errors).
+- [ ] Audio player play/pause/seek/progress behavior is correct.
+- [ ] Reminder settings save/load correctly.
 
 ## 4) Web-specific checks
-- [ ] Landing/auth/app routes resolve on direct URL open and refresh
-- [ ] `/admin` renders authorized dashboard for admin user
-- [ ] `/admin` shows unauthorized state for non-admin user
-- [ ] Desktop responsive layouts render correctly
 
-## 5) Environment + deployment readiness
-- [ ] `EXPO_PUBLIC_SUPABASE_URL` set in target env
-- [ ] `EXPO_PUBLIC_SUPABASE_ANON_KEY` set in target env
-- [ ] `EXPO_PUBLIC_WEB_ORIGIN` and `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` match deployed domain set
-- [ ] Supabase Auth URL config and Google OAuth redirect URI are aligned with deployed web origin(s)
+- [ ] Localized landing/auth/app routes resolve on direct open + refresh.
+- [ ] `/admin` renders dashboard for admin users.
+- [ ] `/admin` blocks non-admin users.
+- [ ] Desktop responsive layout behaves as expected.
+
+## 5) Environment and deployment readiness
+
+- [ ] `EXPO_PUBLIC_SUPABASE_URL` configured.
+- [ ] `EXPO_PUBLIC_SUPABASE_ANON_KEY` configured.
+- [ ] `EXPO_PUBLIC_WEB_ORIGIN` and `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` aligned with deployed domain set.
+- [ ] Supabase Auth URL config + Google OAuth redirect URI aligned.
+- [ ] Required edge functions deployed: `record-night-session`, `delete-account-v2`, `resend-verification-email`, `track-analytics-event`.

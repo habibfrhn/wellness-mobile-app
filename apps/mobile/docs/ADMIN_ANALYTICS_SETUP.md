@@ -1,28 +1,28 @@
 # Admin Analytics Setup (Remote Supabase)
 
-This guide documents the **current** setup path for the web admin dashboard (`/admin`) using a remote Supabase project.
+This guide documents the current setup for the web admin dashboard at `/admin`.
 
 ## Current architecture
 
-- User identities live in `auth.users`.
-- Admin authorization is mapped in `public.admin_users(user_id uuid primary key)`.
-- Admin data access is server-enforced with `public.is_admin()` and guarded RPCs.
-- Client analytics events are ingested through `track-analytics-event` edge function.
-- Dashboard currently reads:
+- Auth users live in `auth.users`.
+- Admin mapping uses `public.admin_users(user_id uuid primary key)`.
+- Access is backend-enforced by `public.is_admin()` and guarded analytics RPCs.
+- Client analytics are ingested through edge function `track-analytics-event`.
+- Dashboard reads:
   - `admin_analytics_product_actions(range_key)`
   - `admin_analytics_audio_engagement(range_key)`
   - `admin_analytics_tailored_sessions(range_key)`
 
 ## 1) Push SQL migrations
 
-From repo root (linked to target Supabase project):
+From repo root:
 
 ```bash
 supabase migration list
 supabase db push
 ```
 
-If `migration list` reports remote/local drift, repair as needed then run `supabase db push` again.
+If drift is reported, repair migration history before pushing.
 
 ## 2) Deploy analytics ingestion function
 
@@ -31,17 +31,18 @@ supabase functions deploy track-analytics-event --no-verify-jwt
 supabase functions list
 ```
 
-`track-analytics-event` must be deployed; otherwise dashboard metrics will remain empty because client no longer writes directly to tables.
+Set required function secrets/config in Supabase:
 
-## 3) Ensure an admin auth user exists
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `CORS_ALLOWED_ORIGINS`
 
-Create or verify an email/password user in Supabase Auth (`auth.users`), for example:
+## 3) Ensure an admin user exists
 
-- `admin@yourdomain.com`
+Create or verify an auth user, for example `admin@yourdomain.com`.
 
-## 4) Map user to `admin_users`
-
-Run in Supabase SQL editor:
+## 4) Map user into `admin_users`
 
 ```sql
 insert into public.admin_users (user_id)
@@ -51,7 +52,7 @@ where email = 'admin@yourdomain.com'
 on conflict (user_id) do nothing;
 ```
 
-Quick verification:
+Verification query:
 
 ```sql
 select
@@ -62,9 +63,7 @@ from auth.users u
 where u.email = 'admin@yourdomain.com';
 ```
 
-## 5) Verify dashboard RPCs are callable for admin
-
-Log in as admin user on web, then validate manually in SQL editor if needed:
+## 5) Validate RPC access as admin
 
 ```sql
 select public.is_admin();
@@ -73,24 +72,22 @@ select * from public.admin_analytics_audio_engagement('30d') limit 20;
 select * from public.admin_analytics_tailored_sessions('30d');
 ```
 
-## 6) Validate `/admin` UI
+## 6) Validate `/admin` UI behavior
 
-Run local web app:
+Run web app locally:
 
 ```bash
 pnpm -C apps/mobile web
 ```
 
-Open one of:
+Open `http://localhost:8081/admin`.
 
-- `http://localhost:8081/admin`
+Expected:
 
-Expected behavior:
-
-- Admin user: dashboard cards/tables render.
+- Admin user: dashboard panels render.
 - Non-admin user: unauthorized state.
 
-## 7) Generate test events
+## 7) Generate and verify test events
 
 In a non-admin session:
 
@@ -100,7 +97,7 @@ In a non-admin session:
 4. Play at least one audio and complete/abandon another.
 5. Run a tailored session.
 
-Then verify data exists:
+Then verify event population:
 
 ```sql
 select event_name, count(*)
@@ -111,6 +108,6 @@ order by count(*) desc, event_name asc;
 
 ## Troubleshooting
 
-- `relation "public.admin_users" does not exist` → migrations not pushed to selected project.
-- Admin login works but `/admin` unauthorized → user not mapped in `admin_users`.
-- Dashboard empty but admin authorized → `track-analytics-event` not deployed or no qualifying events yet.
+- `relation "public.admin_users" does not exist` → migrations were not pushed to target project.
+- `/admin` unauthorized for intended admin user → mapping missing in `public.admin_users`.
+- Admin dashboard empty with valid admin → `track-analytics-event` not deployed, misconfigured secrets, or no qualifying events yet.
