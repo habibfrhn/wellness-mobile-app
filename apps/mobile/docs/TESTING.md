@@ -35,7 +35,7 @@ pnpm test:watch
 pnpm test:ci
 ```
 
-`test:ci` also emits coverage via `--experimental-test-coverage`.
+`test:ci` also emits coverage via `--experimental-test-coverage`, and scripts include `--no-warnings` to keep CI logs actionable.
 
 ## TDD workflow (recommended)
 

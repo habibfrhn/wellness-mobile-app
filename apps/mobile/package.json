@@ -11,9 +11,9 @@
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
     "pre-release": "bash ./scripts/pre-release.sh",
-    "test": "node --test --experimental-strip-types tests/*.test.ts",
-    "test:watch": "node --test --experimental-strip-types --watch tests/*.test.ts",
-    "test:ci": "node --test --experimental-strip-types --experimental-test-coverage tests/*.test.ts"
+    "test": "node --no-warnings --test --experimental-strip-types tests/*.test.ts",
+    "test:watch": "node --no-warnings --test --experimental-strip-types --watch tests/*.test.ts",
+    "test:ci": "node --no-warnings --test --experimental-strip-types --experimental-test-coverage tests/*.test.ts"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
