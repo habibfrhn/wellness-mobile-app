@@ -5,6 +5,7 @@
 - [ ] `pnpm lint`
 - [ ] `pnpm typecheck`
 - [ ] `pnpm pre-release`
+- [ ] `pnpm test`
 
 ## 2) Auth & account flow
 

@@ -80,6 +80,7 @@ The function already hard-allows:
 
 ## 6) Post-deploy verification checklist
 
+- Run `pnpm lint`, `pnpm typecheck`, and `pnpm test`.
 - Open `/` and validate landing/auth entry routes.
 - Verify signup/login/verification flow.
 - Verify forgot/reset password flow through `/auth/reset` intake.

@@ -46,3 +46,9 @@ If event schema changes, update these together in one change:
 - client emitter/sanitization (`src/services/analytics.ts`),
 - ingestion function validation (`supabase/functions/track-analytics-event/index.ts`),
 - SQL constraints/RPC consumers in migrations.
+
+
+## Regression tests
+
+- `apps/mobile/src/services/__tests__/analyticsSchema.test.ts` covers client payload sanitization/shape validation.
+- `supabase/functions/track-analytics-event/__tests__/validation.test.ts` covers ingestion payload and CORS allowlist behavior.

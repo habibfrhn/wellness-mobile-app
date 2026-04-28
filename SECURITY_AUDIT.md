@@ -59,4 +59,5 @@ No client-side service-role credential exposure was identified.
 rg -n "EXPO_PUBLIC_WEB_ALLOWED_ORIGINS|buildAuthRedirectPath|is_admin\(|admin_analytics_|track-analytics-event|record-night-session|delete-account-v2|resend-verification-email" apps/mobile/src supabase/functions supabase/migrations
 pnpm lint
 pnpm typecheck
+pnpm test
 ```

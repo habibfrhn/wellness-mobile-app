@@ -10,7 +10,10 @@
     "export:web": "expo export -p web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
-    "pre-release": "bash ./scripts/pre-release.sh"
+    "pre-release": "bash ./scripts/pre-release.sh",
+    "test": "node --experimental-strip-types --experimental-specifier-resolution=node --test src/services/__tests__/*.test.ts ../../supabase/functions/track-analytics-event/__tests__/*.test.ts",
+    "test:run": "node --experimental-strip-types --experimental-specifier-resolution=node --test src/services/__tests__/*.test.ts ../../supabase/functions/track-analytics-event/__tests__/*.test.ts",
+    "test:coverage": "node --experimental-strip-types --experimental-specifier-resolution=node --test --experimental-test-coverage src/services/__tests__/*.test.ts ../../supabase/functions/track-analytics-event/__tests__/*.test.ts"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",

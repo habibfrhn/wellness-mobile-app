@@ -62,6 +62,27 @@ pnpm typecheck
 pnpm pre-release
 ```
 
+## Automated tests
+
+Run the full automated suite from repo root:
+
+```bash
+pnpm test
+```
+
+Coverage report (Node test runner coverage):
+
+```bash
+pnpm test:coverage
+```
+
+Current automated tests target:
+
+- auth security validation/classification helpers
+- auth provider/verification resolution logic
+- analytics payload sanitization + payload shape guards
+- analytics ingestion edge-function validation helpers (CORS + payload parsing)
+
 ## Environment variables
 
 Create `apps/mobile/.env`:
