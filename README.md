@@ -94,8 +94,23 @@ pnpm start:web
 pnpm lint
 pnpm typecheck
 pnpm pre-release
+pnpm test
+pnpm test:ci
 ```
 
+
+## Testing workflow
+
+- Test runner: **Node.js `node:test`** with TypeScript strip-types (see `apps/mobile/docs/TESTING.md`).
+- Primary coverage target in this repo is service-layer behavior for auth, web route/auth path safety, admin analytics normalization, and night session/streak logic.
+
+Pre-merge quality gate:
+
+```bash
+pnpm lint
+pnpm typecheck
+pnpm test:ci
+```
 
 ## Documentation maintenance (best practice)
 
@@ -112,6 +127,7 @@ pnpm pre-release
 - Admin analytics setup: `apps/mobile/docs/ADMIN_ANALYTICS_SETUP.md`
 - Security hardening baseline: `SECURITY_AUDIT.md`
 - Documentation standards: `apps/mobile/docs/DOCUMENTATION_STANDARDS.md`
+- Testing guide: `apps/mobile/docs/TESTING.md`
 
 ## Backend footprint in this repo
 

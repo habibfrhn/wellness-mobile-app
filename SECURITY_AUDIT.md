@@ -81,4 +81,5 @@ These controls still require dashboard/infra ownership:
 rg -n "EXPO_PUBLIC_WEB_ALLOWED_ORIGINS|buildAuthRedirectPath|is_admin\(|admin_analytics_|track-analytics-event|record-night-session|delete-account-v2|resend-verification-email" apps/mobile/src supabase/functions supabase/migrations
 pnpm -C apps/mobile lint
 pnpm -C apps/mobile typecheck
+pnpm -C apps/mobile test:ci
 ```

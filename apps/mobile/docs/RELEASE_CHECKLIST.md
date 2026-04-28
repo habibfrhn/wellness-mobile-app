@@ -5,6 +5,8 @@
 - [ ] `pnpm lint`
 - [ ] `pnpm typecheck`
 - [ ] `pnpm pre-release`
+- [ ] `pnpm test`
+- [ ] `pnpm test:ci`
 
 ## 2) Auth & session
 

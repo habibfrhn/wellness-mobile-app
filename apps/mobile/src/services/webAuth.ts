@@ -1,63 +1,21 @@
 import { Platform } from "react-native";
 
-const DEFAULT_LOCAL_WEB_ORIGIN = "http://localhost:8081";
-const DEFAULT_PRODUCTION_WEB_ORIGINS = ["https://lumepo.com", "https://www.lumepo.com"];
+import { getWebAppOriginForContext, getWebAuthPathFromPathname, isAllowedWebOriginWithEnv } from "./webAuthCore";
 
 export const WEB_AUTH_CALLBACK_PATH = "/auth/callback";
 export const WEB_AUTH_RESET_PATH = "/auth/reset";
-const WEB_EXPO_ROUTE_PREFIX = "/--";
-
-function normalizeOrigin(origin: string) {
-  return origin.endsWith("/") ? origin.slice(0, -1) : origin;
-}
-
-function isLocalDevOrigin(origin: string) {
-  return /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin);
-}
 
 export function isAllowedWebOrigin(origin: string) {
-  const normalizedOrigin = normalizeOrigin(origin.toLowerCase());
-  const configuredOrigins = (process.env.EXPO_PUBLIC_WEB_ALLOWED_ORIGINS ?? "")
-    .split(",")
-    .map((value: string) => value.trim())
-    .filter(Boolean)
-    .map((value: string) => normalizeOrigin(value.toLowerCase()));
-
-  if (configuredOrigins.length > 0) {
-    return configuredOrigins.includes(normalizedOrigin);
-  }
-
-  const defaultAllowedOrigins = [...DEFAULT_PRODUCTION_WEB_ORIGINS, DEFAULT_LOCAL_WEB_ORIGIN, "http://127.0.0.1:8081"].map(
-    (value) => normalizeOrigin(value.toLowerCase())
-  );
-
-  if (defaultAllowedOrigins.includes(normalizedOrigin)) {
-    return true;
-  }
-
-  return isLocalDevOrigin(origin);
+  return isAllowedWebOriginWithEnv(origin, process.env.EXPO_PUBLIC_WEB_ALLOWED_ORIGINS);
 }
 
 export function getWebAppOrigin() {
-  const isProductionBuild = process.env.NODE_ENV === "production";
-  const configuredOrigin = normalizeOrigin(process.env.EXPO_PUBLIC_WEB_ORIGIN?.trim() ?? "");
-
-  if (typeof window !== "undefined" && window.location?.origin) {
-    const detectedOrigin = normalizeOrigin(window.location.origin);
-    if (isAllowedWebOrigin(detectedOrigin)) {
-      return detectedOrigin;
-    }
-  }
-
-  if (configuredOrigin && isAllowedWebOrigin(configuredOrigin)) {
-    return configuredOrigin;
-  }
-
-  if (isProductionBuild) {
-    return null;
-  }
-
-  return DEFAULT_LOCAL_WEB_ORIGIN;
+  return getWebAppOriginForContext({
+    nodeEnv: process.env.NODE_ENV,
+    configuredOrigin: process.env.EXPO_PUBLIC_WEB_ORIGIN,
+    detectedOrigin: typeof window !== "undefined" && window.location?.origin ? window.location.origin : null,
+    allowedOriginsEnv: process.env.EXPO_PUBLIC_WEB_ALLOWED_ORIGINS,
+  });
 }
 
 export function buildAuthRedirectPath(flow: "callback" | "reset") {
@@ -74,20 +32,7 @@ export function buildAuthRedirectPath(flow: "callback" | "reset") {
 }
 
 export function getWebAuthPath(pathname?: string | null): "callback" | "reset" | null {
-  const value = (pathname ?? "").replace(/\/+$/, "") || "/";
-  const normalizedPath = value.startsWith(WEB_EXPO_ROUTE_PREFIX)
-    ? value.slice(WEB_EXPO_ROUTE_PREFIX.length) || "/"
-    : value;
-
-  if (normalizedPath === WEB_AUTH_CALLBACK_PATH) {
-    return "callback";
-  }
-
-  if (normalizedPath === WEB_AUTH_RESET_PATH) {
-    return "reset";
-  }
-
-  return null;
+  return getWebAuthPathFromPathname(pathname);
 }
 
 export function replaceWebUrl(pathname = "/") {

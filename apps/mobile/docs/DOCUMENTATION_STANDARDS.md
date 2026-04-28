@@ -28,6 +28,7 @@ rg --files -g '*.md'
 rg -n "EXPO_PUBLIC_|SUPABASE_|CORS_ALLOWED_ORIGINS|admin_analytics_|is_admin\(|/auth/(callback|reset)" README.md SECURITY_AUDIT.md apps/mobile/DEPLOY_WEB.md apps/mobile/docs
 pnpm lint
 pnpm typecheck
+pnpm test:ci
 ```
 
 ## 4) Writing quality rules

@@ -76,7 +76,17 @@ supabase functions deploy record-night-session
 supabase functions list
 ```
 
-## 6) Post-deploy verification
+## 6) Pre-deploy quality gate
+
+Run local verification gate before deployment:
+
+```bash
+pnpm lint
+pnpm typecheck
+pnpm test:ci
+```
+
+## 7) Post-deploy verification
 
 - `/` landing + auth entry points.
 - Email/password sign-up and login.
@@ -87,7 +97,7 @@ supabase functions list
 - Audio playback and analytics ingestion.
 - Account deletion flow.
 
-## 7) April 2026 incident-response checklist (required when applicable)
+## 8) April 2026 incident-response checklist (required when applicable)
 
 If your deployment window overlaps the April 2026 Vercel incident:
 
@@ -96,20 +106,20 @@ If your deployment window overlaps the April 2026 Vercel incident:
 3. Review Vercel activity and deployment logs for suspicious changes.
 4. Keep elevated monitoring on auth/deploy/function anomalies for at least 30 days.
 
-## 8) Operational guardrails
+## 9) Operational guardrails
 
 - Keep `/api/*` and auth redirect routes uncacheable.
 - Keep immutable caching only for hashed static asset paths.
 - Keep SPA rewrite limited to extensionless paths.
 - Never store service-role credentials in `EXPO_PUBLIC_*` env variables.
 
-## 9) Related docs
+## 10) Related docs
 
 - `apps/mobile/docs/RESET_PASSWORD_SETUP.md`
 - `apps/mobile/docs/ADMIN_ANALYTICS_SETUP.md`
 - `SECURITY_AUDIT.md`
 
-## 10) Documentation sync requirement
+## 11) Documentation sync requirement
 
 When deployment/auth/origin settings change, update the same PR:
 
