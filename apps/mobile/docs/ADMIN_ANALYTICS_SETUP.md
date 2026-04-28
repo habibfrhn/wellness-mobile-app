@@ -1,45 +1,53 @@
 # Admin Analytics Setup (Remote Supabase)
 
-This guide documents the **current** setup path for the web admin dashboard (`/admin`) using a remote Supabase project.
+This guide documents the current setup for the web admin dashboard (`/admin`) against a remote Supabase project.
 
 ## Current architecture
 
 - User identities live in `auth.users`.
-- Admin authorization is mapped in `public.admin_users(user_id uuid primary key)`.
-- Admin data access is server-enforced with `public.is_admin()` and guarded RPCs.
-- Client analytics events are ingested through `track-analytics-event` edge function.
-- Dashboard currently reads:
+- Admin mapping is `public.admin_users(user_id uuid primary key)`.
+- Admin access is server-enforced via `public.is_admin()` + guarded RPCs.
+- Client events are ingested through edge function `track-analytics-event`.
+- Dashboard reads:
   - `admin_analytics_product_actions(range_key)`
   - `admin_analytics_audio_engagement(range_key)`
   - `admin_analytics_tailored_sessions(range_key)`
 
-## 1) Push SQL migrations
+## 1) Link and push migrations
 
-From repo root (linked to target Supabase project):
+From repo root:
 
 ```bash
+supabase link --project-ref <project-ref>
 supabase migration list
 supabase db push
 ```
 
-If `migration list` reports remote/local drift, repair as needed then run `supabase db push` again.
+If `migration list` reports local/remote drift, repair history and run `supabase db push` again.
 
-## 2) Deploy analytics ingestion function
+## 2) Configure function secrets
+
+Ensure remote Supabase secrets include:
+
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `CORS_ALLOWED_ORIGINS` (comma-separated allowlist for browser origins)
+
+## 3) Deploy analytics ingestion function
 
 ```bash
 supabase functions deploy track-analytics-event --no-verify-jwt
 supabase functions list
 ```
 
-`track-analytics-event` must be deployed; otherwise dashboard metrics will remain empty because client no longer writes directly to tables.
+If `track-analytics-event` is not deployed, dashboard metrics stay empty because clients no longer write directly to analytics tables.
 
-## 3) Ensure an admin auth user exists
+## 4) Ensure an admin auth user exists
 
-Create or verify an email/password user in Supabase Auth (`auth.users`), for example:
+Create or verify an email/password user in Supabase Auth (`auth.users`) — e.g. `admin@yourdomain.com`.
 
-- `admin@yourdomain.com`
-
-## 4) Map user to `admin_users`
+## 5) Map user to `admin_users`
 
 Run in Supabase SQL editor:
 
@@ -62,9 +70,7 @@ from auth.users u
 where u.email = 'admin@yourdomain.com';
 ```
 
-## 5) Verify dashboard RPCs are callable for admin
-
-Log in as admin user on web, then validate manually in SQL editor if needed:
+## 6) Verify RPC access as admin
 
 ```sql
 select public.is_admin();
@@ -73,28 +79,24 @@ select * from public.admin_analytics_audio_engagement('30d') limit 20;
 select * from public.admin_analytics_tailored_sessions('30d');
 ```
 
-## 6) Validate `/admin` UI
-
-Run local web app:
+## 7) Validate `/admin` UI
 
 ```bash
 pnpm -C apps/mobile web
 ```
 
-Open one of:
+Open `http://localhost:8081/admin`.
 
-- `http://localhost:8081/admin`
+Expected:
 
-Expected behavior:
-
-- Admin user: dashboard cards/tables render.
+- Admin user: dashboard loads cards/tables.
 - Non-admin user: unauthorized state.
 
-## 7) Generate test events
+## 8) Generate test events
 
 In a non-admin session:
 
-1. Visit landing page.
+1. Open landing page.
 2. Start auth flow.
 3. Complete signup/login.
 4. Play at least one audio and complete/abandon another.
@@ -112,5 +114,5 @@ order by count(*) desc, event_name asc;
 ## Troubleshooting
 
 - `relation "public.admin_users" does not exist` → migrations not pushed to selected project.
-- Admin login works but `/admin` unauthorized → user not mapped in `admin_users`.
-- Dashboard empty but admin authorized → `track-analytics-event` not deployed or no qualifying events yet.
+- Admin login works but `/admin` is unauthorized → user not in `admin_users`.
+- Dashboard empty but admin authorized → function not deployed, function secrets missing, or no qualifying events yet.

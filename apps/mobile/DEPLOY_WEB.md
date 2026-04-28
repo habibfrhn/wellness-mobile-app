@@ -14,79 +14,97 @@ Alternative workspace form:
 pnpm --filter mobile export:web
 ```
 
-Expected output directory:
-
-- `apps/mobile/dist`
+Expected output directory: `apps/mobile/dist`.
 
 ## 2) Vercel project settings
 
-Set Vercel project config to:
+Configure Vercel project with:
 
 - **Root Directory**: `apps/mobile`
 - **Build Command**: `pnpm export:web`
 - **Output Directory**: `dist`
 
-`apps/mobile/vercel.json` already defines:
+`apps/mobile/vercel.json` already includes:
 
 - SPA rewrites for extensionless routes,
 - cache headers for app shell/auth/static assets,
 - security headers baseline,
-- no `ignoreCommand`, so every production-branch commit triggers a fresh deployment.
+- no `ignoreCommand` (every production-branch commit deploys).
 
-## 3) Required web auth environment variables
+## 3) Required app environment variables (Vercel)
 
-Set these in Vercel for **Preview** and **Production**:
+Set for **Preview** and **Production**:
 
 - `EXPO_PUBLIC_SUPABASE_URL`
 - `EXPO_PUBLIC_SUPABASE_ANON_KEY`
-- `EXPO_PUBLIC_WEB_ORIGIN` (canonical deployed origin, e.g. `https://lumepo.com`)
-- `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` (comma-separated allowlist including all valid origins)
+- `EXPO_PUBLIC_WEB_ORIGIN` (canonical production origin, e.g. `https://lumepo.com`)
+- `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` (comma-separated full allowlist)
 
-Recommended optional toggles:
+Optional toggles:
 
 - `EXPO_PUBLIC_ANALYTICS_ENABLED=true`
 - `EXPO_PUBLIC_AUTH_DEBUG=0`
 
-## 4) Supabase and OAuth parity checklist
+## 4) Supabase Auth + OAuth parity checklist
 
-To keep login/reset/OAuth stable, these must match exactly:
+Keep these aligned to avoid callback/reset failures:
 
 1. **Google OAuth client**
-   - Authorized redirect URI includes:
-     - `https://<project-ref>.supabase.co/auth/v1/callback`
-2. **Supabase Auth URL config**
-   - Site URL: canonical web origin (`https://lumepo.com` in production)
-   - Redirect URLs include callback + reset for all allowed origins.
+   - Authorized redirect URI includes: `https://<project-ref>.supabase.co/auth/v1/callback`.
+2. **Supabase Auth URL configuration**
+   - Site URL = canonical deployed origin.
+   - Redirect URLs include callback + reset paths for every allowed web origin.
 3. **Vercel env vars**
-   - `EXPO_PUBLIC_WEB_ORIGIN` and `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` align with the same domain set.
+   - `EXPO_PUBLIC_WEB_ORIGIN` and `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` match the same domain set.
 
-## 5) Post-deploy verification
+## 5) Edge Function secrets and deploys
 
-- Open deployed `/` landing page and auth entry points.
-- Verify email/password login + signup + verify flow.
-- Verify forgot/reset password (`/auth/reset`) end-to-end.
-- Verify Google OAuth callback completion.
-- Verify `/admin` access behavior for admin vs non-admin users.
-- Verify audio playback and analytics event ingestion.
+In Supabase project secrets, verify:
 
-## 6) April 2026 incident-response checklist (required when applicable)
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `CORS_ALLOWED_ORIGINS` (all web origins that should call browser-facing functions)
 
-If this project was deployed during the April 2026 Vercel incident window, complete:
+Deploy functions used by the web app and operations flows:
+
+```bash
+supabase functions deploy track-analytics-event --no-verify-jwt
+supabase functions deploy resend-verification-email
+supabase functions deploy delete-account-v2
+supabase functions deploy record-night-session
+supabase functions list
+```
+
+## 6) Post-deploy verification
+
+- `/` landing + auth entry points.
+- Email/password sign-up and login.
+- Verify-email flow and resend-verification path.
+- Forgot/reset password flow (`/auth/reset` deep link path handling).
+- Google OAuth callback completion.
+- `/admin` behavior for admin vs non-admin.
+- Audio playback and analytics ingestion.
+- Account deletion flow.
+
+## 7) April 2026 incident-response checklist (required when applicable)
+
+If your deployment window overlaps the April 2026 Vercel incident:
 
 1. Rotate Vercel tokens, Supabase sensitive keys, OAuth secrets, webhook secrets.
 2. Enforce MFA/passkeys for Vercel + GitHub org/team members.
-3. Review Vercel activity + deployment logs for suspicious changes.
+3. Review Vercel activity and deployment logs for suspicious changes.
 4. Keep elevated monitoring on auth/deploy/function anomalies for at least 30 days.
 
-## 7) Operational guardrails
+## 8) Operational guardrails
 
 - Keep `/api/*` and auth redirect routes uncacheable.
-- Keep static asset caching immutable only for hashed asset paths.
-- Keep SPA rewrite restricted to extensionless routes.
+- Keep immutable caching only for hashed static asset paths.
+- Keep SPA rewrite limited to extensionless paths.
 - Never store service-role credentials in `EXPO_PUBLIC_*` env variables.
 
-## 8) Related docs
+## 9) Related docs
 
-- Reset flow setup: `apps/mobile/docs/RESET_PASSWORD_SETUP.md`
-- Admin analytics setup: `apps/mobile/docs/ADMIN_ANALYTICS_SETUP.md`
-- Security baseline: `SECURITY_AUDIT.md`
+- `apps/mobile/docs/RESET_PASSWORD_SETUP.md`
+- `apps/mobile/docs/ADMIN_ANALYTICS_SETUP.md`
+- `SECURITY_AUDIT.md`
