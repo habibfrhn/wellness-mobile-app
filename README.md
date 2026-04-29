@@ -104,8 +104,10 @@ pnpm -C apps/mobile web
 Quality checks:
 
 ```bash
+pnpm test
 pnpm lint
 pnpm typecheck
+pnpm build:web
 pnpm pre-release
 ```
 

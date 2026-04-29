@@ -7,6 +7,8 @@
     "lint": "pnpm -C apps/mobile lint",
     "typecheck": "pnpm -C apps/mobile typecheck",
     "pre-release": "pnpm -C apps/mobile pre-release",
-    "start:web": "pnpm -C apps/mobile web"
+    "start:web": "pnpm -C apps/mobile web",
+    "test": "pnpm -C apps/mobile test",
+    "build:web": "pnpm -C apps/mobile build:web"
   }
 }

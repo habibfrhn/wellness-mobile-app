@@ -10,7 +10,9 @@
     "export:web": "expo export -p web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
-    "pre-release": "bash ./scripts/pre-release.sh"
+    "pre-release": "bash ./scripts/pre-release.sh",
+    "test": "node --test tests/authProviders.test.mjs",
+    "build:web": "expo export -p web"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",

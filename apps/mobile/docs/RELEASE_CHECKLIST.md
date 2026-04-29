@@ -1,8 +1,10 @@
 # Release Checklist (MVP)
 
 ## 1) Code quality gates
+- [ ] `pnpm test`
 - [ ] `pnpm lint`
 - [ ] `pnpm typecheck`
+- [ ] `pnpm build:web`
 - [ ] `pnpm pre-release`
 
 ## 2) Auth & session
