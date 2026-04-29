@@ -11,6 +11,7 @@
 - [ ] Google OAuth login works
 - [ ] Forgot/reset password works end-to-end (`/auth/reset` flow)
 - [ ] Logout fully clears session and returns to auth entry
+- [ ] Automated regression suite passes (`pnpm test`)
 - [ ] Delete account works (user removed from Supabase Auth)
 
 ## 3) Core app flows
