@@ -242,6 +242,41 @@ export async function restoreSession() {
   return { session: refreshedData.session, recovered: true };
 }
 
+
+export async function ensureAuthSessionIsHealthy() {
+  const { data, error } = await supabase.auth.getSession();
+
+  if (error) {
+    logLogoutEvent("warn", "auth_session_health_check_failed", {
+      error: error.message,
+    });
+    await clearLocalSession();
+    await clearPersistedSessionArtifacts();
+    return { hadSession: false, recovered: false };
+  }
+
+  if (!data.session) {
+    return { hadSession: false, recovered: false };
+  }
+
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  const expiresAt = data.session.expires_at ?? nowSeconds;
+  if (expiresAt > nowSeconds + 60) {
+    return { hadSession: true, recovered: false };
+  }
+
+  const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
+  if (refreshError || !refreshed.session) {
+    logLogoutEvent("warn", "auth_session_health_check_refresh_failed", {
+      error: refreshError?.message ?? "session missing after refresh",
+    });
+    await clearLocalSession();
+    await clearPersistedSessionArtifacts();
+    return { hadSession: true, recovered: false };
+  }
+
+  return { hadSession: true, recovered: true };
+}
 export async function signOutToLogin(
   scope: SignOutScope = "global",
   options?: { source?: SignOutSource }

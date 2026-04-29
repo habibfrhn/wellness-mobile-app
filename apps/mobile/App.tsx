@@ -273,6 +273,7 @@ export default function App() {
   const [webAuthErrorBody, setWebAuthErrorBody] = useState<string | null>(null);
 
   const didCheckUpdatesRef = useRef(false);
+  const callbackSessionRef = useRef<SessionType>(null);
   const webLinking = useMemo<LinkingOptions<RootStackParamList>>(
     () => ({
       prefixes:
@@ -519,6 +520,7 @@ export default function App() {
         userId: res.session.user.id,
         sessionProviders: currentProviders,
       });
+      callbackSessionRef.current = res.session;
       setSession(res.session);
       replaceWebUrl(getWebPathForRoute("Home"));
       setWebAuthErrorBody(null);
@@ -579,17 +581,21 @@ export default function App() {
       });
 
       const restoredSession = await restoreSession();
+      const effectiveSession = callbackSessionRef.current ?? restoredSession.session;
+      const restoreOverriddenByCallback = Boolean(callbackSessionRef.current && !restoredSession.session);
       logAuthDebugEvent("info", "oauth_session_after_init_get_session", {
         hasSession: Boolean(restoredSession.session),
         userId: restoredSession.session?.user.id ?? null,
         recovered: restoredSession.recovered,
+        restoreOverriddenByCallback,
       });
       logLogoutEvent("info", "logout_init_session_rehydration_result", {
         hasSession: Boolean(restoredSession.session),
         userId: restoredSession.session?.user.id ?? null,
         recovered: restoredSession.recovered,
+        restoreOverriddenByCallback,
       });
-      setSession(restoredSession.session);
+      setSession(effectiveSession);
 
       const hasResetHint =
         typeof initialUrl === "string" &&

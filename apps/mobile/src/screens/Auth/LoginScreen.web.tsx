@@ -33,7 +33,7 @@ import PasswordToggle from "../../components/PasswordToggle";
 import LoginSignUpPrompt from "../../components/auth/LoginSignUpPrompt";
 import { getSafeAuthErrorMessage, isEmailNotConfirmedError, isInvalidCredentialsError } from "../../services/authSecurity";
 import { isUserVerified } from "../../services/authProviders";
-import { signOutToLogin } from "../../services/authSession";
+import { ensureAuthSessionIsHealthy, signOutToLogin } from "../../services/authSession";
 import { logAuthDebugEvent } from "../../services/authDebug";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
@@ -129,6 +129,13 @@ export default function LoginScreen({ navigation, route }: Props) {
     setFormError(null);
     setBusy(true);
     try {
+      const health = await ensureAuthSessionIsHealthy();
+      logAuthDebugEvent("info", "email_password_login_preflight", {
+        screen: "login_web",
+        hadSession: health.hadSession,
+        recovered: health.recovered,
+      });
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email: e,
         password: p,
