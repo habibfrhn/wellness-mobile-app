@@ -4,9 +4,9 @@ import { NavigationContainer, NavigatorScreenParams } from "@react-navigation/na
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import type { AppStackParamList, AuthStackParamList } from "../navigation/types";
+import AuthStack from "../navigation/AuthStack";
 import LandingScreen from "../screens/LandingScreen";
 
-const AuthStack = lazy(() => import("../navigation/AuthStack"));
 const PrivacyPolicyScreen = lazy(() => import("../screens/App/PrivacyPolicyScreen.web"));
 const TermsConditionsScreen = lazy(() => import("../screens/App/TermsConditionsScreen.web"));
 

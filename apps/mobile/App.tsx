@@ -27,6 +27,7 @@ import { getUserAuthProviders, isUserVerified } from "./src/services/authProvide
 import { logAuthDebugEvent } from "./src/services/authDebug";
 import { restoreSession, signOutToLogin } from "./src/services/authSession";
 import { logLogoutEvent } from "./src/services/logoutDebug";
+import AuthStack from "./src/navigation/AuthStack";
 
 type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
 
@@ -37,7 +38,6 @@ type RootStackParamList = {
 };
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
-const AuthStack = lazy(() => import("./src/navigation/AuthStack"));
 const AppStack = lazy(() => import("./src/navigation/AppStack"));
 const AdminDashboardScreen = lazy(() => import("./src/screens/Admin/AdminDashboardScreen.web"));
 
