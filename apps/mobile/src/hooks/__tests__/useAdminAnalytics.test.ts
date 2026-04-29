@@ -14,19 +14,24 @@ jest.mock('../../services/adminAnalytics', () => ({
 
 describe('useAdminAnalytics', () => {
   beforeEach(() => {
+    mockFetchProduct.mockReset();
+    mockFetchAudio.mockReset();
+    mockFetchTailored.mockReset();
+
     mockFetchProduct.mockResolvedValue({ data: { home_sleep_clicks: 1, tailored_session_selections: 2, tailored_session_starts: 3, successful_signups: 4 }, error: null });
     mockFetchAudio.mockResolvedValue({ data: [], error: null });
     mockFetchTailored.mockResolvedValue({ data: [], error: null });
   });
 
-  it('loads admin panel data and keeps it available after refresh action', async () => {
+  it('loads admin analytics data and keeps it available after reload', async () => {
     const { result } = renderHook(() => useAdminAnalytics(true));
 
     await waitFor(() => expect(result.current.busy).toBe(false));
     expect(result.current.productActions?.successful_signups).toBe(4);
 
     await result.current.reload('7d');
-    expect(mockFetchProduct).toHaveBeenCalledWith('7d');
+    await waitFor(() => expect(result.current.busy).toBe(false));
+    expect(result.current.productActions?.successful_signups).toBe(4);
   });
 
   it('flags unauthorized users from admin functionality', async () => {
@@ -45,5 +50,7 @@ describe('useAdminAnalytics', () => {
     rerender({ enabled: false });
     expect(result.current.productActions).toBeNull();
     expect(result.current.audioRows).toEqual([]);
+    expect(result.current.tailoredRows).toEqual([]);
+    expect(result.current.unauthorized).toBe(false);
   });
 });

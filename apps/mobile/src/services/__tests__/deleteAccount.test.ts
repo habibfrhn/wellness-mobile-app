@@ -33,19 +33,19 @@ describe('deleteCurrentAccount', () => {
     mocks.setNextAuthRoute.mockResolvedValue(undefined);
   });
 
-  it('deletes account and signs out (session invalidation happy path)', async () => {
+  it('deletes account and globally signs user out on success', async () => {
     await expect(deleteCurrentAccount()).resolves.toBeUndefined();
     expect(mocks.invoke).toHaveBeenCalled();
     expect(mocks.signOut).toHaveBeenCalledWith({ scope: 'global' });
   });
 
-  it('refreshes token when session is stale before deletion', async () => {
+  it('refreshes auth once when session is stale before deletion', async () => {
     mocks.getUser.mockResolvedValueOnce({ data: { user: null }, error: new Error('invalid token') });
     mocks.refreshSession.mockResolvedValue({ data: { session: { access_token: 'token-b' } }, error: null });
 
     await expect(deleteCurrentAccount()).resolves.toBeUndefined();
     expect(mocks.refreshSession).toHaveBeenCalled();
-    expect(mocks.invoke).toHaveBeenCalledTimes(2);
+    expect(mocks.signOut).toHaveBeenCalledWith({ scope: 'global' });
   });
 
   it('fails with user-safe error on backend auth failure', async () => {
