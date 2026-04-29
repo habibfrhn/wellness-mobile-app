@@ -10,7 +10,8 @@
     "export:web": "expo export -p web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
-    "pre-release": "bash ./scripts/pre-release.sh"
+    "pre-release": "bash ./scripts/pre-release.sh",
+    "test": "jest --runInBand"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
@@ -43,7 +44,12 @@
     "@types/react": "~19.1.0",
     "eslint": "^9.36.0",
     "eslint-config-expo": "^10.0.0",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "@testing-library/react-native": "^13.3.3",
+    "@types/jest": "^30.0.0",
+    "jest": "^30.0.5",
+    "jest-expo": "~54.0.11",
+    "react-test-renderer": "19.1.0"
   },
   "private": true
 }
