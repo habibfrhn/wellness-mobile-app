@@ -603,6 +603,21 @@ export default function App() {
       }
 
       const { data: authListener } = supabase.auth.onAuthStateChange((event, sess) => {
+        const mappedEvent =
+          event === "SIGNED_IN"
+            ? "session:detected"
+            : event === "SIGNED_OUT"
+              ? "session:missing"
+              : event === "TOKEN_REFRESHED"
+                ? "token:refresh:success"
+                : null;
+        if (mappedEvent) {
+          logAuthDebugEvent("info", mappedEvent, {
+            sourceEvent: event,
+            hasSession: Boolean(sess),
+            userId: sess?.user.id ?? null,
+          });
+        }
         logAuthDebugEvent("info", "oauth_auth_state_change", {
           event,
           hasSession: Boolean(sess),

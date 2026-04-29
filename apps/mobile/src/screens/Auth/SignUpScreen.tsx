@@ -158,6 +158,11 @@ export default function SignUpScreen({ navigation, route }: Props) {
 
     setBusy(true);
     try {
+      logAuthDebugEvent("info", "signup:start", {
+        method: "password",
+        screen: "signup",
+        emailDomain: e.split("@")[1] ?? null,
+      });
       if (!hasValidAuthRedirects) {
         setFormError(id.forgot.failedBody);
         return;
@@ -184,6 +189,11 @@ export default function SignUpScreen({ navigation, route }: Props) {
       });
 
       if (error) {
+        logAuthDebugEvent("warn", "signup:error", {
+          method: "password",
+          screen: "signup",
+          error: error.message,
+        });
         if (isWeakPasswordError(error.message)) {
           setErrors((prev) => ({
             ...prev,
@@ -211,8 +221,18 @@ export default function SignUpScreen({ navigation, route }: Props) {
       }
 
       void trackEvent("signup_complete", { method: "email" });
+      logAuthDebugEvent("info", "signup:success", {
+        method: "password",
+        screen: "signup",
+        userId: data.user?.id ?? null,
+      });
       navigation.replace("VerifyEmail", { email: e, context: "signup" });
     } catch {
+      logAuthDebugEvent("error", "signup:error", {
+        method: "password",
+        screen: "signup",
+        error: "unknown_error",
+      });
       setFormError(id.common.genericAuthError);
     } finally {
       setBusy(false);

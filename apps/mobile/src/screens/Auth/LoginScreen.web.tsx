@@ -129,6 +129,11 @@ export default function LoginScreen({ navigation, route }: Props) {
     setFormError(null);
     setBusy(true);
     try {
+      logAuthDebugEvent("info", "login:start", {
+        method: "password",
+        screen: "login_web",
+        emailDomain: e.split("@")[1] ?? null,
+      });
       const { data, error } = await supabase.auth.signInWithPassword({
         email: e,
         password: p,
@@ -144,6 +149,11 @@ export default function LoginScreen({ navigation, route }: Props) {
       });
 
       if (error) {
+        logAuthDebugEvent("warn", "login:error", {
+          method: "password",
+          screen: "login_web",
+          error: error.message,
+        });
         if (isEmailNotConfirmedError(error.message)) {
           navigation.replace("VerifyEmail", { email: e, context: "login_unverified" });
           return;
@@ -160,6 +170,18 @@ export default function LoginScreen({ navigation, route }: Props) {
         navigation.replace("VerifyEmail", { email: e, context: "login_unverified" });
         return;
       }
+      logAuthDebugEvent("info", "login:success", {
+        method: "password",
+        screen: "login_web",
+        userId: data.user?.id ?? null,
+      });
+    } catch (error) {
+      logAuthDebugEvent("error", "login:error", {
+        method: "password",
+        screen: "login_web",
+        error: error instanceof Error ? error.message : "unknown_error",
+      });
+      setFormError(id.common.genericAuthError);
     } finally {
       setBusy(false);
     }
