@@ -27,14 +27,13 @@ import {
 import { id } from "../../i18n/strings";
 import GoogleAuthButton from "../../components/auth/GoogleAuthButton";
 import { clearPendingProfileName } from "../../services/pendingProfileName";
-import { supabase } from "../../services/supabase";
 import { continueWithGoogle } from "../../services/authOAuth";
 import PasswordToggle from "../../components/PasswordToggle";
 import LoginSignUpPrompt from "../../components/auth/LoginSignUpPrompt";
 import { getSafeAuthErrorMessage, isEmailNotConfirmedError, isInvalidCredentialsError } from "../../services/authSecurity";
-import { isUserVerified } from "../../services/authProviders";
 import { signOutToLogin } from "../../services/authSession";
 import { logAuthDebugEvent } from "../../services/authDebug";
+import { signInWithEmailPassword } from "../../services/authEmailPassword";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
@@ -129,35 +128,26 @@ export default function LoginScreen({ navigation, route }: Props) {
     setFormError(null);
     setBusy(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const result = await signInWithEmailPassword({
         email: e,
         password: p,
-      });
-
-      logAuthDebugEvent(error ? "warn" : "info", "email_password_login_result", {
         screen: "login_web",
-        emailDomain: e.split("@")[1] ?? null,
-        ok: !error,
-        error: error?.message ?? null,
-        hasSession: Boolean(data.session),
-        userId: data.user?.id ?? null,
       });
 
-      if (error) {
-        if (isEmailNotConfirmedError(error.message)) {
-          navigation.replace("VerifyEmail", { email: e, context: "login_unverified" });
+      if (result.status === "error") {
+        if (isEmailNotConfirmedError(result.message)) {
+          navigation.replace("VerifyEmail", { email: result.email, context: "login_unverified" });
           return;
         }
 
-        setErrors(isInvalidCredentialsError(error.message) ? { password: id.login.errorInvalidCredentials } : {});
-        setFormError(getSafeAuthErrorMessage(error.message, id.common.genericAuthError));
+        setErrors(isInvalidCredentialsError(result.message) ? { password: id.login.errorInvalidCredentials } : {});
+        setFormError(getSafeAuthErrorMessage(result.message, id.common.genericAuthError));
         return;
       }
 
-      const verified = isUserVerified(data.user);
-      if (!verified) {
+      if (result.status === "unverified") {
         await signOutToLogin();
-        navigation.replace("VerifyEmail", { email: e, context: "login_unverified" });
+        navigation.replace("VerifyEmail", { email: result.email, context: "login_unverified" });
         return;
       }
     } finally {
