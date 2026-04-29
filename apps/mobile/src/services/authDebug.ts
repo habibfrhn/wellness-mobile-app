@@ -3,6 +3,7 @@ import { Platform } from "react-native";
 type AuthDebugLevel = "info" | "warn" | "error";
 
 const AUTH_DEBUG_ENABLED = process.env.EXPO_PUBLIC_AUTH_DEBUG === "1";
+const WEB_ALWAYS_LOG = Platform.OS === "web";
 
 function safeSerialize(payload: Record<string, unknown>) {
   try {
@@ -13,7 +14,7 @@ function safeSerialize(payload: Record<string, unknown>) {
 }
 
 export function logAuthDebugEvent(level: AuthDebugLevel, event: string, details: Record<string, unknown> = {}) {
-  if (!AUTH_DEBUG_ENABLED) {
+  if (!AUTH_DEBUG_ENABLED && !WEB_ALWAYS_LOG) {
     return;
   }
 
@@ -24,7 +25,7 @@ export function logAuthDebugEvent(level: AuthDebugLevel, event: string, details:
     ...details,
   };
 
-  const line = `[auth] ${safeSerialize(payload)}`;
+  const line = `[AUTH] ${event} ${safeSerialize(payload)}`;
 
   if (level === "error") {
     console.error(line);

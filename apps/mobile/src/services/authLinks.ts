@@ -136,6 +136,9 @@ function isTrustedAuthLinkUrl(parsedUrl: URL) {
  * Handles Supabase auth links for web and native.
  */
 export async function handleAuthLink(url: string) {
+  logAuthDebugEvent("info", "oauth:callback", {
+    summary: summarizeAuthUrl(url),
+  });
   logAuthDebugEvent("info", "oauth_callback_received", {
     summary: summarizeAuthUrl(url),
   });

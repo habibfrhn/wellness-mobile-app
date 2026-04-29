@@ -108,6 +108,10 @@ export default function LoginScreen({ navigation, route }: Props) {
 
     setErrors({});
     setFormError(null);
+    logAuthDebugEvent("info", "login:start", {
+      screen: "login_native",
+      emailDomain: e.split("@")[1] ?? null,
+    });
     setBusy(true);
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -115,7 +119,7 @@ export default function LoginScreen({ navigation, route }: Props) {
         password: p,
       });
 
-      logAuthDebugEvent(error ? "warn" : "info", "email_password_login_result", {
+      logAuthDebugEvent(error ? "warn" : "info", error ? "login:error" : "login:success", {
         screen: "login_native",
         emailDomain: e.split("@")[1] ?? null,
         ok: !error,
@@ -132,6 +136,16 @@ export default function LoginScreen({ navigation, route }: Props) {
 
         setErrors(isInvalidCredentialsError(error.message) ? { password: id.login.errorInvalidCredentials } : {});
         setFormError(getSafeAuthErrorMessage(error.message, id.common.genericAuthError));
+        return;
+      }
+
+      if (!data.session) {
+        logAuthDebugEvent("error", "login:error", {
+          screen: "login_native",
+          emailDomain: e.split("@")[1] ?? null,
+          error: "sign_in_succeeded_without_session",
+        });
+        setFormError(id.common.genericAuthError);
         return;
       }
 
@@ -155,7 +169,7 @@ export default function LoginScreen({ navigation, route }: Props) {
     setFormError(null);
     setBusyGoogle(true);
     try {
-      logAuthDebugEvent("info", "oauth_google_start_requested", {
+      logAuthDebugEvent("info", "oauth:redirect:start", {
         screen: "login_native",
       });
       await clearPendingProfileName();

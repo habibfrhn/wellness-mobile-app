@@ -156,6 +156,10 @@ export default function SignUpScreen({ navigation, route }: Props) {
     const e = email.trim().toLowerCase();
     const trimmedName = name.trim();
 
+    logAuthDebugEvent("info", "signup:start", {
+      screen: "signup",
+      emailDomain: e.split("@")[1] ?? null,
+    });
     setBusy(true);
     try {
       if (!hasValidAuthRedirects) {
@@ -173,7 +177,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
         },
       });
 
-      logAuthDebugEvent(error ? "warn" : "info", "email_password_signup_result", {
+      logAuthDebugEvent(error ? "warn" : "info", error ? "signup:error" : "signup:success", {
         screen: "signup",
         emailDomain: e.split("@")[1] ?? null,
         ok: !error,
@@ -228,7 +232,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
     setFormError(null);
     setBusyGoogle(true);
     try {
-      logAuthDebugEvent("info", "oauth_google_start_requested", {
+      logAuthDebugEvent("info", "oauth:redirect:start", {
         screen: "signup",
       });
       await setPendingProfileName(name);

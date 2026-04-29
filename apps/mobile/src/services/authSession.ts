@@ -3,6 +3,7 @@ import { supabase } from "./supabase";
 import { setNextAuthRoute } from "./authStart";
 import { clearSupabaseNativeAuthArtifacts, getRelatedAuthStorageKeys } from "./authStorage";
 import { logLogoutEvent } from "./logoutDebug";
+import { logAuthDebugEvent } from "./authDebug";
 
 type SignOutScope = "global" | "local" | "others";
 type AuthSession = Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
@@ -217,6 +218,9 @@ export async function restoreSession() {
   });
 
   if (error || !data.session) {
+    logAuthDebugEvent(error ? "warn" : "info", "session:missing", {
+      error: error?.message ?? null,
+    });
     if (error) {
       await clearLocalSession();
       await clearPersistedSessionArtifacts();
@@ -229,16 +233,27 @@ export async function restoreSession() {
   const shouldRefresh = expiresAt <= nowSeconds + 60;
 
   if (!shouldRefresh) {
+    logAuthDebugEvent("info", "session:detected", {
+      userId: data.session.user.id,
+      expiresAt: data.session.expires_at ?? null,
+    });
     return { session: data.session, recovered: false };
   }
 
   const { data: refreshedData, error: refreshError } = await supabase.auth.refreshSession();
   if (refreshError || !refreshedData.session) {
+    logAuthDebugEvent("error", "token:refresh:error", {
+      error: refreshError?.message ?? null,
+    });
     await clearLocalSession();
     await clearPersistedSessionArtifacts();
     return { session: null as AuthSession, recovered: false };
   }
 
+  logAuthDebugEvent("info", "token:refresh:success", {
+    userId: refreshedData.session.user.id,
+    expiresAt: refreshedData.session.expires_at ?? null,
+  });
   return { session: refreshedData.session, recovered: true };
 }
 
@@ -306,6 +321,11 @@ export async function signOutToLogin(
       source,
       scope,
       ok: !finalError,
+      error: finalError?.message ?? null,
+    });
+    logAuthDebugEvent(finalError ? "error" : "info", finalError ? "logout:error" : "logout:success", {
+      source,
+      scope,
       error: finalError?.message ?? null,
     });
 
