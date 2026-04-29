@@ -175,6 +175,11 @@ export default function LoginScreen({ navigation, route }: Props) {
         screen: "login_web",
         userId: data.user?.id ?? null,
       });
+      const rootNavigation = navigation.getParent();
+      rootNavigation?.reset({
+        index: 0,
+        routes: [{ name: "App" as never }],
+      });
     } catch (error) {
       logAuthDebugEvent("error", "login:error", {
         method: "password",
