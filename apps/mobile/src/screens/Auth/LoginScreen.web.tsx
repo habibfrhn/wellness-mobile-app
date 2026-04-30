@@ -35,6 +35,7 @@ import { getSafeAuthErrorMessage, isEmailNotConfirmedError, isInvalidCredentials
 import { isUserVerified } from "../../services/authProviders";
 import { signOutToLogin } from "../../services/authSession";
 import { logAuthDebugEvent } from "../../services/authDebug";
+import { replaceWebUrl } from "../../services/webAuth";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
@@ -174,7 +175,10 @@ export default function LoginScreen({ navigation, route }: Props) {
         hasSession: Boolean(data.session),
       });
 
-      // Root transition is centralized in App.tsx via auth session observer + resetRoot.
+      replaceWebUrl("/beranda");
+      if (typeof window !== "undefined") {
+        window.location.assign("/beranda");
+      }
     } finally {
       setBusy(false);
     }
