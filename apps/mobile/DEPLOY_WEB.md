@@ -83,8 +83,9 @@ If this project was deployed during the April 2026 Vercel incident window, compl
 
 ## 7) Operational guardrails
 
+- Keep `/`, `/index.html`, and extensionless SPA shell routes uncacheable (`private, no-store`) to prevent stale entry bundles loading removed chunk files after deploys (observed as `AsyncRequireError`/404 on `_expo/static/js/web/*` in Edge and other browsers).
 - Keep `/api/*` and auth redirect routes uncacheable.
-- Keep static asset caching immutable only for hashed asset paths.
+- Keep static asset caching immutable only for hashed asset paths that are still present in the current deployment output.
 - Keep SPA rewrite restricted to extensionless routes.
 - Never store service-role credentials in `EXPO_PUBLIC_*` env variables.
 
@@ -93,3 +94,14 @@ If this project was deployed during the April 2026 Vercel incident window, compl
 - Reset flow setup: `apps/mobile/docs/RESET_PASSWORD_SETUP.md`
 - Admin analytics setup: `apps/mobile/docs/ADMIN_ANALYTICS_SETUP.md`
 - Security baseline: `SECURITY_AUDIT.md`
+
+## 9) Browser compatibility smoke checks (Chrome, Edge, Safari, Firefox)
+
+After each production deploy, validate in at least one fresh session per browser:
+
+- Open `/` then navigate to Login and Sign Up.
+- Confirm no 404 for dynamic chunks under `/_expo/static/js/web/`.
+- Confirm no `AsyncRequireError` or MIME errors for JS chunks.
+- Verify auth callback and reset links complete and route correctly.
+
+If a browser shows blank auth screens with missing chunk errors, capture the failing chunk URL and verify it exists in the deployed `dist/_expo/static/js/web/` output for that deployment; missing files usually indicate stale app-shell caching versus latest assets.
