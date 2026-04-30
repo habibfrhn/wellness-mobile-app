@@ -18,6 +18,8 @@ function getWebStorageCandidates() {
 }
 
 function getWebStorageValue(storageKey: string) {
+  let hadStorageAccessError = false;
+
   for (const storage of getWebStorageCandidates()) {
     try {
       const value = storage.getItem(storageKey);
@@ -25,11 +27,12 @@ function getWebStorageValue(storageKey: string) {
         return value;
       }
     } catch {
+      hadStorageAccessError = true;
       // Continue with the next candidate.
     }
   }
 
-  if (shouldLogWebStorageWarning(storageKey)) {
+  if (hadStorageAccessError && shouldLogWebStorageWarning(storageKey)) {
     console.warn("[auth-storage] Failed to read auth key from web storage", { storageKey });
   }
   return null;
