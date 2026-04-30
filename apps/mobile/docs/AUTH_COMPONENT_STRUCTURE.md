@@ -39,6 +39,7 @@ Screen responsibilities:
 
 - `App.tsx` is the single source of truth for web auth/app stack routing.
 - Session-driven root redirects happen in `App.tsx` (Auth/Landing/App decision).
+- Web bootstrap in `App.tsx` must process auth links from both dedicated paths (`/auth/callback`, `/auth/reset`) and root URLs that still carry auth params (`code`, `token_hash`, `type`, etc.).
 - Login screens should only perform success completion steps specific to the surface (for web: final `/beranda` URL update).
 
 ## Change rules (to reduce regressions)
@@ -48,3 +49,13 @@ Screen responsibilities:
 3. Update both web and native screens only for UI/navigation concerns.
 4. If origin rules change, update `webAuth.ts` + deployment docs together.
 5. If callback/reset behavior changes, update `authLinks.ts` + `RESET_PASSWORD_SETUP.md`.
+
+## Auth redirect debugging checklist
+
+When verification/reset links do not route as expected in production:
+
+1. Confirm `signUp(... options.emailRedirectTo)` and reset redirect values are built from `src/services/supabase.ts` (`AUTH_CALLBACK`, `AUTH_RESET`).
+2. Confirm origin allowlist logic in `src/services/webAuth.ts` accepts the active domain (including preview wildcards when used).
+3. Confirm `App.tsx` auth bootstrap still checks current web URL for auth params, not only `/auth/*` paths.
+4. Confirm Supabase URL Configuration includes every deployed callback/reset URL variant.
+5. Confirm `vercel.json` keeps `/auth/callback` and `/auth/reset` uncacheable and SPA-rewritten.

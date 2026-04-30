@@ -602,7 +602,8 @@ export default function App() {
       const initialUrl = await Linking.getInitialURL();
       const initialWebAuthPath = Platform.OS === "web" && typeof window !== "undefined" ? getWebAuthPath(window.location.pathname) : null;
       const initialWebUrl = Platform.OS === "web" && typeof window !== "undefined" ? window.location.href : null;
-      const initialAuthUrl = initialWebAuthPath && initialWebUrl ? initialWebUrl : initialUrl;
+      const initialWebAuthCandidate = typeof initialWebUrl === "string" && isPotentialAuthLink(initialWebUrl) ? initialWebUrl : null;
+      const initialAuthUrl = initialWebAuthPath && initialWebUrl ? initialWebUrl : initialWebAuthCandidate ?? initialUrl;
       logAuthDebugEvent("info", "oauth_callback_bootstrap", {
         detectedWebPath: initialWebAuthPath,
         webLocation: summarizeAuthUrl(initialWebUrl),
@@ -611,7 +612,7 @@ export default function App() {
         configuredOrigin: Platform.OS === "web" ? getWebAppOrigin() : null,
       });
 
-      if (initialWebAuthPath) {
+      if (initialWebAuthPath || initialWebAuthCandidate) {
         setWebAuthStatus("loading");
       }
 
