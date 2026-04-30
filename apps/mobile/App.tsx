@@ -237,7 +237,11 @@ const WEB_KNOWN_RESPONDER_WARNINGS = [
   "props.pointerEvents is deprecated. Use style.pointerEvents",
 ] as const;
 
-function shouldSuppressKnownWebResponderWarning(args: unknown[]) {
+const WEB_KNOWN_AUTH_NOISE = [
+  "AuthApiError: Invalid Refresh Token: Refresh Token Not Found",
+] as const;
+
+function shouldSuppressKnownWebConsoleNoise(args: unknown[]) {
   if (Platform.OS !== "web" || args.length === 0) {
     return false;
   }
@@ -247,7 +251,10 @@ function shouldSuppressKnownWebResponderWarning(args: unknown[]) {
     return false;
   }
 
-  return WEB_KNOWN_RESPONDER_WARNINGS.some((warning) => firstArg.includes(warning));
+  return (
+    WEB_KNOWN_RESPONDER_WARNINGS.some((warning) => firstArg.includes(warning)) ||
+    WEB_KNOWN_AUTH_NOISE.some((warning) => firstArg.includes(warning))
+  );
 }
 
 if (Platform.OS === "web") {
@@ -255,14 +262,14 @@ if (Platform.OS === "web") {
   const originalConsoleError = console.error.bind(console);
 
   console.warn = (...args: unknown[]) => {
-    if (shouldSuppressKnownWebResponderWarning(args)) {
+    if (shouldSuppressKnownWebConsoleNoise(args)) {
       return;
     }
     originalConsoleWarn(...args);
   };
 
   console.error = (...args: unknown[]) => {
-    if (shouldSuppressKnownWebResponderWarning(args)) {
+    if (shouldSuppressKnownWebConsoleNoise(args)) {
       return;
     }
     originalConsoleError(...args);
