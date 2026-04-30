@@ -285,6 +285,50 @@ export default function App() {
   const [webAuthErrorBody, setWebAuthErrorBody] = useState<string | null>(null);
 
   const didCheckUpdatesRef = useRef(false);
+
+  useEffect(() => {
+    if (Platform.OS !== "web" || typeof window === "undefined") {
+      return;
+    }
+
+    const onError = (event: ErrorEvent) => {
+      logAuthDebugEvent("error", "web_runtime_error", {
+        message: event.message,
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+        href: window.location.href,
+      });
+    };
+
+    const onUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const reason =
+        typeof event.reason === "string"
+          ? event.reason
+          : event.reason instanceof Error
+            ? event.reason.message
+            : JSON.stringify(event.reason);
+
+      logAuthDebugEvent("error", "web_unhandled_promise_rejection", {
+        reason,
+        href: window.location.href,
+      });
+    };
+
+    window.addEventListener("error", onError);
+    window.addEventListener("unhandledrejection", onUnhandledRejection);
+
+    logAuthDebugEvent("info", "web_runtime_diagnostics_enabled", {
+      href: window.location.href,
+      userAgent: typeof navigator !== "undefined" ? navigator.userAgent : null,
+    });
+
+    return () => {
+      window.removeEventListener("error", onError);
+      window.removeEventListener("unhandledrejection", onUnhandledRejection);
+    };
+  }, []);
+
   const webLinking = useMemo<LinkingOptions<RootStackParamList>>(
     () => ({
       prefixes:

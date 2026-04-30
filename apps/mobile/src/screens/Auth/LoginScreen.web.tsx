@@ -129,6 +129,13 @@ export default function LoginScreen({ navigation, route }: Props) {
     setFormError(null);
     setBusy(true);
     try {
+      logAuthDebugEvent("info", "email_password_login_attempt", {
+        screen: "login_web",
+        emailDomain: e.split("@")[1] ?? null,
+        href: typeof window !== "undefined" ? window.location.href : null,
+        userAgent: typeof navigator !== "undefined" ? navigator.userAgent : null,
+      });
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email: e,
         password: p,
@@ -159,6 +166,17 @@ export default function LoginScreen({ navigation, route }: Props) {
         await signOutToLogin();
         navigation.replace("VerifyEmail", { email: e, context: "login_unverified" });
         return;
+      }
+
+      logAuthDebugEvent("info", "email_password_login_verified", {
+        screen: "login_web",
+        userId: data.user?.id ?? null,
+        hasSession: Boolean(data.session),
+      });
+
+      const parent = navigation.getParent();
+      if (parent) {
+        parent.navigate("App" as never);
       }
     } finally {
       setBusy(false);
