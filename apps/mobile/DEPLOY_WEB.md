@@ -116,3 +116,4 @@ If a browser shows blank auth screens with missing chunk errors, capture the fai
 - Keep app-shell routes uncacheable; stale shell files are a primary cause of missing dynamic chunk 404 errors across Chromium browsers.
 - Modal focus restoration must only run after an actual visible -> hidden transition; avoid blurring focus on initial render when modal is already hidden.
 - Edge warning `[Intervention] Images loaded lazily...` is informational browser behavior, not an app regression.
+- `AuthApiError: Invalid Refresh Token: Refresh Token Not Found` on initial landing load is usually stale local/session auth storage from an earlier session; ensure `authSession.restoreSession()` cleanup paths remain intact and clear artifacts during sign-out/session recovery before treating as backend outage.

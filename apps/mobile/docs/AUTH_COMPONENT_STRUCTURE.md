@@ -49,6 +49,7 @@ Screen responsibilities:
 3. Update both web and native screens only for UI/navigation concerns.
 4. If origin rules change, update `webAuth.ts` + deployment docs together.
 5. If callback/reset behavior changes, update `authLinks.ts` + `RESET_PASSWORD_SETUP.md`.
+6. If auth-session recovery/logging behavior changes, update `authSession.ts` + `DEPLOY_WEB.md` notes together and verify web console-noise filters only suppress known non-actionable messages.
 
 ## Auth redirect debugging checklist
 
@@ -59,3 +60,4 @@ When verification/reset links do not route as expected in production:
 3. Confirm `App.tsx` auth bootstrap still checks current web URL for auth params, not only `/auth/*` paths.
 4. Confirm Supabase URL Configuration includes every deployed callback/reset URL variant.
 5. Confirm `vercel.json` keeps `/auth/callback` and `/auth/reset` uncacheable and SPA-rewritten.
+6. If you see `Invalid Refresh Token: Refresh Token Not Found` on landing, treat it as a stale-client-session signal first: verify session artifact cleanup and re-test in a fresh browser profile before escalating.
