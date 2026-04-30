@@ -5,6 +5,56 @@ import { secureStoreChunked } from "./secureStoreChunked";
 
 const CODE_VERIFIER_SUFFIX = "-code-verifier";
 
+function getWebStorageCandidates() {
+  if (typeof window === "undefined") {
+    return [] as Storage[];
+  }
+
+  return [window.localStorage, window.sessionStorage];
+}
+
+function getWebStorageValue(storageKey: string) {
+  for (const storage of getWebStorageCandidates()) {
+    try {
+      const value = storage.getItem(storageKey);
+      if (value != null) {
+        return value;
+      }
+    } catch {
+      // Continue with the next candidate.
+    }
+  }
+
+  console.warn("[auth-storage] Failed to read auth key from web storage", { storageKey });
+  return null;
+}
+
+function setWebStorageValue(storageKey: string, value: string) {
+  for (const storage of getWebStorageCandidates()) {
+    try {
+      storage.setItem(storageKey, value);
+      return;
+    } catch {
+      // Continue with the next candidate.
+    }
+  }
+
+  console.warn("[auth-storage] Failed to persist auth key in web storage", { storageKey });
+}
+
+function removeWebStorageValue(storageKey: string) {
+  for (const storage of getWebStorageCandidates()) {
+    try {
+      storage.removeItem(storageKey);
+      return;
+    } catch {
+      // Continue with the next candidate.
+    }
+  }
+
+  console.warn("[auth-storage] Failed to remove auth key from web storage", { storageKey });
+}
+
 function buildRelatedAuthStorageKeys(storageKey: string | null) {
   if (!storageKey) {
     return [] as string[];
@@ -36,16 +86,7 @@ export const supabaseAuthStorage = {
         return null;
       }
 
-      try {
-        return window.localStorage.getItem(storageKey);
-      } catch {
-        try {
-          return window.sessionStorage.getItem(storageKey);
-        } catch {
-          console.warn("[auth-storage] Failed to read auth key from web storage", { storageKey });
-          return null;
-        }
-      }
+      return getWebStorageValue(storageKey);
     }
 
     const secureValue = await secureStoreChunked.getItem(storageKey);
@@ -61,16 +102,7 @@ export const supabaseAuthStorage = {
         return;
       }
 
-      try {
-        window.localStorage.setItem(storageKey, value);
-      } catch {
-        try {
-          window.sessionStorage.setItem(storageKey, value);
-        } catch {
-          console.warn("[auth-storage] Failed to persist auth key in web storage", { storageKey });
-          // Ignore browser storage failures; auth SDK will continue using in-memory state.
-        }
-      }
+      setWebStorageValue(storageKey, value);
       return;
     }
 
@@ -82,16 +114,7 @@ export const supabaseAuthStorage = {
         return;
       }
 
-      try {
-        window.localStorage.removeItem(storageKey);
-      } catch {
-        try {
-          window.sessionStorage.removeItem(storageKey);
-        } catch {
-          console.warn("[auth-storage] Failed to remove auth key from web storage", { storageKey });
-          // Ignore browser storage failures; best-effort cleanup only.
-        }
-      }
+      removeWebStorageValue(storageKey);
       return;
     }
 
