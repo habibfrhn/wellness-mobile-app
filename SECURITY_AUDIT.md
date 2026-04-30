@@ -1,6 +1,6 @@
 # Security Audit & Hardening Baseline
 
-Date updated: 2026-04-21  
+Date updated: 2026-04-30  
 Scope: `apps/mobile` web app deployment surface, Supabase edge functions, auth/session handling, and operational documentation.
 
 Reference bulletin: https://vercel.com/kb/bulletin/vercel-april-2026-security-incident
@@ -33,6 +33,7 @@ Verified in `apps/mobile/vercel.json`:
 Verified in `apps/mobile/src/services/authLinks.ts`, `webAuth.ts`, `authSession.ts`, and `App.tsx`:
 
 - Web auth links are accepted only from allowed origins.
+- Allowed-origin matching supports exact origins and wildcard subdomains (for example `https://*.vercel.app`) to keep preview deployments stable across redeploys.
 - Reset/callback flows support Expo web path variants while preserving validation.
 - Fallback behavior in production blocks invalid callback origin generation if required web origin config is missing.
 - Logout flow includes resilient local cleanup paths to avoid stuck sessions after storage/network failures.

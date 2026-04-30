@@ -40,7 +40,7 @@ Set these in Vercel for **Preview** and **Production**:
 - `EXPO_PUBLIC_SUPABASE_URL`
 - `EXPO_PUBLIC_SUPABASE_ANON_KEY`
 - `EXPO_PUBLIC_WEB_ORIGIN` (canonical deployed origin, e.g. `https://lumepo.com`)
-- `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` (comma-separated allowlist including all valid origins)
+- `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` (comma-separated allowlist including all valid origins, including wildcard preview entries such as `https://*.vercel.app`)
 
 Recommended optional toggles:
 
@@ -57,6 +57,9 @@ To keep login/reset/OAuth stable, these must match exactly:
 2. **Supabase Auth URL config**
    - Site URL: canonical web origin (`https://lumepo.com` in production)
    - Redirect URLs include callback + reset for all allowed origins.
+   - For stable preview auth across redeploys, add wildcard redirect entries:
+     - `https://*.vercel.app/auth/callback`
+     - `https://*.vercel.app/auth/reset`
 3. **Vercel env vars**
    - `EXPO_PUBLIC_WEB_ORIGIN` and `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` align with the same domain set.
 

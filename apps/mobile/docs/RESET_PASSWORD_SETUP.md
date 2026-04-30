@@ -16,6 +16,8 @@ In **Supabase Dashboard → Authentication → URL Configuration**:
    - `https://lumepo.com/auth/reset`
    - `https://www.lumepo.com/auth/callback`
    - `https://www.lumepo.com/auth/reset`
+   - `https://*.vercel.app/auth/callback`
+   - `https://*.vercel.app/auth/reset`
 
 If these are missing/mismatched, users may open the email link but fail session exchange.
 
@@ -27,7 +29,7 @@ Create/update `apps/mobile/.env`:
 EXPO_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
 EXPO_PUBLIC_WEB_ORIGIN=http://localhost:8081
-EXPO_PUBLIC_WEB_ALLOWED_ORIGINS=http://localhost:8081,https://lumepo.com,https://www.lumepo.com
+EXPO_PUBLIC_WEB_ALLOWED_ORIGINS=http://localhost:8081,https://lumepo.com,https://www.lumepo.com,https://*.vercel.app
 ```
 
 ## 3) Local runtime steps

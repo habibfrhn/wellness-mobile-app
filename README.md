@@ -72,14 +72,14 @@ Create `apps/mobile/.env` for local development:
 EXPO_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
 EXPO_PUBLIC_WEB_ORIGIN=http://localhost:8081
-EXPO_PUBLIC_WEB_ALLOWED_ORIGINS=http://localhost:8081,https://lumepo.com,https://www.lumepo.com
+EXPO_PUBLIC_WEB_ALLOWED_ORIGINS=http://localhost:8081,https://lumepo.com,https://www.lumepo.com,https://*.vercel.app
 ```
 
 Optional toggles used by the app:
 
 ```bash
 EXPO_PUBLIC_ANALYTICS_ENABLED=true   # set false to disable client analytics queue
-EXPO_PUBLIC_AUTH_DEBUG=0             # set 1 in dev to emit auth debug logs
+EXPO_PUBLIC_AUTH_DEBUG=0             # set 1 to emit auth debug logs in the current deployment
 ```
 
 > Never place service-role or other backend secrets in `EXPO_PUBLIC_*` vars.
