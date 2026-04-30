@@ -21,6 +21,7 @@ import { hideSplashScreen, preventAutoHideSplashScreen } from "./src/services/sp
 import { setPendingUpdate } from "./src/services/updatesState";
 import { clearNextAuthRoute, getNextAuthRoute, setNextAuthRoute } from "./src/services/authStart";
 import { clearPendingProfileName, getPendingProfileName } from "./src/services/pendingProfileName";
+import { clearPendingEmailVerification, matchesPendingEmailVerification } from "./src/services/emailVerificationRedirect";
 import WebAuthStatusScreen from "./src/components/auth/WebAuthStatusScreen";
 import { getWebAppOrigin, getWebAuthPath, replaceWebUrl } from "./src/services/webAuth";
 import { getUserAuthProviders, isUserVerified } from "./src/services/authProviders";
@@ -530,10 +531,17 @@ export default function App() {
       }
 
       const isEmailVerificationLink = res.linkType === "signup" || res.linkType === "email_change";
-      if (isEmailVerificationLink) {
+      const callbackEmailResolution = res.session ? resolveOAuthCallbackEmail(res.session.user) : { email: "", source: "missing" as const };
+      const isPendingSignupVerification =
+        res.linkType === "unknown" && Boolean(res.session) && (await matchesPendingEmailVerification(callbackEmailResolution.email));
+
+      if (isEmailVerificationLink || isPendingSignupVerification) {
         logAuthDebugEvent("info", "oauth_callback_email_verification_link", {
           linkType: res.linkType,
+          inferredFromPendingSignup: isPendingSignupVerification,
+          emailSource: callbackEmailResolution.source,
         });
+        await clearPendingEmailVerification();
         await signOutToLogin("global", { source: "email_verification_guard" });
         await setNextAuthRoute("Login");
         setAuthStartRoute("Login");
@@ -554,7 +562,6 @@ export default function App() {
         return;
       }
 
-      const callbackEmailResolution = resolveOAuthCallbackEmail(res.session.user);
       const callbackEmail = callbackEmailResolution.email;
       if (!callbackEmail) {
         logAuthDebugEvent("warn", "oauth_callback_missing_email", {
@@ -594,6 +601,7 @@ export default function App() {
         userId: res.session.user.id,
         sessionProviders: currentProviders,
       });
+      await clearPendingEmailVerification();
       setSession(res.session);
       replaceWebUrl(getWebPathForRoute("Home"));
       setWebAuthErrorBody(null);

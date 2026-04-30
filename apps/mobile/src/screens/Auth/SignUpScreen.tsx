@@ -27,6 +27,7 @@ import {
 } from "../../services/authSecurity";
 import { logAuthDebugEvent } from "../../services/authDebug";
 import { isValidAuthEmail, normalizeAuthEmail } from "../../services/authValidation";
+import { setPendingEmailVerification } from "../../services/emailVerificationRedirect";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "SignUp">;
 type FieldErrors = {
@@ -207,6 +208,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
         return;
       }
 
+      await setPendingEmailVerification(e);
       void trackEvent("signup_complete", { method: "email" });
       navigation.replace("VerifyEmail", { email: e, context: "signup" });
     } catch {

@@ -3,6 +3,7 @@ import { isUserVerified } from "./authProviders";
 import { signOutToLogin } from "./authSession";
 import { supabase } from "./supabase";
 import { logAuthDebugEvent } from "./authDebug";
+import { clearPendingEmailVerification } from "./emailVerificationRedirect";
 
 type LoginScreenTag = "login_native" | "login_web";
 
@@ -70,6 +71,8 @@ export async function signInWithEmailPassword({
     await signOutToLogin();
     return { status: "unverified" };
   }
+
+  await clearPendingEmailVerification();
 
   logAuthDebugEvent("info", "email_password_login_verified", {
     screen,

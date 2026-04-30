@@ -117,3 +117,4 @@ If a browser shows blank auth screens with missing chunk errors, capture the fai
 - Modal focus restoration must only run after an actual visible -> hidden transition; avoid blurring focus on initial render when modal is already hidden.
 - Edge warning `[Intervention] Images loaded lazily...` is informational browser behavior, not an app regression.
 - `AuthApiError: Invalid Refresh Token: Refresh Token Not Found` on initial landing load is usually stale local/session auth storage from an earlier session; ensure `authSession.restoreSession()` cleanup paths remain intact and clear artifacts during sign-out/session recovery before treating as backend outage.
+- Signup email verification redirects must land on Login, even when provider callback omits `type=signup` and only returns `code`; this is enforced via pending signup verification context in `emailVerificationRedirect.ts`.

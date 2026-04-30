@@ -28,6 +28,8 @@ Screen responsibilities:
   - web origin allowlist, wildcard matching, callback/reset URL builders
 - `src/services/authSession.ts`
   - restore/refresh/signout/session cleanup behavior
+- `src/services/emailVerificationRedirect.ts`
+  - persists pending signup email verification context so callback links without explicit `type=signup` still redirect to Login
 - `src/services/authSecurity.ts`
   - auth error classification/safe user-facing messages
 - `src/services/authValidation.ts`
@@ -61,3 +63,11 @@ When verification/reset links do not route as expected in production:
 4. Confirm Supabase URL Configuration includes every deployed callback/reset URL variant.
 5. Confirm `vercel.json` keeps `/auth/callback` and `/auth/reset` uncacheable and SPA-rewritten.
 6. If you see `Invalid Refresh Token: Refresh Token Not Found` on landing, treat it as a stale-client-session signal first: verify session artifact cleanup and re-test in a fresh browser profile before escalating.
+
+
+## Email verification redirect guarantees
+
+- After successful email/password signup, store pending signup verification context (email + timestamp).
+- During callback handling, if `linkType` is missing/unknown but callback session email matches pending signup context, treat it as verification completion and force redirect to Login (signed-out).
+- Clear pending verification context after verification completion and after successful login to avoid stale cross-flow effects.
+- Keep this guard scoped to signup verification only; do not broaden to generic callback flows without explicit review.
