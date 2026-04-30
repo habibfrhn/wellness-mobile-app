@@ -250,7 +250,7 @@ function shouldSuppressKnownWebResponderWarning(args: unknown[]) {
   return WEB_KNOWN_RESPONDER_WARNINGS.some((warning) => firstArg.includes(warning));
 }
 
-if (__DEV__ && Platform.OS === "web") {
+if (Platform.OS === "web") {
   const originalConsoleWarn = console.warn.bind(console);
   const originalConsoleError = console.error.bind(console);
 

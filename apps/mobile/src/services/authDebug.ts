@@ -2,7 +2,7 @@ import { Platform } from "react-native";
 
 type AuthDebugLevel = "info" | "warn" | "error";
 
-const AUTH_DEBUG_ENABLED = process.env.EXPO_PUBLIC_AUTH_DEBUG === "1" || Platform.OS === "web";
+const AUTH_DEBUG_ENABLED = process.env.EXPO_PUBLIC_AUTH_DEBUG === "1";
 
 function safeSerialize(payload: Record<string, unknown>) {
   try {
