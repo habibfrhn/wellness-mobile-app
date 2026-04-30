@@ -30,6 +30,8 @@ Screen responsibilities:
   - restore/refresh/signout/session cleanup behavior
 - `src/services/authSecurity.ts`
   - auth error classification/safe user-facing messages
+- `src/services/authValidation.ts`
+  - shared email normalization/validation used by login/signup/forgot-password screens
 - `src/services/authDebug.ts`
   - opt-in debug event logger controlled by `EXPO_PUBLIC_AUTH_DEBUG=1`
 

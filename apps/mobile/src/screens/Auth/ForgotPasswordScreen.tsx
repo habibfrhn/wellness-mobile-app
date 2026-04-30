@@ -8,14 +8,11 @@ import { id } from "../../i18n/strings";
 import { supabase, AUTH_RESET, hasValidAuthRedirects } from "../../services/supabase";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
 import { isRateLimitedError } from "../../services/authSecurity";
+import { isValidAuthEmail, normalizeAuthEmail } from "../../services/authValidation";
 import { getWebViewport } from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "ForgotPassword">;
-
-function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim().toLowerCase());
-}
 
 function isOperationalResetError(message: string | null | undefined) {
   const normalized = (message ?? "").toLowerCase();
@@ -38,7 +35,7 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
   const viewportWidth = useViewportWidth();
   const isDesktopWeb = getWebViewport(viewportWidth) === "desktop";
 
-  const canSubmit = useMemo(() => isValidEmail(email) && !busy && cooldownSeconds === 0, [email, busy, cooldownSeconds]);
+  const canSubmit = useMemo(() => isValidAuthEmail(email) && !busy && cooldownSeconds === 0, [email, busy, cooldownSeconds]);
   const emailWebInputProps =
     Platform.OS === "web" ? ({ id: "forgot-password-email", name: "email", nativeID: "forgot-password-email" } as const) : {};
 
@@ -54,8 +51,8 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
   }, [cooldownSeconds]);
 
   async function onSubmit() {
-    const e = email.trim().toLowerCase();
-    if (!isValidEmail(e)) {
+    const e = normalizeAuthEmail(email);
+    if (!isValidAuthEmail(e)) {
       Alert.alert(id.common.invalidEmail, id.common.invalidEmailBody);
       return;
     }

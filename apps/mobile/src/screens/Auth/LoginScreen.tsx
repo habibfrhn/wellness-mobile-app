@@ -20,6 +20,7 @@ import { continueWithGoogle } from "../../services/authOAuth";
 import PasswordToggle from "../../components/PasswordToggle";
 import LoginSignUpPrompt from "../../components/auth/LoginSignUpPrompt";
 import { logAuthDebugEvent } from "../../services/authDebug";
+import { isValidAuthEmail, normalizeAuthEmail } from "../../services/authValidation";
 import { signInWithEmailPassword } from "../../services/authEmailPassword";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
@@ -28,10 +29,6 @@ type FieldErrors = {
   email?: string;
   password?: string;
 };
-
-function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim().toLowerCase());
-}
 
 export default function LoginScreen({ navigation, route }: Props) {
   const [email, setEmail] = useState(route.params?.initialEmail ?? "");
@@ -77,7 +74,7 @@ export default function LoginScreen({ navigation, route }: Props) {
       return;
     }
 
-    const e = email.trim().toLowerCase();
+    const e = normalizeAuthEmail(email);
     const p = password;
 
     if (!e && !p) {
@@ -98,7 +95,7 @@ export default function LoginScreen({ navigation, route }: Props) {
       return;
     }
 
-    if (!isValidEmail(e)) {
+    if (!isValidAuthEmail(e)) {
       setErrors({ email: id.common.invalidEmail });
       return;
     }

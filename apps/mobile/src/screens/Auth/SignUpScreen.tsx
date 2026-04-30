@@ -26,6 +26,7 @@ import {
   isWeakPasswordError,
 } from "../../services/authSecurity";
 import { logAuthDebugEvent } from "../../services/authDebug";
+import { isValidAuthEmail, normalizeAuthEmail } from "../../services/authValidation";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "SignUp">;
 type FieldErrors = {
@@ -33,10 +34,6 @@ type FieldErrors = {
   password?: string;
   confirm?: string;
 };
-
-function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim().toLowerCase());
-}
 
 function isExistingUserSignupResponse(identities: unknown) {
   return Array.isArray(identities) && identities.length === 0;
@@ -117,11 +114,11 @@ export default function SignUpScreen({ navigation, route }: Props) {
 
   function validate(): FieldErrors {
     const nextErrors: FieldErrors = {};
-    const e = email.trim().toLowerCase();
+    const e = normalizeAuthEmail(email);
 
     if (!e) {
       nextErrors.email = id.login.errorEmailRequired;
-    } else if (!isValidEmail(e)) {
+    } else if (!isValidAuthEmail(e)) {
       nextErrors.email = id.common.invalidEmail;
     }
 
@@ -153,7 +150,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
     setErrors({});
     setFormError(null);
 
-    const e = email.trim().toLowerCase();
+    const e = normalizeAuthEmail(email);
     const trimmedName = name.trim();
 
     setBusy(true);
