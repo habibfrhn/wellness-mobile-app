@@ -116,8 +116,9 @@ pnpm pre-release
 - Deployment and hardening checklist: `apps/mobile/DEPLOY_WEB.md`
 - Security review and incident-response baseline: `SECURITY_AUDIT.md`
 
-## Mobile release docs
+## Mobile + auth docs
 
+- Auth component map: `apps/mobile/docs/AUTH_COMPONENT_STRUCTURE.md`
 - `apps/mobile/docs/RELEASE_CHECKLIST.md`
 - `apps/mobile/docs/STORE_SUBMISSION_CHECKLIST.md`
 
