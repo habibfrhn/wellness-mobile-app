@@ -88,7 +88,7 @@ If this project was deployed during the April 2026 Vercel incident window, compl
 - Keep static asset caching immutable only for hashed asset paths that are still present in the current deployment output.
 - Keep SPA rewrite restricted to extensionless routes.
 
-- Preview note: CSP allows `https://vercel.live` in `frame-src` so Vercel preview tooling does not emit frame blocking noise in browser consoles.
+- Preview note: keep production CSP strict (`frame-src 'none'`) and allow `https://vercel.live` only on `*.vercel.app` preview hosts to avoid console noise without widening production framing policy.
 - Accessibility note: web modals should restore focus to the opener on close to avoid `aria-hidden`/focused-descendant warnings in Edge and other Chromium browsers.
 - Never store service-role credentials in `EXPO_PUBLIC_*` env variables.
 
@@ -108,3 +108,11 @@ After each production deploy, validate in at least one fresh session per browser
 - Verify auth callback and reset links complete and route correctly.
 
 If a browser shows blank auth screens with missing chunk errors, capture the failing chunk URL and verify it exists in the deployed `dist/_expo/static/js/web/` output for that deployment; missing files usually indicate stale app-shell caching versus latest assets.
+
+
+## 10) April 30, 2026 auth/web reliability audit notes
+
+- Keep web auth bootstrap tolerant of root URLs containing auth params; some providers return users to `/` with `code`/`token_hash`/`type` instead of `/auth/callback`.
+- Keep app-shell routes uncacheable; stale shell files are a primary cause of missing dynamic chunk 404 errors across Chromium browsers.
+- Modal focus restoration must only run after an actual visible -> hidden transition; avoid blurring focus on initial render when modal is already hidden.
+- Edge warning `[Intervention] Images loaded lazily...` is informational browser behavior, not an app regression.

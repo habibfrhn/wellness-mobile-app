@@ -29,6 +29,7 @@ export default function AppActionModal({
   closeOnBackdrop = true,
 }: Props) {
   const lastFocusedElementRef = useRef<HTMLElement | null>(null);
+  const wasVisibleRef = useRef(false);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -36,10 +37,16 @@ export default function AppActionModal({
     }
 
     if (visible) {
+      wasVisibleRef.current = true;
       lastFocusedElementRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       return;
     }
 
+    if (!wasVisibleRef.current) {
+      return;
+    }
+
+    wasVisibleRef.current = false;
     const activeElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     activeElement?.blur();
     lastFocusedElementRef.current?.focus?.();
