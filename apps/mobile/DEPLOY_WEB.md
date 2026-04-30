@@ -87,6 +87,9 @@ If this project was deployed during the April 2026 Vercel incident window, compl
 - Keep `/api/*` and auth redirect routes uncacheable.
 - Keep static asset caching immutable only for hashed asset paths that are still present in the current deployment output.
 - Keep SPA rewrite restricted to extensionless routes.
+
+- Preview note: CSP allows `https://vercel.live` in `frame-src` so Vercel preview tooling does not emit frame blocking noise in browser consoles.
+- Accessibility note: web modals should restore focus to the opener on close to avoid `aria-hidden`/focused-descendant warnings in Edge and other Chromium browsers.
 - Never store service-role credentials in `EXPO_PUBLIC_*` env variables.
 
 ## 8) Related docs

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { colors, radius, spacing, typography } from "../../theme/tokens";
@@ -28,6 +28,23 @@ export default function AppActionModal({
   busy = false,
   closeOnBackdrop = true,
 }: Props) {
+  const lastFocusedElementRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (visible) {
+      lastFocusedElementRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      return;
+    }
+
+    const activeElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    activeElement?.blur();
+    lastFocusedElementRef.current?.focus?.();
+  }, [visible]);
+
   useEffect(() => {
     if (!visible || typeof window === "undefined") {
       return;
