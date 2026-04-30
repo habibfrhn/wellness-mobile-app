@@ -1,9 +1,9 @@
 import React, { Suspense, lazy, useMemo } from "react";
 import { registerRootComponent } from "expo";
 import { ActivityIndicator, Platform, View } from "react-native";
+import LandingEntry from "./src/web/LandingEntry.web";
 
 const AppEntry = lazy(() => import("./App"));
-const LandingEntry = lazy(() => import("./src/web/LandingEntry.web"));
 
 function FullScreenLoader() {
   return React.createElement(
@@ -32,10 +32,7 @@ function shouldUseLandingEntry() {
 }
 
 function RootEntry() {
-  const EntryComponent = useMemo(
-    () => (shouldUseLandingEntry() ? LandingEntry : AppEntry),
-    [],
-  );
+  const EntryComponent = useMemo(() => (shouldUseLandingEntry() ? LandingEntry : AppEntry), []);
 
   return React.createElement(
     Suspense,
