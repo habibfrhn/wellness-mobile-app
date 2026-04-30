@@ -11,6 +11,27 @@ function normalizeOrigin(origin: string) {
   return origin.endsWith("/") ? origin.slice(0, -1) : origin;
 }
 
+function matchesConfiguredOrigin(normalizedOrigin: string, configuredOrigin: string) {
+  if (!configuredOrigin.includes("*")) {
+    return configuredOrigin === normalizedOrigin;
+  }
+
+  const wildcardPrefix = "https://*.";
+  if (!configuredOrigin.startsWith(wildcardPrefix)) {
+    return false;
+  }
+
+  const baseDomain = configuredOrigin.slice(wildcardPrefix.length);
+  if (!baseDomain) {
+    return false;
+  }
+
+  const originUrl = new URL(normalizedOrigin);
+  const host = originUrl.hostname.toLowerCase();
+
+  return host.endsWith(`.${baseDomain}`) && host !== baseDomain;
+}
+
 function isLocalDevOrigin(origin: string) {
   return /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin);
 }
@@ -24,7 +45,7 @@ export function isAllowedWebOrigin(origin: string) {
     .map((value: string) => normalizeOrigin(value.toLowerCase()));
 
   if (configuredOrigins.length > 0) {
-    return configuredOrigins.includes(normalizedOrigin);
+    return configuredOrigins.some((configuredOrigin: string) => matchesConfiguredOrigin(normalizedOrigin, configuredOrigin));
   }
 
   const defaultAllowedOrigins = [...DEFAULT_PRODUCTION_WEB_ORIGINS, DEFAULT_LOCAL_WEB_ORIGIN, "http://127.0.0.1:8081"].map(
