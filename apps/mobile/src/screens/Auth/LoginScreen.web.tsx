@@ -62,23 +62,6 @@ export default function LoginScreen({ navigation, route }: Props) {
   const isTabletWeb = viewport === "tablet";
   const isDesktopWeb = viewport === "desktop";
 
-  function navigateToAppRoot() {
-    const authNavigator = navigation.getParent();
-    const rootNavigator = authNavigator?.getParent();
-
-    if (rootNavigator) {
-      rootNavigator.navigate("App" as never);
-      return;
-    }
-
-    if (authNavigator) {
-      authNavigator.navigate("App" as never);
-      return;
-    }
-
-    navigation.navigate("Welcome");
-  }
-
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: "",
@@ -191,7 +174,7 @@ export default function LoginScreen({ navigation, route }: Props) {
         hasSession: Boolean(data.session),
       });
 
-      navigateToAppRoot();
+      // Root transition is centralized in App.tsx via auth session observer + resetRoot.
     } finally {
       setBusy(false);
     }

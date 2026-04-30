@@ -5,6 +5,10 @@ import { secureStoreChunked } from "./secureStoreChunked";
 
 const CODE_VERIFIER_SUFFIX = "-code-verifier";
 
+function shouldLogWebStorageWarning(storageKey: string) {
+  return !storageKey.endsWith(CODE_VERIFIER_SUFFIX);
+}
+
 function getWebStorageCandidates() {
   if (typeof window === "undefined") {
     return [] as Storage[];
@@ -25,7 +29,9 @@ function getWebStorageValue(storageKey: string) {
     }
   }
 
-  console.warn("[auth-storage] Failed to read auth key from web storage", { storageKey });
+  if (shouldLogWebStorageWarning(storageKey)) {
+    console.warn("[auth-storage] Failed to read auth key from web storage", { storageKey });
+  }
   return null;
 }
 
