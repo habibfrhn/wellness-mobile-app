@@ -145,3 +145,12 @@ pnpm pre-release
 - Admin dashboard is web-only.
 - Analytics dashboard focuses on product action/audio/tailored-session metrics (not full BI/reporting).
 - Production setup still requires manual provider/dashboard alignment (Vercel + Supabase + Google OAuth settings).
+
+## April 30, 2026 production blank-screen postmortem
+
+- **Impact:** web users saw a blank white screen at startup across Chrome/Edge/Firefox.
+- **Console signature:** `Uncaught TypeError: (0 , l.jsx) is not a function` from the lazy `LandingEntry` bundle.
+- **Root cause:** landing entry chunk compiled with JSX runtime calls that failed to bind correctly in the affected production bundle set during bootstrap.
+- **Fix:** `apps/mobile/src/web/LandingEntry.web.tsx` now uses `React.createElement` for deterministic startup behavior and parity with `apps/mobile/index.ts`.
+- **Validation:** rebuilt web export and re-verified startup + auth/legal routing in major browsers with clean sessions.
+- **Prevention:** keep explicit startup chunk checks and cross-browser `/` smoke tests in every production release checklist (`apps/mobile/DEPLOY_WEB.md`).

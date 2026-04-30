@@ -20,10 +20,10 @@ const RootStack = createNativeStackNavigator<LandingAppStackParamList>();
 const LegalStack = createNativeStackNavigator<AppStackParamList>();
 
 function FullScreenLoader() {
-  return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <ActivityIndicator />
-    </View>
+  return React.createElement(
+    View,
+    { style: { flex: 1, alignItems: "center", justifyContent: "center" } },
+    React.createElement(ActivityIndicator),
   );
 }
 
@@ -50,43 +50,51 @@ export default function LandingEntry() {
     syncLandingMetaDescription();
   }, []);
 
-  return (
-    <NavigationContainer>
-      <RootStack.Navigator initialRouteName="Landing" screenOptions={{ headerShown: false }}>
-        <RootStack.Screen name="Landing" component={LandingScreen} />
-        <RootStack.Screen name="Auth">
-          {({ route }) => {
-            const requestedRoute = route.params?.screen;
-            const resolvedInitialRoute =
-              requestedRoute === "Login" || requestedRoute === "SignUp" || requestedRoute === "ResetPassword"
-                ? requestedRoute
-                : "Login";
+  return React.createElement(
+    NavigationContainer,
+    null,
+    React.createElement(
+      RootStack.Navigator as any,
+      { initialRouteName: "Landing", screenOptions: { headerShown: false } },
+      React.createElement(RootStack.Screen, { name: "Landing", component: LandingScreen }),
+      // eslint-disable-next-line react/no-children-prop
+      React.createElement(RootStack.Screen, {
+        name: "Auth",
+        children: ({ route }: { route: { params?: { screen?: string } } }) => {
+          const requestedRoute = route.params?.screen;
+          const resolvedInitialRoute =
+            requestedRoute === "Login" || requestedRoute === "SignUp" || requestedRoute === "ResetPassword"
+              ? requestedRoute
+              : "Login";
 
-            return (
-              <Suspense fallback={<FullScreenLoader />}>
-                <AuthStack initialRouteName={resolvedInitialRoute} includeWelcome={false} />
-              </Suspense>
-            );
-          }}
-        </RootStack.Screen>
-        <RootStack.Screen name="App">
-          {({ route }) => {
-            const appScreen = route.params?.screen;
+          return React.createElement(
+            Suspense,
+            { fallback: React.createElement(FullScreenLoader) },
+            React.createElement(AuthStack, { initialRouteName: resolvedInitialRoute, includeWelcome: false }),
+          );
+        },
+      }),
+      // eslint-disable-next-line react/no-children-prop
+      React.createElement(RootStack.Screen, {
+        name: "App",
+        children: ({ route }: { route: { params?: { screen?: string } } }) => {
+          const appScreen = route.params?.screen;
 
-            return (
-              <Suspense fallback={<FullScreenLoader />}>
-                <LegalStack.Navigator
-                  initialRouteName={appScreen === "TermsConditions" ? "TermsConditions" : "PrivacyPolicy"}
-                  screenOptions={{ headerShown: false }}
-                >
-                  <LegalStack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
-                  <LegalStack.Screen name="TermsConditions" component={TermsConditionsScreen} />
-                </LegalStack.Navigator>
-              </Suspense>
-            );
-          }}
-        </RootStack.Screen>
-      </RootStack.Navigator>
-    </NavigationContainer>
+          return React.createElement(
+            Suspense,
+            { fallback: React.createElement(FullScreenLoader) },
+            React.createElement(
+              LegalStack.Navigator as any,
+              {
+                initialRouteName: appScreen === "TermsConditions" ? "TermsConditions" : "PrivacyPolicy",
+                screenOptions: { headerShown: false },
+              },
+              React.createElement(LegalStack.Screen, { name: "PrivacyPolicy", component: PrivacyPolicyScreen as any }),
+              React.createElement(LegalStack.Screen, { name: "TermsConditions", component: TermsConditionsScreen as any }),
+            ),
+          );
+        },
+      }),
+    ),
   );
 }

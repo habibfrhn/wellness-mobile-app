@@ -118,3 +118,34 @@ If a browser shows blank auth screens with missing chunk errors, capture the fai
 - Edge warning `[Intervention] Images loaded lazily...` is informational browser behavior, not an app regression.
 - `AuthApiError: Invalid Refresh Token: Refresh Token Not Found` on initial landing load is usually stale local/session auth storage from an earlier session; ensure `authSession.restoreSession()` cleanup paths remain intact and clear artifacts during sign-out/session recovery before treating as backend outage.
 - Signup email verification redirects must land on Login, even when provider callback omits `type=signup` and only returns `code`; this is enforced via pending signup verification context in `emailVerificationRedirect.ts`.
+
+## 11) April 30, 2026 blank-screen incident (root cause + fix)
+
+### Symptoms
+- Production web loaded a blank white screen in Chrome, Edge, and Firefox immediately after deploy.
+- Console showed: `Uncaught TypeError: (0 , l.jsx) is not a function` originating from the lazy `LandingEntry` chunk.
+
+### Root cause
+- `apps/mobile/src/web/LandingEntry.web.tsx` was authored with JSX syntax, which compiled to `react/jsx-runtime` calls (`jsx`/`jsxs`) in the lazy-loaded bundle.
+- In the affected production bundle set, that runtime binding resolved incorrectly at startup for this chunk, causing render to fail before first paint.
+- Because this happens at route bootstrap (`/` landing entry), users only saw a white screen.
+
+### Fix implemented
+- Rewrote `LandingEntry.web.tsx` to use `React.createElement` consistently (matching `apps/mobile/index.ts` entry style) so the landing chunk no longer depends on `jsx`/`jsxs` runtime bindings for initial render.
+- Kept routing/auth/legal behavior unchanged and removed no-longer-needed JSX reliance in that file.
+
+### Validation steps
+1. `pnpm -C apps/mobile export:web`
+2. Inspect generated `dist/_expo/static/js/web/LandingEntry-*.js` and confirm it no longer references `(0, l.jsx)` style calls.
+3. Smoke-test `/`, auth, and legal routes in Chrome/Edge/Firefox (fresh session/no cache).
+4. Confirm no startup TypeError in browser console and app renders landing immediately.
+
+### Browser coverage
+- Chrome (Chromium)
+- Edge (Chromium)
+- Firefox
+
+### Prevention notes
+- Keep web bootstrap/entry modules deterministic and avoid mixed runtime assumptions in lazily loaded root-entry chunks.
+- Include a post-export artifact check for startup chunks (`index-*`, `LandingEntry-*`) in release verification.
+- Keep mandatory cross-browser smoke checks for `/` in production sign-off before declaring deployment healthy.
