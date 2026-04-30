@@ -149,6 +149,18 @@ function getWebPathForRoute(routeName: string, fallback = "/") {
   return WEB_ROUTE_PATHS[routeName] ?? fallback;
 }
 
+function isLandingOrAuthWebPath(pathname?: string | null) {
+  const normalizedPath = normalizeWebPathForRoute(pathname ?? "/").replace(/\/+$/, "") || "/";
+  return (
+    normalizedPath === "/" ||
+    normalizedPath === getWebPathForRoute("Login") ||
+    normalizedPath === getWebPathForRoute("SignUp") ||
+    normalizedPath === getWebPathForRoute("Welcome") ||
+    normalizedPath === getWebPathForRoute("ForgotPassword") ||
+    normalizedPath === getWebPathForRoute("VerifyEmail")
+  );
+}
+
 function getCurrentRootRouteName() {
   const rootState = navigationRef.getRootState();
   const currentRootRoute = rootState?.routes[rootState.index ?? 0];
@@ -866,14 +878,22 @@ export default function App() {
     const currentRootRouteName = String(currentRootRoute.name);
 
     if (!shouldShowAuth) {
-      if (currentRootRouteName !== "App") {
+      const shouldForceHomePath =
+        Platform.OS === "web" && typeof window !== "undefined" && isLandingOrAuthWebPath(window.location.pathname);
+
+      if (currentRootRouteName !== "App" || shouldForceHomePath) {
         logLogoutEvent("info", "logout_navigation_redirect", {
           destination: "App",
           reason: "authenticated_session",
           currentRouteName,
           currentRootRouteName,
+          shouldForceHomePath,
         });
-        navigationRef.resetRoot({ index: 0, routes: [{ name: "App" }] });
+        navigationRef.resetRoot({ index: 0, routes: [{ name: "App", params: { screen: "Home" } }] });
+
+        if (shouldForceHomePath) {
+          replaceWebUrl(getWebPathForRoute("Home", "/beranda"));
+        }
       }
       return;
     }
