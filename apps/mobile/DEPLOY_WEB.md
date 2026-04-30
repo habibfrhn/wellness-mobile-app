@@ -131,12 +131,13 @@ If a browser shows blank auth screens with missing chunk errors, capture the fai
 - Because this happens at route bootstrap (`/` landing entry), users only saw a white screen.
 
 ### Fix implemented
-- Rewrote `LandingEntry.web.tsx` to use `React.createElement` consistently (matching `apps/mobile/index.ts` entry style) so the landing chunk no longer depends on `jsx`/`jsxs` runtime bindings for initial render.
-- Kept routing/auth/legal behavior unchanged and removed no-longer-needed JSX reliance in that file.
+- Rewrote `LandingEntry.web.tsx` to use `React.createElement` consistently (matching `apps/mobile/index.ts` entry style) so the landing path no longer depends on `jsx`/`jsxs` runtime bindings for initial render.
+- Eager-load `LandingEntry.web` from `apps/mobile/index.ts` (no lazy split for `/`) so production root startup does not depend on a separate `LandingEntry-*.js` bootstrap chunk.
+- Kept routing/auth/legal behavior unchanged.
 
 ### Validation steps
 1. `pnpm -C apps/mobile export:web`
-2. Inspect generated `dist/_expo/static/js/web/LandingEntry-*.js` and confirm it no longer references `(0, l.jsx)` style calls.
+2. Confirm exported bundles do not emit a separate `LandingEntry-*.js` startup chunk and that `/` is handled by `index-*.js`.
 3. Smoke-test `/`, auth, and legal routes in Chrome/Edge/Firefox (fresh session/no cache).
 4. Confirm no startup TypeError in browser console and app renders landing immediately.
 
@@ -146,6 +147,6 @@ If a browser shows blank auth screens with missing chunk errors, capture the fai
 - Firefox
 
 ### Prevention notes
-- Keep web bootstrap/entry modules deterministic and avoid mixed runtime assumptions in lazily loaded root-entry chunks.
-- Include a post-export artifact check for startup chunks (`index-*`, `LandingEntry-*`) in release verification.
+- Keep web bootstrap/entry modules deterministic and avoid lazily splitting the `/` bootstrap entrypoint.
+- Include a post-export artifact check that startup logic for `/` is contained in `index-*` without a separate landing bootstrap chunk.
 - Keep mandatory cross-browser smoke checks for `/` in production sign-off before declaring deployment healthy.

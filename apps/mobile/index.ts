@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useMemo } from "react";
+import React, { Suspense, lazy } from "react";
 import { registerRootComponent } from "expo";
 import { ActivityIndicator, Platform, View } from "react-native";
 import LandingEntry from "./src/web/LandingEntry.web";
@@ -32,7 +32,7 @@ function shouldUseLandingEntry() {
 }
 
 function RootEntry() {
-  const EntryComponent = useMemo(() => (shouldUseLandingEntry() ? LandingEntry : AppEntry), []);
+  const EntryComponent = shouldUseLandingEntry() ? LandingEntry : AppEntry;
 
   return React.createElement(
     Suspense,
