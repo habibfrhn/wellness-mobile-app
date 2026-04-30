@@ -191,7 +191,11 @@ function isWebResetFlowActive() {
     return false;
   }
 
-  return window.localStorage.getItem(WEB_RESET_FLOW_KEY) === "1";
+  try {
+    return window.localStorage.getItem(WEB_RESET_FLOW_KEY) === "1";
+  } catch {
+    return false;
+  }
 }
 
 function setWebResetFlowActive(active: boolean) {
@@ -200,11 +204,19 @@ function setWebResetFlowActive(active: boolean) {
   }
 
   if (active) {
-    window.localStorage.setItem(WEB_RESET_FLOW_KEY, "1");
+    try {
+      window.localStorage.setItem(WEB_RESET_FLOW_KEY, "1");
+    } catch {
+      // Ignore storage failures in strict browser privacy settings.
+    }
     return;
   }
 
-  window.localStorage.removeItem(WEB_RESET_FLOW_KEY);
+  try {
+    window.localStorage.removeItem(WEB_RESET_FLOW_KEY);
+  } catch {
+    // Ignore storage failures in strict browser privacy settings.
+  }
 }
 
 const WEB_KNOWN_RESPONDER_WARNINGS = [
