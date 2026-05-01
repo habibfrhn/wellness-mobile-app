@@ -76,7 +76,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
     }
   }, [email]);
 
-  function iHaveVerified() {
+  function goToLogin() {
     navigation.replace("Login", { initialEmail: email });
   }
 
@@ -91,7 +91,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
 
         <View style={authSharedStyles.actionsStack}>
           <Pressable
-            onPress={iHaveVerified}
+            onPress={goToLogin}
             style={({ hovered, pressed }: any) => [
               authSharedStyles.secondaryButton,
               styles.outlineButton,

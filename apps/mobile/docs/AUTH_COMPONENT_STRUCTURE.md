@@ -100,3 +100,11 @@ When verification/reset links do not route as expected in production:
   - `supabase/functions/resend-verification-email/index.ts`, and
   - `src/services/authResend.ts` + `src/i18n/strings.ts` helper copy.
 - If you alter verification callback routing, re-verify pending-signup redirect guarantees in this document’s “Email verification redirect guarantees” section.
+
+
+## Post-change audit notes (May 1, 2026)
+
+- Removed dead verification copy keys that were no longer rendered by `VerifyEmailScreen` to keep `strings.ts` aligned with live UI usage.
+- Kept resend state minimal (`resendHelperText` + tone) and retained existing backend-driven decision codes (`RATE_LIMITED`, `LINK_STILL_VALID`) to avoid duplicated client-side validity logic.
+- Confirmed no mount-time resend side effect remains, preventing accidental sends and unnecessary load on auth/email infrastructure.
+- Maintenance rule: when editing auth screen CTAs, rename handler functions to reflect user intent (`goToLogin`, `onResend`, etc.) so future diffs stay readable and reduce semantic drift.

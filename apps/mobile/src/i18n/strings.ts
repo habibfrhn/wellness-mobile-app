@@ -121,14 +121,10 @@ export const id = {
     resend: "Kirim ulang link verifikasi",
     resendBusy: "Mengirim ulang...",
     resendWait: "Tunggu",
-    resendRateLimited: "Terlalu banyak percobaan. Tunggu 60 detik lalu coba lagi.",
     resendHelperSent: "Link verifikasi berhasil dikirim.",
     resendHelperRateLimited: "Terlalu sering meminta link. Tunggu sebentar lalu coba lagi.",
     resendHelperLinkStillValid: "Link verifikasi masih valid. Cek email Anda, termasuk folder Spam/Promosi.",
-    changeEmail: "Ganti email",
     helpLoginAfterVerify: "Setelah klik link verifikasi di email, kembali ke sini lalu tekan Masuk.",
-    linkStillValidTitle: "Link masih valid",
-    linkStillValidBody: "Link verifikasi Anda masih valid. Silakan cek email, termasuk folder Spam/Promosi, lalu gunakan link yang sudah dikirim.",
   },
 
   forgot: {
