@@ -110,3 +110,19 @@ When verification/reset links do not route as expected in production:
 - Confirmed no mount-time resend side effect remains, preventing accidental sends and unnecessary load on auth/email infrastructure.
 - Added explicit server-side already-verified guard (`ALREADY_VERIFIED`) so resend behavior stays deterministic and does not depend on provider message parsing alone.
 - Maintenance rule: when editing auth screen CTAs, rename handler functions to reflect user intent (`goToLogin`, `onResend`, etc.) so future diffs stay readable and reduce semantic drift.
+
+
+### Temporary debugging log points (verification resend)
+- Browser console tracing points (safe/no full email):
+  - `button_click`
+  - `handler_start`
+  - `request_start`
+  - `account_state_result`
+  - `resend_decision`
+  - `success_response`
+  - `response_error` / `handler_error`
+- Known failure points to verify first:
+  1. CORS mismatch or blocked origin in Edge Function.
+  2. Invalid/missing auth redirect config.
+  3. Edge Function returns non-mapped error code (falls back to generic helper + alert).
+- Prevention: keep client decision handling aligned with edge codes (`RATE_LIMITED`, `LINK_STILL_VALID`, `ALREADY_VERIFIED`).

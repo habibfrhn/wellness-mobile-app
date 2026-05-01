@@ -10,6 +10,14 @@ export type ResendVerificationResult =
   | { ok: false; code: "ERROR" };
 
 
+
+function safeEmailLabel(email: string) {
+  const [local, domain] = email.split("@");
+  if (!domain) return "invalid-email";
+  const visible = local.slice(0, 2);
+  return `${visible}***@${domain}`;
+}
+
 type ResendVerificationResponse = {
   ok?: boolean;
   code?: string;
@@ -49,14 +57,18 @@ export async function resendVerificationEmail(email: string): Promise<ResendVeri
     return { ok: false, code: "MISCONFIGURED" };
   }
 
+  const normalizedEmail = email.trim().toLowerCase();
+  console.info("[verify-resend] request_start", { email: safeEmailLabel(normalizedEmail) });
+
   const { data, error } = await supabase.functions.invoke<ResendVerificationResponse>("resend-verification-email", {
     body: {
-      email: email.trim().toLowerCase(),
+      email: normalizedEmail,
       redirectTo: AUTH_CALLBACK,
     },
   });
 
   if (!error) {
+    console.info("[verify-resend] response_success", { cooldownSec: data?.cooldownSec ?? 60 });
     return {
       ok: true,
       cooldownSec: typeof data?.cooldownSec === "number" ? data.cooldownSec : 60,
@@ -64,6 +76,7 @@ export async function resendVerificationEmail(email: string): Promise<ResendVeri
   }
 
   const errorPayload = await extractFunctionErrorPayload(error);
+  console.warn("[verify-resend] response_error", { code: errorPayload?.code ?? "UNKNOWN" });
   if (errorPayload?.code === "RATE_LIMITED") {
     return {
       ok: false,

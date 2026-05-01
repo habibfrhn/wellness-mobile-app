@@ -125,6 +125,7 @@ export const id = {
     resendHelperRateLimited: "Terlalu sering meminta link. Tunggu sebentar lalu coba lagi.",
     resendHelperLinkStillValid: "Link verifikasi masih valid. Cek email atau folder Spam, lalu gunakan link yang sudah dikirim.",
     resendHelperAlreadyVerified: "Akun sudah terverifikasi. Silakan lanjut ke Masuk.",
+    resendHelperUnexpected: "Belum bisa kirim link sekarang. Coba lagi sebentar lagi.",
     helpLoginAfterVerify: "Setelah klik link verifikasi di email, kembali ke sini lalu tekan Masuk.",
   },
 

@@ -120,20 +120,6 @@ async function sha256(value: string) {
 }
 
 
-async function isUserAlreadyVerified(adminClient: ReturnType<typeof createClient>, email: string): Promise<boolean> {
-  const { data, error } = await adminClient.auth.admin.listUsers({
-    email,
-    page: 1,
-    perPage: 1,
-  });
-
-  if (error) {
-    throw error;
-  }
-
-  const user = data?.users?.[0];
-  return Boolean(user?.email_confirmed_at);
-}
 async function incrementRateLimit(
   adminClient: ReturnType<typeof createClient>,
   principalKey: string,
@@ -202,11 +188,6 @@ Deno.serve(async (req: Request) => {
   const principalKey = await sha256(`${email}|${getClientIp(req)}`);
 
   try {
-    const alreadyVerified = await isUserAlreadyVerified(adminClient, email);
-    if (alreadyVerified) {
-      return json(409, { ok: false, code: "ALREADY_VERIFIED" }, corsHeaders);
-    }
-
     const cooldownCount = await incrementRateLimit(adminClient, principalKey, ACTION_RESEND_COOLDOWN, getCooldownBucket(now));
     if (cooldownCount > 1) {
       return json(429, { ok: false, code: "RATE_LIMITED", retryAfterSec: RESEND_COOLDOWN_SECONDS }, corsHeaders);
@@ -241,10 +222,20 @@ Deno.serve(async (req: Request) => {
       normalizedMessage.includes("link is valid") ||
       normalizedMessage.includes("otp is valid") ||
       normalizedMessage.includes("email not confirmed");
+    const isAlreadyVerified =
+      normalizedMessage.includes("already confirmed") ||
+      normalizedMessage.includes("already verified") ||
+      normalizedMessage.includes("email is confirmed") ||
+      normalizedMessage.includes("user already confirmed");
 
     if (isRateLimited) {
       console.info("resend-verification-email: mapped resend error to RATE_LIMITED");
       return json(429, { ok: false, code: "RATE_LIMITED", retryAfterSec: RESEND_COOLDOWN_SECONDS }, corsHeaders);
+    }
+
+    if (isAlreadyVerified) {
+      console.info("resend-verification-email: mapped resend error to ALREADY_VERIFIED");
+      return json(409, { ok: false, code: "ALREADY_VERIFIED" }, corsHeaders);
     }
 
     if (isLinkStillValid) {
