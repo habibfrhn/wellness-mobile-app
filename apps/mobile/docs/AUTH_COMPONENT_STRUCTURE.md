@@ -89,6 +89,7 @@ When verification/reset links do not route as expected in production:
 - If current verification link is still valid, client does **not** send a new link and shows an error helper (red): “Link verifikasi masih valid. Cek email atau folder Spam, lalu gunakan link yang sudah dikirim.”
 - If the previous link is no longer valid, client requests a new verification link and shows a success helper (green): “Link verifikasi berhasil dikirim.”
 - If the account is already verified, client does **not** send a new link and shows an error helper (red): “Akun sudah terverifikasi. Silakan lanjut ke Masuk.”
+- Fallback helper for unknown resend errors should remain actionable (not generic retry-only), guiding users to check email/Spam/Promosi first and return to **Masuk** after verification.
 
 ### Validation and consistency notes
 - Keep unverified-account gating in `src/services/authEmailPassword.ts` and route unverified sign-ins to Verify Email screen.
@@ -126,3 +127,4 @@ When verification/reset links do not route as expected in production:
   2. Invalid/missing auth redirect config.
   3. Edge Function returns non-mapped error code (falls back to generic helper + alert).
 - Prevention: keep client decision handling aligned with edge codes (`RATE_LIMITED`, `LINK_STILL_VALID`, `ALREADY_VERIFIED`).
+- Do not reintroduce vague fallback copy; unknown resend failures must still provide immediate next-step guidance before suggesting retry.
