@@ -31,7 +31,8 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
   const [email, setEmail] = useState(route.params?.initialEmail ?? "");
   const [busy, setBusy] = useState(false);
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
-  const [rateLimitHelperText, setRateLimitHelperText] = useState<string | null>(null);
+  const [helperText, setHelperText] = useState<string | null>(null);
+  const [helperTone, setHelperTone] = useState<"success" | "error" | null>(null);
   const viewportWidth = useViewportWidth();
   const isDesktopWeb = getWebViewport(viewportWidth) === "desktop";
 
@@ -58,7 +59,8 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
     }
 
     setBusy(true);
-    setRateLimitHelperText(null);
+    setHelperText(null);
+    setHelperTone(null);
     try {
       if (!hasValidAuthRedirects) {
         Alert.alert(id.forgot.failedTitle, id.forgot.failedBody);
@@ -72,24 +74,24 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
       if (error) {
         if (isRateLimitedError(error.message)) {
           setCooldownSeconds(60);
-          setRateLimitHelperText(id.forgot.resendHelperRateLimited);
+          setHelperText(id.forgot.resendHelperRateLimited);
+          setHelperTone("error");
           return;
         }
 
         if (isOperationalResetError(error.message)) {
-          Alert.alert(id.forgot.failedTitle, id.forgot.failedBody);
+          setHelperText(id.forgot.helperOperationalError);
+          setHelperTone("error");
           return;
         }
 
-        Alert.alert(id.forgot.successTitle, id.forgot.successBody, [
-          { text: id.common.ok, onPress: () => navigation.replace("Login", { initialEmail: e }) },
-        ]);
+        setHelperText(id.forgot.helperSuccess);
+        setHelperTone("success");
         return;
       }
 
-      Alert.alert(id.forgot.successTitle, id.forgot.successBody, [
-        { text: id.common.ok, onPress: () => navigation.replace("Login", { initialEmail: e }) },
-      ]);
+      setHelperText(id.forgot.helperSuccess);
+      setHelperTone("success");
       setCooldownSeconds(15);
     } finally {
       setBusy(false);
@@ -130,7 +132,7 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
               {busy ? id.forgot.sending : cooldownSeconds > 0 ? `${id.forgot.cooldown} ${cooldownSeconds}s` : id.forgot.send}
             </Text>
           </Pressable>
-          {rateLimitHelperText ? <Text style={styles.rateLimitHelperText}>{rateLimitHelperText}</Text> : null}
+          {helperText ? <Text style={[styles.helperText, helperTone === "success" ? styles.helperTextSuccess : styles.helperTextError]}>{helperText}</Text> : null}
 
           <Pressable
             onPress={() => navigation.replace("Login", { initialEmail: email.trim() })}
@@ -173,9 +175,14 @@ const styles = StyleSheet.create({
   outlineButtonText: {
     color: colors.text,
   },
-  rateLimitHelperText: {
-    color: colors.danger,
+  helperText: {
     fontSize: 13,
     fontWeight: "600",
+  },
+  helperTextError: {
+    color: colors.danger,
+  },
+  helperTextSuccess: {
+    color: colors.primary,
   },
 });

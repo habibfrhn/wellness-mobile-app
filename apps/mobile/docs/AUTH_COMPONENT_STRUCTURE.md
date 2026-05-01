@@ -155,3 +155,22 @@ Prevention notes:
 - Direct `console.info` / `console.warn` tracing was removed from verify resend screen/service to avoid noisy production consoles.
 - Keep only safe metadata in debug payloads (event codes, cooldown seconds, masked email label).
 - If additional diagnostics are needed, add them through `logAuthDebugEvent` only.
+
+
+## Login + forgot-password account-existence behavior (May 1, 2026)
+
+- **Login**: Supabase password sign-in does not safely expose whether the email is unregistered vs wrong password in this client flow.
+  - We use a user-facing helper message that remains clear and actionable without backend account enumeration: 
+    - “Email atau kata sandi salah. Jika belum punya akun, silakan buat akun terlebih dahulu.”
+- **Forgot password**: flow is privacy-preserving and does not reveal whether an email is registered.
+  - Success-style helper copy explicitly states conditional delivery: if the email is registered, reset link is sent.
+  - Rate limit, operational/network, and invalid-email states provide distinct user guidance.
+
+### Security and UX decisions
+- Do not add client-side account existence checks for forgot-password responses.
+- Avoid misleading unconditional success wording; use conditional copy that explains privacy intent.
+- Keep helper feedback inline and consistent across success/error states.
+
+### Prevention notes
+- If backend policy changes to support trusted account-existence checks, update docs and copy together before changing UI behavior.
+- Keep `authSecurity.ts` message classifiers aligned with any provider error message changes.

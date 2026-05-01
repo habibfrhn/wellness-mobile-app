@@ -111,7 +111,7 @@ export const id = {
     errorBothRequired: "Silakan isi email dan kata sandi",
     errorEmailRequired: "Email belum diisi",
     errorPasswordRequired: "Kata sandi belum diisi",
-    errorInvalidCredentials: "Email atau kata sandi salah",
+    errorInvalidCredentials: "Email atau kata sandi salah. Jika belum punya akun, silakan buat akun terlebih dahulu.",
   },
 
   verify: {
@@ -138,11 +138,13 @@ export const id = {
     sending: "Mengirim...",
     cooldown: "Coba lagi dalam",
     backToLogin: "Kembali ke masuk",
-    successTitle: "Jika email terdaftar, tautan terkirim",
-    successBody: "Jika email tersebut terdaftar, kami mengirim tautan reset kata sandi.",
+    successTitle: "Cek email Anda",
+    successBody: "Jika email terdaftar, kami mengirim link reset kata sandi. Demi keamanan, kami tidak menampilkan status pendaftaran email.",
     failedTitle: "Gagal mengirim tautan reset",
     failedBody: "Pengiriman tautan reset gagal. Periksa konfigurasi auth redirect URL dan coba lagi.",
     resendHelperRateLimited: "Belum bisa kirim ulang sekarang. Cek inbox atau folder Spam/Promosi, lalu coba lagi setelah jeda selesai.",
+    helperSuccess: "Jika email terdaftar, link reset kata sandi sudah dikirim. Cek inbox, Spam, atau Promosi.",
+    helperOperationalError: "Pengiriman link reset sedang bermasalah. Coba lagi beberapa saat lagi.",
   },
 
   reset: {
