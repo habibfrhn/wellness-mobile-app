@@ -113,3 +113,26 @@ When verification/reset links do not route as expected in production:
   1. edge function constants
   2. verify screen helper behavior
   3. user-facing strings/documentation
+
+## Maintenance audit (May 2026)
+
+### Findings
+
+- Verify screen now contains only two user actions (`Masuk`, `Kirim ulang link verifikasi`) and removed dead paths for opening email apps/back navigation.
+- Resend helper state is lean:
+  - hidden by default
+  - shown only after resend attempts
+  - explicit tone split for neutral guidance vs success guidance
+- Resend network logic remains centralized in `authResend.ts`; screen-level code is UI state + navigation only.
+
+### Regression checks completed
+
+- Type safety: `pnpm -C apps/mobile typecheck` (pass)
+- Lint: `pnpm -C apps/mobile lint` (pass)
+- String key consistency: removed verify-only keys are not referenced by other auth screens.
+
+### Decisions and guardrails
+
+- Keep verify copy short and action-oriented (check email link, then log in).
+- Keep “link” wording consistent in the verify flow to avoid mixed terminology.
+- Do not add inline success/failure alerts for resend when helper text already communicates state; prefer one feedback channel per action.
