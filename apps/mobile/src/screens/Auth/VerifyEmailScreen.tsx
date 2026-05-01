@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { View, Text, Pressable, StyleSheet, Alert, Linking, Platform } from "react-native";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { View, Text, Pressable, StyleSheet, Alert, Platform } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../../navigation/types";
 import { getWebViewport } from "../../constants/webLayout";
@@ -9,7 +9,6 @@ import { id } from "../../i18n/strings";
 import { resendVerificationEmail } from "../../services/authResend";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
 
-const FLAG_ACTIVITY_NEW_TASK = 0x10000000;
 
 type Props = NativeStackScreenProps<AuthStackParamList, "VerifyEmail">;
 
@@ -19,7 +18,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
   const [busy, setBusy] = useState(false);
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const [resendHelperText, setResendHelperText] = useState<string | null>(null);
-  const hasAutoSentRef = useRef(false);
+  const [resendHelperTone, setResendHelperTone] = useState<"success" | "error" | null>(null);
   const viewportWidth = useViewportWidth();
   const isDesktopWeb = Platform.OS === "web" && getWebViewport(viewportWidth) === "desktop";
 
@@ -37,34 +36,9 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
     return () => clearTimeout(timeout);
   }, [cooldownSeconds]);
 
-  async function openEmailInbox() {
-    try {
-      if (Platform.OS === "android") {
-        const IntentLauncher = await import("expo-intent-launcher");
-        await IntentLauncher.startActivityAsync("android.intent.action.MAIN", {
-          category: "android.intent.category.APP_EMAIL",
-          flags: FLAG_ACTIVITY_NEW_TASK,
-        });
-        return;
-      }
-
-      const ok = await Linking.canOpenURL("mailto:");
-      if (!ok) {
-        Alert.alert(id.common.errorTitle, id.common.tryAgain);
-        return;
-      }
-      await Linking.openURL("mailto:");
-    } catch {
-      try {
-        await Linking.openURL("mailto:");
-      } catch {
-        Alert.alert(id.common.errorTitle, id.common.tryAgain);
-      }
-    }
-  }
-
-  const attemptResend = useCallback(async (trigger: "auto" | "manual") => {
+  const attemptResend = useCallback(async () => {
     setResendHelperText(null);
+    setResendHelperTone(null);
     setBusy(true);
     try {
       const result = await resendVerificationEmail(email);
@@ -73,12 +47,14 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
         if (result.code === "RATE_LIMITED") {
           setCooldownSeconds(Math.max(1, result.retryAfterSec));
           setResendHelperText(id.verify.resendHelperRateLimited);
+          setResendHelperTone("error");
           return;
         }
 
         if (result.code === "LINK_STILL_VALID") {
           setCooldownSeconds(Math.max(1, result.retryAfterSec));
           setResendHelperText(id.verify.resendHelperLinkStillValid);
+          setResendHelperTone("error");
           return;
         }
 
@@ -93,23 +69,12 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
       }
 
       setCooldownSeconds(Math.max(1, result.cooldownSec));
-      setResendHelperText(id.verify.resendHelperInboxSpam);
-      if (trigger === "manual") {
-        Alert.alert(id.verify.resendSuccessTitle, id.verify.resendSuccessBody);
-      }
+      setResendHelperText(id.verify.resendHelperSent);
+      setResendHelperTone("success");
     } finally {
       setBusy(false);
     }
   }, [email]);
-
-  useEffect(() => {
-    if (hasAutoSentRef.current) {
-      return;
-    }
-
-    hasAutoSentRef.current = true;
-    void attemptResend("auto");
-  }, [attemptResend]);
 
   function iHaveVerified() {
     navigation.replace("Login", { initialEmail: email });
@@ -121,21 +86,10 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
         <Text style={styles.email}>{email}</Text>
 
         <Text style={styles.help}>
-          {id.verify.help}
+          {id.verify.helpLoginAfterVerify}
         </Text>
 
         <View style={authSharedStyles.actionsStack}>
-          <Pressable
-            onPress={openEmailInbox}
-            style={({ hovered, pressed }: any) => [
-              authSharedStyles.primaryButton,
-              hovered && isDesktopWeb && styles.primaryButtonHover,
-              pressed && authSharedStyles.pressed,
-            ]}
-          >
-            <Text style={authSharedStyles.primaryButtonText}>{id.verify.openEmail}</Text>
-          </Pressable>
-
           <Pressable
             onPress={iHaveVerified}
             style={({ hovered, pressed }: any) => [
@@ -149,7 +103,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
           </Pressable>
 
           <Pressable
-            onPress={() => void attemptResend("manual")}
+            onPress={() => void attemptResend()}
             disabled={!canResend}
             style={({ hovered, pressed }: any) => [
               authSharedStyles.secondaryButton,
@@ -167,18 +121,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
                   : id.verify.resend}
             </Text>
           </Pressable>
-          {resendHelperText ? <Text style={styles.resendHelperText}>{resendHelperText}</Text> : null}
-          <Pressable
-            onPress={() => navigation.replace("Login", { initialEmail: email })}
-            style={({ hovered, pressed }: any) => [
-              authSharedStyles.secondaryButton,
-              styles.outlineButton,
-              hovered && isDesktopWeb && styles.outlineButtonHover,
-              pressed && authSharedStyles.pressed,
-            ]}
-          >
-            <Text style={[authSharedStyles.secondaryButtonText, styles.outlineButtonText]}>{id.verify.backToLogin}</Text>
-          </Pressable>
+          {resendHelperText ? <Text style={[styles.resendHelperText, resendHelperTone === "success" ? styles.resendHelperSuccess : styles.resendHelperError]}>{resendHelperText}</Text> : null}
         </View>
       </View>
     </AuthScreenLayout>
@@ -196,9 +139,6 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
     lineHeight: lineHeights.normal,
   },
-  primaryButtonHover: {
-    backgroundColor: colors.primaryHover,
-  },
   outlineButton: {
     backgroundColor: colors.white,
     borderWidth: 1,
@@ -212,7 +152,12 @@ const styles = StyleSheet.create({
   },
   resendHelperText: {
     fontSize: typography.caption,
-    color: colors.danger,
     lineHeight: lineHeights.normal,
+  },
+  resendHelperSuccess: {
+    color: colors.primary,
+  },
+  resendHelperError: {
+    color: colors.danger,
   },
 });

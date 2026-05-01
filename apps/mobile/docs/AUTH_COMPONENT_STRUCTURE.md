@@ -71,3 +71,32 @@ When verification/reset links do not route as expected in production:
 - During callback handling, if `linkType` is missing/unknown but callback session email matches pending signup context, treat it as verification completion and force redirect to Login (signed-out).
 - Clear pending verification context after verification completion and after successful login to avoid stale cross-flow effects.
 - Keep this guard scoped to signup verification only; do not broaden to generic callback flows without explicit review.
+
+## Email verification UX + resend rules (May 1, 2026)
+
+### Screen copy and CTA behavior (`src/screens/Auth/VerifyEmailScreen.tsx`)
+- Primary guidance is concise and in Bahasa Indonesia: users are told to click the email verification link, then return and press **Masuk**.
+- CTA set is intentionally minimal:
+  - **Masuk** (previously “Saya sudah verifikasi”) routes to Login with prefilled email.
+  - **Kirim ulang link verifikasi** (wording uses `link`, not `tautan`).
+- “Buka aplikasi email” and “Kembali ke masuk” are removed to avoid redundant actions and reduce cognitive load.
+
+### Resend behavior and account-state handling
+- Helper message is hidden by default and only appears after user taps **Kirim ulang link verifikasi**.
+- Resend endpoint (`supabase/functions/resend-verification-email`) enforces two protections:
+  1. short cooldown bucket (anti-spam/abuse), and
+  2. verification-link validity window bucket.
+- If current verification link is still valid, client does **not** send a new link and shows an error helper (red): user should check Inbox/Spam/Promotions.
+- If the previous link is no longer valid, client requests a new verification link and shows a success helper (green): “Link verifikasi berhasil dikirim.”
+
+### Validation and consistency notes
+- Keep unverified-account gating in `src/services/authEmailPassword.ts` and route unverified sign-ins to Verify Email screen.
+- Keep resend decision codes stable across edge function + client mapping (`RATE_LIMITED`, `LINK_STILL_VALID`) to avoid UX regressions.
+- Keep language consistent: use **link** across this verification flow.
+
+### Prevention notes for future auth changes
+- Do not auto-trigger resend on screen mount; this can produce noisy sends and premature helper text.
+- Any change to resend cooldown/window semantics must update both:
+  - `supabase/functions/resend-verification-email/index.ts`, and
+  - `src/services/authResend.ts` + `src/i18n/strings.ts` helper copy.
+- If you alter verification callback routing, re-verify pending-signup redirect guarantees in this document’s “Email verification redirect guarantees” section.
