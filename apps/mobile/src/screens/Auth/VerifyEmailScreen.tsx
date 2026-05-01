@@ -58,6 +58,12 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
           return;
         }
 
+        if (result.code === "ALREADY_VERIFIED") {
+          setResendHelperText(id.verify.resendHelperAlreadyVerified);
+          setResendHelperTone("error");
+          return;
+        }
+
         const errorMessage =
           result.code === "UNAVAILABLE"
             ? id.common.tryAgain
@@ -93,13 +99,12 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
           <Pressable
             onPress={goToLogin}
             style={({ hovered, pressed }: any) => [
-              authSharedStyles.secondaryButton,
-              styles.outlineButton,
-              hovered && isDesktopWeb && styles.outlineButtonHover,
+              authSharedStyles.primaryButton,
+              hovered && isDesktopWeb && styles.primaryButtonHover,
               pressed && authSharedStyles.pressed,
             ]}
           >
-            <Text style={[authSharedStyles.secondaryButtonText, styles.outlineButtonText]}>{id.verify.iHaveVerified}</Text>
+            <Text style={authSharedStyles.primaryButtonText}>{id.verify.iHaveVerified}</Text>
           </Pressable>
 
           <Pressable
@@ -138,6 +143,9 @@ const styles = StyleSheet.create({
     fontSize: typography.small,
     color: colors.mutedText,
     lineHeight: lineHeights.normal,
+  },
+  primaryButtonHover: {
+    backgroundColor: colors.primaryHover,
   },
   outlineButton: {
     backgroundColor: colors.white,

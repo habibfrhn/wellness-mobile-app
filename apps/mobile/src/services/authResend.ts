@@ -4,6 +4,7 @@ export type ResendVerificationResult =
   | { ok: true; cooldownSec: number }
   | { ok: false; code: "RATE_LIMITED"; retryAfterSec: number }
   | { ok: false; code: "LINK_STILL_VALID"; retryAfterSec: number }
+  | { ok: false; code: "ALREADY_VERIFIED" }
   | { ok: false; code: "UNAVAILABLE" }
   | { ok: false; code: "MISCONFIGURED" }
   | { ok: false; code: "ERROR" };
@@ -77,6 +78,10 @@ export async function resendVerificationEmail(email: string): Promise<ResendVeri
       code: "LINK_STILL_VALID",
       retryAfterSec: typeof errorPayload.retryAfterSec === "number" ? errorPayload.retryAfterSec : 3600,
     };
+  }
+
+  if (errorPayload?.code === "ALREADY_VERIFIED") {
+    return { ok: false, code: "ALREADY_VERIFIED" };
   }
 
   if (errorPayload?.code === "RATE_LIMIT_FAILED") {

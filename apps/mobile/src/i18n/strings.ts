@@ -123,7 +123,8 @@ export const id = {
     resendWait: "Tunggu",
     resendHelperSent: "Link verifikasi berhasil dikirim.",
     resendHelperRateLimited: "Terlalu sering meminta link. Tunggu sebentar lalu coba lagi.",
-    resendHelperLinkStillValid: "Link verifikasi masih valid. Cek email Anda, termasuk folder Spam/Promosi.",
+    resendHelperLinkStillValid: "Link verifikasi masih valid. Cek email atau folder Spam, lalu gunakan link yang sudah dikirim.",
+    resendHelperAlreadyVerified: "Akun sudah terverifikasi. Silakan lanjut ke Masuk.",
     helpLoginAfterVerify: "Setelah klik link verifikasi di email, kembali ke sini lalu tekan Masuk.",
   },
 

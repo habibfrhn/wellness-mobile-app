@@ -77,8 +77,8 @@ When verification/reset links do not route as expected in production:
 ### Screen copy and CTA behavior (`src/screens/Auth/VerifyEmailScreen.tsx`)
 - Primary guidance is concise and in Bahasa Indonesia: users are told to click the email verification link, then return and press **Masuk**.
 - CTA set is intentionally minimal:
-  - **Masuk** (previously “Saya sudah verifikasi”) routes to Login with prefilled email.
-  - **Kirim ulang link verifikasi** (wording uses `link`, not `tautan`).
+  - **Masuk** uses primary button styling and routes to Login with prefilled email.
+  - **Kirim ulang link verifikasi** uses secondary/outline styling (wording uses `link`, not `tautan`).
 - “Buka aplikasi email” and “Kembali ke masuk” are removed to avoid redundant actions and reduce cognitive load.
 
 ### Resend behavior and account-state handling
@@ -86,8 +86,9 @@ When verification/reset links do not route as expected in production:
 - Resend endpoint (`supabase/functions/resend-verification-email`) enforces two protections:
   1. short cooldown bucket (anti-spam/abuse), and
   2. verification-link validity window bucket.
-- If current verification link is still valid, client does **not** send a new link and shows an error helper (red): user should check Inbox/Spam/Promotions.
+- If current verification link is still valid, client does **not** send a new link and shows an error helper (red): “Link verifikasi masih valid. Cek email atau folder Spam, lalu gunakan link yang sudah dikirim.”
 - If the previous link is no longer valid, client requests a new verification link and shows a success helper (green): “Link verifikasi berhasil dikirim.”
+- If the account is already verified, client does **not** send a new link and shows an error helper (red): “Akun sudah terverifikasi. Silakan lanjut ke Masuk.”
 
 ### Validation and consistency notes
 - Keep unverified-account gating in `src/services/authEmailPassword.ts` and route unverified sign-ins to Verify Email screen.
@@ -107,4 +108,5 @@ When verification/reset links do not route as expected in production:
 - Removed dead verification copy keys that were no longer rendered by `VerifyEmailScreen` to keep `strings.ts` aligned with live UI usage.
 - Kept resend state minimal (`resendHelperText` + tone) and retained existing backend-driven decision codes (`RATE_LIMITED`, `LINK_STILL_VALID`) to avoid duplicated client-side validity logic.
 - Confirmed no mount-time resend side effect remains, preventing accidental sends and unnecessary load on auth/email infrastructure.
+- Added explicit server-side already-verified guard (`ALREADY_VERIFIED`) so resend behavior stays deterministic and does not depend on provider message parsing alone.
 - Maintenance rule: when editing auth screen CTAs, rename handler functions to reflect user intent (`goToLogin`, `onResend`, etc.) so future diffs stay readable and reduce semantic drift.

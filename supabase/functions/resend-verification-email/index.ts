@@ -7,6 +7,7 @@ type ErrorCode =
   | "SERVER_MISCONFIGURATION"
   | "RATE_LIMITED"
   | "LINK_STILL_VALID"
+  | "ALREADY_VERIFIED"
   | "RATE_LIMIT_FAILED"
   | "RESEND_FAILED";
 
@@ -118,6 +119,21 @@ async function sha256(value: string) {
   return Array.from(new Uint8Array(hashBuffer)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+
+async function isUserAlreadyVerified(adminClient: ReturnType<typeof createClient>, email: string): Promise<boolean> {
+  const { data, error } = await adminClient.auth.admin.listUsers({
+    email,
+    page: 1,
+    perPage: 1,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  const user = data?.users?.[0];
+  return Boolean(user?.email_confirmed_at);
+}
 async function incrementRateLimit(
   adminClient: ReturnType<typeof createClient>,
   principalKey: string,
@@ -186,6 +202,11 @@ Deno.serve(async (req: Request) => {
   const principalKey = await sha256(`${email}|${getClientIp(req)}`);
 
   try {
+    const alreadyVerified = await isUserAlreadyVerified(adminClient, email);
+    if (alreadyVerified) {
+      return json(409, { ok: false, code: "ALREADY_VERIFIED" }, corsHeaders);
+    }
+
     const cooldownCount = await incrementRateLimit(adminClient, principalKey, ACTION_RESEND_COOLDOWN, getCooldownBucket(now));
     if (cooldownCount > 1) {
       return json(429, { ok: false, code: "RATE_LIMITED", retryAfterSec: RESEND_COOLDOWN_SECONDS }, corsHeaders);
