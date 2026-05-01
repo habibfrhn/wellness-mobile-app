@@ -109,7 +109,7 @@ When verification/reset links do not route as expected in production:
 - Removed dead verification copy keys that were no longer rendered by `VerifyEmailScreen` to keep `strings.ts` aligned with live UI usage.
 - Kept resend state minimal (`resendHelperText` + tone) and retained existing backend-driven decision codes (`RATE_LIMITED`, `LINK_STILL_VALID`) to avoid duplicated client-side validity logic.
 - Confirmed no mount-time resend side effect remains, preventing accidental sends and unnecessary load on auth/email infrastructure.
-- Added explicit server-side already-verified guard (`ALREADY_VERIFIED`) so resend behavior stays deterministic and does not depend on provider message parsing alone.
+- `ALREADY_VERIFIED` is currently inferred from provider resend error messages in the Edge Function mapping layer; keep this mapping list maintained and tested after Supabase/Auth provider updates.
 - Maintenance rule: when editing auth screen CTAs, rename handler functions to reflect user intent (`goToLogin`, `onResend`, etc.) so future diffs stay readable and reduce semantic drift.
 
 
@@ -128,3 +128,21 @@ When verification/reset links do not route as expected in production:
   3. Edge Function returns non-mapped error code (falls back to generic helper + alert).
 - Prevention: keep client decision handling aligned with edge codes (`RATE_LIMITED`, `LINK_STILL_VALID`, `ALREADY_VERIFIED`).
 - Do not reintroduce vague fallback copy; unknown resend failures must still provide immediate next-step guidance before suggesting retry.
+
+
+## Maintainability audit update (May 1, 2026)
+
+Findings from review of the latest resend changes:
+- **Lean state is preserved**: verification screen keeps a small UI state surface (`busy`, `cooldownSeconds`, helper text, helper tone) and avoids duplicate decision state.
+- **No dead code found in resend path**: client decision handling is centralized in `attemptResend` + `authResend.ts` typed result mapping.
+- **Important nuance**: `ALREADY_VERIFIED` is provider-message mapped (not a pre-check query). This is simpler operationally, but brittle if upstream error text changes.
+
+Decisions:
+1. Keep provider-message mapping approach for now (lower complexity, no extra admin lookup call in hot path).
+2. Treat unknown edge-function codes as actionable helper + alert (never silent failure).
+3. Keep temporary debug logging in place only while diagnosing resend issues; remove or gate logs once production behavior is stable.
+
+Prevention notes:
+- When modifying resend logic, update all three layers together: `VerifyEmailScreen.tsx`, `authResend.ts`, and `resend-verification-email` Edge Function.
+- If provider error text changes, update `isAlreadyVerified` / `isLinkStillValid` mapping phrases and re-run end-to-end verification scenarios.
+- Documentation must reflect actual implementation details (e.g., mapped-provider detection vs server-side pre-check) to avoid misleading future changes.
