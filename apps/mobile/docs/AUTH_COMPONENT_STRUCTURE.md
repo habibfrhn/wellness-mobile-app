@@ -90,18 +90,20 @@ When verification/reset links do not route as expected in production:
   - cooldown window: 60 seconds (`RATE_LIMITED`)
   - valid-link window: 1 hour (`LINK_STILL_VALID`) to favor existing-link usage over duplicate email generation
 - UI behavior:
-  - on `LINK_STILL_VALID`: show guidance that existing link remains valid and to check inbox/spam
-  - on `RATE_LIMITED`: show wait message + cooldown timer
-  - on resend success: show confirmation + inbox/spam guidance
+  - resend helper text is hidden by default and appears only after user taps resend
+  - on `LINK_STILL_VALID`: show helper to check Inbox/Spam/Promotions and use existing link
+  - on `RATE_LIMITED`: show wait state via button countdown
+  - on resend success: show inline success helper in green: `Link verifikasi berhasil dikirim.`
 
 ### User-facing messaging standards
 
-- Signup context messaging: “verification email already sent, usually valid for ~1 hour”.
-- Login-unverified/recovery context messaging: “login blocked until verification; use latest inbox link first”.
-- Every resend state avoids sensitive internal detail and keeps user action-oriented guidance:
-  1. Check inbox
-  2. Check Spam/Promotions
-  3. Wait for cooldown/validity window before retry
+- Final verify-screen copy is intentionally short (Bahasa Indonesia) and uses **"link"** wording consistently:
+  - subtitle: `Link verifikasi dikirim ke:`
+  - signup help: `Klik link verifikasi di email Anda, lalu masuk.`
+  - unverified/recovery help: `Akun belum terverifikasi. Klik link verifikasi di email Anda, lalu masuk.`
+  - primary action label: `Masuk`
+  - resend label: `Kirim ulang link verifikasi`
+- Verify screen does not include "Open email app" or "Back to login" buttons; users proceed with `Masuk` after clicking link from email.
 
 ### Prevention notes for future auth changes
 
