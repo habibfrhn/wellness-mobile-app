@@ -71,3 +71,43 @@ When verification/reset links do not route as expected in production:
 - During callback handling, if `linkType` is missing/unknown but callback session email matches pending signup context, treat it as verification completion and force redirect to Login (signed-out).
 - Clear pending verification context after verification completion and after successful login to avoid stale cross-flow effects.
 - Keep this guard scoped to signup verification only; do not broaden to generic callback flows without explicit review.
+
+## Verified email flow (current behavior)
+
+### Account-state behavior
+
+- `signInWithEmailPassword` is the single gate for email/password login success.
+- If Supabase returns `email not confirmed` (or equivalent), app routes to `VerifyEmail`.
+- If Supabase returns a session but `email_confirmed_at` is still missing, app signs out immediately and routes to `VerifyEmail` (defense-in-depth for inconsistent provider responses).
+- Verified users clear pending signup verification state on login success.
+
+### Resend + link-validity rules
+
+- Signup sends one verification email via Supabase Auth `signUp`.
+- Verify screen **does not auto-resend** on mount (prevents accidental duplicate sends and unnecessary rate-limit hits).
+- Resend is user-initiated and backed by edge function `resend-verification-email`.
+- Rate limits:
+  - cooldown window: 60 seconds (`RATE_LIMITED`)
+  - valid-link window: 1 hour (`LINK_STILL_VALID`) to favor existing-link usage over duplicate email generation
+- UI behavior:
+  - on `LINK_STILL_VALID`: show guidance that existing link remains valid and to check inbox/spam
+  - on `RATE_LIMITED`: show wait message + cooldown timer
+  - on resend success: show confirmation + inbox/spam guidance
+
+### User-facing messaging standards
+
+- Signup context messaging: “verification email already sent, usually valid for ~1 hour”.
+- Login-unverified/recovery context messaging: “login blocked until verification; use latest inbox link first”.
+- Every resend state avoids sensitive internal detail and keeps user action-oriented guidance:
+  1. Check inbox
+  2. Check Spam/Promotions
+  3. Wait for cooldown/validity window before retry
+
+### Prevention notes for future auth changes
+
+- Do not re-introduce automatic resend on `VerifyEmail` mount without explicit abuse/rate-limit review.
+- Keep login verification checks centralized in `authEmailPassword.ts`; avoid duplicating verification logic in screen files.
+- If link-validity or cooldown durations change, update all three together in one PR:
+  1. edge function constants
+  2. verify screen helper behavior
+  3. user-facing strings/documentation

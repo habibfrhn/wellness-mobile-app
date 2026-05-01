@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { View, Text, Pressable, StyleSheet, Alert, Linking, Platform } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../../navigation/types";
@@ -16,10 +16,12 @@ type Props = NativeStackScreenProps<AuthStackParamList, "VerifyEmail">;
 
 export default function VerifyEmailScreen({ route, navigation }: Props) {
   const email = route.params.email;
+  const context = route.params.context ?? "signup";
   const [busy, setBusy] = useState(false);
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
-  const [resendHelperText, setResendHelperText] = useState<string | null>(null);
-  const hasAutoSentRef = useRef(false);
+  const [resendHelperText, setResendHelperText] = useState<string | null>(
+    context === "signup" ? id.verify.initialHelperSignup : id.verify.initialHelperLogin
+  );
   const viewportWidth = useViewportWidth();
   const isDesktopWeb = Platform.OS === "web" && getWebViewport(viewportWidth) === "desktop";
 
@@ -63,7 +65,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
     }
   }
 
-  const attemptResend = useCallback(async (trigger: "auto" | "manual") => {
+  const attemptResend = useCallback(async () => {
     setResendHelperText(null);
     setBusy(true);
     try {
@@ -94,22 +96,11 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
 
       setCooldownSeconds(Math.max(1, result.cooldownSec));
       setResendHelperText(id.verify.resendHelperInboxSpam);
-      if (trigger === "manual") {
-        Alert.alert(id.verify.resendSuccessTitle, id.verify.resendSuccessBody);
-      }
+      Alert.alert(id.verify.resendSuccessTitle, id.verify.resendSuccessBody);
     } finally {
       setBusy(false);
     }
   }, [email]);
-
-  useEffect(() => {
-    if (hasAutoSentRef.current) {
-      return;
-    }
-
-    hasAutoSentRef.current = true;
-    void attemptResend("auto");
-  }, [attemptResend]);
 
   function iHaveVerified() {
     navigation.replace("Login", { initialEmail: email });
@@ -121,7 +112,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
         <Text style={styles.email}>{email}</Text>
 
         <Text style={styles.help}>
-          {id.verify.help}
+          {context === "signup" ? id.verify.helpSignup : id.verify.helpLogin}
         </Text>
 
         <View style={authSharedStyles.actionsStack}>
@@ -149,7 +140,7 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
           </Pressable>
 
           <Pressable
-            onPress={() => void attemptResend("manual")}
+            onPress={() => void attemptResend()}
             disabled={!canResend}
             style={({ hovered, pressed }: any) => [
               authSharedStyles.secondaryButton,
