@@ -7,6 +7,7 @@ import useViewportWidth from "../../hooks/useViewportWidth";
 import { colors, lineHeights, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { resendVerificationEmail } from "../../services/authResend";
+import { logAuthDebugEvent } from "../../services/authDebug";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
 
 
@@ -37,14 +38,14 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
   }, [cooldownSeconds]);
 
   const attemptResend = useCallback(async () => {
-    console.info("[verify-resend] button_click", { screen: "VerifyEmail" });
+    logAuthDebugEvent("info", "verify_resend_button_click", { screen: "VerifyEmail" });
     setResendHelperText(null);
     setResendHelperTone(null);
     setBusy(true);
     try {
-      console.info("[verify-resend] handler_start");
+      logAuthDebugEvent("info", "verify_resend_handler_start");
       const result = await resendVerificationEmail(email);
-      console.info("[verify-resend] account_state_result", { ok: result.ok, code: result.ok ? "SUCCESS" : result.code });
+      logAuthDebugEvent("info", "verify_resend_result", { ok: result.ok, code: result.ok ? "SUCCESS" : result.code });
 
       if (!result.ok) {
         if (result.code === "RATE_LIMITED") {
@@ -73,18 +74,18 @@ export default function VerifyEmailScreen({ route, navigation }: Props) {
             : result.code === "MISCONFIGURED"
               ? id.forgot.failedBody
               : id.common.genericAuthError;
-        console.warn("[verify-resend] handler_error", { code: result.code });
+        logAuthDebugEvent("warn", "verify_resend_handler_error", { code: result.code });
         setResendHelperText(id.verify.resendHelperUnexpected);
         setResendHelperTone("error");
         Alert.alert(id.common.errorTitle, errorMessage);
         return;
       }
 
-      console.info("[verify-resend] resend_decision", { decision: "SEND_NEW_LINK" });
+      logAuthDebugEvent("info", "verify_resend_decision", { decision: "SEND_NEW_LINK" });
       setCooldownSeconds(Math.max(1, result.cooldownSec));
       setResendHelperText(id.verify.resendHelperSent);
       setResendHelperTone("success");
-      console.info("[verify-resend] success_response");
+      logAuthDebugEvent("info", "verify_resend_success_response");
     } finally {
       setBusy(false);
     }

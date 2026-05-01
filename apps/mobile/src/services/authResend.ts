@@ -1,4 +1,5 @@
 import { AUTH_CALLBACK, hasValidAuthRedirects, supabase } from "./supabase";
+import { logAuthDebugEvent } from "./authDebug";
 
 export type ResendVerificationResult =
   | { ok: true; cooldownSec: number }
@@ -58,7 +59,7 @@ export async function resendVerificationEmail(email: string): Promise<ResendVeri
   }
 
   const normalizedEmail = email.trim().toLowerCase();
-  console.info("[verify-resend] request_start", { email: safeEmailLabel(normalizedEmail) });
+  logAuthDebugEvent("info", "verify_resend_request_start", { email: safeEmailLabel(normalizedEmail) });
 
   const { data, error } = await supabase.functions.invoke<ResendVerificationResponse>("resend-verification-email", {
     body: {
@@ -68,7 +69,7 @@ export async function resendVerificationEmail(email: string): Promise<ResendVeri
   });
 
   if (!error) {
-    console.info("[verify-resend] response_success", { cooldownSec: data?.cooldownSec ?? 60 });
+    logAuthDebugEvent("info", "verify_resend_response_success", { cooldownSec: data?.cooldownSec ?? 60 });
     return {
       ok: true,
       cooldownSec: typeof data?.cooldownSec === "number" ? data.cooldownSec : 60,
@@ -76,7 +77,7 @@ export async function resendVerificationEmail(email: string): Promise<ResendVeri
   }
 
   const errorPayload = await extractFunctionErrorPayload(error);
-  console.warn("[verify-resend] response_error", { code: errorPayload?.code ?? "UNKNOWN" });
+  logAuthDebugEvent("warn", "verify_resend_response_error", { code: errorPayload?.code ?? "UNKNOWN" });
   if (errorPayload?.code === "RATE_LIMITED") {
     return {
       ok: false,

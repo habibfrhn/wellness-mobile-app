@@ -114,7 +114,7 @@ When verification/reset links do not route as expected in production:
 
 
 ### Temporary debugging log points (verification resend)
-- Browser console tracing points (safe/no full email):
+- Debug tracing points are emitted only through `logAuthDebugEvent` and are visible when `EXPO_PUBLIC_AUTH_DEBUG=1` (disabled in normal production builds):
   - `button_click`
   - `handler_start`
   - `request_start`
@@ -128,6 +128,7 @@ When verification/reset links do not route as expected in production:
   3. Edge Function returns non-mapped error code (falls back to generic helper + alert).
 - Prevention: keep client decision handling aligned with edge codes (`RATE_LIMITED`, `LINK_STILL_VALID`, `ALREADY_VERIFIED`).
 - Do not reintroduce vague fallback copy; unknown resend failures must still provide immediate next-step guidance before suggesting retry.
+- Do not add raw `console.*` calls for verify resend flow; use `logAuthDebugEvent` so diagnostics are environment-gated and safe by default.
 
 
 ## Maintainability audit update (May 1, 2026)
@@ -146,3 +147,11 @@ Prevention notes:
 - When modifying resend logic, update all three layers together: `VerifyEmailScreen.tsx`, `authResend.ts`, and `resend-verification-email` Edge Function.
 - If provider error text changes, update `isAlreadyVerified` / `isLinkStillValid` mapping phrases and re-run end-to-end verification scenarios.
 - Documentation must reflect actual implementation details (e.g., mapped-provider detection vs server-side pre-check) to avoid misleading future changes.
+
+
+## Production logging cleanup (May 1, 2026)
+
+- Verification resend debug output is now gated by `EXPO_PUBLIC_AUTH_DEBUG=1` via `src/services/authDebug.ts`.
+- Direct `console.info` / `console.warn` tracing was removed from verify resend screen/service to avoid noisy production consoles.
+- Keep only safe metadata in debug payloads (event codes, cooldown seconds, masked email label).
+- If additional diagnostics are needed, add them through `logAuthDebugEvent` only.
