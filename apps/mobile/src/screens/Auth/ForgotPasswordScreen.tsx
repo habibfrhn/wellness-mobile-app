@@ -33,6 +33,7 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const [helperText, setHelperText] = useState<string | null>(null);
   const [helperTone, setHelperTone] = useState<"success" | "error" | null>(null);
+  const [lastSubmittedEmail, setLastSubmittedEmail] = useState("");
   const viewportWidth = useViewportWidth();
   const isDesktopWeb = getWebViewport(viewportWidth) === "desktop";
 
@@ -60,6 +61,7 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
     }
 
     setBusy(true);
+    setLastSubmittedEmail(e);
     setHelperText(null);
     setHelperTone(null);
     try {
@@ -106,7 +108,15 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
           <Text style={authSharedStyles.label}>{id.forgot.emailLabel}</Text>
           <TextInput
             value={email}
-            onChangeText={setEmail}
+            onChangeText={(value) => {
+              setEmail(value);
+              const normalized = normalizeAuthEmail(value);
+              if (normalized && normalized !== lastSubmittedEmail) {
+                setCooldownSeconds(0);
+                setHelperText(null);
+                setHelperTone(null);
+              }
+            }}
             autoCapitalize="none"
             autoCorrect={false}
             keyboardType="email-address"

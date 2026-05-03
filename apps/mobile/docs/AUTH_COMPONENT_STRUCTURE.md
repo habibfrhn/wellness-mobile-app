@@ -199,3 +199,10 @@ Prevention notes:
 - Treat provider-message parsing as best-effort only; always retain a safe fallback message branch.
 - If Supabase error text changes, update classifiers in `authSecurity.ts` and verify login/forgot-password helpers together.
 - Avoid deriving account-state messages from unrelated client-side heuristics (length checks, local assumptions, etc.).
+
+
+## Forgot-password cooldown behavior note (May 3, 2026)
+
+- Forgot-password helper/cooldown state is scoped to the last submitted email.
+- When user edits email to a different value, stale rate-limit/helper state is cleared to prevent misleading feedback.
+- Cooldown is still enforced by backend/provider limits; UI reset does not bypass server-side throttling.
