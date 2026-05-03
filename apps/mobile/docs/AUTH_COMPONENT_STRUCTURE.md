@@ -252,3 +252,10 @@ Prevention notes:
   2. Direct Supabase reset fallback when edge invocation fails without structured code (keeps forgot-password usable during partial deploy/outage states).
 - Keep fallback privacy-safe: do not expose account-existence signals from provider responses.
 - When modifying this flow, verify both stages with manual tests (edge healthy + edge unavailable).
+
+
+### Audit findings (May 3, 2026)
+
+- Removed unused `channel` metadata from forgot-password service result to keep response contracts minimal and avoid unused-state drift in UI callers.
+- Kept fallback responsibility isolated in `requestPasswordResetEmail` so screen logic stays focused on helper UX + cooldown rendering only.
+- Preserved deterministic structured-code handling (`RATE_LIMITED`, `RESET_REQUEST_FAILED`) while keeping privacy-safe fallback semantics for unknown provider responses.

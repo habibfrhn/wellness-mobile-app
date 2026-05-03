@@ -3,7 +3,7 @@ import { AUTH_EMAIL_COOLDOWN_SECONDS } from "./authEmailRateLimits";
 import { isRateLimitedAuthError } from "./authSecurity";
 
 export type PasswordResetResult =
-  | { ok: true; cooldownSec: number; channel: "edge" | "supabase_direct" }
+  | { ok: true; cooldownSec: number }
   | { ok: false; code: "RATE_LIMITED"; retryAfterSec: number }
   | { ok: false; code: "RESET_REQUEST_FAILED" | "UNEXPECTED_ERROR" };
 
@@ -47,7 +47,7 @@ async function fallbackDirectReset(email: string): Promise<PasswordResetResult> 
   });
 
   if (!error) {
-    return { ok: true, cooldownSec: AUTH_EMAIL_COOLDOWN_SECONDS, channel: "supabase_direct" };
+    return { ok: true, cooldownSec: AUTH_EMAIL_COOLDOWN_SECONDS };
   }
 
   if (isRateLimitedAuthError(error)) {
@@ -65,7 +65,7 @@ async function fallbackDirectReset(email: string): Promise<PasswordResetResult> 
   }
 
   // Preserve privacy: unknown provider responses should not imply account existence.
-  return { ok: true, cooldownSec: AUTH_EMAIL_COOLDOWN_SECONDS, channel: "supabase_direct" };
+  return { ok: true, cooldownSec: AUTH_EMAIL_COOLDOWN_SECONDS };
 }
 
 export async function requestPasswordResetEmail(email: string): Promise<PasswordResetResult> {
@@ -78,7 +78,6 @@ export async function requestPasswordResetEmail(email: string): Promise<Password
       return {
         ok: true,
         cooldownSec: typeof data.cooldownSec === "number" ? data.cooldownSec : AUTH_EMAIL_COOLDOWN_SECONDS,
-        channel: "edge",
       };
     }
 

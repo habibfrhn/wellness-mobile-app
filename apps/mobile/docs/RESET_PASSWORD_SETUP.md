@@ -59,7 +59,7 @@ Use the actual host/port printed by Expo if it differs from `localhost:8081`.
 
 - Supabase can return throttling responses (`status=429`, `over_email_send_rate_limit`, `over_request_rate_limit`) for repeated reset requests; UI maps these into a predictable 60s resend cooldown per normalized email.
 - Expo web path variants (`/auth/reset`, `/#/auth/reset`, `/--/auth/reset`) are handled by auth link normalization logic.
-- This reset flow does **not** require migration or edge-function deployment changes by itself.
+- This reset flow requires the `request-password-reset-email` Edge Function to be deployed and healthy; direct fallback is only a resilience path, not the primary architecture.
 
 - Non-throttled successful requests apply a 15s local cooldown to prevent accidental rapid repeats while maintaining reliable delivery behavior for verified accounts.
 
