@@ -13,6 +13,7 @@ This repository currently follows a hardened MVP baseline for:
 - strict auth callback/reset origin controls,
 - server-enforced admin access,
 - validated + rate-limited edge-function ingestion paths,
+- centralized edge-function request throttling architecture (`supabase/functions/RATE_LIMITING.md`),
 - reduced secret/token exposure in logs.
 
 No client-side service-role credential exposure was identified in the codebase.

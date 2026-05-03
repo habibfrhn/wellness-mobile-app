@@ -13,6 +13,7 @@ This app guides users through a nightly wind-down ritual with Indonesian-first U
 - **Settings/account** including reminder settings, legal screens, password update, and account deletion.
 - **Web admin dashboard** at `/admin` (server-enforced by `is_admin()` + admin RPC permissions).
 - **Behavior analytics ingestion** through Supabase Edge Function (`track-analytics-event`) with server-side validation/rate limits.
+- **Edge-function request throttling** standardized via shared RPC + helper architecture (see `supabase/functions/RATE_LIMITING.md`).
 
 ## Platform targets
 

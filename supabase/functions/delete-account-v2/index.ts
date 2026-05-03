@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { enforceRateLimit } from "../_shared/rateLimit.ts";
 
 type ErrorCode =
   | "METHOD_NOT_ALLOWED"
@@ -9,8 +10,11 @@ type ErrorCode =
   | "RATE_LIMIT_UNAVAILABLE"
   | "DELETE_FAILED";
 
-const ACTION_NAME = "delete_user_account";
-const MAX_REQUESTS_PER_HOUR = 3;
+const DELETE_ACCOUNT_RATE_LIMIT_RULE = {
+  action: "delete_user_account",
+  windowSeconds: 3600,
+  limit: 3,
+};
 const REQUIRED_WEB_ORIGINS = ["https://www.lumepo.com", "https://lumepo.com"];
 const LOCAL_DEV_ORIGINS = [
   "http://localhost:8081",
@@ -105,23 +109,6 @@ function getHourBucket() {
   return `1h:${date.toISOString().replace(/\.\d{3}Z$/, "Z")}`;
 }
 
-async function applyRateLimit(adminClient: ReturnType<typeof createClient>, userId: string) {
-  const { data, error } = await adminClient.rpc("increment_rate_limit", {
-    p_user_id: userId,
-    p_action: ACTION_NAME,
-    p_bucket: getHourBucket(),
-  });
-
-  if (error) {
-    console.error("delete-account-v2: rate-limit rpc failed", error.message);
-    throw new Error("RATE_LIMIT_UNAVAILABLE");
-  }
-
-  if (typeof data === "number" && data > MAX_REQUESTS_PER_HOUR) {
-    throw new Error("RATE_LIMITED");
-  }
-}
-
 Deno.serve(async (req: Request) => {
   const corsHeaders = buildCorsHeaders(req);
 
@@ -170,12 +157,16 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    await applyRateLimit(adminClient, user.id);
-  } catch (error) {
-    if (error instanceof Error && error.message === "RATE_LIMITED") {
-      return fail(429, "Too many requests", "RATE_LIMITED", corsHeaders);
+    const decision = await enforceRateLimit(adminClient, `user:${user.id}`, DELETE_ACCOUNT_RATE_LIMIT_RULE);
+    if (!decision.allowed) {
+      return json(429, {
+        ok: false,
+        error: "Too many requests",
+        code: "RATE_LIMITED",
+        retryAfterSec: decision.retryAfterSeconds,
+      }, corsHeaders);
     }
-
+  } catch (error) {
     const rateLimitMessage = error instanceof Error ? error.message : String(error);
     console.error("delete-account-v2: rate-limit check unavailable", rateLimitMessage);
     return fail(503, "Service temporarily unavailable", "RATE_LIMIT_UNAVAILABLE", corsHeaders);

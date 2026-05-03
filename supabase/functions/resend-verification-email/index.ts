@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { enforceRateLimit, pickMostRestrictiveLimit } from "../_shared/rateLimit.ts";
 
 type ErrorCode =
   | "METHOD_NOT_ALLOWED"
@@ -16,10 +17,13 @@ type ResendBody = {
   redirectTo?: string;
 };
 
-const ACTION_RESEND_COOLDOWN = "resend_verification_email_cooldown";
-const ACTION_RESEND_VALID_WINDOW = "resend_verification_email_valid_window";
 const RESEND_COOLDOWN_SECONDS = 60;
 const LINK_VALID_WINDOW_SECONDS = 3600;
+const RESEND_EMAIL_RATE_LIMIT_RULES = {
+  emailPerMinute: { action: "resend_verification_email_per_email_60s", windowSeconds: 60, limit: 1 },
+  emailPerHour: { action: "resend_verification_email_per_email_1h", windowSeconds: 3600, limit: 6 },
+  ipPerMinute: { action: "resend_verification_email_per_ip_60s", windowSeconds: 60, limit: 5 },
+};
 const REQUIRED_WEB_ORIGINS = ["https://www.lumepo.com", "https://lumepo.com"];
 const LOCAL_DEV_ORIGINS = ["http://localhost:8081", "http://127.0.0.1:8081"];
 const VERCEL_PREVIEW_ORIGIN_REGEX = /^https:\/\/wellness-mobile-[a-z0-9-]+\.vercel\.app$/i;
@@ -77,19 +81,6 @@ function buildCorsHeaders(req: Request) {
   };
 }
 
-function getCooldownBucket(date: Date) {
-  return `60s:${Math.floor(date.getTime() / 60_000)}`;
-}
-
-function getValidWindowBucket(date: Date) {
-  const bucketDate = new Date(date);
-  bucketDate.setUTCMinutes(0, 0, 0);
-  return `1h:${bucketDate.toISOString().replace(/\.\d{3}Z$/, "Z")}`;
-}
-
-function getSecondsUntilWindowReset(date: Date) {
-  return LINK_VALID_WINDOW_SECONDS - (date.getUTCMinutes() * 60 + date.getUTCSeconds());
-}
 
 function isSafeRedirectUrl(value: string) {
   try {
@@ -119,25 +110,6 @@ async function sha256(value: string) {
   return Array.from(new Uint8Array(hashBuffer)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-
-async function incrementRateLimit(
-  adminClient: ReturnType<typeof createClient>,
-  principalKey: string,
-  action: string,
-  bucket: string
-): Promise<number> {
-  const { data, error } = await adminClient.rpc("increment_analytics_ingest_rate_limit", {
-    p_principal_key: principalKey,
-    p_action: action,
-    p_bucket: bucket,
-  });
-
-  if (error || typeof data !== "number") {
-    throw new Error("RATE_LIMIT_FAILED");
-  }
-
-  return data;
-}
 
 Deno.serve(async (req: Request) => {
   const corsHeaders = buildCorsHeaders(req);
@@ -184,18 +156,20 @@ Deno.serve(async (req: Request) => {
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
   const anonClient = createClient(supabaseUrl, supabaseAnonKey);
 
-  const now = new Date();
-  const principalKey = await sha256(`${email}|${getClientIp(req)}`);
+  const requestIp = getClientIp(req);
+  const emailPrincipal = await sha256(`email:${email}`);
+  const ipPrincipal = await sha256(`ip:${requestIp}`);
 
   try {
-    const cooldownCount = await incrementRateLimit(adminClient, principalKey, ACTION_RESEND_COOLDOWN, getCooldownBucket(now));
-    if (cooldownCount > 1) {
-      return json(429, { ok: false, code: "RATE_LIMITED", retryAfterSec: RESEND_COOLDOWN_SECONDS }, corsHeaders);
-    }
+    const decisions = await Promise.all([
+      enforceRateLimit(adminClient, emailPrincipal, RESEND_EMAIL_RATE_LIMIT_RULES.emailPerMinute),
+      enforceRateLimit(adminClient, emailPrincipal, RESEND_EMAIL_RATE_LIMIT_RULES.emailPerHour),
+      enforceRateLimit(adminClient, ipPrincipal, RESEND_EMAIL_RATE_LIMIT_RULES.ipPerMinute),
+    ]);
 
-    const windowCount = await incrementRateLimit(adminClient, principalKey, ACTION_RESEND_VALID_WINDOW, getValidWindowBucket(now));
-    if (windowCount > 1) {
-      return json(409, { ok: false, code: "LINK_STILL_VALID", retryAfterSec: getSecondsUntilWindowReset(now) }, corsHeaders);
+    const blocked = pickMostRestrictiveLimit(decisions.filter((decision) => !decision.allowed));
+    if (blocked) {
+      return json(429, { ok: false, code: "RATE_LIMITED", retryAfterSec: blocked.retryAfterSeconds }, corsHeaders);
     }
   } catch (error) {
     const rateLimitMessage = error instanceof Error ? error.message : String(error);

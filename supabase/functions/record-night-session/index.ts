@@ -1,4 +1,5 @@
 import { createClient } from "supabase";
+import { enforceRateLimit } from "../_shared/rateLimit.ts";
 
 type NightSessionMode = "calm_mind" | "release_accept";
 
@@ -22,7 +23,11 @@ type ErrorCode =
   | "STREAK_UPDATE_FAILED";
 
 const DATE_KEY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
-const ACTION_NAME = "record_night_session";
+const RECORD_NIGHT_SESSION_RATE_LIMIT_RULE = {
+  action: "record_night_session",
+  windowSeconds: 600,
+  limit: 6,
+};
 
 function json(status: number, body: Record<string, unknown>) {
   return new Response(JSON.stringify(body), {
@@ -77,12 +82,6 @@ function getAuthorizationToken(req: Request): string | null {
   return token;
 }
 
-function getTenMinuteBucket(date: Date): string {
-  const bucketDate = new Date(date);
-  const bucketMinute = Math.floor(bucketDate.getUTCMinutes() / 10) * 10;
-  bucketDate.setUTCMinutes(bucketMinute, 0, 0);
-  return `10min:${bucketDate.toISOString().replace(/\.\d{3}Z$/, "Z")}`;
-}
 
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") {
@@ -125,24 +124,19 @@ Deno.serve(async (req: Request) => {
 
   const userId = userData.user.id;
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
-  const bucket = getTenMinuteBucket(new Date());
-
-  const { data: incrementedCount, error: rateLimitError } = await adminClient.rpc(
-    "increment_rate_limit",
-    {
-      p_user_id: userId,
-      p_action: ACTION_NAME,
-      p_bucket: bucket,
+  try {
+    const rateLimitDecision = await enforceRateLimit(adminClient, `user:${userId}`, RECORD_NIGHT_SESSION_RATE_LIMIT_RULE);
+    if (!rateLimitDecision.allowed) {
+      return json(429, {
+        ok: false,
+        error: "Too many requests",
+        code: "RATE_LIMITED",
+        retryAfterSec: rateLimitDecision.retryAfterSeconds,
+      });
     }
-  );
-
-  if (rateLimitError || typeof incrementedCount !== "number") {
-    console.error("record-night-session: rate limit increment failed", rateLimitError?.message ?? "unknown");
+  } catch (rateLimitError) {
+    console.error("record-night-session: rate limit increment failed", rateLimitError instanceof Error ? rateLimitError.message : String(rateLimitError));
     return error(500, "Failed to process rate limit", "RATE_LIMIT_FAILED");
-  }
-
-  if (incrementedCount > 3) {
-    return error(429, "Too many requests", "RATE_LIMITED");
   }
 
   const { error: upsertError } = await adminClient.from("night_sessions").upsert(
