@@ -1,4 +1,4 @@
-import { getSafeAuthErrorMessage, isEmailNotConfirmedError, isInvalidCredentialsError, isUserNotFoundError, isWrongPasswordError } from "./authSecurity";
+import { getSafeAuthErrorMessage, isEmailNotConfirmedError, isInvalidCredentialsError } from "./authSecurity";
 import { isUserVerified } from "./authProviders";
 import { signOutToLogin } from "./authSession";
 import { supabase } from "./supabase";
@@ -19,8 +19,6 @@ type LoginFailure = {
   status: "error";
   message: string;
   invalidCredentials: boolean;
-  userNotFound: boolean;
-  wrongPassword: boolean;
 };
 
 type LoginResult = LoginSuccess | LoginUnverified | LoginFailure;
@@ -66,8 +64,6 @@ export async function signInWithEmailPassword({
       status: "error",
       message: getSafeAuthErrorMessage(error.message, fallbackMessage),
       invalidCredentials: isInvalidCredentialsError(error.message),
-      userNotFound: isUserNotFoundError(error.message),
-      wrongPassword: isWrongPasswordError(error.message),
     };
   }
 

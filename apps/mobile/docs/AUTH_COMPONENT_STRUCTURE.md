@@ -160,8 +160,8 @@ Prevention notes:
 ## Login + forgot-password account-existence behavior (May 1, 2026)
 
 - **Login**: Supabase password sign-in does not safely expose whether the email is unregistered vs wrong password in this client flow.
-  - We now prioritize specific helpers where possible: invalid credentials branch into password/account guidance based on available client/provider signals.
-  - Keep this logic conservative; do not add hard account-enumeration APIs without explicit security review.
+  - Invalid credentials use a single privacy-preserving helper message and do not disclose whether the account exists or the password is wrong.
+  - Do not add account-enumeration helper branches without explicit security review.
 - **Forgot password**: flow is privacy-preserving and does not reveal whether an email is registered.
   - Success-style helper copy explicitly states conditional delivery: if the email is registered, reset link is sent.
   - Rate limit, operational/network, and invalid-email states provide distinct user guidance.
@@ -181,7 +181,7 @@ Prevention notes:
 - Login, signup, and forgot-password flows should return one clear inline helper per failure state.
 - Prefer field-specific helpers for blank/invalid input before calling backend APIs.
 - Signup should not silently redirect when email already exists; show explicit next-step helper (Masuk / Lupa kata sandi).
-- Forgot-password uses privacy-preserving behavior by default; if provider returns explicit non-existing-account signals, show account-not-found helper.
+- Forgot-password uses privacy-preserving behavior by default and does not disclose account existence from helper messages.
 - Avoid vague retry-only copy; always include immediate user action (fix input, check inbox/spam, go to login, or use forgot-password).
 
 ### Maintenance guidance
@@ -192,8 +192,8 @@ Prevention notes:
 ## Auth maintainability audit (May 3, 2026)
 
 - Removed brittle login helper heuristic that inferred account state from password length.
-- Login helper selection now relies on explicit provider-message classifiers (`isUserNotFoundError`, `isWrongPasswordError`) surfaced by `authEmailPassword.ts`.
-- Kept fallback path for unknown invalid-credential responses (`errorInvalidCredentials`) so UI remains deterministic even when provider messages change.
+- Login helper behavior now uses a single invalid-credential helper for privacy and consistency.
+- Kept fallback path for unknown auth responses (`errorInvalidCredentials` / generic auth fallback) so UI remains deterministic when provider messages change.
 
 ### Maintenance notes
 - Treat provider-message parsing as best-effort only; always retain a safe fallback message branch.

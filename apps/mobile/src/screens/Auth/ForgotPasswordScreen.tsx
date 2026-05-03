@@ -7,7 +7,7 @@ import { colors } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase, AUTH_RESET, hasValidAuthRedirects } from "../../services/supabase";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
-import { isRateLimitedError, isUserNotFoundError } from "../../services/authSecurity";
+import { isRateLimitedError } from "../../services/authSecurity";
 import { isValidAuthEmail, normalizeAuthEmail } from "../../services/authValidation";
 import { getWebViewport } from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
@@ -76,12 +76,6 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
         if (isRateLimitedError(error.message)) {
           setCooldownSeconds(60);
           setHelperText(id.forgot.resendHelperRateLimited);
-          setHelperTone("error");
-          return;
-        }
-
-        if (isUserNotFoundError(error.message)) {
-          setHelperText(id.forgot.helperAccountNotFound);
           setHelperTone("error");
           return;
         }

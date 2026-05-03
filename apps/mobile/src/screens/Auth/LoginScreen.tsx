@@ -118,12 +118,7 @@ export default function LoginScreen({ navigation, route }: Props) {
 
       if (result.status === "error") {
         if (result.invalidCredentials) {
-          const invalidMessage = result.userNotFound
-            ? id.login.errorAccountNotFound
-            : result.wrongPassword
-              ? id.login.errorPasswordIncorrect
-              : id.login.errorInvalidCredentials;
-          setErrors({ password: invalidMessage });
+          setErrors({ password: id.login.errorInvalidCredentials });
         } else {
           setErrors({});
         }
