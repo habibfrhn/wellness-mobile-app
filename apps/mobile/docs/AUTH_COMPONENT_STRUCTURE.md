@@ -187,3 +187,15 @@ Prevention notes:
 ### Maintenance guidance
 - Keep provider message classifiers in `authSecurity.ts` synchronized with provider message changes.
 - When changing helper copy, update `strings.ts` and this document in the same PR.
+
+
+## Auth maintainability audit (May 3, 2026)
+
+- Removed brittle login helper heuristic that inferred account state from password length.
+- Login helper selection now relies on explicit provider-message classifiers (`isUserNotFoundError`, `isWrongPasswordError`) surfaced by `authEmailPassword.ts`.
+- Kept fallback path for unknown invalid-credential responses (`errorInvalidCredentials`) so UI remains deterministic even when provider messages change.
+
+### Maintenance notes
+- Treat provider-message parsing as best-effort only; always retain a safe fallback message branch.
+- If Supabase error text changes, update classifiers in `authSecurity.ts` and verify login/forgot-password helpers together.
+- Avoid deriving account-state messages from unrelated client-side heuristics (length checks, local assumptions, etc.).
