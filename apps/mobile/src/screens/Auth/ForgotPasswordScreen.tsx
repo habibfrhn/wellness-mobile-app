@@ -30,7 +30,7 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
   const isDesktopWeb = getWebViewport(viewportWidth) === "desktop";
 
   const normalizedEmail = useMemo(() => normalizeAuthEmail(email), [email]);
-  const canSubmit = useMemo(() => isValidAuthEmail(normalizedEmail) && !busy && cooldownSeconds === 0, [normalizedEmail, busy, cooldownSeconds]);
+  const canSubmit = !busy;
   const emailWebInputProps =
     Platform.OS === "web" ? ({ id: "forgot-password-email", name: "email", nativeID: "forgot-password-email" } as const) : {};
 
@@ -56,6 +56,12 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
 
   async function onSubmit() {
     const e = normalizedEmail;
+    if (!e) {
+      setHelperText(id.forgot.helperEmptyEmail);
+      setHelperTone("error");
+      return;
+    }
+
     if (!isValidAuthEmail(e)) {
       setHelperText(id.forgot.helperInvalidEmail);
       setHelperTone("error");
@@ -89,7 +95,7 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
           return;
         }
 
-        setHelperText(id.common.tryAgain);
+        setHelperText(id.forgot.helperOperationalError);
         setHelperTone("error");
         return;
       }
@@ -142,7 +148,7 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
             ]}
           >
             <Text style={authSharedStyles.primaryButtonText}>
-              {busy ? id.forgot.sending : cooldownSeconds > 0 ? `${id.forgot.cooldown} ${cooldownSeconds}s` : id.forgot.send}
+              {busy ? id.forgot.sending : id.forgot.send}
             </Text>
           </Pressable>
           {helperText ? <Text style={[styles.helperText, helperTone === "success" ? styles.helperTextSuccess : styles.helperTextError]}>{helperText}</Text> : null}

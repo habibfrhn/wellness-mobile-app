@@ -259,3 +259,14 @@ Prevention notes:
 - Removed unused `channel` metadata from forgot-password service result to keep response contracts minimal and avoid unused-state drift in UI callers.
 - Kept fallback responsibility isolated in `requestPasswordResetEmail` so screen logic stays focused on helper UX + cooldown rendering only.
 - Preserved deterministic structured-code handling (`RATE_LIMITED`, `RESET_REQUEST_FAILED`) while keeping privacy-safe fallback semantics for unknown provider responses.
+
+
+### Forgot-password validation + helper contract (May 3, 2026)
+
+- Submit button is intentionally clickable for guided validation UX; validation feedback happens on press.
+- Validation order is strict and explicit:
+  1. empty email -> `helperEmptyEmail`
+  2. invalid email format -> `helperInvalidEmail`
+  3. valid email -> send request
+- Unknown fallback provider errors are treated as operational failures (not forced success) to avoid false-positive delivery feedback.
+- Keep helper copy in `strings.ts` synchronized with this contract when updating UX text.

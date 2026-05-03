@@ -145,6 +145,7 @@ export const id = {
     resendHelperRateLimited: "Belum bisa kirim ulang sekarang. Cek inbox atau folder Spam/Promosi, lalu coba lagi setelah jeda selesai.",
     helperSuccess: "Jika email terdaftar, link reset kata sandi sudah dikirim. Cek inbox, Spam, atau Promosi.",
     helperOperationalError: "Pengiriman link reset sedang bermasalah. Coba lagi beberapa saat lagi.",
+    helperEmptyEmail: "Masukkan email terlebih dahulu.",
     helperInvalidEmail: "Gunakan format email yang valid, misalnya nama@email.com.",
   },
 

@@ -81,3 +81,11 @@ Use the actual host/port printed by Expo if it differs from `localhost:8081`.
   - rate-limited -> explicit wait guidance
   - operational SMTP/network failures -> operational error helper
   - successful/unknown privacy-safe provider responses -> generic success helper
+
+
+## 8) Validation behavior (May 3, 2026)
+
+- **Button behavior**: forgot-password submit remains clickable (except while an in-flight request is sending).
+- Empty email input -> inline helper: `Masukkan email terlebih dahulu.`
+- Invalid email format -> inline helper: `Gunakan format email yang valid, misalnya nama@email.com.`
+- Valid request -> execute reset request path and show result-specific helper (`rate-limited`, `operational error`, or privacy-safe success).

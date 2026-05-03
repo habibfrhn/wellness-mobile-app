@@ -64,8 +64,7 @@ async function fallbackDirectReset(email: string): Promise<PasswordResetResult> 
     return { ok: false, code: "RESET_REQUEST_FAILED" };
   }
 
-  // Preserve privacy: unknown provider responses should not imply account existence.
-  return { ok: true, cooldownSec: AUTH_EMAIL_COOLDOWN_SECONDS };
+  return { ok: false, code: "RESET_REQUEST_FAILED" };
 }
 
 export async function requestPasswordResetEmail(email: string): Promise<PasswordResetResult> {
