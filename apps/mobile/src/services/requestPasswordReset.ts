@@ -1,8 +1,9 @@
 import { AUTH_RESET, supabase } from "./supabase";
 import { AUTH_EMAIL_COOLDOWN_SECONDS } from "./authEmailRateLimits";
+import { isRateLimitedAuthError } from "./authSecurity";
 
 export type PasswordResetResult =
-  | { ok: true; cooldownSec: number }
+  | { ok: true; cooldownSec: number; channel: "edge" | "supabase_direct" }
   | { ok: false; code: "RATE_LIMITED"; retryAfterSec: number }
   | { ok: false; code: "RESET_REQUEST_FAILED" | "UNEXPECTED_ERROR" };
 
@@ -40,6 +41,33 @@ async function extractFunctionErrorPayload(error: unknown): Promise<PasswordRese
   }
 }
 
+async function fallbackDirectReset(email: string): Promise<PasswordResetResult> {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: AUTH_RESET,
+  });
+
+  if (!error) {
+    return { ok: true, cooldownSec: AUTH_EMAIL_COOLDOWN_SECONDS, channel: "supabase_direct" };
+  }
+
+  if (isRateLimitedAuthError(error)) {
+    return { ok: false, code: "RATE_LIMITED", retryAfterSec: AUTH_EMAIL_COOLDOWN_SECONDS };
+  }
+
+  const normalizedMessage = (error.message ?? "").toLowerCase();
+  if (
+    normalizedMessage.includes("smtp") ||
+    normalizedMessage.includes("email provider") ||
+    normalizedMessage.includes("network") ||
+    normalizedMessage.includes("timeout")
+  ) {
+    return { ok: false, code: "RESET_REQUEST_FAILED" };
+  }
+
+  // Preserve privacy: unknown provider responses should not imply account existence.
+  return { ok: true, cooldownSec: AUTH_EMAIL_COOLDOWN_SECONDS, channel: "supabase_direct" };
+}
+
 export async function requestPasswordResetEmail(email: string): Promise<PasswordResetResult> {
   const { data, error } = await supabase.functions.invoke<PasswordResetResponse>("request-password-reset-email", {
     body: { email, redirectTo: AUTH_RESET },
@@ -47,7 +75,11 @@ export async function requestPasswordResetEmail(email: string): Promise<Password
 
   if (!error) {
     if (data?.ok === true) {
-      return { ok: true, cooldownSec: typeof data.cooldownSec === "number" ? data.cooldownSec : AUTH_EMAIL_COOLDOWN_SECONDS };
+      return {
+        ok: true,
+        cooldownSec: typeof data.cooldownSec === "number" ? data.cooldownSec : AUTH_EMAIL_COOLDOWN_SECONDS,
+        channel: "edge",
+      };
     }
 
     if (data?.code === "RATE_LIMITED") {
@@ -58,7 +90,11 @@ export async function requestPasswordResetEmail(email: string): Promise<Password
       };
     }
 
-    return { ok: false, code: "RESET_REQUEST_FAILED" };
+    if (data?.code === "RESET_REQUEST_FAILED") {
+      return { ok: false, code: "RESET_REQUEST_FAILED" };
+    }
+
+    return { ok: false, code: "UNEXPECTED_ERROR" };
   }
 
   const errorPayload = await extractFunctionErrorPayload(error);
@@ -70,5 +106,5 @@ export async function requestPasswordResetEmail(email: string): Promise<Password
     };
   }
 
-  return { ok: false, code: "UNEXPECTED_ERROR" };
+  return fallbackDirectReset(email);
 }

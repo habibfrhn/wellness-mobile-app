@@ -69,3 +69,15 @@ Use the actual host/port printed by Expo if it differs from `localhost:8081`.
 - Client requests forgot-password emails through `request-password-reset-email` Edge Function, not direct provider calls.
 - Edge Function enforces server-side cooldown and returns structured codes (`RATE_LIMITED`, `RESET_REQUEST_ACCEPTED`, `RESET_REQUEST_FAILED`).
 - UI cooldown remains advisory for user feedback and button pacing only.
+
+
+## 7) Fallback + error behavior (May 3, 2026)
+
+- Primary path: client invokes `request-password-reset-email` Edge Function.
+- If Edge invocation is unavailable (deploy gap, temporary function outage, or non-structured transport error), client falls back to direct `supabase.auth.resetPasswordForEmail` to preserve reset availability.
+- `RATE_LIMITED` remains strict and deterministic in both paths.
+- Privacy behavior is preserved: unknown provider responses do not reveal account existence.
+- User-facing helper mapping:
+  - rate-limited -> explicit wait guidance
+  - operational SMTP/network failures -> operational error helper
+  - successful/unknown privacy-safe provider responses -> generic success helper

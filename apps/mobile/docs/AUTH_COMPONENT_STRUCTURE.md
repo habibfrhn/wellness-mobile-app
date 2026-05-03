@@ -243,3 +243,12 @@ Prevention notes:
 - Confirm SPF, DKIM, and sender domain verification in Brevo before production sends.
 - Use Supabase Auth email logs + Brevo transactional logs together for delivery troubleshooting.
 - If Brevo blocks traffic by source IP, allow Supabase outbound sender infrastructure per Brevo policy; do not hardcode app-server IP assumptions.
+
+
+### Forgot-password reliability guardrail
+
+- `requestPasswordResetEmail` now uses a two-stage send strategy:
+  1. Edge Function path (`request-password-reset-email`) for server-enforced cooldown and structured codes.
+  2. Direct Supabase reset fallback when edge invocation fails without structured code (keeps forgot-password usable during partial deploy/outage states).
+- Keep fallback privacy-safe: do not expose account-existence signals from provider responses.
+- When modifying this flow, verify both stages with manual tests (edge healthy + edge unavailable).
