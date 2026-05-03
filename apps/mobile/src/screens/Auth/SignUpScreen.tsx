@@ -192,7 +192,8 @@ export default function SignUpScreen({ navigation, route }: Props) {
         }
 
         if (isEmailAlreadyRegisteredError(error.message)) {
-          navigation.replace("VerifyEmail", { email: e, context: "recovery" });
+          setErrors((prev) => ({ ...prev, email: id.signup.emailAlreadyUsedError }));
+          emailInputRef.current?.focus();
           return;
         }
 
@@ -204,7 +205,8 @@ export default function SignUpScreen({ navigation, route }: Props) {
       }
 
       if (isExistingUserSignupResponse(data.user?.identities)) {
-        navigation.replace("VerifyEmail", { email: e, context: "recovery" });
+        setErrors((prev) => ({ ...prev, email: id.signup.emailAlreadyUsedError }));
+        emailInputRef.current?.focus();
         return;
       }
 

@@ -6,6 +6,8 @@ const NETWORK_MARKERS = ["network", "fetch", "timeout", "timed out"];
 const WEAK_PASSWORD_MARKERS = ["weak password", "password should", "password must", "password is too weak"];
 const EMAIL_NOT_CONFIRMED_MARKERS = ["email not confirmed", "confirm your email", "email_not_confirmed", "signup_disabled"];
 const INVALID_CREDENTIALS_MARKERS = ["invalid login credentials", "invalid credentials", "email or password", "invalid_grant"];
+const USER_NOT_FOUND_MARKERS = ["user not found", "not registered", "no user", "email not found"];
+const WRONG_PASSWORD_MARKERS = ["invalid password", "wrong password", "password is incorrect"];
 const RESET_LINK_EXPIRED_MARKERS = ["expired", "otp_expired", "flow_state_expired", "flow state has expired"];
 const RESET_LINK_USED_MARKERS = ["already", "used", "flow state not found", "flow_state_not_found"];
 const RESET_LINK_INVALID_MARKERS = ["invalid", "not found", "session", "jwt", "token"];
@@ -91,4 +93,15 @@ export function getResetLinkErrorType(message: string | null | undefined): "expi
   }
 
   return "unknown";
+}
+
+
+export function isUserNotFoundError(message: string | null | undefined) {
+  const normalized = (message ?? "").toLowerCase();
+  return USER_NOT_FOUND_MARKERS.some((marker) => normalized.includes(marker));
+}
+
+export function isWrongPasswordError(message: string | null | undefined) {
+  const normalized = (message ?? "").toLowerCase();
+  return WRONG_PASSWORD_MARKERS.some((marker) => normalized.includes(marker));
 }

@@ -90,7 +90,7 @@ export const id = {
     hasAccountPrefix: "Sudah punya akun?",
     loginLink: "Masuk",
     finePrint: "Dengan melanjutkan, Anda menyetujui S&K dan Kebijakan Privasi.",
-    emailAlreadyUsedError: "Email ini sudah terdaftar dan tidak bisa digunakan lagi. Silakan gunakan email lain.",
+    emailAlreadyUsedError: "Akun dengan email ini sudah ada. Silakan Masuk atau gunakan Lupa kata sandi.",
   },
 
   login: {
@@ -111,7 +111,9 @@ export const id = {
     errorBothRequired: "Silakan isi email dan kata sandi",
     errorEmailRequired: "Email belum diisi",
     errorPasswordRequired: "Kata sandi belum diisi",
-    errorInvalidCredentials: "Email atau kata sandi salah. Jika belum punya akun, silakan buat akun terlebih dahulu.",
+    errorInvalidCredentials: "Email atau kata sandi tidak sesuai.",
+    errorPasswordIncorrect: "Kata sandi salah. Silakan coba lagi.",
+    errorAccountNotFound: "Akun belum dibuat. Silakan buat akun terlebih dahulu.",
   },
 
   verify: {
@@ -145,6 +147,8 @@ export const id = {
     resendHelperRateLimited: "Belum bisa kirim ulang sekarang. Cek inbox atau folder Spam/Promosi, lalu coba lagi setelah jeda selesai.",
     helperSuccess: "Jika email terdaftar, link reset kata sandi sudah dikirim. Cek inbox, Spam, atau Promosi.",
     helperOperationalError: "Pengiriman link reset sedang bermasalah. Coba lagi beberapa saat lagi.",
+    helperInvalidEmail: "Gunakan format email yang valid, misalnya nama@email.com.",
+    helperAccountNotFound: "Akun belum dibuat. Silakan buat akun terlebih dahulu.",
   },
 
   reset: {

@@ -160,8 +160,8 @@ Prevention notes:
 ## Login + forgot-password account-existence behavior (May 1, 2026)
 
 - **Login**: Supabase password sign-in does not safely expose whether the email is unregistered vs wrong password in this client flow.
-  - We use a user-facing helper message that remains clear and actionable without backend account enumeration: 
-    - “Email atau kata sandi salah. Jika belum punya akun, silakan buat akun terlebih dahulu.”
+  - We now prioritize specific helpers where possible: invalid credentials branch into password/account guidance based on available client/provider signals.
+  - Keep this logic conservative; do not add hard account-enumeration APIs without explicit security review.
 - **Forgot password**: flow is privacy-preserving and does not reveal whether an email is registered.
   - Success-style helper copy explicitly states conditional delivery: if the email is registered, reset link is sent.
   - Rate limit, operational/network, and invalid-email states provide distinct user guidance.
@@ -174,3 +174,16 @@ Prevention notes:
 ### Prevention notes
 - If backend policy changes to support trusted account-existence checks, update docs and copy together before changing UI behavior.
 - Keep `authSecurity.ts` message classifiers aligned with any provider error message changes.
+
+
+## Auth helper-message policy (May 3, 2026)
+
+- Login, signup, and forgot-password flows should return one clear inline helper per failure state.
+- Prefer field-specific helpers for blank/invalid input before calling backend APIs.
+- Signup should not silently redirect when email already exists; show explicit next-step helper (Masuk / Lupa kata sandi).
+- Forgot-password uses privacy-preserving behavior by default; if provider returns explicit non-existing-account signals, show account-not-found helper.
+- Avoid vague retry-only copy; always include immediate user action (fix input, check inbox/spam, go to login, or use forgot-password).
+
+### Maintenance guidance
+- Keep provider message classifiers in `authSecurity.ts` synchronized with provider message changes.
+- When changing helper copy, update `strings.ts` and this document in the same PR.

@@ -117,7 +117,14 @@ export default function LoginScreen({ navigation, route }: Props) {
       }
 
       if (result.status === "error") {
-        setErrors(result.invalidCredentials ? { password: id.login.errorInvalidCredentials } : {});
+        if (result.invalidCredentials) {
+          const accountNotFoundHint = !password || password.length < 8;
+          setErrors({
+            password: accountNotFoundHint ? id.login.errorAccountNotFound : id.login.errorPasswordIncorrect,
+          });
+        } else {
+          setErrors({});
+        }
         setFormError(result.message);
         return;
       }
