@@ -201,8 +201,22 @@ Prevention notes:
 - Avoid deriving account-state messages from unrelated client-side heuristics (length checks, local assumptions, etc.).
 
 
-## Forgot-password cooldown behavior note (May 3, 2026)
+## Forgot-password rate-limit architecture (May 3, 2026)
 
-- Forgot-password helper/cooldown state is scoped to the last submitted email.
-- When user edits email to a different value, stale rate-limit/helper state is cleared to prevent misleading feedback.
-- Cooldown is still enforced by backend/provider limits; UI reset does not bypass server-side throttling.
+- Forgot-password now separates concerns into two focused layers:
+  - `src/services/authSecurity.ts` classifies auth failures (including strict rate-limit detection from status/code markers).
+  - `src/services/forgotPasswordRateLimit.ts` owns client cooldown state/timers per normalized email.
+- Rate-limit detection uses stable indicators (`status=429`, `over_email_send_rate_limit`, `over_request_rate_limit`) before message fallback, reducing false positives from generic phrases.
+- Cooldown behavior is deterministic and scoped per normalized email:
+  - successful reset request: 15s local cooldown
+  - provider-enforced throttle response: 60s local cooldown
+- Privacy behavior remains unchanged: forgot-password helper copy does not reveal whether an email is registered.
+
+### Edge cases
+- Switching to a different email loads that email's cooldown state (if any) instead of reusing stale state from previous input.
+- Unknown provider errors still return privacy-safe success helper unless they match operational-error markers.
+- Client cooldown is advisory UX only; abuse prevention remains server/provider enforced.
+
+### Maintenance guidance
+- Keep cooldown constants and helpers centralized in `forgotPasswordRateLimit.ts`; avoid duplicating timer logic in screens.
+- When Supabase error payload semantics change, update `isRateLimitedAuthError` and re-test forgot-password + signup paths together.

@@ -7,7 +7,12 @@ import { colors } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { supabase, AUTH_RESET, hasValidAuthRedirects } from "../../services/supabase";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
-import { isRateLimitedError } from "../../services/authSecurity";
+import { isRateLimitedAuthError } from "../../services/authSecurity";
+import {
+  getForgotPasswordCooldownSeconds,
+  setForgotPasswordRateLimitCooldown,
+  setForgotPasswordSuccessCooldown,
+} from "../../services/forgotPasswordRateLimit";
 import { isValidAuthEmail, normalizeAuthEmail } from "../../services/authValidation";
 import { getWebViewport } from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
@@ -37,9 +42,19 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
   const viewportWidth = useViewportWidth();
   const isDesktopWeb = getWebViewport(viewportWidth) === "desktop";
 
-  const canSubmit = useMemo(() => isValidAuthEmail(email) && !busy && cooldownSeconds === 0, [email, busy, cooldownSeconds]);
+  const normalizedEmail = useMemo(() => normalizeAuthEmail(email), [email]);
+  const canSubmit = useMemo(() => isValidAuthEmail(normalizedEmail) && !busy && cooldownSeconds === 0, [normalizedEmail, busy, cooldownSeconds]);
   const emailWebInputProps =
     Platform.OS === "web" ? ({ id: "forgot-password-email", name: "email", nativeID: "forgot-password-email" } as const) : {};
+
+
+  useEffect(() => {
+    if (!normalizedEmail || normalizedEmail === lastSubmittedEmail) {
+      return;
+    }
+
+    setCooldownSeconds(getForgotPasswordCooldownSeconds(normalizedEmail));
+  }, [normalizedEmail, lastSubmittedEmail]);
 
   useEffect(() => {
     if (cooldownSeconds <= 0) {
@@ -53,7 +68,7 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
   }, [cooldownSeconds]);
 
   async function onSubmit() {
-    const e = normalizeAuthEmail(email);
+    const e = normalizedEmail;
     if (!isValidAuthEmail(e)) {
       setHelperText(id.forgot.helperInvalidEmail);
       setHelperTone("error");
@@ -75,8 +90,9 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
       });
 
       if (error) {
-        if (isRateLimitedError(error.message)) {
-          setCooldownSeconds(60);
+        if (isRateLimitedAuthError(error)) {
+          setForgotPasswordRateLimitCooldown(e);
+          setCooldownSeconds(getForgotPasswordCooldownSeconds(e));
           setHelperText(id.forgot.resendHelperRateLimited);
           setHelperTone("error");
           return;
@@ -95,7 +111,8 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
 
       setHelperText(id.forgot.helperSuccess);
       setHelperTone("success");
-      setCooldownSeconds(15);
+      setForgotPasswordSuccessCooldown(e);
+      setCooldownSeconds(getForgotPasswordCooldownSeconds(e));
     } finally {
       setBusy(false);
     }
