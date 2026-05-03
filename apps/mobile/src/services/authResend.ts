@@ -1,5 +1,6 @@
 import { AUTH_CALLBACK, hasValidAuthRedirects, supabase } from "./supabase";
 import { logAuthDebugEvent } from "./authDebug";
+import { AUTH_EMAIL_COOLDOWN_SECONDS } from "./authEmailRateLimits";
 
 export type ResendVerificationResult =
   | { ok: true; cooldownSec: number }
@@ -72,7 +73,7 @@ export async function resendVerificationEmail(email: string): Promise<ResendVeri
     logAuthDebugEvent("info", "verify_resend_response_success", { cooldownSec: data?.cooldownSec ?? 60 });
     return {
       ok: true,
-      cooldownSec: typeof data?.cooldownSec === "number" ? data.cooldownSec : 60,
+      cooldownSec: typeof data?.cooldownSec === "number" ? data.cooldownSec : AUTH_EMAIL_COOLDOWN_SECONDS,
     };
   }
 
@@ -82,7 +83,7 @@ export async function resendVerificationEmail(email: string): Promise<ResendVeri
     return {
       ok: false,
       code: "RATE_LIMITED",
-      retryAfterSec: typeof errorPayload.retryAfterSec === "number" ? errorPayload.retryAfterSec : 60,
+      retryAfterSec: typeof errorPayload.retryAfterSec === "number" ? errorPayload.retryAfterSec : AUTH_EMAIL_COOLDOWN_SECONDS,
     };
   }
 

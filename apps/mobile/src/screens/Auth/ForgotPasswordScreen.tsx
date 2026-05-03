@@ -5,32 +5,19 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../../navigation/types";
 import { colors } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
-import { supabase, AUTH_RESET, hasValidAuthRedirects } from "../../services/supabase";
+import { hasValidAuthRedirects } from "../../services/supabase";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
-import { isRateLimitedAuthError } from "../../services/authSecurity";
 import {
   getForgotPasswordCooldownSeconds,
   setForgotPasswordRateLimitCooldown,
   setForgotPasswordSuccessCooldown,
 } from "../../services/forgotPasswordRateLimit";
+import { requestPasswordResetEmail } from "../../services/requestPasswordReset";
 import { isValidAuthEmail, normalizeAuthEmail } from "../../services/authValidation";
 import { getWebViewport } from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "ForgotPassword">;
-
-function isOperationalResetError(message: string | null | undefined) {
-  const normalized = (message ?? "").toLowerCase();
-  return (
-    normalized.includes("redirect") ||
-    normalized.includes("smtp") ||
-    normalized.includes("email provider") ||
-    normalized.includes("invalid") ||
-    normalized.includes("network") ||
-    normalized.includes("fetch") ||
-    normalized.includes("timeout")
-  );
-}
 
 export default function ForgotPasswordScreen({ navigation, route }: Props) {
   const [email, setEmail] = useState(route.params?.initialEmail ?? "");
@@ -85,33 +72,31 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
         return;
       }
 
-      const { error } = await supabase.auth.resetPasswordForEmail(e, {
-        redirectTo: AUTH_RESET,
-      });
+      const result = await requestPasswordResetEmail(e);
 
-      if (error) {
-        if (isRateLimitedAuthError(error)) {
-          setForgotPasswordRateLimitCooldown(e);
+      if (!result.ok) {
+        if (result.code === "RATE_LIMITED") {
+          setForgotPasswordRateLimitCooldown(e, result.retryAfterSec);
           setCooldownSeconds(getForgotPasswordCooldownSeconds(e));
           setHelperText(id.forgot.resendHelperRateLimited);
           setHelperTone("error");
           return;
         }
 
-        if (isOperationalResetError(error.message)) {
+        if (result.code === "RESET_REQUEST_FAILED") {
           setHelperText(id.forgot.helperOperationalError);
           setHelperTone("error");
           return;
         }
 
-        setHelperText(id.forgot.helperSuccess);
-        setHelperTone("success");
+        setHelperText(id.common.tryAgain);
+        setHelperTone("error");
         return;
       }
 
       setHelperText(id.forgot.helperSuccess);
       setHelperTone("success");
-      setForgotPasswordSuccessCooldown(e);
+      setForgotPasswordSuccessCooldown(e, result.cooldownSec);
       setCooldownSeconds(getForgotPasswordCooldownSeconds(e));
     } finally {
       setBusy(false);

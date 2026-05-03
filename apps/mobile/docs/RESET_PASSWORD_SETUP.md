@@ -62,3 +62,10 @@ Use the actual host/port printed by Expo if it differs from `localhost:8081`.
 - This reset flow does **not** require migration or edge-function deployment changes by itself.
 
 - Non-throttled successful requests apply a 15s local cooldown to prevent accidental rapid repeats while maintaining reliable delivery behavior for verified accounts.
+
+
+## 6) Server-enforced reset email flow
+
+- Client requests forgot-password emails through `request-password-reset-email` Edge Function, not direct provider calls.
+- Edge Function enforces server-side cooldown and returns structured codes (`RATE_LIMITED`, `RESET_REQUEST_ACCEPTED`, `RESET_REQUEST_FAILED`).
+- UI cooldown remains advisory for user feedback and button pacing only.

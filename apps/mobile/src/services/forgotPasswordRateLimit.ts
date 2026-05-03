@@ -26,10 +26,10 @@ export function getForgotPasswordCooldownSeconds(email: string) {
   return remainingSeconds;
 }
 
-export function setForgotPasswordSuccessCooldown(email: string) {
-  cooldownStateByEmail.set(email, toDeadline(SUCCESS_COOLDOWN_SECONDS));
+export function setForgotPasswordSuccessCooldown(email: string, seconds: number = SUCCESS_COOLDOWN_SECONDS) {
+  cooldownStateByEmail.set(email, toDeadline(Math.max(1, seconds)));
 }
 
-export function setForgotPasswordRateLimitCooldown(email: string) {
-  cooldownStateByEmail.set(email, toDeadline(RATE_LIMIT_COOLDOWN_SECONDS));
+export function setForgotPasswordRateLimitCooldown(email: string, seconds: number = RATE_LIMIT_COOLDOWN_SECONDS) {
+  cooldownStateByEmail.set(email, toDeadline(Math.max(1, seconds)));
 }

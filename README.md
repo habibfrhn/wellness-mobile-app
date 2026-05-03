@@ -130,6 +130,7 @@ pnpm pre-release
 - `record-night-session`
 - `delete-account-v2`
 - `resend-verification-email`
+- `request-password-reset-email`
 
 ### Key backend entities used by app flows
 

@@ -220,3 +220,26 @@ Prevention notes:
 ### Maintenance guidance
 - Keep cooldown constants and helpers centralized in `forgotPasswordRateLimit.ts`; avoid duplicating timer logic in screens.
 - When Supabase error payload semantics change, update `isRateLimitedAuthError` and re-test forgot-password + signup paths together.
+
+
+## Unified auth-email rate-limit architecture (May 3, 2026)
+
+- Verification resend and forgot-password now both use server-enforced Edge Functions with structured result codes.
+  - `supabase/functions/resend-verification-email/index.ts`
+  - `supabase/functions/request-password-reset-email/index.ts`
+- Client cooldowns remain UX-only and are not treated as abuse controls.
+- Primary server decision code contract:
+  - `RATE_LIMITED` -> 429 with `retryAfterSec`
+  - `LINK_STILL_VALID` (verification resend only) -> 409
+  - `ALREADY_VERIFIED` (verification resend only) -> 409
+  - `RESET_REQUEST_ACCEPTED` (forgot-password success) -> 200
+  - `RESET_REQUEST_FAILED` (forgot-password operational/provider failure) -> 200, non-disclosing error state for client
+- Both flows now share the same anti-abuse principle: normalized email + request IP hash bucketed per 60-second window via RPC-backed counters.
+- Supabase/Brevo throttling is treated as provider-level enforcement and is mapped to `RATE_LIMITED` without brittle client parsing.
+
+### SMTP operations checklist
+
+- Supabase Auth must be configured with custom SMTP credentials for Brevo in the hosted project settings.
+- Confirm SPF, DKIM, and sender domain verification in Brevo before production sends.
+- Use Supabase Auth email logs + Brevo transactional logs together for delivery troubleshooting.
+- If Brevo blocks traffic by source IP, allow Supabase outbound sender infrastructure per Brevo policy; do not hardcode app-server IP assumptions.
