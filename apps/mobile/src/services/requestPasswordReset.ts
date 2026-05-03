@@ -54,16 +54,6 @@ async function fallbackDirectReset(email: string): Promise<PasswordResetResult> 
     return { ok: false, code: "RATE_LIMITED", retryAfterSec: AUTH_EMAIL_COOLDOWN_SECONDS };
   }
 
-  const normalizedMessage = (error.message ?? "").toLowerCase();
-  if (
-    normalizedMessage.includes("smtp") ||
-    normalizedMessage.includes("email provider") ||
-    normalizedMessage.includes("network") ||
-    normalizedMessage.includes("timeout")
-  ) {
-    return { ok: false, code: "RESET_REQUEST_FAILED" };
-  }
-
   return { ok: false, code: "RESET_REQUEST_FAILED" };
 }
 

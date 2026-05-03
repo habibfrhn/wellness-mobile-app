@@ -214,7 +214,7 @@ Prevention notes:
 
 ### Edge cases
 - Switching to a different email loads that email's cooldown state (if any) instead of reusing stale state from previous input.
-- Unknown provider errors still return privacy-safe success helper unless they match operational-error markers.
+- Unknown provider errors in fallback path are treated as operational failures to avoid false-positive "email sent" feedback.
 - Client cooldown is advisory UX only; abuse prevention remains server/provider enforced.
 
 ### Maintenance guidance
@@ -258,7 +258,7 @@ Prevention notes:
 
 - Removed unused `channel` metadata from forgot-password service result to keep response contracts minimal and avoid unused-state drift in UI callers.
 - Kept fallback responsibility isolated in `requestPasswordResetEmail` so screen logic stays focused on helper UX + cooldown rendering only.
-- Preserved deterministic structured-code handling (`RATE_LIMITED`, `RESET_REQUEST_FAILED`) while keeping privacy-safe fallback semantics for unknown provider responses.
+- Preserved deterministic structured-code handling (`RATE_LIMITED`, `RESET_REQUEST_FAILED`) while treating unknown fallback errors as operational failures for feedback accuracy.
 
 
 ### Forgot-password validation + helper contract (May 3, 2026)
@@ -268,5 +268,5 @@ Prevention notes:
   1. empty email -> `helperEmptyEmail`
   2. invalid email format -> `helperInvalidEmail`
   3. valid email -> send request
-- Unknown fallback provider errors are treated as operational failures (not forced success) to avoid false-positive delivery feedback.
+- Unknown fallback/provider transport errors are treated as operational failures (not forced success) to avoid false-positive delivery feedback.
 - Keep helper copy in `strings.ts` synchronized with this contract when updating UX text.

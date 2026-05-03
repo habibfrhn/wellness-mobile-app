@@ -80,7 +80,7 @@ Use the actual host/port printed by Expo if it differs from `localhost:8081`.
 - User-facing helper mapping:
   - rate-limited -> explicit wait guidance
   - operational SMTP/network failures -> operational error helper
-  - successful/unknown privacy-safe provider responses -> generic success helper
+  - successful provider responses -> generic success helper
 
 
 ## 8) Validation behavior (May 3, 2026)
