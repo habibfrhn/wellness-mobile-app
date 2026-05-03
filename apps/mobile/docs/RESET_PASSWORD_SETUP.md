@@ -61,7 +61,7 @@ Use the actual host/port printed by Expo if it differs from `localhost:8081`.
 - Expo web path variants (`/auth/reset`, `/#/auth/reset`, `/--/auth/reset`) are handled by auth link normalization logic.
 - This reset flow requires the `request-password-reset-email` Edge Function to be deployed and healthy; direct fallback is only a resilience path, not the primary architecture.
 
-- Non-throttled successful requests apply a 15s local cooldown to prevent accidental rapid repeats while maintaining reliable delivery behavior for verified accounts.
+- UI does not enforce local resend countdown blocking; throttling is authoritative on server/provider responses.
 
 
 ## 6) Server-enforced reset email flow

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { View, Text, TextInput, Pressable, Alert, Platform, StyleSheet } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -7,11 +7,6 @@ import { colors } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 import { hasValidAuthRedirects } from "../../services/supabase";
 import AuthScreenLayout, { authSharedStyles } from "../../components/auth/AuthScreenLayout";
-import {
-  getForgotPasswordCooldownSeconds,
-  setForgotPasswordRateLimitCooldown,
-  setForgotPasswordSuccessCooldown,
-} from "../../services/forgotPasswordRateLimit";
 import { requestPasswordResetEmail } from "../../services/requestPasswordReset";
 import { isValidAuthEmail, normalizeAuthEmail } from "../../services/authValidation";
 import { getWebViewport } from "../../constants/webLayout";
@@ -22,7 +17,6 @@ type Props = NativeStackScreenProps<AuthStackParamList, "ForgotPassword">;
 export default function ForgotPasswordScreen({ navigation, route }: Props) {
   const [email, setEmail] = useState(route.params?.initialEmail ?? "");
   const [busy, setBusy] = useState(false);
-  const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const [helperText, setHelperText] = useState<string | null>(null);
   const [helperTone, setHelperTone] = useState<"success" | "error" | null>(null);
   const [lastSubmittedEmail, setLastSubmittedEmail] = useState("");
@@ -34,25 +28,6 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
   const emailWebInputProps =
     Platform.OS === "web" ? ({ id: "forgot-password-email", name: "email", nativeID: "forgot-password-email" } as const) : {};
 
-
-  useEffect(() => {
-    if (!normalizedEmail || normalizedEmail === lastSubmittedEmail) {
-      return;
-    }
-
-    setCooldownSeconds(getForgotPasswordCooldownSeconds(normalizedEmail));
-  }, [normalizedEmail, lastSubmittedEmail]);
-
-  useEffect(() => {
-    if (cooldownSeconds <= 0) {
-      return;
-    }
-
-    const timeout = setTimeout(() => {
-      setCooldownSeconds((prev) => Math.max(0, prev - 1));
-    }, 1000);
-    return () => clearTimeout(timeout);
-  }, [cooldownSeconds]);
 
   async function onSubmit() {
     const e = normalizedEmail;
@@ -82,8 +57,6 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
 
       if (!result.ok) {
         if (result.code === "RATE_LIMITED") {
-          setForgotPasswordRateLimitCooldown(e, result.retryAfterSec);
-          setCooldownSeconds(getForgotPasswordCooldownSeconds(e));
           setHelperText(id.forgot.resendHelperRateLimited);
           setHelperTone("error");
           return;
@@ -102,8 +75,6 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
 
       setHelperText(id.forgot.helperSuccess);
       setHelperTone("success");
-      setForgotPasswordSuccessCooldown(e, result.cooldownSec);
-      setCooldownSeconds(getForgotPasswordCooldownSeconds(e));
     } finally {
       setBusy(false);
     }
@@ -120,7 +91,6 @@ export default function ForgotPasswordScreen({ navigation, route }: Props) {
               setEmail(value);
               const normalized = normalizeAuthEmail(value);
               if (normalized && normalized !== lastSubmittedEmail) {
-                setCooldownSeconds(0);
                 setHelperText(null);
                 setHelperTone(null);
               }

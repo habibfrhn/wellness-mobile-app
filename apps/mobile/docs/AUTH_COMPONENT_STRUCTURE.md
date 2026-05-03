@@ -205,20 +205,18 @@ Prevention notes:
 
 - Forgot-password now separates concerns into two focused layers:
   - `src/services/authSecurity.ts` classifies auth failures (including strict rate-limit detection from status/code markers).
-  - `src/services/forgotPasswordRateLimit.ts` owns client cooldown state/timers per normalized email.
+  - `src/services/requestPasswordReset.ts` owns server-response mapping + fallback behavior.
 - Rate-limit detection uses stable indicators (`status=429`, `over_email_send_rate_limit`, `over_request_rate_limit`) before message fallback, reducing false positives from generic phrases.
-- Cooldown behavior is deterministic and scoped per normalized email:
-  - successful reset request: 15s local cooldown
-  - provider-enforced throttle response: 60s local cooldown
+- Cooldown enforcement is server/provider-side; forgot-password screen no longer runs a local countdown timer.
 - Privacy behavior remains unchanged: forgot-password helper copy does not reveal whether an email is registered.
 
 ### Edge cases
 - Switching to a different email loads that email's cooldown state (if any) instead of reusing stale state from previous input.
 - Unknown provider errors in fallback path are treated as operational failures to avoid false-positive "email sent" feedback.
-- Client cooldown is advisory UX only; abuse prevention remains server/provider enforced.
+- Client does not block repeated clicks with timer state; abuse prevention remains server/provider enforced.
 
 ### Maintenance guidance
-- Keep cooldown constants and helpers centralized in `forgotPasswordRateLimit.ts`; avoid duplicating timer logic in screens.
+- Keep forgot-password request result handling centralized in `requestPasswordResetEmail`; avoid rebuilding timer/cooldown gates in the screen layer.
 - When Supabase error payload semantics change, update `isRateLimitedAuthError` and re-test forgot-password + signup paths together.
 
 
@@ -270,3 +268,5 @@ Prevention notes:
   3. valid email -> send request
 - Unknown fallback/provider transport errors are treated as operational failures (not forced success) to avoid false-positive delivery feedback.
 - Keep helper copy in `strings.ts` synchronized with this contract when updating UX text.
+
+- Removed unused cooldown timer state from `ForgotPasswordScreen` because submit is intentionally clickable and server/provider limits are authoritative.
