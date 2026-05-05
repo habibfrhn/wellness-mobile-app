@@ -27,7 +27,7 @@ export const AUDIO_TRACKS = [
   {
     id: "persiapan_tidur",
     order: 1,
-    title: "Persiapan Tidur",
+    title: "Body scan",
     subtitle: "Ritual santai sebelum lelap",
     durationSec: 139,
     asset: require("../../assets/audio/sleep-guide/01-bersiap-tidur-2m19s.m4a"),

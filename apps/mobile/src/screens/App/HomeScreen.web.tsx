@@ -1,15 +1,12 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useFocusEffect } from "@react-navigation/native";
 
 import { AUDIO_TRACKS } from "../../content/audioCatalog";
 import AudioTrackListSection from "../../components/AudioTrackListSection";
-import SleepOptionModal from "../../components/SleepOptionModal";
 import HomeGreetingTitle from "../../components/HomeGreetingTitle";
 import HomeScreenHeader from "../../components/HomeScreenHeader.web";
-import HomeNightSummary from "../../components/HomeNightSummary";
 import HomeFeedbackSection from "../../components/HomeFeedbackSection.web";
 import {
   getWebPageContainerStyle,
@@ -21,11 +18,6 @@ import {
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { id } from "../../i18n/strings";
 import type { AppStackParamList } from "../../navigation/types";
-import {
-  deriveNightStreakHeroState,
-  getNightStreakState,
-  type NightStreakHeroState,
-} from "../../services/nightStreak";
 import { trackEvent } from "../../services/analytics";
 import { colors, radius, spacing } from "../../theme/tokens";
 
@@ -52,68 +44,11 @@ export default function HomeScreen({ navigation, route }: Props) {
   const isDesktopWeb = webViewport === "desktop";
   const isMobileWeb = webViewport === "mobile";
   const sectionGap = getWebSectionSpacing(webViewport);
-  const [streakState, setStreakState] = useState<NightStreakHeroState>({
-    kind: "no_streak",
-  });
   const pageContainerStyle = getWebPageContainerStyle(webViewport, {
     mobile: 480,
     tablet: TABLET_PAGE_MAX_WIDTH,
     desktop: DESKTOP_PAGE_MAX_WIDTH,
   });
-
-  const completionPayload = useMemo(() => {
-    if (!route.params || route.params.completed !== true) {
-      return null;
-    }
-
-    return route.params;
-  }, [route.params]);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const syncNightCompletion = async () => {
-      if (!completionPayload) {
-        return;
-      }
-
-      const progress = await getNightStreakState(true);
-
-      if (!mounted) {
-        return;
-      }
-
-      if (progress) {
-        setStreakState(deriveNightStreakHeroState(progress));
-      }
-      navigation.setParams(undefined);
-    };
-
-    void syncNightCompletion();
-
-    return () => {
-      mounted = false;
-    };
-  }, [completionPayload, navigation]);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      let cancelled = false;
-
-      const refreshStreak = async () => {
-        const progress = await getNightStreakState(true);
-        if (!cancelled) {
-          setStreakState(deriveNightStreakHeroState(progress));
-        }
-      };
-
-      void refreshStreak();
-
-      return () => {
-        cancelled = true;
-      };
-    }, []),
-  );
 
   const nonSoundscapeTracks = useMemo(
     () => AUDIO_TRACKS.filter((track) => track.contentType !== "soundscape"),
@@ -123,29 +58,11 @@ export default function HomeScreen({ navigation, route }: Props) {
     () => AUDIO_TRACKS.filter((track) => track.contentType === "soundscape"),
     [],
   );
-  const [isSleepOptionModalVisible, setIsSleepOptionModalVisible] =
-    useState(false);
 
   const openPlayer = (audioTrackId: AppStackParamList["Player"]["audioId"]) => {
     blurWebActiveElement();
     void trackEvent("audio_click", { audio_id: audioTrackId });
     navigation.navigate("Player", { audioId: audioTrackId });
-  };
-
-  const handleSelectSleepOption = (option: "calm_mind" | "release_accept") => {
-    setIsSleepOptionModalVisible(false);
-    blurWebActiveElement();
-
-    const playlistIds =
-      option === "calm_mind"
-        ? (["terima_diri", "persiapan_tidur", "rintik-hujan"] as const)
-        : (["syukuri_hari", "persiapan_tidur", "ombak-laut"] as const);
-
-    navigation.navigate("Player", {
-      audioId: playlistIds[0],
-      playlistIds: [...playlistIds],
-      sleepMode: option,
-    });
   };
 
   return (
@@ -170,22 +87,6 @@ export default function HomeScreen({ navigation, route }: Props) {
         <View style={[styles.sectionStack, { gap: sectionGap }]}>
           <View style={styles.sectionBlock}>
             <HomeGreetingTitle />
-            <View
-              style={[styles.primaryActionCardWrap, { marginTop: sectionGap }]}
-            >
-              <View style={styles.primaryActionCard}>
-                <HomeNightSummary
-                  onPressPrimary={() => {
-                    void trackEvent("home_sleep_cta_click");
-                    setIsSleepOptionModalVisible(true);
-                  }}
-                  streakState={streakState}
-                />
-              </View>
-              <View style={styles.feedbackSectionWrap}>
-                <HomeFeedbackSection />
-              </View>
-            </View>
           </View>
 
           {isDesktopWeb ? (
@@ -227,14 +128,12 @@ export default function HomeScreen({ navigation, route }: Props) {
               />
             </View>
           )}
+
+          <View style={styles.feedbackSectionWrap}>
+            <HomeFeedbackSection />
+          </View>
         </View>
       </View>
-
-      <SleepOptionModal
-        visible={isSleepOptionModalVisible}
-        onClose={() => setIsSleepOptionModalVisible(false)}
-        onSelect={handleSelectSleepOption}
-      />
     </ScrollView>
   );
 }
@@ -265,18 +164,8 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
   },
-  primaryActionCardWrap: {
-    paddingHorizontal: WEB_SECTION_CONTENT_INSET,
-  },
-  primaryActionCard: {
-    backgroundColor: colors.card,
-    borderRadius: radius.md,
-    paddingHorizontal: 0,
-    paddingVertical: 0,
-    boxShadow: "0px 2px 10px rgba(33,50,94,0.10)",
-  },
   feedbackSectionWrap: {
-    marginTop: spacing.md,
+    paddingHorizontal: WEB_SECTION_CONTENT_INSET,
     boxShadow: "0px 2px 10px rgba(33,50,94,0.10)",
     borderRadius: radius.md,
   },

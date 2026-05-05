@@ -1,32 +1,24 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { Platform, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useFocusEffect } from "@react-navigation/native";
 
 import { AUDIO_TRACKS } from "../../content/audioCatalog";
 import AudioTrackListSection from "../../components/AudioTrackListSection";
 import HomeGreetingTitle from "../../components/HomeGreetingTitle";
 import HomeHeaderLogo from "../../components/HomeHeaderLogo";
 import HomeHeaderSettingsButton from "../../components/HomeHeaderSettingsButton";
-import HomeNightSummary from "../../components/HomeNightSummary";
 import {
   getWebPageContainerStyle,
   getWebPageTopSpacing,
   getWebSectionSpacing,
   getWebViewport,
-  WEB_SECTION_CONTENT_INSET,
 } from "../../constants/webLayout";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { id } from "../../i18n/strings";
 import type { AppStackParamList } from "../../navigation/types";
-import {
-  deriveNightStreakHeroState,
-  getNightStreakState,
-  type NightStreakHeroState,
-} from "../../services/nightStreak";
 import { trackEvent } from "../../services/analytics";
-import { colors, radius, spacing } from "../../theme/tokens";
+import { colors, spacing } from "../../theme/tokens";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Home">;
 
@@ -39,63 +31,6 @@ export default function HomeScreen({ navigation, route }: Props) {
   const webViewport = getWebViewport(viewportWidth);
   const isDesktopWeb = Platform.OS === "web" && webViewport === "desktop";
   const sectionGap = getWebSectionSpacing(webViewport);
-  const [streakState, setStreakState] = useState<NightStreakHeroState>({ kind: "no_streak" });
-
-
-  const completionPayload = useMemo(() => {
-    if (!route.params || route.params.completed !== true) {
-      return null;
-    }
-
-    return route.params;
-  }, [route.params]);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const syncNightCompletion = async () => {
-      if (!completionPayload) {
-        return;
-      }
-
-      const progress = await getNightStreakState(true);
-
-      if (!mounted) {
-        return;
-      }
-
-      if (progress) {
-        setStreakState(deriveNightStreakHeroState(progress));
-      }
-      navigation.setParams(undefined);
-    };
-
-    void syncNightCompletion();
-
-    return () => {
-      mounted = false;
-    };
-  }, [completionPayload, navigation]);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      let cancelled = false;
-
-      const refreshStreak = async () => {
-        const progress = await getNightStreakState(true);
-        if (!cancelled) {
-          setStreakState(deriveNightStreakHeroState(progress));
-        }
-      };
-
-      void refreshStreak();
-
-      return () => {
-        cancelled = true;
-      };
-    }, []),
-  );
-
   const nonSoundscapeTracks = useMemo(
     () => AUDIO_TRACKS.filter((track) => track.contentType !== "soundscape"),
     [],
@@ -144,17 +79,6 @@ export default function HomeScreen({ navigation, route }: Props) {
         <View style={[styles.sectionStack, { gap: sectionGap }]}>
           <View style={styles.sectionBlock}>
             <HomeGreetingTitle />
-            <View style={[styles.primaryActionCardWrap, { marginTop: sectionGap }]}>
-              <View style={styles.primaryActionCard}>
-                <HomeNightSummary
-                  onPressPrimary={() => {
-                    void trackEvent("home_sleep_cta_click");
-                    navigation.navigate("NightMode");
-                  }}
-                  streakState={streakState}
-                />
-              </View>
-            </View>
           </View>
 
           {isDesktopWeb ? (
@@ -230,20 +154,5 @@ const styles = StyleSheet.create({
   desktopColumn: {
     flex: 1,
     minWidth: 0,
-  },
-  primaryActionCardWrap: {
-    paddingHorizontal: WEB_SECTION_CONTENT_INSET,
-  },
-  primaryActionCard: {
-    backgroundColor: colors.card,
-    borderRadius: radius.md,
-    paddingHorizontal: WEB_SECTION_CONTENT_INSET,
-    paddingVertical: spacing.sm,
-    gap: spacing.sm,
-    shadowColor: colors.text,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 2,
   },
 });
