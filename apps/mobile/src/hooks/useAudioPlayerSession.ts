@@ -276,7 +276,6 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     isTailoredSession,
     pauseAll,
     playWithRetry,
-    sleepMode,
     startPrimaryFromBeginning,
     trackTrackPlay,
   ]);
@@ -300,7 +299,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     } catch {
       // no-op
     }
-  }, [isTailoredSession, playWithRetry, primaryPlayer, resetPlayers, sleepMode, trackTrackPlay]);
+  }, [isTailoredSession, playWithRetry, primaryPlayer, resetPlayers , trackTrackPlay]);
 
   const onSeek = useCallback(
     (value: number) => {
@@ -381,7 +380,6 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     pauseAll,
     resetPlayers,
     sessionProgressRatio,
-    sleepMode,
     timerSeconds,
     trackTrackAbandon,
   ]);
@@ -444,7 +442,6 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     isTailoredSession,
     playlistIndex,
     resetPlayers,
-    sleepMode,
     trackTrackCompletion,
     trackDurations.length,
   ]);
@@ -479,7 +476,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     if (sessionProgressRatio >= TAILORED_SESSION_COMPLETE_THRESHOLD) {
       hasTrackedTailoredEndRef.current = true;
     }
-  }, [hasSessionStarted, isTailoredSession, sessionProgressRatio, sleepMode]);
+  }, [hasSessionStarted, isTailoredSession, sessionProgressRatio]);
 
   useEffect(() => {
     if (!showSoundscapeControls || !activeStatus.playing || !duration) {
@@ -612,7 +609,6 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     pauseAll,
     resetPlayers,
     sessionProgressRatio,
-    sleepMode,
     trackTrackAbandon,
   ]);
 

@@ -3,7 +3,6 @@ import React, {
   useEffect,
   useLayoutEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import { Platform, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -52,14 +51,8 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     duration,
     current,
     progressRatio,
-    isPlaylistSession,
     showSoundscapeControls,
     isSessionActive,
-    hasSessionStarted,
-    sessionDuration,
-    sessionCurrent,
-    sessionProgressRatio,
-    playlistIndex,
     timerSeconds,
     timerRemaining,
     onTogglePlay,

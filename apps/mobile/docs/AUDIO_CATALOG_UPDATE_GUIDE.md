@@ -31,11 +31,11 @@ For each changed track, update the corresponding `AUDIO_TRACKS` entry in `audioC
 - Smoke test key paths:
   - Home recommendations open the correct tracks.
   - Night flow Step 1/2 launches intended tracks.
-  - Player can play/pause/seek and advances to next track in tailored sessions.
+  - Player can play/pause/seek and complete playback for single tracks and soundscapes.
 - Confirm there are no broken asset imports at runtime.
 
 ## 5) If adding a brand-new track
 - Add the new track object in `AUDIO_TRACKS` with complete metadata.
 - Extend `AudioId` union with the new ID.
-- Update any curated playlists or tailored-session logic that should include it.
+- Update catalog groupings that should include it.
 - Verify admin audio analytics UI still renders correctly with the updated catalog.

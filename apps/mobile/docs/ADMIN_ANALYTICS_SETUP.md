@@ -11,7 +11,6 @@ This guide documents the **current** setup path for the web admin dashboard (`/a
 - Dashboard currently reads:
   - `admin_analytics_product_actions(range_key)`
   - `admin_analytics_audio_engagement(range_key)`
-  - `admin_analytics_tailored_sessions(range_key)`
 
 ## 1) Push SQL migrations
 
@@ -70,7 +69,6 @@ Log in as admin user on web, then validate manually in SQL editor if needed:
 select public.is_admin();
 select * from public.admin_analytics_product_actions('30d');
 select * from public.admin_analytics_audio_engagement('30d') limit 20;
-select * from public.admin_analytics_tailored_sessions('30d');
 ```
 
 ## 6) Validate `/admin` UI
@@ -98,7 +96,6 @@ In a non-admin session:
 2. Start auth flow.
 3. Complete signup/login.
 4. Play at least one audio and complete/abandon another.
-5. Run a tailored session.
 
 Then verify data exists:
 

@@ -357,14 +357,14 @@ export function useWebAudioPlayerSession({
     }
     hasTrackedTailoredStartRef.current = true;
     hasTrackedTailoredEndRef.current = false;
-  }, [isTailoredSession, sleepMode]);
+  }, [isTailoredSession]);
 
   const trackTailoredComplete = useCallback(() => {
     if (!isTailoredSession || hasTrackedTailoredEndRef.current || !hasTrackedTailoredStartRef.current) {
       return;
     }
     hasTrackedTailoredEndRef.current = true;
-  }, [isTailoredSession, sleepMode]);
+  }, [isTailoredSession]);
 
   const transitionToIndex = useCallback(
     async (nextIndex: number) => {
@@ -830,7 +830,6 @@ export function useWebAudioPlayerSession({
     isTailoredSession,
     resetPlayers,
     sessionProgressRatio,
-    sleepMode,
     timerSeconds,
     trackTrackAbandon,
   ]);
@@ -878,7 +877,7 @@ export function useWebAudioPlayerSession({
       ) {
           }
     };
-  }, [isTailoredSession, sessionProgressRatio, sleepMode, trackTrackAbandon]);
+  }, [isTailoredSession , sessionProgressRatio, trackTrackAbandon]);
 
   return {
     track,

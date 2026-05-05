@@ -12,7 +12,6 @@
 6. UI renders three sections:
    - Product actions
    - Audio engagement
-   - Tailored session performance
 
 ## Authorization model
 

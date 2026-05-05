@@ -9,7 +9,7 @@ This app guides users through a nightly wind-down ritual with Indonesian-first U
 - **Auth-gated experience** using Supabase Auth (email/password + Google OAuth).
 - **Verification-gated login** (verified email required before entering the app flow).
 - **Night flow journey** (`NightMode` → `NightCheckIn` → `NightStep1` → `NightStep2` → `NightStep3` → `NightCheckOut`).
-- **Audio playback** with catalog items, progress handling, and tailored session modes.
+- **Audio playback** with catalog items, progress handling,.
 - **Settings/account** including reminder settings, legal screens, password update, and account deletion.
 - **Web admin dashboard** at `/admin` (server-enforced by `is_admin()` + admin RPC permissions).
 - **Behavior analytics ingestion** through Supabase Edge Function (`track-analytics-event`) with server-side validation/rate limits.
@@ -61,7 +61,6 @@ Legacy aliases (`/login`, `/signup`, `/privacy-policy`, `/terms-conditions`) are
 - Dashboard currently uses these RPC-backed fetches:
   - `admin_analytics_product_actions`
   - `admin_analytics_audio_engagement`
-  - `admin_analytics_tailored_sessions`
 - Supported dashboard ranges in the UI: `7d`, `30d`, `90d`, `all`.
 
 ## Environment variables
@@ -145,7 +144,7 @@ pnpm pre-release
 
 - No offline-first mode or service-worker caching strategy.
 - Admin dashboard is web-only.
-- Analytics dashboard focuses on product action/audio/tailored-session metrics (not full BI/reporting).
+- Analytics dashboard focuses on product action/audio metrics (not full BI/reporting).
 - Production setup still requires manual provider/dashboard alignment (Vercel + Supabase + Google OAuth settings).
 
 ## April 30, 2026 production blank-screen postmortem
