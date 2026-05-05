@@ -4,8 +4,6 @@ export type AdminAnalyticsRange = "7d" | "30d" | "90d" | "all";
 
 export type AdminProductActions = {
   home_sleep_clicks: number;
-  tailored_session_selections: number;
-  tailored_session_starts: number;
   successful_signups: number;
 };
 
@@ -15,15 +13,6 @@ export type AdminAudioEngagementRow = {
   starts: number;
   completes: number;
   abandons: number;
-  completion_rate: number;
-};
-
-export type AdminTailoredSessionRow = {
-  session_mode: "calm_mind" | "release_accept";
-  selections: number;
-  starts: number;
-  completes: number;
-  dropoffs: number;
   completion_rate: number;
 };
 
@@ -49,8 +38,6 @@ export async function fetchAdminProductActions(range: AdminAnalyticsRange) {
     data: row
       ? {
           home_sleep_clicks: Number(row.home_sleep_clicks) || 0,
-          tailored_session_selections: Number(row.tailored_session_selections) || 0,
-          tailored_session_starts: Number(row.tailored_session_starts) || 0,
           successful_signups: Number(row.successful_signups) || 0,
         }
       : null,
@@ -73,12 +60,3 @@ export async function fetchAdminAudioEngagement(range: AdminAnalyticsRange) {
   return { data: normalizedRows, error };
 }
 
-export async function fetchAdminTailoredSessions(range: AdminAnalyticsRange) {
-  const { data, error } = await supabase.rpc("admin_analytics_tailored_sessions", { range_key: range });
-
-  const normalizedRows = ((data as AdminTailoredSessionRow[] | null) ?? []).filter(
-    (row): row is AdminTailoredSessionRow => row.session_mode === "calm_mind" || row.session_mode === "release_accept",
-  );
-
-  return { data: normalizedRows, error };
-}

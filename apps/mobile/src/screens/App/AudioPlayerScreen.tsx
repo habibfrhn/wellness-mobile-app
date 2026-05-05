@@ -14,10 +14,7 @@ import NormalAudioControls from "../../components/player/NormalAudioControls";
 import PlayerProgressSection from "../../components/player/PlayerProgressSection";
 import SoundscapeControls from "../../components/player/SoundscapeControls";
 import SleepSessionProgressHeader from "../../components/player/SleepSessionProgressHeader";
-import SleepSessionProgressSection from "../../components/player/SleepSessionProgressSection";
 import SoundscapeTimerSection from "../../components/player/SoundscapeTimerSection";
-import TailoredSessionControls from "../../components/player/TailoredSessionControls";
-import SleepSessionExitModal from "../../components/SleepSessionExitModal";
 import { isFavorite, toggleFavorite } from "../../content/audioCatalog";
 import { id } from "../../i18n/strings";
 import HeaderCloseButton from "../../components/navigation/HeaderCloseButton";
@@ -40,7 +37,7 @@ type Props = NativeStackScreenProps<AppStackParamList, "Player">;
 
 export default function AudioPlayerScreen({ route, navigation }: Props) {
   const insets = useSafeAreaInsets();
-  const { audioId, playlistIds, sleepMode } = route.params;
+  const { audioId, playlistIds } = route.params;
   const viewportWidth = useViewportWidth();
   const webViewport = getWebViewport(viewportWidth);
   const isWeb = Platform.OS === "web";
@@ -48,8 +45,6 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   const sectionGap = isWeb ? getWebSectionSpacing(webViewport) : spacing.md;
   const [progressWidth, setProgressWidth] = useState(0);
   const [favorite, setFavorite] = useState(() => isFavorite(audioId));
-  const [isExitModalVisible, setIsExitModalVisible] = useState(false);
-  const isExitingSessionRef = useRef(false);
 
   const {
     track,
@@ -74,40 +69,18 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     handleStop,
     resetSessionState,
     playbackError,
-  } = useAudioPlayerSession({ audioId, playlistIds, sleepMode });
+  } = useAudioPlayerSession({ audioId, playlistIds });
 
   useEffect(() => {
     setFavorite(isFavorite(track.id));
   }, [track.id]);
 
   const playbackMode = useMemo(() => {
-    if (playlistIds && playlistIds.length > 1) {
-      return "tailored_session" as const;
-    }
     if (track.contentType === "soundscape") {
       return "soundscape" as const;
     }
     return "normal_audio" as const;
-  }, [playlistIds, track.contentType]);
-  const shouldConfirmExit =
-    playbackMode === "tailored_session" && hasSessionStarted;
-  const sessionArtwork = useMemo(() => {
-    if (!isPlaylistSession) {
-      return null;
-    }
-
-    if (sleepMode === "release_accept") {
-      return {
-        cover: require("../../../assets/image/cover/08-master-cover.jpg"),
-        thumbnail: require("../../../assets/image/thumbnail/08-master-thumbnail.jpg"),
-      };
-    }
-
-    return {
-      cover: require("../../../assets/image/cover/07-master-cover.jpg"),
-      thumbnail: require("../../../assets/image/thumbnail/07-master-thumbnail.jpg"),
-    };
-  }, [isPlaylistSession, sleepMode]);
+  }, [track.contentType]);
 
   const onSeekBarPress = useCallback(
     (locationX: number) => {
@@ -121,14 +94,9 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
   );
 
   const handleClose = useCallback(() => {
-    if (shouldConfirmExit) {
-      setIsExitModalVisible(true);
-      return;
-    }
-
     resetSessionState();
     navigation.goBack();
-  }, [navigation, resetSessionState, shouldConfirmExit]);
+  }, [navigation, resetSessionState]);
 
   useEffect(() => {
     const stopPlayback = () => {
@@ -138,17 +106,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     const removeBeforeRemoveListener = navigation.addListener(
       "beforeRemove",
       (event) => {
-        if (isExitingSessionRef.current) {
-          return;
-        }
-
-        if (!shouldConfirmExit) {
-          stopPlayback();
-          return;
-        }
-
-        event.preventDefault();
-        setIsExitModalVisible(true);
+        stopPlayback();
       },
     );
     const removeBlurListener = navigation.addListener("blur", stopPlayback);
@@ -157,7 +115,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
       removeBeforeRemoveListener();
       removeBlurListener();
     };
-  }, [navigation, resetSessionState, shouldConfirmExit]);
+  }, [navigation, resetSessionState]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -169,30 +127,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
     });
   }, [handleClose, navigation]);
 
-  const sleepSessionTitle = useMemo(
-    () =>
-      sleepMode === "release_accept"
-        ? id.player.sleepSessionTitleReleaseAccept
-        : id.player.sleepSessionTitleCalmMind,
-    [sleepMode],
-  );
 
-  const sleepSessionPhase = useMemo(() => {
-    if (playlistIndex === 0) {
-      return id.player.sleepSessionPhaseMind;
-    }
-    if (playlistIndex === 1) {
-      return id.player.sleepSessionPhaseBody;
-    }
-    return id.player.sleepSessionPhaseSoundscape;
-  }, [playlistIndex]);
-
-  const handleConfirmExitSession = useCallback(() => {
-    resetSessionState();
-    setIsExitModalVisible(false);
-    isExitingSessionRef.current = true;
-    navigation.navigate("Home");
-  }, [navigation, resetSessionState]);
 
   return (
     <View style={styles.container}>
@@ -215,7 +150,7 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
             style={[styles.artworkColumn, { maxWidth: playerContentWidth }]}
           >
             <PlayerArtworkSection
-              cover={sessionArtwork?.cover ?? track.cover}
+              cover={track.cover}
               isFavorite={favorite}
               onToggleFavorite={() => setFavorite(toggleFavorite(track.id))}
               compact={isWeb}
@@ -229,8 +164,8 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
             ]}
           >
             <SleepSessionProgressHeader
-              title={isPlaylistSession ? sleepSessionTitle : track.title}
-              subtitle={isPlaylistSession ? sleepSessionPhase : track.creator}
+              title={track.title}
+              subtitle={track.creator}
               compact={isWeb}
             />
 
@@ -241,15 +176,6 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
                 timerRemaining={timerRemaining}
                 isSessionActive={isSessionActive}
                 onSelectTimer={handleTimerSelect}
-                compact={isWeb}
-              />
-            ) : playbackMode === "tailored_session" ? (
-              <SleepSessionProgressSection
-                sessionCurrent={sessionCurrent}
-                sessionDuration={sessionDuration}
-                sessionProgressRatio={sessionProgressRatio}
-                onLayoutWidth={setProgressWidth}
-                progressWidth={progressWidth}
                 compact={isWeb}
               />
             ) : (
@@ -271,13 +197,6 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
                 onTogglePlay={onTogglePlay}
                 compact={isWeb}
               />
-            ) : playbackMode === "tailored_session" ? (
-              <TailoredSessionControls
-                isPlaying={activeStatus.playing}
-                onRestart={onRestart}
-                onTogglePlay={onTogglePlay}
-                compact={isWeb}
-              />
             ) : (
               <NormalAudioControls
                 isPlaying={activeStatus.playing}
@@ -294,11 +213,6 @@ export default function AudioPlayerScreen({ route, navigation }: Props) {
         </View>
       </ScrollView>
 
-      <SleepSessionExitModal
-        visible={isExitModalVisible}
-        onCancel={() => setIsExitModalVisible(false)}
-        onConfirmExit={handleConfirmExitSession}
-      />
     </View>
   );
 }

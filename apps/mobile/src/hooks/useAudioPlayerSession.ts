@@ -242,11 +242,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
           setHasSessionStarted(true);
           setPendingTailoredAutoplay(false);
           if (!hasTrackedTailoredStartRef.current) {
-            hasTrackedTailoredStartRef.current = true;
-            void trackEvent("tailored_session_start", {
-              session_mode: sleepMode,
-            });
-          }
+            hasTrackedTailoredStartRef.current = true;          }
           startPrimaryFromBeginning();
           return;
         }
@@ -293,11 +289,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
       setHasSessionStarted(true);
       setPendingTailoredAutoplay(true);
       if (!hasTrackedTailoredStartRef.current) {
-        hasTrackedTailoredStartRef.current = true;
-        void trackEvent("tailored_session_start", {
-          session_mode: sleepMode,
-        });
-      }
+        hasTrackedTailoredStartRef.current = true;      }
       return;
     }
 
@@ -375,9 +367,6 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
       sessionProgressRatio < TAILORED_SESSION_COMPLETE_THRESHOLD
     ) {
       hasTrackedTailoredEndRef.current = true;
-      void trackEvent("tailored_session_dropoff", {
-        session_mode: sleepMode,
-      });
     }
     pauseAll();
     resetPlayers();
@@ -442,9 +431,6 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     trackTrackCompletion();
     if (!hasTrackedTailoredEndRef.current) {
       hasTrackedTailoredEndRef.current = true;
-      void trackEvent("tailored_session_complete", {
-        session_mode: sleepMode,
-      });
     }
     handleSessionComplete();
     resetPlayers();
@@ -492,9 +478,6 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
 
     if (sessionProgressRatio >= TAILORED_SESSION_COMPLETE_THRESHOLD) {
       hasTrackedTailoredEndRef.current = true;
-      void trackEvent("tailored_session_complete", {
-        session_mode: sleepMode,
-      });
     }
   }, [hasSessionStarted, isTailoredSession, sessionProgressRatio, sleepMode]);
 
@@ -616,11 +599,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
         hasTrackedTailoredStartRef.current &&
         !hasTrackedTailoredEndRef.current &&
         sessionProgressRatio < TAILORED_SESSION_COMPLETE_THRESHOLD
-      ) {
-        void trackEvent("tailored_session_dropoff", {
-          session_mode: sleepMode,
-        });
-      }
+      ) {      }
       clearFadeOutInterval();
       clearRetryTimeouts();
       pauseAll();

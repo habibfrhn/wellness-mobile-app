@@ -22,7 +22,7 @@ export default function AdminDashboardScreen({ session }: Props) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const adminCheckRequestIdRef = useRef(0);
-  const { range, setRange, busy: analyticsBusy, errorMessage: analyticsError, unauthorized: analyticsUnauthorized, productActions, audioRows, tailoredRows, reload } =
+  const { range, setRange, busy: analyticsBusy, errorMessage: analyticsError, unauthorized: analyticsUnauthorized, productActions, audioRows, reload } =
     useAdminAnalytics(Boolean(session) && isAdmin === true);
 
   const getSafeAuthErrorMessage = useCallback((message: string) => {
@@ -164,7 +164,6 @@ export default function AdminDashboardScreen({ session }: Props) {
               homeSleepClicks={productActions?.home_sleep_clicks ?? 0}
               successfulSignups={productActions?.successful_signups ?? 0}
               audioRows={audioRows}
-              tailoredRows={tailoredRows}
               onRefresh={reload}
               onSignOut={handleSignOut}
             />

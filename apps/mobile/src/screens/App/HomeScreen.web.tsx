@@ -135,7 +135,6 @@ export default function HomeScreen({ navigation, route }: Props) {
   const handleSelectSleepOption = (option: "calm_mind" | "release_accept") => {
     setIsSleepOptionModalVisible(false);
     blurWebActiveElement();
-    void trackEvent("tailored_session_select", { session_mode: option });
 
     const playlistIds =
       option === "calm_mind"

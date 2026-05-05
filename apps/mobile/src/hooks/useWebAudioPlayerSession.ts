@@ -357,7 +357,6 @@ export function useWebAudioPlayerSession({
     }
     hasTrackedTailoredStartRef.current = true;
     hasTrackedTailoredEndRef.current = false;
-    void trackEvent("tailored_session_start", { session_mode: sleepMode });
   }, [isTailoredSession, sleepMode]);
 
   const trackTailoredComplete = useCallback(() => {
@@ -365,7 +364,6 @@ export function useWebAudioPlayerSession({
       return;
     }
     hasTrackedTailoredEndRef.current = true;
-    void trackEvent("tailored_session_complete", { session_mode: sleepMode });
   }, [isTailoredSession, sleepMode]);
 
   const transitionToIndex = useCallback(
@@ -821,8 +819,7 @@ export function useWebAudioPlayerSession({
       sessionProgressRatio < TAILORED_SESSION_COMPLETE_THRESHOLD
     ) {
       hasTrackedTailoredEndRef.current = true;
-      void trackEvent("tailored_session_dropoff", { session_mode: sleepMode });
-    }
+      }
     setHasSessionStarted(false);
     setPlaylistIndex(0);
     resetPlayers();
@@ -879,8 +876,7 @@ export function useWebAudioPlayerSession({
         !hasTrackedTailoredEndRef.current &&
         sessionProgressRatio < TAILORED_SESSION_COMPLETE_THRESHOLD
       ) {
-        void trackEvent("tailored_session_dropoff", { session_mode: sleepMode });
-      }
+          }
     };
   }, [isTailoredSession, sessionProgressRatio, sleepMode, trackTrackAbandon]);
 

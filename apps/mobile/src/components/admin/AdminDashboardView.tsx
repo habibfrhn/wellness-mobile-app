@@ -5,14 +5,12 @@ import { id } from "../../i18n/strings";
 import type {
   AdminAnalyticsRange,
   AdminAudioEngagementRow,
-  AdminTailoredSessionRow,
 } from "../../services/adminAnalytics";
 import { colors, radius, spacing, typography } from "../../theme/tokens";
 import useViewportWidth from "../../hooks/useViewportWidth";
 import { WEB_TABLET_BREAKPOINT } from "../../constants/webLayout";
 import AdminAudioSummaryPanel from "./AdminAudioSummaryPanel";
 import AdminDateRangeFilter from "./AdminDateRangeFilter";
-import AdminTailoredSessionsPanel from "./AdminTailoredSessionsPanel";
 
 type Props = {
   busy: boolean;
@@ -22,7 +20,6 @@ type Props = {
   homeSleepClicks: number;
   successfulSignups: number;
   audioRows: AdminAudioEngagementRow[];
-  tailoredRows: AdminTailoredSessionRow[];
   onRefresh: () => Promise<void>;
   onSignOut: () => Promise<void>;
 };
@@ -35,7 +32,6 @@ export default function AdminDashboardView({
   homeSleepClicks,
   successfulSignups,
   audioRows,
-  tailoredRows,
   onRefresh,
   onSignOut,
 }: Props) {
@@ -64,13 +60,6 @@ export default function AdminDashboardView({
       {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
       <View style={[styles.sectionGrid, isDesktopWeb && styles.sectionGridDesktop]}>
-        <View style={styles.sectionCol}>
-          <AdminTailoredSessionsPanel
-            rows={tailoredRows}
-            homeSleepClicks={homeSleepClicks}
-            successfulSignups={successfulSignups}
-          />
-        </View>
         <View style={styles.sectionCol}>
           <AdminAudioSummaryPanel rows={audioRows} />
         </View>

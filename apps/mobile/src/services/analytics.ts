@@ -9,11 +9,7 @@ export type AnalyticsEventName =
   | "signup_complete"
   | "audio_play"
   | "audio_complete"
-  | "audio_abandon"
-  | "tailored_session_select"
-  | "tailored_session_start"
-  | "tailored_session_complete"
-  | "tailored_session_dropoff";
+  | "audio_abandon";
 
 let inMemorySessionId: string | null = null;
 let analyticsFlushTimer: ReturnType<typeof setInterval> | null = null;
@@ -25,7 +21,6 @@ let analyticsIngestDisabledForSession = false;
 const MAX_EVENT_PROPS_BYTES = 2048;
 const MAX_STRING_PROP_LENGTH = 120;
 const AUDIO_ID_PROP_KEY = "audio_id";
-const SESSION_MODE_PROP_KEY = "session_mode";
 const EVENT_PROP_ID_REGEX = /^[A-Za-z0-9_-]+$/;
 const MAX_EVENTS_PER_FLUSH = 25;
 const MAX_QUEUE_SIZE = 100;
@@ -78,14 +73,6 @@ function shouldKeepAnalyticsDisabledByStorage() {
   return true;
 }
 
-function normalizeSessionMode(value: unknown) {
-  if (value === "calm_mind" || value === "release_accept") {
-    return value;
-  }
-
-  return null;
-}
-
 function normalizeAudioId(value: unknown) {
   if (typeof value !== "string") {
     return null;
@@ -117,20 +104,6 @@ function sanitizeEventProps(
     }
 
     sanitized[AUDIO_ID_PROP_KEY] = normalizedAudioId;
-  }
-
-  if (
-    eventName === "tailored_session_select" ||
-    eventName === "tailored_session_start" ||
-    eventName === "tailored_session_complete" ||
-    eventName === "tailored_session_dropoff"
-  ) {
-    const normalizedSessionMode = normalizeSessionMode(properties[SESSION_MODE_PROP_KEY]);
-    if (!normalizedSessionMode) {
-      return null;
-    }
-
-    sanitized[SESSION_MODE_PROP_KEY] = normalizedSessionMode;
   }
 
   return sanitized;
@@ -167,18 +140,6 @@ function isValidTrackPayload(payload: TrackAnalyticsEventPayload) {
     payload.event_name === "audio_abandon"
   ) {
     return typeof payload.event_props.audio_id === "string" && payload.event_props.audio_id.trim().length > 0;
-  }
-
-  if (
-    payload.event_name === "tailored_session_select" ||
-    payload.event_name === "tailored_session_start" ||
-    payload.event_name === "tailored_session_complete" ||
-    payload.event_name === "tailored_session_dropoff"
-  ) {
-    return (
-      payload.event_props.session_mode === "calm_mind" ||
-      payload.event_props.session_mode === "release_accept"
-    );
   }
 
   return Object.keys(payload.event_props).length === 0;

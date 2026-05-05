@@ -4,10 +4,8 @@ import {
   type AdminAnalyticsRange,
   type AdminAudioEngagementRow,
   type AdminProductActions,
-  type AdminTailoredSessionRow,
   fetchAdminAudioEngagement,
   fetchAdminProductActions,
-  fetchAdminTailoredSessions,
   isAdminUnauthorizedError,
 } from "../services/adminAnalytics";
 import { id } from "../i18n/strings";
@@ -19,7 +17,6 @@ export function useAdminAnalytics(enabled: boolean) {
   const [unauthorized, setUnauthorized] = useState(false);
   const [productActions, setProductActions] = useState<AdminProductActions | null>(null);
   const [audioRows, setAudioRows] = useState<AdminAudioEngagementRow[]>([]);
-  const [tailoredRows, setTailoredRows] = useState<AdminTailoredSessionRow[]>([]);
   const requestIdRef = useRef(0);
 
   const load = useCallback(
@@ -35,17 +32,16 @@ export function useAdminAnalytics(enabled: boolean) {
       setUnauthorized(false);
 
       try {
-        const [actionsRes, audioRes, tailoredRes] = await Promise.all([
+        const [actionsRes, audioRes] = await Promise.all([
           fetchAdminProductActions(nextRange),
           fetchAdminAudioEngagement(nextRange),
-          fetchAdminTailoredSessions(nextRange),
         ]);
 
         if (requestIdRef.current !== currentRequestId) {
           return;
         }
 
-        const firstError = actionsRes.error ?? audioRes.error ?? tailoredRes.error;
+        const firstError = actionsRes.error ?? audioRes.error;
         if (firstError) {
           if (isAdminUnauthorizedError(firstError)) {
             setUnauthorized(true);
@@ -59,7 +55,6 @@ export function useAdminAnalytics(enabled: boolean) {
 
         setProductActions(actionsRes.data);
         setAudioRows(audioRes.data);
-        setTailoredRows(tailoredRes.data);
         setBusy(false);
       } catch {
         if (requestIdRef.current !== currentRequestId) {
@@ -80,7 +75,6 @@ export function useAdminAnalytics(enabled: boolean) {
       setUnauthorized(false);
       setProductActions(null);
       setAudioRows([]);
-      setTailoredRows([]);
       return;
     }
 
@@ -95,7 +89,6 @@ export function useAdminAnalytics(enabled: boolean) {
     unauthorized,
     productActions,
     audioRows,
-    tailoredRows,
     reload: load,
   };
 }
