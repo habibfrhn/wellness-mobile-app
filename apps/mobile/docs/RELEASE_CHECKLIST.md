@@ -17,6 +17,8 @@
 - [ ] Home loads and renders correctly
 - [ ] Night flow works (`NightMode` → `NightCheckIn` → `NightStep1/2/3` → `NightCheckOut`)
 - [ ] Audio player play/pause/seek/progress behaviors are correct
+- [ ] Audio catalog metadata/assets are synced (`apps/mobile/src/content/audioCatalog.ts` and `apps/mobile/assets/audio/*`)
+- [ ] Audio catalog update guide reviewed when audio files change (`apps/mobile/docs/AUDIO_CATALOG_UPDATE_GUIDE.md`)
 - [ ] Reminder settings save and load correctly
 
 ## 4) Web-specific checks

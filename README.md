@@ -120,6 +120,7 @@ pnpm pre-release
 
 - Auth component map: `apps/mobile/docs/AUTH_COMPONENT_STRUCTURE.md`
 - `apps/mobile/docs/RELEASE_CHECKLIST.md`
+- `apps/mobile/docs/AUDIO_CATALOG_UPDATE_GUIDE.md`
 - `apps/mobile/docs/STORE_SUBMISSION_CHECKLIST.md`
 
 ## Supabase backend footprint
