@@ -8,6 +8,11 @@ import { colors, radius, spacing, typography } from "../theme/tokens";
 
 const FEEDBACK_FORM_URL = "https://form.jotform.com/260907495594067";
 
+type WebPressableState = {
+  hovered?: boolean;
+  pressed?: boolean;
+};
+
 export default function HomeFeedbackSection() {
   const viewportWidth = useViewportWidth();
   const isDesktopWeb = getWebViewport(viewportWidth) === "desktop";
@@ -22,11 +27,15 @@ export default function HomeFeedbackSection() {
       <Text style={styles.description}>{id.home.feedbackDescription}</Text>
       <Pressable
         onPress={handlePress}
-        style={({ hovered, pressed }: any) => [
-          styles.ctaButton,
-          hovered && isDesktopWeb && styles.ctaButtonHover,
-          pressed && styles.ctaButtonPressed,
-        ]}
+        style={(state) => {
+          const { hovered, pressed } = state as WebPressableState;
+
+          return [
+            styles.ctaButton,
+            hovered && isDesktopWeb && styles.ctaButtonHover,
+            pressed && styles.ctaButtonPressed,
+          ];
+        }}
       >
         <Text style={styles.ctaText}>{id.home.feedbackCta}</Text>
       </Pressable>

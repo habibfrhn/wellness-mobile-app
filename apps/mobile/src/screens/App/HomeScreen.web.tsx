@@ -37,7 +37,7 @@ function blurWebActiveElement() {
   }
 }
 
-export default function HomeScreen({ navigation, route }: Props) {
+export default function HomeScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const viewportWidth = useViewportWidth();
   const webViewport = getWebViewport(viewportWidth);
@@ -84,7 +84,7 @@ export default function HomeScreen({ navigation, route }: Props) {
           <HomeScreenHeader navigation={navigation} />
         </View>
 
-        <View style={[styles.sectionStack, { gap: sectionGap }]}>
+        <View style={{ gap: sectionGap }}>
           <View style={styles.sectionBlock}>
             <HomeGreetingTitle />
           </View>
@@ -108,13 +108,7 @@ export default function HomeScreen({ navigation, route }: Props) {
               </View>
             </View>
           ) : (
-            <View
-              style={[
-                styles.sectionBlock,
-                styles.audioSectionsStack,
-                { gap: sectionGap },
-              ]}
-            >
+            <View style={[styles.sectionBlock, { gap: sectionGap }]}>
               <AudioTrackListSection
                 title={id.home.pickWhatYouNeedTitle}
                 tracks={nonSoundscapeTracks}
@@ -150,11 +144,9 @@ const styles = StyleSheet.create({
     width: "100%",
     alignSelf: "center",
   },
-  sectionStack: {},
   sectionBlock: {
     width: "100%",
   },
-  audioSectionsStack: {},
   desktopTwoColumnSection: {
     flexDirection: "row",
     gap: spacing.md,

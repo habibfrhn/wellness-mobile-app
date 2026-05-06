@@ -25,7 +25,7 @@
 - [ ] Landing/auth/app routes resolve on direct URL open and refresh
 - [ ] `/admin` renders authorized dashboard for admin user
 - [ ] `/admin` shows unauthorized state for non-admin user
-- [ ] Desktop responsive layouts render correctly
+- [ ] Desktop responsive layouts render correctly, including the home screen audio sections and feedback card without doubled/offset shadows
 
 ## 5) Environment + deployment readiness
 - [ ] `EXPO_PUBLIC_SUPABASE_URL` set in target env

@@ -9,7 +9,7 @@ This app guides users through a nightly wind-down ritual with Indonesian-first U
 - **Auth-gated experience** using Supabase Auth (email/password + Google OAuth).
 - **Verification-gated login** (verified email required before entering the app flow).
 - **Night flow journey** (`NightMode` → `NightCheckIn` → `NightStep1` → `NightStep2` → `NightStep3` → `NightCheckOut`).
-- **Audio playback** with catalog items, progress handling,.
+- **Audio playback** with catalog items and progress handling.
 - **Settings/account** including reminder settings, legal screens, password update, and account deletion.
 - **Web admin dashboard** at `/admin` (server-enforced by `is_admin()` + admin RPC permissions).
 - **Behavior analytics ingestion** through Supabase Edge Function (`track-analytics-event`) with server-side validation/rate limits.
@@ -115,9 +115,10 @@ pnpm pre-release
 - Deployment and hardening checklist: `apps/mobile/DEPLOY_WEB.md`
 - Security review and incident-response baseline: `SECURITY_AUDIT.md`
 
-## Mobile + auth docs
+## Mobile, web UI, and auth docs
 
 - Auth component map: `apps/mobile/docs/AUTH_COMPONENT_STRUCTURE.md`
+- Home screen web UI maintenance: `apps/mobile/docs/HOME_SCREEN_WEB_UI.md`
 - `apps/mobile/docs/RELEASE_CHECKLIST.md`
 - `apps/mobile/docs/AUDIO_CATALOG_UPDATE_GUIDE.md`
 - `apps/mobile/docs/STORE_SUBMISSION_CHECKLIST.md`
