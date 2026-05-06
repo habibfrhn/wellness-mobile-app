@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: `${colors.mutedText}33`,
+    boxShadow: "0px 2px 10px rgba(33,50,94,0.10)",
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     gap: spacing.sm,
