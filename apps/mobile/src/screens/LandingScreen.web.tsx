@@ -129,7 +129,7 @@ export default function LandingScreen() {
   const [isSecondarySectionsReady, setIsSecondarySectionsReady] = useState(
     !shouldDeferSecondarySections,
   );
-  const heroTitleText = id.landing.heroTitle.replace(", ", ",\n");
+  const heroTitleText = id.landing.heroTitle;
 
   const goToLogin = () => {
     void trackLandingEvent("landing_cta_click", { cta: "login" });
@@ -478,9 +478,10 @@ export default function LandingScreen() {
                     ]}
                   >
                     <Text style={styles.landingButtonPrimaryText}>
-                      Mulai gratis (beta)
+                      Mulai malam ini
                     </Text>
                   </Pressable>
+                  <Text style={styles.heroCtaNote}>Gratis selama beta</Text>
                 </View>
               </View>
 
@@ -522,12 +523,12 @@ export default function LandingScreen() {
                         styles.sectionTitleToContentGap,
                       ]}
                     >
-                      Langkah kecil sebelum tidur
+                      Satu langkah kecil sebelum tidur
                     </Text>
                     <Text style={styles.processSupportText}>
-                      Pilih mode yang kamu butuhkan, lalu biarkan Lumepo
-                      memandu kamu pelan-pelan menuju waktu istirahat. Tanpa
-                      banyak pilihan, tanpa distraksi, tanpa ribet.
+                      Saat sudah lelah, kamu tidak butuh banyak pilihan. Cukup
+                      pilih suasana yang kamu butuhkan malam ini, tekan mulai,
+                      lalu biarkan tubuh dan pikiran pelan-pelan melambat.
                     </Text>
                   </View>
 
@@ -560,12 +561,12 @@ export default function LandingScreen() {
                         (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
                       ]}
                     >
-                      Langkah kecil sebelum tidur
+                      Satu langkah kecil sebelum tidur
                     </Text>
                     <Text style={styles.processSupportText}>
-                      Pilih mode yang kamu butuhkan, lalu biarkan Lumepo
-                      memandu kamu pelan-pelan menuju waktu istirahat. Tanpa
-                      banyak pilihan, tanpa distraksi, tanpa ribet.
+                      Saat sudah lelah, kamu tidak butuh banyak pilihan. Cukup
+                      pilih suasana yang kamu butuhkan malam ini, tekan mulai,
+                      lalu biarkan tubuh dan pikiran pelan-pelan melambat.
                     </Text>
                   </View>
                 </>
@@ -595,11 +596,12 @@ export default function LandingScreen() {
                         styles.sectionTitleToContentGap,
                       ]}
                     >
-                      Yang akan kamu rasakan
+                      Dibuat untuk malam yang tenang
                     </Text>
                     <Text style={styles.benefitsBody}>
-                      Pikiran mulai melambat dan tubuh terasa lebih tenang. Kamu
-                      punya ruang untuk menutup hari dan bersiap untuk tidur.
+                      Tidak ada feed, video, atau banyak menu yang bikin
+                      terdistraksi. Lumepo dibuat supaya kamu bisa langsung masuk
+                      ke rutinitas tidur tanpa perlu berpikir panjang.
                     </Text>
                   </View>
 
@@ -624,11 +626,12 @@ export default function LandingScreen() {
                         (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
                       ]}
                     >
-                      Yang akan kamu rasakan
+                      Dibuat untuk malam yang tenang
                     </Text>
                     <Text style={styles.benefitsBody}>
-                      Pikiran mulai melambat dan tubuh terasa lebih tenang. Kamu
-                      punya ruang untuk menutup hari dan bersiap untuk tidur.
+                      Tidak ada feed, video, atau banyak menu yang bikin
+                      terdistraksi. Lumepo dibuat supaya kamu bisa langsung masuk
+                      ke rutinitas tidur tanpa perlu berpikir panjang.
                     </Text>
                   </View>
 
@@ -667,13 +670,12 @@ export default function LandingScreen() {
                         styles.sectionTitleToContentGap,
                       ]}
                     >
-                      Dibuat dari pengalaman nyata
+                      Tidak perlu sempurna
                     </Text>
                     <Text style={styles.trustBody}>
-                      Lumepo lahir dari pengalaman seseorang yang tahu rasanya
-                      sulit mematikan pikiran di malam hari. Ini bukan tentang
-                      jadi lebih produktif, tapi tentang memberi diri sendiri
-                      ruang untuk berhenti.
+                      Kamu tidak harus langsung tertidur. Tidak harus fokus penuh.
+                      Cukup rebahan, dengarkan dengan santai, dan beri tubuhmu
+                      tanda bahwa hari ini sudah selesai.
                     </Text>
                   </View>
 
@@ -707,13 +709,12 @@ export default function LandingScreen() {
                         (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
                       ]}
                     >
-                      Dibuat dari pengalaman nyata
+                      Tidak perlu sempurna
                     </Text>
                     <Text style={styles.trustBody}>
-                      Lumepo lahir dari pengalaman seseorang yang tahu rasanya
-                      sulit mematikan pikiran di malam hari. Ini bukan tentang
-                      jadi lebih produktif, tapi tentang memberi diri sendiri
-                      ruang untuk berhenti.
+                      Kamu tidak harus langsung tertidur. Tidak harus fokus penuh.
+                      Cukup rebahan, dengarkan dengan santai, dan beri tubuhmu
+                      tanda bahwa hari ini sudah selesai.
                     </Text>
                   </View>
                 </>
@@ -746,12 +747,11 @@ export default function LandingScreen() {
                         styles.sectionTitleToContentGap,
                       ]}
                     >
-                      Malam ini, kamu bisa mulai
+                      Coba satu rutinitas malam ini
                     </Text>
                     <Text style={styles.closingCtaSubtext}>
-                      Cukup luangkan 15 menit sebelum tidur. Nyalakan sesi,
-                      rebahkan diri, dan biarkan Lumepo menemani kamu masuk ke
-                      waktu istirahat.
+                      Mulai dari beberapa menit sebelum tidur dan lihat apakah
+                      malam terasa sedikit lebih tenang.
                     </Text>
                     <Pressable
                       onPress={goToSignUp}
@@ -765,12 +765,9 @@ export default function LandingScreen() {
                       ]}
                     >
                       <Text style={styles.landingButtonPrimaryText}>
-                        Mulai Gratis
+                        Coba Lumepo
                       </Text>
                     </Pressable>
-                    <Text style={styles.closingCtaMicrocopy}>
-                      Tanpa kartu kredit.
-                    </Text>
                   </View>
 
                   <View style={styles.closingCtaImageCard}>
@@ -793,12 +790,11 @@ export default function LandingScreen() {
                         (isDesktop || isTablet) && styles.sectionTitleToContentGapDesktop,
                       ]}
                     >
-                      Malam ini, kamu bisa mulai
+                      Coba satu rutinitas malam ini
                     </Text>
                     <Text style={styles.closingCtaSubtext}>
-                      Cukup luangkan 15 menit sebelum tidur. Nyalakan sesi,
-                      rebahkan diri, dan biarkan Lumepo menemani kamu masuk ke
-                      waktu istirahat.
+                      Mulai dari beberapa menit sebelum tidur dan lihat apakah
+                      malam terasa sedikit lebih tenang.
                     </Text>
                     <Pressable
                       onPress={goToSignUp}
@@ -812,12 +808,9 @@ export default function LandingScreen() {
                       ]}
                     >
                       <Text style={styles.landingButtonPrimaryText}>
-                        Mulai Gratis
+                        Coba Lumepo
                       </Text>
                     </Pressable>
-                    <Text style={styles.closingCtaMicrocopy}>
-                      Tanpa kartu kredit.
-                    </Text>
                   </View>
 
                   <View
@@ -1311,6 +1304,11 @@ const styles = StyleSheet.create({
   heroCtaButtonTablet: {
     alignSelf: "center",
   },
+  heroCtaNote: {
+    fontSize: typography.caption,
+    color: colors.mutedText,
+    textAlign: "center",
+  },
   heroImageCard: {
     width: "100%",
     aspectRatio: HERO_IMAGE_RATIO,
@@ -1521,11 +1519,6 @@ const styles = StyleSheet.create({
   closingCtaButton: {
     alignSelf: "flex-start",
     marginBottom: spacing.sm,
-  },
-  closingCtaMicrocopy: {
-    fontSize: typography.caption,
-    color: colors.mutedText,
-    textAlign: "left",
   },
   landingButtonBase: {
     borderRadius: BUTTON_BORDER_RADIUS,

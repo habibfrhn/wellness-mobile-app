@@ -33,7 +33,7 @@ function syncLandingMetaDescription() {
   }
 
   const metaDescription =
-    "Ritual malam 15 menit untuk menutup hari dengan tenang bersama Lumepo.";
+    "Lumepo menemani kamu masuk ke suasana tidur dengan rutinitas malam yang tenang dan tidak bikin kepala makin ramai.";
   let tag = document.querySelector('meta[name="description"]');
 
   if (!tag) {

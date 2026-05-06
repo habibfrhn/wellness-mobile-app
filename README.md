@@ -121,6 +121,7 @@ pnpm pre-release
 
 - Auth component map: `apps/mobile/docs/AUTH_COMPONENT_STRUCTURE.md`
 - Home screen web UI maintenance: `apps/mobile/docs/HOME_SCREEN_WEB_UI.md`
+- Landing and home screen copy reference: `apps/mobile/docs/LANDING_AND_HOME_COPY.md`
 - `apps/mobile/docs/RELEASE_CHECKLIST.md`
 - `apps/mobile/docs/AUDIO_CATALOG_UPDATE_GUIDE.md`
 - `apps/mobile/docs/STORE_SUBMISSION_CHECKLIST.md`
