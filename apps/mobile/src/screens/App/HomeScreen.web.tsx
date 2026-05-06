@@ -19,7 +19,7 @@ import useViewportWidth from "../../hooks/useViewportWidth";
 import { id } from "../../i18n/strings";
 import type { AppStackParamList } from "../../navigation/types";
 import { trackEvent } from "../../services/analytics";
-import { colors, radius, spacing } from "../../theme/tokens";
+import { colors, spacing } from "../../theme/tokens";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Home">;
 
@@ -166,7 +166,5 @@ const styles = StyleSheet.create({
   },
   feedbackSectionWrap: {
     paddingHorizontal: WEB_SECTION_CONTENT_INSET,
-    boxShadow: "0px 2px 10px rgba(33,50,94,0.10)",
-    borderRadius: radius.md,
   },
 });
