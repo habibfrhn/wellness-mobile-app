@@ -513,6 +513,10 @@ export const id = {
     refreshCta: "Refresh",
     signOutCta: "Logout",
     loadingLabel: "Loading...",
+    analyticsBackendMissing: "Dashboard analytics belum siap. Jalankan migrasi Supabase terbaru lalu refresh halaman admin.",
+    analyticsQueryInvalid: "Query analytics admin gagal. Pastikan RPC admin_audio_usage_analytics dan tabel audio_play_sessions sudah versi terbaru.",
+    analyticsLoadFailed: "Gagal memuat analytics audio. Cek koneksi lalu tekan Refresh.",
+    lastUpdatedLabel: "Terakhir diperbarui",
     rangeLabels: {
       today: "Today",
       "7d": "7 days",

@@ -161,6 +161,10 @@ type TrackAnalyticsEventPayload = {
   session_id: string;
 };
 
+type TrackEventOptions = {
+  flushImmediately?: boolean;
+};
+
 function isValidTrackPayload(payload: TrackAnalyticsEventPayload) {
   const sessionId = payload.session_id.trim();
   if (sessionId.length < 8 || sessionId.length > 128) {
@@ -418,7 +422,11 @@ export function getAnalyticsSessionId() {
   return inMemorySessionId;
 }
 
-export async function trackEvent(eventName: AnalyticsEventName, properties: Record<string, unknown> = {}) {
+export async function trackEvent(
+  eventName: AnalyticsEventName,
+  properties: Record<string, unknown> = {},
+  options: TrackEventOptions = {},
+) {
   if (!ANALYTICS_ENABLED) {
     return;
   }
@@ -462,7 +470,7 @@ export async function trackEvent(eventName: AnalyticsEventName, properties: Reco
   bindAnalyticsListeners();
   ensureFlushLoop();
 
-  if (pendingQueue.length >= MAX_EVENTS_PER_FLUSH) {
+  if (options.flushImmediately || pendingQueue.length >= MAX_EVENTS_PER_FLUSH) {
     void flushAnalyticsQueue();
   }
 }

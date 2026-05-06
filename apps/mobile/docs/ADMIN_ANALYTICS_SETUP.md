@@ -14,7 +14,7 @@ The dashboard shows one table with:
 ## Tracking rules
 
 - A client creates one `play_session_id` for a single audio play lifecycle.
-- The first successful play in that lifecycle emits `audio_start`.
+- The first **“Mulai”** in that lifecycle emits `audio_start` and requests an immediate analytics flush.
 - Pause/resume does **not** create another start because the same `play_session_id` remains active.
 - A finish is emitted as `audio_finish` only after playback reaches at least `80%` progress.
 - The ingestion function stores starts idempotently and only marks a session finished once.
@@ -94,7 +94,7 @@ select public.is_admin();
 select * from public.admin_audio_usage_analytics('7d') limit 20;
 ```
 
-## 6) Validate `/admin` UI
+## 6) Validate `/admin` UI and refresh behavior
 
 Run local web app:
 
@@ -109,6 +109,11 @@ Open:
 Expected behavior:
 
 - Admin user: audio usage table renders and filters reload the data.
+- Pressing **Refresh** re-runs `admin_audio_usage_analytics(range_key)` and updates the “Terakhir diperbarui” label after success.
+- A failed refresh keeps previously loaded rows visible and shows a targeted helper message:
+  - missing RPC/migration -> “Dashboard analytics belum siap...”
+  - invalid/outdated RPC/table -> “Query analytics admin gagal...”
+  - network/unknown -> “Gagal memuat analytics audio...”
 - Non-admin user: unauthorized state.
 
 ## 7) Generate test events
@@ -120,7 +125,8 @@ In a non-admin session:
 3. Pause and press **“Mulai”** again before leaving the screen.
 4. Verify only one start is created for that `play_session_id`.
 5. Play or seek to at least 80% progress.
-6. Verify a finish is set.
+6. Refresh `/admin` and verify the start appears without waiting for the 10-second batch interval.
+7. Verify a finish is set after reaching at least 80%.
 
 SQL checks:
 
@@ -137,10 +143,18 @@ group by audio_id
 order by finishes desc, audio_id asc;
 ```
 
+## Known edge cases
+
+- If Supabase migrations are not pushed, `/admin` shows the backend-missing helper and no new RPC data can load.
+- If only the edge function is stale, `audio_start` may be rejected or written to the old event table; redeploy `track-analytics-event`.
+- If users are on older app builds, the edge function still accepts older audio event names for compatibility, but the current dashboard only counts `audio_play_sessions`.
+- If an audio ID no longer exists in `AUDIO_TRACKS`, the dashboard shows the raw `audio_id` after catalog rows.
+
 ## Future maintenance notes
 
-- Keep client audio event names, edge-function validation, and SQL constraints/RPCs in sync.
+- Keep `useAudioUsageTracking`, client event names, edge-function validation, and SQL constraints/RPCs in sync.
 - Do not allow direct client access to `audio_play_sessions`; writes must go through `track-analytics-event`.
 - If the finish threshold changes, update the client threshold, edge validation, SQL check constraint, and this document in the same change.
 - Keep the edge function backward-compatible with older deployed app builds until those builds are no longer expected to send events. Current builds should emit only `audio_start` and `audio_finish` for audio session usage.
-- If a new dashboard filter is added, update `analytics_range_start`, `AdminAnalyticsRange`, `AdminDateRangeFilter`, and `strings.ts` together.
+- If a new dashboard filter is added, update `analytics_range_start`, `AdminAnalyticsRange`, `AdminDateRangeFilter`, `strings.ts`, and this guide together.
+- When changing admin fetch behavior, keep `adminAnalyticsErrors.ts` aligned so helper messages stay actionable and do not regress to generic retry copy.

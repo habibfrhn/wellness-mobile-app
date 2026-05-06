@@ -2,18 +2,20 @@
 
 ## End-to-end pipeline
 
-1. Audio player hooks create a `play_session_id` for each audio play lifecycle.
+1. `useAudioUsageTracking` creates and owns one `play_session_id` for each audio play lifecycle.
 2. The first **“Mulai”** in that lifecycle emits `audio_start` through `trackEvent()`.
-3. Pause/resume within the same lifecycle does not emit another start.
-4. Playback reaching at least 80% progress emits `audio_finish` once for the same `play_session_id`.
-5. Events are queued/batched client-side in `src/services/analytics.ts`.
-6. Events are sent to the `track-analytics-event` edge function.
-7. The edge function validates method, CORS, auth token, payload, rate limits, and audio session fields.
-8. The edge function writes audio usage to `public.audio_play_sessions` with idempotent starts and one finish per session.
-9. Admin dashboard (`/admin`) loads server-guarded RPC data through:
+3. `audio_start` / `audio_finish` request an immediate queue flush so the admin dashboard can update after pressing **Refresh** without waiting for the normal batch interval.
+4. Pause/resume within the same lifecycle does not emit another start.
+5. Playback reaching at least 80% progress emits `audio_finish` once for the same `play_session_id`.
+6. Events are still queued/batched client-side in `src/services/analytics.ts` for resilience and retry behavior.
+7. Events are sent to the `track-analytics-event` edge function.
+8. The edge function validates method, CORS, auth token, payload, rate limits, and audio session fields.
+9. The edge function writes audio usage to `public.audio_play_sessions` with idempotent starts and one finish per session.
+10. Admin dashboard (`/admin`) loads server-guarded RPC data through:
    - `src/services/adminAnalytics.ts`
+   - `src/services/adminAnalyticsErrors.ts`
    - `src/hooks/useAdminAnalytics.ts`
-10. UI renders one audio usage table with audio name, starts, and finishes.
+11. UI renders one audio usage table with audio name, starts, and finishes.
 
 ## Authorization model
 
@@ -28,6 +30,18 @@
 - All rows use the selected range.
 - Starts are counted by `started_at` within the range.
 - Finishes are counted by `finished_at` within the range.
+- Pressing **Refresh** calls `admin_audio_usage_analytics(range_key)` again and updates the last-updated timestamp after a successful response.
+- A failed refresh keeps any previously loaded rows visible and shows a specific helper message instead of the generic “Silakan coba lagi.”
+
+## Component/module structure
+
+- `useAudioUsageTracking`: shared native/web play-session tracking, finish threshold, and immediate flush behavior.
+- `analytics.ts`: generic analytics queue, payload sanitation, session ID, and network flush logic.
+- `track-analytics-event`: edge ingestion validation, rate limiting, idempotent `audio_play_sessions` writes, and non-session `analytics_events` persistence.
+- `adminAnalytics.ts`: small RPC fetcher and row normalization.
+- `adminAnalyticsErrors.ts`: maps backend/RPC failures to actionable dashboard helper states.
+- `useAdminAnalytics`: dashboard fetch state, refresh state, unauthorized handling, and last-updated state.
+- `AdminDashboardHeader`, `AdminDateRangeFilter`, `AdminStatusMessage`, and `AdminAudioSummaryPanel`: focused UI pieces.
 
 ## Data accuracy rules
 
@@ -36,9 +50,11 @@
 - `audio_finish` updates only an unfinished matching session.
 - Finish progress must be between `0.8` and `1.0`.
 - Audio IDs are normalized and validated before storage.
+- Restarts, stops, track changes, and tailored-session track transitions close/reset the current usage session so a subsequent **“Mulai”** can create a fresh start.
+- Uncataloged historical IDs are appended to the admin table by raw `audio_id` so data is not hidden when the catalog changes.
 
 ## Notes
 
 - This dashboard is intentionally MVP-scoped and not a full BI system.
 - `analytics_events` are not the source of truth for the current admin audio table.
-- If schema/event names change, update client event emitter, edge function validation, SQL constraints/RPCs, and docs together.
+- If schema/event names change, update `useAudioUsageTracking`, `analytics.ts`, edge function validation, SQL constraints/RPCs, dashboard error mapping, and docs together.

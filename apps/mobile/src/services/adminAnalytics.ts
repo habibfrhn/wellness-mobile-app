@@ -8,21 +8,6 @@ export type AdminAudioUsageRow = {
   finishes: number;
 };
 
-type SupabaseLikeError = {
-  message?: string | null;
-  code?: string | null;
-};
-
-export function isAdminUnauthorizedError(error: SupabaseLikeError | null | undefined) {
-  const normalizedMessage = (error?.message ?? "").toLowerCase();
-  const normalizedCode = (error?.code ?? "").toLowerCase();
-  return (
-    normalizedMessage.includes("admin access required") ||
-    normalizedMessage.includes("not authorized") ||
-    normalizedCode === "42501"
-  );
-}
-
 export async function fetchAdminAudioUsage(range: AdminAnalyticsRange) {
   const { data, error } = await supabase.rpc("admin_audio_usage_analytics", { range_key: range });
 

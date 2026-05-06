@@ -59,7 +59,7 @@ Legacy aliases (`/login`, `/signup`, `/privacy-policy`, `/terms-conditions`) are
 - UI route is web-only (`/admin`, plus supported admin query/hash variants).
 - Backend authorization is mandatory (`public.is_admin()` + guarded RPCs).
 - Dashboard is intentionally simple: it shows each audio name, unique “Mulai” starts, and finishes.
-- Audio starts are recorded in `audio_play_sessions` once per generated `play_session_id`; pause/resume within the same play session does not increment starts again.
+- Audio starts are recorded in `audio_play_sessions` once per generated `play_session_id`; pause/resume within the same play session does not increment starts again, and start/finish events request an immediate analytics flush for reliable admin refreshes.
 - Audio finishes are recorded once when playback reaches at least 80% progress.
 - Dashboard reads the server-guarded `admin_audio_usage_analytics(range_key)` RPC.
 - Supported dashboard ranges in the UI: Today, 7 days, 1 month, 3 months, 6 months, and 1 year.
