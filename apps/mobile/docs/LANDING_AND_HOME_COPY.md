@@ -22,7 +22,7 @@ Use this document as the maintenance reference for the current Lumepo landing pa
 
 ### Hero section
 
-- H1: Pelan-pelan tutup hari ini
+- H1: Masuk waktu tidur dengan lebih tenang
 - Subheadline: Lumepo menemani kamu masuk ke suasana tidur dengan rutinitas malam yang tenang dan tidak bikin kepala makin ramai.
 - Primary CTA button: Mulai malam ini
 - Small note under CTA: Gratis selama beta

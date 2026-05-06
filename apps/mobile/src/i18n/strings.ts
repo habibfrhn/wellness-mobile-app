@@ -46,7 +46,7 @@ export const id = {
 
 
   landing: {
-    heroTitle: "Pelan-pelan tutup hari ini",
+    heroTitle: "Masuk waktu tidur dengan lebih tenang",
     heroSubtitle: "Lumepo menemani kamu masuk ke suasana tidur dengan rutinitas malam yang tenang dan tidak bikin kepala makin ramai.",
     mobileMenuLabel: "Buka menu navigasi",
     mobileMenuHint: "Pilih untuk masuk atau membuat akun",
