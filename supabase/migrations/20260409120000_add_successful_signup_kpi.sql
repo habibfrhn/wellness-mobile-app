@@ -1,4 +1,8 @@
 -- Add successful signup KPI for admin dashboard while preserving global time-range filtering.
+-- PostgreSQL cannot change OUT parameters with CREATE OR REPLACE, so drop
+-- the previous 3-column version before recreating the 4-column function.
+drop function if exists public.admin_analytics_product_actions(text);
+
 create or replace function public.admin_analytics_product_actions(range_key text default '30d')
 returns table(
   home_sleep_clicks int,
