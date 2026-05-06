@@ -7,7 +7,9 @@ The web home screen is implemented in `apps/mobile/src/screens/App/HomeScreen.we
 - `HomeScreen.web.tsx` owns page width, safe-area spacing, responsive section gaps, the desktop two-column audio layout, and audio navigation/tracking.
 - `AudioTrackListSection` owns the section title and track-list spacing; `AudioTrackCard` owns individual audio-card visuals.
 - `HomeFeedbackSection.web.tsx` owns the “Bantu kami berkembang” card content, border, rounded corners, shadow, and external feedback-link CTA.
-- User-visible feedback-card copy lives in `apps/mobile/src/i18n/strings.ts` under `id.home.*`.
+- Home greeting, section-title, and feedback-card copy lives in `apps/mobile/src/i18n/strings.ts` under `id.home.*`.
+- Home audio-card titles and descriptions come from `apps/mobile/src/content/audioCatalog.ts`; the rendered grouping is controlled by each track's `contentType` (`soundscape` vs non-soundscape).
+- The canonical copy reference for the landing page and home screen is `apps/mobile/docs/LANDING_AND_HOME_COPY.md`.
 
 ## Feedback card styling guidance
 

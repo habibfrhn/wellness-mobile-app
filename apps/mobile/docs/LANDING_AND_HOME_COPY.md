@@ -2,6 +2,22 @@
 
 Use this document as the maintenance reference for the current Lumepo landing page and home screen wording. User-visible app copy should continue to live in `apps/mobile/src/i18n/strings.ts` when it is shared through the string table, while audio-card titles and descriptions live in `apps/mobile/src/content/audioCatalog.ts`.
 
+## Implementation map
+
+- Landing page structure lives in `apps/mobile/src/screens/LandingScreen.web.tsx`.
+- Landing hero H1 and subheadline live in `apps/mobile/src/i18n/strings.ts` under `id.landing.heroTitle` and `id.landing.heroSubtitle` because the hero title is also used as image alt text.
+- Landing body and CTA wording currently live inline in `LandingScreen.web.tsx`, matching the existing landing-screen pattern.
+- Landing meta descriptions in `apps/mobile/App.tsx`, `apps/mobile/src/web/LandingEntry.web.tsx`, and `apps/mobile/index.html` mirror the landing subheadline for browser and share previews.
+- Home greeting and section titles live in `apps/mobile/src/i18n/strings.ts` under `id.home.*`.
+- Home audio-card titles and descriptions live in `apps/mobile/src/content/audioCatalog.ts`; keep existing track IDs, ordering, assets, and `contentType` values unless a separate catalog/route migration requires changing them.
+
+## Maintenance checklist
+
+1. Keep copy-only updates separate from layout, navigation, analytics, or audio-asset changes.
+2. Remove unused string-table entries when copy is deleted, but verify with `rg` before removing a key.
+3. Keep this document in sync with the rendered landing/home wording whenever either screen's copy changes.
+4. Re-run `pnpm typecheck`, `pnpm lint`, and a web export or browser smoke test after copy changes that touch TypeScript or web entry files.
+
 ## Landing page
 
 ### Hero section

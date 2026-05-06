@@ -129,8 +129,6 @@ export default function LandingScreen() {
   const [isSecondarySectionsReady, setIsSecondarySectionsReady] = useState(
     !shouldDeferSecondarySections,
   );
-  const heroTitleText = id.landing.heroTitle;
-
   const goToLogin = () => {
     void trackLandingEvent("landing_cta_click", { cta: "login" });
     navigation.navigate("Auth", { screen: "Login" });
@@ -445,7 +443,7 @@ export default function LandingScreen() {
                     isDesktop && styles.heroTitleDesktop,
                   ]}
                 >
-                  {heroTitleText}
+                  {id.landing.heroTitle}
                 </Text>
                 <Text
                   style={[
