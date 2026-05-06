@@ -832,15 +832,8 @@ export function useWebAudioPlayerSession({
   useEffect(() => {
     return () => {
       closeAudioUsageSession();
-      if (
-        isTailoredSession &&
-        hasTrackedTailoredStartRef.current &&
-        !hasTrackedTailoredEndRef.current &&
-        sessionProgressRatio < TAILORED_SESSION_COMPLETE_THRESHOLD
-      ) {
-          }
     };
-  }, [isTailoredSession , sessionProgressRatio, closeAudioUsageSession]);
+  }, [closeAudioUsageSession]);
 
   return {
     track,

@@ -556,27 +556,12 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
   useEffect(() => {
     return () => {
       closeAudioUsageSession();
-      if (
-        isTailoredSession &&
-        hasTrackedTailoredStartRef.current &&
-        !hasTrackedTailoredEndRef.current &&
-        sessionProgressRatio < TAILORED_SESSION_COMPLETE_THRESHOLD
-      ) {      }
       clearFadeOutInterval();
       clearRetryTimeouts();
       pauseAll();
       resetPlayers();
     };
-  }, [
-    clearFadeOutInterval,
-    clearRetryTimeouts,
-    isTailoredSession,
-    pauseAll,
-    resetAudioUsageSession,
-    resetPlayers,
-    sessionProgressRatio,
-    closeAudioUsageSession,
-  ]);
+  }, [clearFadeOutInterval, clearRetryTimeouts, pauseAll, resetPlayers, closeAudioUsageSession]);
 
   return {
     track,

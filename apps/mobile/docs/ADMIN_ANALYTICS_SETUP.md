@@ -146,7 +146,7 @@ order by finishes desc, audio_id asc;
 ## Known edge cases
 
 - If Supabase migrations are not pushed, `/admin` shows the backend-missing helper and no new RPC data can load.
-- If only the edge function is stale, `audio_start` may be rejected or written to the old event table; redeploy `track-analytics-event`.
+- If only the edge function is stale, `audio_start` may be rejected or written to the old event table; redeploy `track-analytics-event`. Current clients clear old persisted backend-failure markers, so a fixed backend should recover without manual browser-storage cleanup.
 - If users are on older app builds, the edge function still accepts older audio event names for compatibility, but the current dashboard only counts `audio_play_sessions`.
 - If an audio ID no longer exists in `AUDIO_TRACKS`, the dashboard shows the raw `audio_id` after catalog rows.
 
@@ -156,5 +156,6 @@ order by finishes desc, audio_id asc;
 - Do not allow direct client access to `audio_play_sessions`; writes must go through `track-analytics-event`.
 - If the finish threshold changes, update the client threshold, edge validation, SQL check constraint, and this document in the same change.
 - Keep the edge function backward-compatible with older deployed app builds until those builds are no longer expected to send events. Current builds should emit only `audio_start` and `audio_finish` for audio session usage.
+- Do not reintroduce long-lived client-side analytics disable flags for transient backend failures; that can hide recovered ingestion from the admin dashboard.
 - If a new dashboard filter is added, update `analytics_range_start`, `AdminAnalyticsRange`, `AdminDateRangeFilter`, `strings.ts`, and this guide together.
 - When changing admin fetch behavior, keep `adminAnalyticsErrors.ts` aligned so helper messages stay actionable and do not regress to generic retry copy.

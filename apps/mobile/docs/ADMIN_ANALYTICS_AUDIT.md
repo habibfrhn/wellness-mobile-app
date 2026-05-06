@@ -57,4 +57,5 @@
 
 - This dashboard is intentionally MVP-scoped and not a full BI system.
 - `analytics_events` are not the source of truth for the current admin audio table.
+- Analytics backend failures disable only the current runtime session; old persisted backend-failure markers are cleared so a fixed backend can recover without asking users to clear browser storage.
 - If schema/event names change, update `useAudioUsageTracking`, `analytics.ts`, edge function validation, SQL constraints/RPCs, dashboard error mapping, and docs together.
