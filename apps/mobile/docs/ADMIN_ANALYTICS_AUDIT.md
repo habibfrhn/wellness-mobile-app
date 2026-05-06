@@ -10,18 +10,19 @@
 6. Events are still queued/batched client-side in `src/services/analytics.ts` for resilience and retry behavior.
 7. Events are sent to the `track-analytics-event` edge function.
 8. The edge function validates method, CORS, auth token, payload, rate limits, and audio session fields.
-9. The edge function writes audio usage to `public.audio_play_sessions` with idempotent starts and one finish per session.
-10. Admin dashboard (`/admin`) loads server-guarded RPC data through:
+9. The edge function increments analytics ingest rate limits through `public.increment_analytics_ingest_rate_limit`; the database keeps both the 4-argument batched RPC and 3-argument compatibility wrapper for deployed function compatibility.
+10. The edge function writes audio usage to `public.audio_play_sessions` with idempotent starts and one finish per session.
+11. Admin dashboard (`/admin`) loads server-guarded RPC data through:
    - `src/services/adminAnalytics.ts`
    - `src/services/adminAnalyticsErrors.ts`
    - `src/hooks/useAdminAnalytics.ts`
-11. UI renders one audio usage table with audio name, starts, and finishes.
+12. UI renders one audio usage table with audio name, starts, and finishes.
 
 ## Authorization model
 
 - Admin route visibility on web is not sufficient by itself.
 - Backend `public.is_admin()` and RPC permissions enforce actual access.
-- `public.admin_users` is the source of admin mapping.
+- `public.admin_users` is the source of admin mapping; SQL Editor checks should simulate `request.jwt.claim.sub` when validating RPC behavior manually.
 - `audio_play_sessions` has no direct anon/authenticated client access; ingestion uses the service role inside the edge function.
 
 ## Dashboard range/filter behavior
@@ -37,7 +38,7 @@
 
 - `useAudioUsageTracking`: shared native/web play-session tracking, finish threshold, and immediate flush behavior.
 - `analytics.ts`: generic analytics queue, payload sanitation, session ID, and network flush logic.
-- `track-analytics-event`: edge ingestion validation, rate limiting, idempotent `audio_play_sessions` writes, and non-session `analytics_events` persistence.
+- `track-analytics-event`: edge ingestion validation, rate limiting via `increment_analytics_ingest_rate_limit`, idempotent `audio_play_sessions` writes, and non-session `analytics_events` persistence.
 - `adminAnalytics.ts`: small RPC fetcher and row normalization.
 - `adminAnalyticsErrors.ts`: maps backend/RPC failures to actionable dashboard helper states.
 - `useAdminAnalytics`: dashboard fetch state, refresh state, unauthorized handling, and last-updated state.
@@ -57,5 +58,7 @@
 
 - This dashboard is intentionally MVP-scoped and not a full BI system.
 - `analytics_events` are not the source of truth for the current admin audio table.
+- Keep both analytics rate-limit RPC overloads unless every deployed edge-function caller has been updated and old deployments are no longer expected to run.
+- Applied migrations should remain immutable; use a new migration for follow-up fixes after a migration has reached a shared or production database.
 - Analytics backend failures disable only the current runtime session; old persisted backend-failure markers are cleared so a fixed backend can recover without asking users to clear browser storage.
 - If schema/event names change, update `useAudioUsageTracking`, `analytics.ts`, edge function validation, SQL constraints/RPCs, dashboard error mapping, and docs together.

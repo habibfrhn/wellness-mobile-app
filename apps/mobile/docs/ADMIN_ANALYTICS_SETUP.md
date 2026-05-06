@@ -38,14 +38,23 @@ The dashboard shows one table with:
 
 ## 1) Push SQL migrations
 
-From repo root (linked to target Supabase project):
+From repo root (linked to the target Supabase project):
 
 ```bash
 supabase migration list
 supabase db push
+supabase migration list
 ```
 
-If `migration list` reports remote/local drift, repair as needed then run `supabase db push` again.
+The final `migration list` should show every local migration ID in the `Remote` column. The admin audio dashboard requires these applied remotely:
+
+- `20260410101000_add_increment_param_to_analytics_rate_limit_rpc.sql`
+- `20260506120000_rebuild_admin_audio_analytics.sql`
+- `20260506130000_fix_admin_audio_usage_rpc.sql`
+
+`20260410101000` intentionally drops the existing `increment_analytics_ingest_rate_limit(text, text, text)` and `increment_analytics_ingest_rate_limit(text, text, text, int)` overloads before recreating them. Keep that order: Postgres cannot remove an existing default parameter with `CREATE OR REPLACE FUNCTION`, and the 3-argument compatibility wrapper depends on the 4-argument RPC.
+
+If `migration list` reports remote/local drift, repair only after confirming whether the SQL was actually applied. Do not mark an admin/analytics migration as applied unless the corresponding functions, tables, grants, and policies exist in the target project.
 
 ## 2) Deploy analytics ingestion function
 
@@ -87,12 +96,20 @@ where u.email = 'admin@yourdomain.com';
 
 ## 5) Verify dashboard RPC is callable for admin
 
-Log in as admin user on web, then validate manually in SQL editor if needed:
+Log in as the admin user on web for the true app-path check. For a manual SQL Editor check, simulate the authenticated user ID because the RPC authorization depends on `auth.uid()`:
 
 ```sql
+begin;
+
+select set_config('request.jwt.claim.sub', '<admin-auth-user-id>', true);
+
 select public.is_admin();
 select * from public.admin_audio_usage_analytics('7d') limit 20;
+
+rollback;
 ```
+
+Expected result: `public.is_admin()` returns `true`. The analytics query may return zero rows if no `audio_start` events have been ingested for the selected range.
 
 ## 6) Validate `/admin` UI and refresh behavior
 
@@ -131,6 +148,11 @@ In a non-admin session:
 SQL checks:
 
 ```sql
+select play_session_id, user_id, app_session_id, audio_id, started_at, finished_at, finish_progress
+from public.audio_play_sessions
+order by started_at desc
+limit 20;
+
 select audio_id, count(*) as starts
 from public.audio_play_sessions
 group by audio_id
@@ -146,13 +168,15 @@ order by finishes desc, audio_id asc;
 ## Known edge cases
 
 - If Supabase migrations are not pushed, `/admin` shows the backend-missing helper and no new RPC data can load.
-- If only the edge function is stale, `audio_start` may be rejected or written to the old event table; redeploy `track-analytics-event`. Current clients clear old persisted backend-failure markers, so a fixed backend should recover without manual browser-storage cleanup.
+- If `supabase db push` fails with `cannot remove parameter defaults from existing function`, verify the local `20260410101000` migration drops both `increment_analytics_ingest_rate_limit` overloads before recreating either signature, then rerun `supabase db push`.
+- If only the edge function is stale, `audio_start` may be rejected or written only to the old event table; redeploy `track-analytics-event`. Current clients clear old persisted backend-failure markers, so a fixed backend should recover without manual browser-storage cleanup.
 - If users are on older app builds, the edge function still accepts older audio event names for compatibility, but the current dashboard only counts `audio_play_sessions`.
 - If an audio ID no longer exists in `AUDIO_TRACKS`, the dashboard shows the raw `audio_id` after catalog rows.
 
 ## Future maintenance notes
 
 - Keep `useAudioUsageTracking`, client event names, edge-function validation, and SQL constraints/RPCs in sync.
+- Treat applied migrations as immutable. If a remote project has already applied a migration, add a follow-up migration for future fixes instead of editing historical SQL.
 - Do not allow direct client access to `audio_play_sessions`; writes must go through `track-analytics-event`.
 - If the finish threshold changes, update the client threshold, edge validation, SQL check constraint, and this document in the same change.
 - Keep the edge function backward-compatible with older deployed app builds until those builds are no longer expected to send events. Current builds should emit only `audio_start` and `audio_finish` for audio session usage.

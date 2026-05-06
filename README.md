@@ -63,6 +63,7 @@ Legacy aliases (`/login`, `/signup`, `/privacy-policy`, `/terms-conditions`) are
 - Audio finishes are recorded once when playback reaches at least 80% progress.
 - Dashboard reads the server-guarded `admin_audio_usage_analytics(range_key)` RPC.
 - Supported dashboard ranges in the UI: Today, 7 days, 1 month, 3 months, 6 months, and 1 year.
+- Backend setup requires migrations through `20260506130000` and a deployed `track-analytics-event` edge function; see `apps/mobile/docs/ADMIN_ANALYTICS_SETUP.md` for admin user mapping, RPC verification, and troubleshooting.
 
 ## Environment variables
 
@@ -141,7 +142,7 @@ pnpm pre-release
 - `analytics_events`
 - `audio_play_sessions`
 - `admin_users`
-- admin analytics RPCs and `is_admin()` policy helpers
+- admin analytics RPCs, `is_admin()` policy helpers, and analytics ingest rate-limit RPC overloads
 
 ## Known limitations (MVP)
 

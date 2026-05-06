@@ -52,6 +52,7 @@ Verified in `supabase/functions/*`:
 
 - Method checks, payload validation, and explicit CORS allowlist handling are present for web-facing functions.
 - Rate limiting exists for analytics ingestion and night-session recording paths.
+- Analytics ingestion uses service-role-only `increment_analytics_ingest_rate_limit` RPC overloads so batched and compatibility callers stay rate-limited without exposing counters to clients.
 - Account deletion flows no longer include bearer token preview logging.
 
 ## Incident-response controls (April 2026 Vercel bulletin)
@@ -71,6 +72,7 @@ The following controls must be maintained in dashboards/infra and cannot be enfo
 - Enforce MFA/passkeys for Vercel + GitHub org/team members.
 - Monitor Vercel activity/deploy logs and Supabase auth/function anomaly signals.
 - Keep Supabase Auth URL config, Google OAuth client settings, and `EXPO_PUBLIC_WEB_*` environment values in sync.
+- Verify Supabase migration history and deployed edge functions before debugging admin UI issues; stale backend state can mimic frontend authorization or analytics failures.
 
 ## Validation commands used during audit
 
