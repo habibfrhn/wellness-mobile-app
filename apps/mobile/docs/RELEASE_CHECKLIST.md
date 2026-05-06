@@ -32,3 +32,7 @@
 - [ ] `EXPO_PUBLIC_SUPABASE_ANON_KEY` set in target env
 - [ ] `EXPO_PUBLIC_WEB_ORIGIN` and `EXPO_PUBLIC_WEB_ALLOWED_ORIGINS` match deployed domain set
 - [ ] Supabase Auth URL config and Google OAuth redirect URI are aligned with deployed web origin(s)
+
+## Web UI sanity checks
+
+- [ ] Web Home sanity check: the "Bantu kami berkembang" card renders as a single surface (no duplicated/offset outer shadow).

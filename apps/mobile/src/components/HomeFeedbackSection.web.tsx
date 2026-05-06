@@ -7,6 +7,7 @@ import { id } from "../i18n/strings";
 import { colors, radius, spacing, typography } from "../theme/tokens";
 
 const FEEDBACK_FORM_URL = "https://form.jotform.com/260907495594067";
+const FEEDBACK_CARD_SHADOW = "0px 2px 10px rgba(33,50,94,0.10)";
 
 export default function HomeFeedbackSection() {
   const viewportWidth = useViewportWidth();
@@ -40,7 +41,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: `${colors.mutedText}33`,
-    boxShadow: "0px 2px 10px rgba(33,50,94,0.10)",
+    boxShadow: FEEDBACK_CARD_SHADOW,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     gap: spacing.sm,
