@@ -1,7 +1,14 @@
 -- Ensure analytics ingest rate-limit RPC supports batched increments from edge functions.
 -- This prevents RATE_LIMIT_FAILED responses when older DB environments only have the 3-arg signature.
+-- Drop overloads first because Postgres cannot remove a default parameter with
+-- CREATE OR REPLACE FUNCTION when the previously-applied 4-arg RPC used
+-- p_increment int default 1. The 3-arg wrapper depends on the 4-arg RPC, so it
+-- must be dropped before rebuilding the canonical signatures.
 
-create or replace function public.increment_analytics_ingest_rate_limit(
+drop function if exists public.increment_analytics_ingest_rate_limit(text, text, text);
+drop function if exists public.increment_analytics_ingest_rate_limit(text, text, text, int);
+
+create function public.increment_analytics_ingest_rate_limit(
   p_principal_key text,
   p_action text,
   p_bucket text,
@@ -27,7 +34,7 @@ as $$
   returning count;
 $$;
 
-create or replace function public.increment_analytics_ingest_rate_limit(
+create function public.increment_analytics_ingest_rate_limit(
   p_principal_key text,
   p_action text,
   p_bucket text
