@@ -44,7 +44,7 @@ Verified in app + SQL migration usage:
 
 - Admin UI route exists on web, but authorization is backend enforced.
 - `admin_users` mapping and `is_admin()` checks gate admin data access.
-- Admin analytics data is fetched via guarded RPC functions instead of broad direct table access.
+- Admin analytics data is fetched via guarded RPC functions instead of broad direct table access; audio usage writes are restricted to the edge-function-backed `audio_play_sessions` flow.
 
 ### 4) Edge-function controls
 

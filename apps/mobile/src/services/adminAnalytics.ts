@@ -1,19 +1,11 @@
 import { supabase } from "./supabase";
 
-export type AdminAnalyticsRange = "7d" | "30d" | "90d" | "all";
+export type AdminAnalyticsRange = "today" | "7d" | "1m" | "3m" | "6m" | "1y";
 
-export type AdminProductActions = {
-  home_sleep_clicks: number;
-  successful_signups: number;
-};
-
-export type AdminAudioEngagementRow = {
+export type AdminAudioUsageRow = {
   audio_id: string;
-  clicks: number;
   starts: number;
-  completes: number;
-  abandons: number;
-  completion_rate: number;
+  finishes: number;
 };
 
 type SupabaseLikeError = {
@@ -31,32 +23,14 @@ export function isAdminUnauthorizedError(error: SupabaseLikeError | null | undef
   );
 }
 
-export async function fetchAdminProductActions(range: AdminAnalyticsRange) {
-  const { data, error } = await supabase.rpc("admin_analytics_product_actions", { range_key: range }).single();
-  const row = (data as AdminProductActions | null) ?? null;
-  return {
-    data: row
-      ? {
-          home_sleep_clicks: Number(row.home_sleep_clicks) || 0,
-          successful_signups: Number(row.successful_signups) || 0,
-        }
-      : null,
-    error,
-  };
-}
+export async function fetchAdminAudioUsage(range: AdminAnalyticsRange) {
+  const { data, error } = await supabase.rpc("admin_audio_usage_analytics", { range_key: range });
 
-export async function fetchAdminAudioEngagement(range: AdminAnalyticsRange) {
-  const { data, error } = await supabase.rpc("admin_analytics_audio_engagement", { range_key: range });
-
-  const normalizedRows = ((data as AdminAudioEngagementRow[] | null) ?? []).map((row) => ({
+  const normalizedRows = ((data as AdminAudioUsageRow[] | null) ?? []).map((row) => ({
     audio_id: row.audio_id || "unknown_audio",
-    clicks: Number(row.clicks) || 0,
     starts: Number(row.starts) || 0,
-    completes: Number(row.completes) || 0,
-    abandons: Number(row.abandons) || 0,
-    completion_rate: Number(row.completion_rate) || 0,
+    finishes: Number(row.finishes) || 0,
   }));
 
   return { data: normalizedRows, error };
 }
-

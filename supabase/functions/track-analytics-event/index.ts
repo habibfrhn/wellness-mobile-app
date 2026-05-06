@@ -10,6 +10,8 @@ type AnalyticsEventName =
   | "audio_play"
   | "audio_complete"
   | "audio_abandon"
+  | "audio_start"
+  | "audio_finish"
   | "tailored_session_select"
   | "tailored_session_start"
   | "tailored_session_complete"
@@ -59,6 +61,8 @@ const EVENT_NAMES: AnalyticsEventName[] = [
   "audio_play",
   "audio_complete",
   "audio_abandon",
+  "audio_start",
+  "audio_finish",
   "tailored_session_select",
   "tailored_session_start",
   "tailored_session_complete",
@@ -165,9 +169,6 @@ function isValidPayload(value: unknown): value is TrackAnalyticsEventBody {
 
   const eventProps = payload.event_props as Record<string, unknown>;
   const eventPropKeys = Object.keys(eventProps);
-  if (eventPropKeys.length > 1) {
-    return false;
-  }
 
   if (
     payload.event_name === "audio_click" ||
@@ -176,11 +177,33 @@ function isValidPayload(value: unknown): value is TrackAnalyticsEventBody {
     payload.event_name === "audio_abandon"
   ) {
     return (
+      eventPropKeys.length === 1 &&
       typeof eventProps.audio_id === "string" &&
       eventProps.audio_id.trim().length > 0 &&
       eventProps.audio_id.trim().length <= 120 &&
       EVENT_PROP_ID_REGEX.test(eventProps.audio_id.trim())
     );
+  }
+
+  if (payload.event_name === "audio_start" || payload.event_name === "audio_finish") {
+    const progressRatio = eventProps.progress_ratio;
+    return (
+      eventPropKeys.length === (payload.event_name === "audio_finish" ? 3 : 2) &&
+      typeof eventProps.audio_id === "string" &&
+      eventProps.audio_id.trim().length > 0 &&
+      eventProps.audio_id.trim().length <= 120 &&
+      EVENT_PROP_ID_REGEX.test(eventProps.audio_id.trim()) &&
+      typeof eventProps.play_session_id === "string" &&
+      eventProps.play_session_id.trim().length >= 8 &&
+      eventProps.play_session_id.trim().length <= 128 &&
+      EVENT_PROP_ID_REGEX.test(eventProps.play_session_id.trim()) &&
+      (payload.event_name === "audio_start" ||
+        (typeof progressRatio === "number" && Number.isFinite(progressRatio) && progressRatio >= 0.8 && progressRatio <= 1))
+    );
+  }
+
+  if (eventPropKeys.length > 1) {
+    return false;
   }
 
   if (payload.event_name === "tailored_session_select") {
@@ -348,18 +371,60 @@ Deno.serve(async (req: Request) => {
     }
   }
 
-  const rows = payloadEvents.map((eventPayload) => ({
-    event_name: eventPayload.event_name,
-    event_props: eventPayload.event_props,
-    session_id: eventPayload.session_id,
-    user_id: userId,
-  }));
+  const audioStartRows = payloadEvents
+    .filter((eventPayload) => eventPayload.event_name === "audio_start")
+    .map((eventPayload) => ({
+      play_session_id: String(eventPayload.event_props.play_session_id).trim(),
+      app_session_id: eventPayload.session_id.trim(),
+      audio_id: String(eventPayload.event_props.audio_id).trim().toLowerCase(),
+      user_id: userId,
+    }));
 
-  const { error: insertError } = await adminClient.from("analytics_events").insert(rows);
+  if (audioStartRows.length > 0) {
+    const { error: startInsertError } = await adminClient
+      .from("audio_play_sessions")
+      .upsert(audioStartRows, { onConflict: "play_session_id", ignoreDuplicates: true });
 
-  if (insertError) {
-    console.error("track-analytics-event: insert failed", insertError.message);
-    return error(500, "Failed to track event", "INSERT_FAILED", requestCorsHeaders);
+    if (startInsertError) {
+      console.error("track-analytics-event: audio start insert failed", startInsertError.message);
+      return error(500, "Failed to track event", "INSERT_FAILED", requestCorsHeaders);
+    }
+  }
+
+  for (const eventPayload of payloadEvents.filter((item) => item.event_name === "audio_finish")) {
+    const { error: finishUpdateError } = await adminClient
+      .from("audio_play_sessions")
+      .update({
+        finished_at: new Date().toISOString(),
+        finish_progress: eventPayload.event_props.progress_ratio,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("play_session_id", String(eventPayload.event_props.play_session_id).trim())
+      .eq("audio_id", String(eventPayload.event_props.audio_id).trim().toLowerCase())
+      .is("finished_at", null);
+
+    if (finishUpdateError) {
+      console.error("track-analytics-event: audio finish update failed", finishUpdateError.message);
+      return error(500, "Failed to track event", "INSERT_FAILED", requestCorsHeaders);
+    }
+  }
+
+  const legacyRows = payloadEvents
+    .filter((eventPayload) => eventPayload.event_name !== "audio_start" && eventPayload.event_name !== "audio_finish")
+    .map((eventPayload) => ({
+      event_name: eventPayload.event_name,
+      event_props: eventPayload.event_props,
+      session_id: eventPayload.session_id,
+      user_id: userId,
+    }));
+
+  if (legacyRows.length > 0) {
+    const { error: insertError } = await adminClient.from("analytics_events").insert(legacyRows);
+
+    if (insertError) {
+      console.error("track-analytics-event: insert failed", insertError.message);
+      return error(500, "Failed to track event", "INSERT_FAILED", requestCorsHeaders);
+    }
   }
 
   return json(200, { ok: true, received: payloadEvents.length }, requestCorsHeaders);

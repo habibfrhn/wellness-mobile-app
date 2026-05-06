@@ -9,7 +9,9 @@ export type AnalyticsEventName =
   | "signup_complete"
   | "audio_play"
   | "audio_complete"
-  | "audio_abandon";
+  | "audio_abandon"
+  | "audio_start"
+  | "audio_finish";
 
 let inMemorySessionId: string | null = null;
 let analyticsFlushTimer: ReturnType<typeof setInterval> | null = null;
@@ -21,6 +23,7 @@ let analyticsIngestDisabledForSession = false;
 const MAX_EVENT_PROPS_BYTES = 2048;
 const MAX_STRING_PROP_LENGTH = 120;
 const AUDIO_ID_PROP_KEY = "audio_id";
+const PLAY_SESSION_ID_PROP_KEY = "play_session_id";
 const EVENT_PROP_ID_REGEX = /^[A-Za-z0-9_-]+$/;
 const MAX_EVENTS_PER_FLUSH = 25;
 const MAX_QUEUE_SIZE = 100;
@@ -73,17 +76,38 @@ function shouldKeepAnalyticsDisabledByStorage() {
   return true;
 }
 
-function normalizeAudioId(value: unknown) {
+function normalizeIdProp(value: unknown, shouldLowercase = false) {
   if (typeof value !== "string") {
     return null;
   }
 
-  const normalized = value.trim().toLowerCase();
+  const trimmed = value.trim();
+  const normalized = shouldLowercase ? trimmed.toLowerCase() : trimmed;
   if (!normalized || normalized.length > MAX_STRING_PROP_LENGTH || !EVENT_PROP_ID_REGEX.test(normalized)) {
     return null;
   }
 
   return normalized;
+}
+
+function normalizeAudioId(value: unknown) {
+  return normalizeIdProp(value, true);
+}
+
+function normalizePlaySessionId(value: unknown) {
+  return normalizeIdProp(value);
+}
+
+function normalizeProgressRatio(value: unknown) {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return null;
+  }
+
+  if (value < 0.8 || value > 1) {
+    return null;
+  }
+
+  return Math.round(value * 1000) / 1000;
 }
 
 function sanitizeEventProps(
@@ -96,7 +120,9 @@ function sanitizeEventProps(
     eventName === "audio_click" ||
     eventName === "audio_play" ||
     eventName === "audio_complete" ||
-    eventName === "audio_abandon"
+    eventName === "audio_abandon" ||
+    eventName === "audio_start" ||
+    eventName === "audio_finish"
   ) {
     const normalizedAudioId = normalizeAudioId(properties[AUDIO_ID_PROP_KEY]);
     if (!normalizedAudioId) {
@@ -104,6 +130,24 @@ function sanitizeEventProps(
     }
 
     sanitized[AUDIO_ID_PROP_KEY] = normalizedAudioId;
+  }
+
+  if (eventName === "audio_start" || eventName === "audio_finish") {
+    const normalizedPlaySessionId = normalizePlaySessionId(properties[PLAY_SESSION_ID_PROP_KEY]);
+    if (!normalizedPlaySessionId) {
+      return null;
+    }
+
+    sanitized[PLAY_SESSION_ID_PROP_KEY] = normalizedPlaySessionId;
+  }
+
+  if (eventName === "audio_finish") {
+    const progressRatio = normalizeProgressRatio(properties.progress_ratio);
+    if (progressRatio === null) {
+      return null;
+    }
+
+    sanitized.progress_ratio = progressRatio;
   }
 
   return sanitized;
@@ -140,6 +184,23 @@ function isValidTrackPayload(payload: TrackAnalyticsEventPayload) {
     payload.event_name === "audio_abandon"
   ) {
     return typeof payload.event_props.audio_id === "string" && payload.event_props.audio_id.trim().length > 0;
+  }
+
+  if (payload.event_name === "audio_start" || payload.event_name === "audio_finish") {
+    if (
+      typeof payload.event_props.audio_id !== "string" ||
+      payload.event_props.audio_id.trim().length === 0 ||
+      typeof payload.event_props.play_session_id !== "string" ||
+      payload.event_props.play_session_id.trim().length === 0
+    ) {
+      return false;
+    }
+
+    if (payload.event_name === "audio_finish") {
+      return typeof payload.event_props.progress_ratio === "number" && payload.event_props.progress_ratio >= 0.8;
+    }
+
+    return Object.keys(payload.event_props).length === 2;
   }
 
   return Object.keys(payload.event_props).length === 0;
@@ -351,6 +412,11 @@ function createSessionId() {
   }
 
   return `session_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+export function createAudioPlaySessionId() {
+  const rawId = createSessionId();
+  return `play_${rawId}`.replace(/[^A-Za-z0-9_-]/g, "_").slice(0, MAX_STRING_PROP_LENGTH);
 }
 
 export function getAnalyticsSessionId() {

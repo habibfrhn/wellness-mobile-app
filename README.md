@@ -58,10 +58,11 @@ Legacy aliases (`/login`, `/signup`, `/privacy-policy`, `/terms-conditions`) are
 
 - UI route is web-only (`/admin`, plus supported admin query/hash variants).
 - Backend authorization is mandatory (`public.is_admin()` + guarded RPCs).
-- Dashboard currently uses these RPC-backed fetches:
-  - `admin_analytics_product_actions`
-  - `admin_analytics_audio_engagement`
-- Supported dashboard ranges in the UI: `7d`, `30d`, `90d`, `all`.
+- Dashboard is intentionally simple: it shows each audio name, unique “Mulai” starts, and finishes.
+- Audio starts are recorded in `audio_play_sessions` once per generated `play_session_id`; pause/resume within the same play session does not increment starts again.
+- Audio finishes are recorded once when playback reaches at least 80% progress.
+- Dashboard reads the server-guarded `admin_audio_usage_analytics(range_key)` RPC.
+- Supported dashboard ranges in the UI: Today, 7 days, 1 month, 3 months, 6 months, and 1 year.
 
 ## Environment variables
 
@@ -138,6 +139,7 @@ pnpm pre-release
 - `night_sessions`
 - `night_streak_progress`
 - `analytics_events`
+- `audio_play_sessions`
 - `admin_users`
 - admin analytics RPCs and `is_admin()` policy helpers
 
@@ -145,7 +147,7 @@ pnpm pre-release
 
 - No offline-first mode or service-worker caching strategy.
 - Admin dashboard is web-only.
-- Analytics dashboard focuses on product action/audio metrics (not full BI/reporting).
+- Analytics dashboard focuses on audio usage starts/finishes (not full BI/reporting).
 - Production setup still requires manual provider/dashboard alignment (Vercel + Supabase + Google OAuth settings).
 
 ## April 30, 2026 production blank-screen postmortem

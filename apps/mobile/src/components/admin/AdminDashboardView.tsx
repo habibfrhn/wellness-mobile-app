@@ -4,7 +4,7 @@ import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-n
 import { id } from "../../i18n/strings";
 import type {
   AdminAnalyticsRange,
-  AdminAudioEngagementRow,
+  AdminAudioUsageRow,
 } from "../../services/adminAnalytics";
 import { colors, radius, spacing, typography } from "../../theme/tokens";
 import useViewportWidth from "../../hooks/useViewportWidth";
@@ -17,9 +17,7 @@ type Props = {
   errorMessage: string | null;
   range: AdminAnalyticsRange;
   onRangeChange: (next: AdminAnalyticsRange) => void;
-  homeSleepClicks: number;
-  successfulSignups: number;
-  audioRows: AdminAudioEngagementRow[];
+  audioRows: AdminAudioUsageRow[];
   onRefresh: () => Promise<void>;
   onSignOut: () => Promise<void>;
 };
@@ -29,8 +27,6 @@ export default function AdminDashboardView({
   errorMessage,
   range,
   onRangeChange,
-  homeSleepClicks,
-  successfulSignups,
   audioRows,
   onRefresh,
   onSignOut,

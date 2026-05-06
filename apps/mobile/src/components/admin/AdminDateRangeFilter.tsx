@@ -5,7 +5,7 @@ import type { AdminAnalyticsRange } from "../../services/adminAnalytics";
 import { colors, radius, spacing, typography } from "../../theme/tokens";
 import { id } from "../../i18n/strings";
 
-const OPTIONS: AdminAnalyticsRange[] = ["7d", "30d", "90d", "all"];
+const OPTIONS: AdminAnalyticsRange[] = ["today", "7d", "1m", "3m", "6m", "1y"];
 
 type Props = {
   value: AdminAnalyticsRange;

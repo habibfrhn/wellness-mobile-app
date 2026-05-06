@@ -2,21 +2,18 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
   type AdminAnalyticsRange,
-  type AdminAudioEngagementRow,
-  type AdminProductActions,
-  fetchAdminAudioEngagement,
-  fetchAdminProductActions,
+  type AdminAudioUsageRow,
+  fetchAdminAudioUsage,
   isAdminUnauthorizedError,
 } from "../services/adminAnalytics";
 import { id } from "../i18n/strings";
 
 export function useAdminAnalytics(enabled: boolean) {
-  const [range, setRange] = useState<AdminAnalyticsRange>("30d");
+  const [range, setRange] = useState<AdminAnalyticsRange>("7d");
   const [busy, setBusy] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [unauthorized, setUnauthorized] = useState(false);
-  const [productActions, setProductActions] = useState<AdminProductActions | null>(null);
-  const [audioRows, setAudioRows] = useState<AdminAudioEngagementRow[]>([]);
+  const [audioRows, setAudioRows] = useState<AdminAudioUsageRow[]>([]);
   const requestIdRef = useRef(0);
 
   const load = useCallback(
@@ -32,18 +29,14 @@ export function useAdminAnalytics(enabled: boolean) {
       setUnauthorized(false);
 
       try {
-        const [actionsRes, audioRes] = await Promise.all([
-          fetchAdminProductActions(nextRange),
-          fetchAdminAudioEngagement(nextRange),
-        ]);
+        const { data, error } = await fetchAdminAudioUsage(nextRange);
 
         if (requestIdRef.current !== currentRequestId) {
           return;
         }
 
-        const firstError = actionsRes.error ?? audioRes.error;
-        if (firstError) {
-          if (isAdminUnauthorizedError(firstError)) {
+        if (error) {
+          if (isAdminUnauthorizedError(error)) {
             setUnauthorized(true);
             setErrorMessage(id.admin.unauthorizedBody);
           } else {
@@ -53,8 +46,7 @@ export function useAdminAnalytics(enabled: boolean) {
           return;
         }
 
-        setProductActions(actionsRes.data);
-        setAudioRows(audioRes.data);
+        setAudioRows(data);
         setBusy(false);
       } catch {
         if (requestIdRef.current !== currentRequestId) {
@@ -73,7 +65,6 @@ export function useAdminAnalytics(enabled: boolean) {
       setBusy(false);
       setErrorMessage(null);
       setUnauthorized(false);
-      setProductActions(null);
       setAudioRows([]);
       return;
     }
@@ -87,7 +78,6 @@ export function useAdminAnalytics(enabled: boolean) {
     busy,
     errorMessage,
     unauthorized,
-    productActions,
     audioRows,
     reload: load,
   };

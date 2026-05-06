@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getTrackById } from "../content/audioCatalog";
 import type { AudioId } from "../content/audioCatalog";
 import { saveNightSessionCompletion, type NightSessionMode } from "../services/nightSessions";
-import { trackEvent } from "../services/analytics";
+import { createAudioPlaySessionId, trackEvent } from "../services/analytics";
 
 const FADE_OUT_SECONDS = 5;
 const SOUNDSCAPE_LOOP_SECONDS = 20;
@@ -48,6 +48,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
   const hasInitializedTrackRef = useRef(false);
   const hasTrackedTrackPlayRef = useRef(false);
   const hasTrackedTrackEndRef = useRef(false);
+  const currentPlaySessionIdRef = useRef<string | null>(null);
   const hasTrackedTailoredStartRef = useRef(false);
   const hasTrackedTailoredEndRef = useRef(false);
 
@@ -220,13 +221,13 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     }
     hasTrackedTrackPlayRef.current = true;
     hasTrackedTrackEndRef.current = false;
+    currentPlaySessionIdRef.current = createAudioPlaySessionId();
 
-    void trackEvent("audio_play", {
+    void trackEvent("audio_start", {
       audio_id: currentAudioId,
-      is_tailored: isTailoredSession,
-      playlist_index: playlistIndex,
+      play_session_id: currentPlaySessionIdRef.current,
     });
-  }, [currentAudioId, isTailoredSession, playlistIndex]);
+  }, [currentAudioId]);
 
   const onTogglePlay = useCallback(() => {
     try {
@@ -319,14 +320,18 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     if (hasTrackedTrackEndRef.current) {
       return;
     }
+    if (!currentPlaySessionIdRef.current) {
+      return;
+    }
+
     hasTrackedTrackEndRef.current = true;
 
-    void trackEvent("audio_complete", {
+    void trackEvent("audio_finish", {
       audio_id: currentAudioId,
-      is_tailored: isTailoredSession,
-      playlist_index: playlistIndex,
+      play_session_id: currentPlaySessionIdRef.current,
+      progress_ratio: Math.max(COMPLETION_THRESHOLD, Math.min(progressRatio || 1, 1)),
     });
-  }, [currentAudioId, isTailoredSession, playlistIndex]);
+  }, [currentAudioId, progressRatio]);
 
   const trackTrackAbandon = useCallback(() => {
     if (hasTrackedTrackEndRef.current || !hasTrackedTrackPlayRef.current) {
@@ -401,6 +406,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     trackTrackAbandon();
     hasTrackedTrackPlayRef.current = false;
     hasTrackedTrackEndRef.current = false;
+    currentPlaySessionIdRef.current = null;
     resetPlayers();
   }, [resetPlayers, showSoundscapeControls, track.id, trackTrackAbandon]);
 

@@ -3,16 +3,16 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { AUDIO_TRACKS } from "../../content/audioCatalog";
 import { id } from "../../i18n/strings";
-import type { AdminAudioEngagementRow } from "../../services/adminAnalytics";
+import type { AdminAudioUsageRow } from "../../services/adminAnalytics";
 import { colors, radius, spacing, typography } from "../../theme/tokens";
 
 type Props = {
-  rows: AdminAudioEngagementRow[];
+  rows: AdminAudioUsageRow[];
 };
 
 export default function AdminAudioSummaryPanel({ rows }: Props) {
   const rowsByAudioId = useMemo(() => {
-    const map = new Map<string, AdminAudioEngagementRow>();
+    const map = new Map<string, AdminAudioUsageRow>();
     rows.forEach((row) => {
       map.set(row.audio_id, row);
     });
@@ -25,9 +25,8 @@ export default function AdminAudioSummaryPanel({ rows }: Props) {
       return {
         audioId: track.id,
         title: track.title,
-        clicks: row?.clicks ?? 0,
         starts: row?.starts ?? 0,
-        completes: row?.completes ?? 0,
+        finishes: row?.finishes ?? 0,
       };
     });
   }, [rowsByAudioId]);
@@ -39,17 +38,15 @@ export default function AdminAudioSummaryPanel({ rows }: Props) {
 
       <View style={styles.tableHeader}>
         <Text style={[styles.headerCell, styles.audioCol]}>{id.admin.audioLabel}</Text>
-        <Text style={styles.headerCell}>{id.admin.audioClicksLabel}</Text>
         <Text style={styles.headerCell}>{id.admin.audioStartsLabel}</Text>
-        <Text style={styles.headerCell}>{id.admin.audioCompletesLabel}</Text>
+        <Text style={styles.headerCell}>{id.admin.audioFinishesLabel}</Text>
       </View>
 
       {orderedRows.map((row) => (
         <View key={row.audioId} style={styles.tableRow}>
           <Text style={[styles.valueCell, styles.audioCol]}>{row.title}</Text>
-          <Text style={styles.valueCell}>{row.clicks}</Text>
           <Text style={styles.valueCell}>{row.starts}</Text>
-          <Text style={styles.valueCell}>{row.completes}</Text>
+          <Text style={styles.valueCell}>{row.finishes}</Text>
         </View>
       ))}
     </View>
