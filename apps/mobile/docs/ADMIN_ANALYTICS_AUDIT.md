@@ -40,5 +40,5 @@
 ## Notes
 
 - This dashboard is intentionally MVP-scoped and not a full BI system.
-- Historical `analytics_events` are not the source of truth for the current admin audio table.
+- `analytics_events` are not the source of truth for the current admin audio table.
 - If schema/event names change, update client event emitter, edge function validation, SQL constraints/RPCs, and docs together.

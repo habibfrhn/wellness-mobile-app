@@ -6,7 +6,7 @@ This guide documents the current web admin dashboard (`/admin`) for audio usage 
 
 The dashboard shows one table with:
 
-- Audio name from the app audio catalog.
+- Audio name from the app audio catalog. Uncataloged historical IDs are shown by raw `audio_id` so older data is not hidden.
 - How many times users started that audio by pressing **“Mulai”**.
 - How many times users finished that audio.
 - Date filters: **Today**, **7 days**, **1 month**, **3 months**, **6 months**, and **1 year**.
@@ -34,7 +34,7 @@ The dashboard shows one table with:
   - Counts starts by `started_at` in the selected range.
   - Counts finishes by `finished_at` in the selected range.
 
-Historical `analytics_events` remain for non-audio product events and legacy analytics, but the current dashboard source of truth is `audio_play_sessions`.
+`analytics_events` remains available for non-session product analytics, but the current admin audio dashboard source of truth is `audio_play_sessions`.
 
 ## 1) Push SQL migrations
 
@@ -54,7 +54,7 @@ supabase functions deploy track-analytics-event --no-verify-jwt
 supabase functions list
 ```
 
-`track-analytics-event` must be deployed. It validates audio payloads, applies rate limits, writes `audio_start`/`audio_finish` to `audio_play_sessions`, and continues to store legacy events in `analytics_events`.
+`track-analytics-event` must be deployed. It validates audio payloads, applies rate limits, writes `audio_start`/`audio_finish` to `audio_play_sessions`, and stores non-session analytics events in `analytics_events`.
 
 ## 3) Ensure an admin auth user exists
 
@@ -142,4 +142,5 @@ order by finishes desc, audio_id asc;
 - Keep client audio event names, edge-function validation, and SQL constraints/RPCs in sync.
 - Do not allow direct client access to `audio_play_sessions`; writes must go through `track-analytics-event`.
 - If the finish threshold changes, update the client threshold, edge validation, SQL check constraint, and this document in the same change.
+- Keep the edge function backward-compatible with older deployed app builds until those builds are no longer expected to send events. Current builds should emit only `audio_start` and `audio_finish` for audio session usage.
 - If a new dashboard filter is added, update `analytics_range_start`, `AdminAnalyticsRange`, `AdminDateRangeFilter`, and `strings.ts` together.

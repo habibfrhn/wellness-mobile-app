@@ -7,9 +7,6 @@ export type AnalyticsEventName =
   | "audio_click"
   | "signup_start"
   | "signup_complete"
-  | "audio_play"
-  | "audio_complete"
-  | "audio_abandon"
   | "audio_start"
   | "audio_finish";
 
@@ -118,9 +115,6 @@ function sanitizeEventProps(
 
   if (
     eventName === "audio_click" ||
-    eventName === "audio_play" ||
-    eventName === "audio_complete" ||
-    eventName === "audio_abandon" ||
     eventName === "audio_start" ||
     eventName === "audio_finish"
   ) {
@@ -178,10 +172,7 @@ function isValidTrackPayload(payload: TrackAnalyticsEventPayload) {
   }
 
   if (
-    payload.event_name === "audio_click" ||
-    payload.event_name === "audio_play" ||
-    payload.event_name === "audio_complete" ||
-    payload.event_name === "audio_abandon"
+    payload.event_name === "audio_click"
   ) {
     return typeof payload.event_props.audio_id === "string" && payload.event_props.audio_id.trim().length > 0;
   }

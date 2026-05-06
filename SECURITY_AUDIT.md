@@ -75,7 +75,7 @@ The following controls must be maintained in dashboards/infra and cannot be enfo
 ## Validation commands used during audit
 
 ```bash
-rg -n "EXPO_PUBLIC_WEB_ALLOWED_ORIGINS|buildAuthRedirectPath|is_admin\(|admin_analytics_|track-analytics-event|record-night-session|delete-account-v2|resend-verification-email" apps/mobile/src supabase/functions supabase/migrations
+rg -n "EXPO_PUBLIC_WEB_ALLOWED_ORIGINS|buildAuthRedirectPath|is_admin\(|admin_audio_usage_analytics|admin_analytics_|track-analytics-event|record-night-session|delete-account-v2|resend-verification-email" apps/mobile/src supabase/functions supabase/migrations
 pnpm -C apps/mobile lint
 pnpm -C apps/mobile typecheck
 ```

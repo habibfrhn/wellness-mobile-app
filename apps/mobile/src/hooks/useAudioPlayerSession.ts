@@ -49,6 +49,12 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
   const hasTrackedTrackPlayRef = useRef(false);
   const hasTrackedTrackEndRef = useRef(false);
   const currentPlaySessionIdRef = useRef<string | null>(null);
+
+  const resetAudioPlayTracking = useCallback(() => {
+    hasTrackedTrackPlayRef.current = false;
+    hasTrackedTrackEndRef.current = false;
+    currentPlaySessionIdRef.current = null;
+  }, []);
   const hasTrackedTailoredStartRef = useRef(false);
   const hasTrackedTailoredEndRef = useRef(false);
 
@@ -190,13 +196,14 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
 
   const startPrimaryFromBeginning = useCallback(() => {
     resetPlayers();
+    resetAudioPlayTracking();
     try {
       primaryPlayer.seekTo(0);
     } catch {
       // no-op
     }
     playWithRetry(primaryPlayer);
-  }, [playWithRetry, primaryPlayer, resetPlayers]);
+  }, [playWithRetry, primaryPlayer, resetAudioPlayTracking, resetPlayers]);
 
   const handleSessionComplete = useCallback(() => {
     if (!sleepMode || sessionCompletionLockRef.current) {
@@ -262,6 +269,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
 
       if (atEnd) {
         activePlayer.seekTo(0);
+        resetAudioPlayTracking();
       }
       trackTrackPlay();
       setPlaybackError(null);
@@ -277,6 +285,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     isTailoredSession,
     pauseAll,
     playWithRetry,
+    resetAudioPlayTracking,
     startPrimaryFromBeginning,
     trackTrackPlay,
   ]);
@@ -295,12 +304,13 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
 
     try {
       resetPlayers();
+      resetAudioPlayTracking();
       trackTrackPlay();
       playWithRetry(primaryPlayer);
     } catch {
       // no-op
     }
-  }, [isTailoredSession, playWithRetry, primaryPlayer, resetPlayers , trackTrackPlay]);
+  }, [isTailoredSession, playWithRetry, primaryPlayer, resetAudioPlayTracking, resetPlayers, trackTrackPlay]);
 
   const onSeek = useCallback(
     (value: number) => {
@@ -342,14 +352,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
       return;
     }
     hasTrackedTrackEndRef.current = true;
-
-    void trackEvent("audio_abandon", {
-      audio_id: currentAudioId,
-      is_tailored: isTailoredSession,
-      playlist_index: playlistIndex,
-      progress_ratio: progressRatio,
-    });
-  }, [currentAudioId, isTailoredSession, playlistIndex, progressRatio, trackTrackCompletion]);
+  }, [progressRatio, trackTrackCompletion]);
 
   const handleTimerSelect = useCallback((seconds: number) => {
     setTimerSeconds(seconds);
@@ -358,9 +361,11 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
   }, []);
 
   const handleStop = useCallback(() => {
+    trackTrackAbandon();
+    resetAudioPlayTracking();
     resetPlayers();
     setTimerRemaining(timerSeconds);
-  }, [resetPlayers, timerSeconds]);
+  }, [resetAudioPlayTracking, resetPlayers, timerSeconds, trackTrackAbandon]);
 
   const resetSessionState = useCallback(() => {
     trackTrackAbandon();
@@ -374,6 +379,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     }
     pauseAll();
     resetPlayers();
+    resetAudioPlayTracking();
     setPendingTailoredAutoplay(false);
     setHasSessionStarted(false);
     setPlaylistIndex(0);
@@ -383,6 +389,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
   }, [
     isTailoredSession,
     pauseAll,
+    resetAudioPlayTracking,
     resetPlayers,
     sessionProgressRatio,
     timerSeconds,
@@ -404,11 +411,9 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     }
 
     trackTrackAbandon();
-    hasTrackedTrackPlayRef.current = false;
-    hasTrackedTrackEndRef.current = false;
-    currentPlaySessionIdRef.current = null;
+    resetAudioPlayTracking();
     resetPlayers();
-  }, [resetPlayers, showSoundscapeControls, track.id, trackTrackAbandon]);
+  }, [resetAudioPlayTracking, resetPlayers, showSoundscapeControls, track.id, trackTrackAbandon]);
 
   useEffect(() => {
     if (!isTailoredSession || !pendingTailoredAutoplay) {
@@ -427,6 +432,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
 
     if (playlistIndex < trackDurations.length - 1) {
       trackTrackCompletion();
+      resetAudioPlayTracking();
       setPlaylistIndex((prev) => prev + 1);
       setPendingTailoredAutoplay(true);
       return;
@@ -447,6 +453,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     hasSessionStarted,
     isTailoredSession,
     playlistIndex,
+    resetAudioPlayTracking,
     resetPlayers,
     trackTrackCompletion,
     trackDurations.length,
@@ -613,6 +620,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     clearRetryTimeouts,
     isTailoredSession,
     pauseAll,
+    resetAudioPlayTracking,
     resetPlayers,
     sessionProgressRatio,
     trackTrackAbandon,

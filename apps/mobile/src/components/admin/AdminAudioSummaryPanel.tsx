@@ -20,7 +20,7 @@ export default function AdminAudioSummaryPanel({ rows }: Props) {
   }, [rows]);
 
   const orderedRows = useMemo(() => {
-    return AUDIO_TRACKS.map((track) => {
+    const catalogRows = AUDIO_TRACKS.map((track) => {
       const row = rowsByAudioId.get(track.id);
       return {
         audioId: track.id,
@@ -29,7 +29,19 @@ export default function AdminAudioSummaryPanel({ rows }: Props) {
         finishes: row?.finishes ?? 0,
       };
     });
-  }, [rowsByAudioId]);
+
+    const catalogIds = new Set<string>(AUDIO_TRACKS.map((track) => track.id));
+    const uncatalogedRows = rows
+      .filter((row) => !catalogIds.has(row.audio_id))
+      .map((row) => ({
+        audioId: row.audio_id,
+        title: row.audio_id,
+        starts: row.starts,
+        finishes: row.finishes,
+      }));
+
+    return [...catalogRows, ...uncatalogedRows];
+  }, [rows, rowsByAudioId]);
 
   return (
     <View style={styles.panel}>

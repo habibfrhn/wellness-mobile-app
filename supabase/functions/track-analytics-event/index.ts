@@ -58,6 +58,7 @@ const EVENT_NAMES: AnalyticsEventName[] = [
   "audio_click",
   "signup_start",
   "signup_complete",
+  // Accepted for older app builds; current audio usage analytics uses audio_start/audio_finish.
   "audio_play",
   "audio_complete",
   "audio_abandon",
@@ -409,7 +410,7 @@ Deno.serve(async (req: Request) => {
     }
   }
 
-  const legacyRows = payloadEvents
+  const analyticsEventRows = payloadEvents
     .filter((eventPayload) => eventPayload.event_name !== "audio_start" && eventPayload.event_name !== "audio_finish")
     .map((eventPayload) => ({
       event_name: eventPayload.event_name,
@@ -418,8 +419,8 @@ Deno.serve(async (req: Request) => {
       user_id: userId,
     }));
 
-  if (legacyRows.length > 0) {
-    const { error: insertError } = await adminClient.from("analytics_events").insert(legacyRows);
+  if (analyticsEventRows.length > 0) {
+    const { error: insertError } = await adminClient.from("analytics_events").insert(analyticsEventRows);
 
     if (insertError) {
       console.error("track-analytics-event: insert failed", insertError.message);
