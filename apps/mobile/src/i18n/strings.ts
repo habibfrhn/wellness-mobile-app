@@ -47,7 +47,7 @@ export const id = {
 
   landing: {
     heroTitle: "Masuk waktu tidur dengan lebih tenang",
-    heroSubtitle: "Lumepo menemani kamu masuk ke suasana tidur dengan rutinitas malam yang tenang dan tidak bikin kepala makin ramai.",
+    heroSubtitle: "Lumepo membantumu menenangkan tubuh dan pikiran sebelum tidur, tanpa banyak langkah dan tanpa distraksi.",
     mobileMenuLabel: "Buka menu navigasi",
     mobileMenuHint: "Pilih untuk masuk atau membuat akun",
   },

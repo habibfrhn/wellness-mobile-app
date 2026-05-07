@@ -124,7 +124,7 @@ function syncWebMetaDescription(routeName?: string) {
 
   const metaDescription =
     routeName === "Landing"
-      ? "Lumepo menemani kamu masuk ke suasana tidur dengan rutinitas malam yang tenang dan tidak bikin kepala makin ramai."
+      ? "Lumepo membantumu menenangkan tubuh dan pikiran sebelum tidur, tanpa banyak langkah dan tanpa distraksi."
       : "Lumepo membantu kamu menutup hari dengan ritual malam yang tenang dan konsisten.";
   let tag = document.querySelector('meta[name="description"]');
 

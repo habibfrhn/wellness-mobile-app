@@ -33,7 +33,7 @@ function syncLandingMetaDescription() {
   }
 
   const metaDescription =
-    "Lumepo menemani kamu masuk ke suasana tidur dengan rutinitas malam yang tenang dan tidak bikin kepala makin ramai.";
+    "Lumepo membantumu menenangkan tubuh dan pikiran sebelum tidur, tanpa banyak langkah dan tanpa distraksi.";
   let tag = document.querySelector('meta[name="description"]');
 
   if (!tag) {

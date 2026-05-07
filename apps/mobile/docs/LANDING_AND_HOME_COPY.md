@@ -23,7 +23,7 @@ Use this document as the maintenance reference for the current Lumepo landing pa
 ### Hero section
 
 - H1: Masuk waktu tidur dengan lebih tenang
-- Subheadline: Lumepo menemani kamu masuk ke suasana tidur dengan rutinitas malam yang tenang dan tidak bikin kepala makin ramai.
+- Subheadline: Lumepo membantumu menenangkan tubuh dan pikiran sebelum tidur, tanpa banyak langkah dan tanpa distraksi.
 - Primary CTA button: Mulai malam ini
 - Small note under CTA: Gratis selama beta
 
