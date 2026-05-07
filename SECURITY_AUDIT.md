@@ -1,6 +1,6 @@
 # Security Audit & Hardening Baseline
 
-Date updated: 2026-04-30  
+Date updated: 2026-05-07
 Scope: `apps/mobile` web app deployment surface, Supabase edge functions, auth/session handling, and operational documentation.
 
 Reference bulletin: https://vercel.com/kb/bulletin/vercel-april-2026-security-incident
@@ -44,7 +44,7 @@ Verified in app + SQL migration usage:
 
 - Admin UI route exists on web, but authorization is backend enforced.
 - `admin_users` mapping and `is_admin()` checks gate admin data access.
-- Admin analytics data is fetched via guarded RPC functions instead of broad direct table access; audio usage writes are restricted to the edge-function-backed `audio_play_sessions` flow.
+- Admin analytics data is fetched via the guarded `admin_audio_usage_analytics` RPC instead of broad direct table access; unused legacy admin analytics RPCs/views were removed to reduce exposed read surfaces, and audio usage writes are restricted to the edge-function-backed `audio_play_sessions` flow.
 
 ### 4) Edge-function controls
 
@@ -78,6 +78,7 @@ The following controls must be maintained in dashboards/infra and cannot be enfo
 
 ```bash
 rg -n "EXPO_PUBLIC_WEB_ALLOWED_ORIGINS|buildAuthRedirectPath|is_admin\(|admin_audio_usage_analytics|admin_analytics_|track-analytics-event|record-night-session|delete-account-v2|resend-verification-email" apps/mobile/src supabase/functions supabase/migrations
+rg -n "storage|bucket|supabase\.storage|from\(['\"]storage|storage\.objects|storage\.buckets" apps/mobile supabase README.md SECURITY_AUDIT.md -g '!node_modules'
 pnpm -C apps/mobile lint
 pnpm -C apps/mobile typecheck
 ```

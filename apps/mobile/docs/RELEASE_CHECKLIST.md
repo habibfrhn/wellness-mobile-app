@@ -34,7 +34,7 @@
 - [ ] Supabase Auth URL config and Google OAuth redirect URI are aligned with deployed web origin(s)
 
 ## 6) Supabase backend readiness
-- [ ] `supabase migration list` shows every local migration applied in the target project, including admin analytics migrations through `20260506130000`
+- [ ] `supabase migration list` shows every local migration applied in the target project, including admin analytics migrations through `20260507120000`
 - [ ] `track-analytics-event` is deployed to the same Supabase project used by the app
 - [ ] Admin account exists in `public.admin_users` and `public.is_admin()` returns `true` for that auth user
 - [ ] A fresh audio play writes a row to `public.audio_play_sessions` and appears in `/admin` after refresh

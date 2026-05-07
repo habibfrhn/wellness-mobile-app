@@ -58,6 +58,7 @@
 
 - This dashboard is intentionally MVP-scoped and not a full BI system.
 - `analytics_events` are not the source of truth for the current admin audio table.
+- Legacy `admin_analytics_*` RPCs and `analytics_*_summary` views were removed by `20260507120000_remove_unused_admin_analytics_objects.sql`; see `DATABASE_OBJECT_AUDIT.md` for dependency details and retained-object rationale.
 - Keep both analytics rate-limit RPC overloads unless every deployed edge-function caller has been updated and old deployments are no longer expected to run.
 - Applied migrations should remain immutable; use a new migration for follow-up fixes after a migration has reached a shared or production database.
 - Analytics backend failures disable only the current runtime session; old persisted backend-failure markers are cleared so a fixed backend can recover without asking users to clear browser storage.

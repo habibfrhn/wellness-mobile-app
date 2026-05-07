@@ -61,9 +61,9 @@ Legacy aliases (`/login`, `/signup`, `/privacy-policy`, `/terms-conditions`) are
 - Dashboard is intentionally simple: it shows each audio name, unique “Mulai” starts, and finishes.
 - Audio starts are recorded in `audio_play_sessions` once per generated `play_session_id`; pause/resume within the same play session does not increment starts again, and start/finish events request an immediate analytics flush for reliable admin refreshes.
 - Audio finishes are recorded once when playback reaches at least 80% progress.
-- Dashboard reads the server-guarded `admin_audio_usage_analytics(range_key)` RPC.
+- Dashboard reads the server-guarded `admin_audio_usage_analytics(range_key)` RPC. Legacy `admin_analytics_*` RPCs and `analytics_*_summary` views were removed in `20260507120000` after dependency audit.
 - Supported dashboard ranges in the UI: Today, 7 days, 1 month, 3 months, 6 months, and 1 year.
-- Backend setup requires migrations through `20260506130000` and a deployed `track-analytics-event` edge function; see `apps/mobile/docs/ADMIN_ANALYTICS_SETUP.md` for admin user mapping, RPC verification, and troubleshooting.
+- Backend setup requires migrations through `20260507120000` and a deployed `track-analytics-event` edge function; see `apps/mobile/docs/ADMIN_ANALYTICS_SETUP.md` for admin user mapping, RPC verification, and troubleshooting.
 
 ## Environment variables
 
@@ -125,6 +125,7 @@ pnpm pre-release
 - `apps/mobile/docs/RELEASE_CHECKLIST.md`
 - `apps/mobile/docs/AUDIO_CATALOG_UPDATE_GUIDE.md`
 - `apps/mobile/docs/STORE_SUBMISSION_CHECKLIST.md`
+- Database cleanup/audit log: `apps/mobile/docs/DATABASE_OBJECT_AUDIT.md`
 
 ## Supabase backend footprint
 
@@ -143,7 +144,7 @@ pnpm pre-release
 - `analytics_events`
 - `audio_play_sessions`
 - `admin_users`
-- admin analytics RPCs, `is_admin()` policy helpers, and analytics ingest rate-limit RPC overloads
+- `admin_audio_usage_analytics`, `is_admin()` policy helpers, and analytics ingest rate-limit RPC overloads
 
 ## Known limitations (MVP)
 

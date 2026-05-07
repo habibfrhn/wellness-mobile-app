@@ -51,6 +51,7 @@ The final `migration list` should show every local migration ID in the `Remote` 
 - `20260410101000_add_increment_param_to_analytics_rate_limit_rpc.sql`
 - `20260506120000_rebuild_admin_audio_analytics.sql`
 - `20260506130000_fix_admin_audio_usage_rpc.sql`
+- `20260507120000_remove_unused_admin_analytics_objects.sql`
 
 `20260410101000` intentionally drops the existing `increment_analytics_ingest_rate_limit(text, text, text)` and `increment_analytics_ingest_rate_limit(text, text, text, int)` overloads before recreating them. Keep that order: Postgres cannot remove an existing default parameter with `CREATE OR REPLACE FUNCTION`, and the 3-argument compatibility wrapper depends on the 4-argument RPC.
 
