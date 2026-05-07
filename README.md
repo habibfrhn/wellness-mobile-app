@@ -143,7 +143,11 @@ pnpm pre-release
 - `analytics_events`
 - `audio_play_sessions`
 - `admin_users`
-- admin analytics RPCs, `is_admin()` policy helpers, and analytics ingest rate-limit RPC overloads
+- current admin audio analytics RPC, `is_admin()` policy helpers, shared rate-limit RPCs, and the retained `analytics_events` product-event store
+
+### Database audit and pruning
+
+The May 7, 2026 database audit is documented in `apps/mobile/docs/DATABASE_AUDIT.md`. The cleanup migration `20260507120000_prune_unused_database_objects.sql` removes only confirmed-unused legacy admin analytics views/RPCs and redundant indexes; active auth, nightly session, streak, analytics ingestion, audio usage, and admin authorization objects are retained.
 
 ## Known limitations (MVP)
 

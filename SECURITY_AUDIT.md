@@ -1,6 +1,6 @@
 # Security Audit & Hardening Baseline
 
-Date updated: 2026-04-30  
+Date updated: 2026-05-07
 Scope: `apps/mobile` web app deployment surface, Supabase edge functions, auth/session handling, and operational documentation.
 
 Reference bulletin: https://vercel.com/kb/bulletin/vercel-april-2026-security-incident
@@ -44,7 +44,7 @@ Verified in app + SQL migration usage:
 
 - Admin UI route exists on web, but authorization is backend enforced.
 - `admin_users` mapping and `is_admin()` checks gate admin data access.
-- Admin analytics data is fetched via guarded RPC functions instead of broad direct table access; audio usage writes are restricted to the edge-function-backed `audio_play_sessions` flow.
+- Admin analytics data is fetched through the single current guarded RPC, `admin_audio_usage_analytics`, instead of broad direct table access; legacy unused admin analytics RPCs/views were pruned on May 7, 2026, and audio usage writes remain restricted to the edge-function-backed `audio_play_sessions` flow.
 
 ### 4) Edge-function controls
 
@@ -52,7 +52,7 @@ Verified in `supabase/functions/*`:
 
 - Method checks, payload validation, and explicit CORS allowlist handling are present for web-facing functions.
 - Rate limiting exists for analytics ingestion and night-session recording paths.
-- Analytics ingestion uses service-role-only `increment_analytics_ingest_rate_limit` RPC overloads so batched and compatibility callers stay rate-limited without exposing counters to clients.
+- Analytics ingestion uses service-role-only `increment_analytics_ingest_rate_limit` RPC overloads so batched and compatibility callers stay rate-limited without exposing counters to clients. The shared authenticated `increment_rate_limit` RPC remains required for night-session and account-deletion flows.
 - Account deletion flows no longer include bearer token preview logging.
 
 ## Incident-response controls (April 2026 Vercel bulletin)
@@ -78,6 +78,7 @@ The following controls must be maintained in dashboards/infra and cannot be enfo
 
 ```bash
 rg -n "EXPO_PUBLIC_WEB_ALLOWED_ORIGINS|buildAuthRedirectPath|is_admin\(|admin_audio_usage_analytics|admin_analytics_|track-analytics-event|record-night-session|delete-account-v2|resend-verification-email" apps/mobile/src supabase/functions supabase/migrations
+rg -n "analytics_audio_summary|analytics_tailored_summary|analytics_funnel_summary|admin_analytics_|night_sessions_user_id_idx|rate_limits_action_bucket_idx|analytics_events_event_name_idx" -g "!node_modules"
 pnpm -C apps/mobile lint
 pnpm -C apps/mobile typecheck
 ```

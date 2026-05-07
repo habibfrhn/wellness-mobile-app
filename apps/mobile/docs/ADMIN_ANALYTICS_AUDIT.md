@@ -13,9 +13,11 @@
 9. The edge function increments analytics ingest rate limits through `public.increment_analytics_ingest_rate_limit`; the database keeps both the 4-argument batched RPC and 3-argument compatibility wrapper for deployed function compatibility.
 10. The edge function writes audio usage to `public.audio_play_sessions` with idempotent starts and one finish per session.
 11. Admin dashboard (`/admin`) loads server-guarded RPC data through:
-   - `src/services/adminAnalytics.ts`
-   - `src/services/adminAnalyticsErrors.ts`
-   - `src/hooks/useAdminAnalytics.ts`
+
+- `src/services/adminAnalytics.ts`
+- `src/services/adminAnalyticsErrors.ts`
+- `src/hooks/useAdminAnalytics.ts`
+
 12. UI renders one audio usage table with audio name, starts, and finishes.
 
 ## Authorization model
@@ -57,7 +59,8 @@
 ## Notes
 
 - This dashboard is intentionally MVP-scoped and not a full BI system.
-- `analytics_events` are not the source of truth for the current admin audio table.
+- `analytics_events` are not the source of truth for the current admin audio table, but remain retained for non-session product analytics events written by the edge function.
+- The May 7, 2026 database audit removed superseded `analytics_*_summary` views and legacy `admin_analytics_*` RPCs that were not called by the current admin UI; recreate narrowly scoped RPCs in a future migration if broader BI returns.
 - Keep both analytics rate-limit RPC overloads unless every deployed edge-function caller has been updated and old deployments are no longer expected to run.
 - Applied migrations should remain immutable; use a new migration for follow-up fixes after a migration has reached a shared or production database.
 - Analytics backend failures disable only the current runtime session; old persisted backend-failure markers are cleared so a fixed backend can recover without asking users to clear browser storage.
