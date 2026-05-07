@@ -51,14 +51,14 @@
 - `audio_finish` updates only an unfinished matching session.
 - Finish progress must be between `0.8` and `1.0`.
 - Audio IDs are normalized and validated before storage.
-- Restarts, stops, track changes, and tailored-session track transitions close/reset the current usage session so a subsequent **“Mulai”** can create a fresh start.
+- Restarts, stops, and track changes close/reset the current usage session so a subsequent **“Mulai”** can create a fresh start.
 - Uncataloged historical IDs are appended to the admin table by raw `audio_id` so data is not hidden when the catalog changes.
 
 ## Notes
 
 - This dashboard is intentionally MVP-scoped and not a full BI system.
 - `analytics_events` are not the source of truth for the current admin audio table.
-- Legacy `admin_analytics_*` RPCs and `analytics_*_summary` views were removed by `20260507120000_remove_unused_admin_analytics_objects.sql`; see `DATABASE_OBJECT_AUDIT.md` for dependency details and retained-object rationale.
+- Legacy `admin_analytics_*` RPCs and `analytics_*_summary` views were removed by `20260507120000_remove_unused_admin_analytics_objects.sql`; tailored `analytics_events` names/validation were removed by `20260507130000_remove_tailored_session_analytics_remnants.sql`. See `DATABASE_OBJECT_AUDIT.md` for dependency details and retained-object rationale.
 - Keep both analytics rate-limit RPC overloads unless every deployed edge-function caller has been updated and old deployments are no longer expected to run.
 - Applied migrations should remain immutable; use a new migration for follow-up fixes after a migration has reached a shared or production database.
 - Analytics backend failures disable only the current runtime session; old persisted backend-failure markers are cleared so a fixed backend can recover without asking users to clear browser storage.

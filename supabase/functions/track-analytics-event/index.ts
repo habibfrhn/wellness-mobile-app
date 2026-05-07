@@ -11,11 +11,7 @@ type AnalyticsEventName =
   | "audio_complete"
   | "audio_abandon"
   | "audio_start"
-  | "audio_finish"
-  | "tailored_session_select"
-  | "tailored_session_start"
-  | "tailored_session_complete"
-  | "tailored_session_dropoff";
+  | "audio_finish";
 
 type TrackAnalyticsEventBody = {
   event_name: AnalyticsEventName;
@@ -64,10 +60,6 @@ const EVENT_NAMES: AnalyticsEventName[] = [
   "audio_abandon",
   "audio_start",
   "audio_finish",
-  "tailored_session_select",
-  "tailored_session_start",
-  "tailored_session_complete",
-  "tailored_session_dropoff",
 ];
 
 function json(status: number, body: Record<string, unknown>, requestCorsHeaders: Record<string, string>) {
@@ -205,22 +197,6 @@ function isValidPayload(value: unknown): value is TrackAnalyticsEventBody {
 
   if (eventPropKeys.length > 1) {
     return false;
-  }
-
-  if (payload.event_name === "tailored_session_select") {
-    return eventProps.session_mode === "calm_mind" || eventProps.session_mode === "release_accept";
-  }
-
-  if (
-    payload.event_name === "tailored_session_start" ||
-    payload.event_name === "tailored_session_complete" ||
-    payload.event_name === "tailored_session_dropoff"
-  ) {
-    if (eventPropKeys.length === 0) {
-      return true;
-    }
-
-    return eventProps.session_mode === "calm_mind" || eventProps.session_mode === "release_accept";
   }
 
   return Object.keys(eventProps).length === 0;

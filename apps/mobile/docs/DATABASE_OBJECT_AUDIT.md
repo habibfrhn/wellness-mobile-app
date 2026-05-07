@@ -14,7 +14,7 @@ rg -n "storage|bucket|supabase\.storage|from\(['\"]storage|storage\.objects|stor
 
 ## Confirmed removals
 
-Migration `supabase/migrations/20260507120000_remove_unused_admin_analytics_objects.sql` removes only legacy admin analytics read surfaces that are no longer referenced by runtime app or Edge Function code:
+Migrations `supabase/migrations/20260507120000_remove_unused_admin_analytics_objects.sql` and `supabase/migrations/20260507130000_remove_tailored_session_analytics_remnants.sql` remove only legacy tailored/admin analytics surfaces that are no longer referenced by runtime app or Edge Function code:
 
 - Views:
   - `public.analytics_audio_summary`
@@ -28,8 +28,13 @@ Migration `supabase/migrations/20260507120000_remove_unused_admin_analytics_obje
   - `public.admin_analytics_audio_engagement(text)`
   - `public.admin_analytics_tailored_sessions(text)`
   - `public.admin_analytics_product_actions(text)`
+- Analytics event remnants:
+  - historical `analytics_events` rows with event names `tailored_session_select`, `tailored_session_start`, `tailored_session_complete`, or `tailored_session_dropoff`
+  - tailored event-name allowances in `analytics_events_event_name_check`
+  - tailored `session_mode` validation branches in `public.analytics_event_props_are_valid(text, jsonb)`
+  - tailored event-name allowances in policy `analytics_events_insert_public`
 
-These objects belonged to a previous multi-panel admin dashboard that read from `analytics_events`. The current `/admin` dashboard reads `public.admin_audio_usage_analytics(range_key)` only, and the current audio source of truth is `public.audio_play_sessions`.
+These objects belonged to a previous multi-panel admin dashboard and retired tailored sleep-session telemetry. The current `/admin` dashboard reads `public.admin_audio_usage_analytics(range_key)` only, and the current audio source of truth is `public.audio_play_sessions`.
 
 ## Dependency notes for removals
 
@@ -41,7 +46,7 @@ These objects belonged to a previous multi-panel admin dashboard that read from 
   - `public.increment_rate_limit(...)` for account deletion throttling.
   - `public.record_night_streak_completion(date)` for night-session completion progress.
   - Tables `public.analytics_events`, `public.audio_play_sessions`, and `public.night_sessions` for active writes.
-- No runtime code references the dropped `analytics_*_summary` views or `admin_analytics_*` RPCs after the dashboard moved to `admin_audio_usage_analytics`.
+- No runtime code references the dropped `analytics_*_summary` views, `admin_analytics_*` RPCs, or tailored `analytics_events` event names after the dashboard moved to `admin_audio_usage_analytics`.
 - Storage audit found no app or SQL usage of Supabase Storage buckets, `storage.objects`, or `supabase.storage`; only local Supabase config and local/device auth storage references exist.
 
 ## Retained objects and rationale
@@ -66,8 +71,8 @@ These objects belonged to a previous multi-panel admin dashboard that read from 
 
 ### Analytics ingestion and audio usage
 
-- `public.analytics_events`: retained as the generic behavioral-event store for landing/signup/audio-click telemetry and future maintenance queries.
-- `public.analytics_event_props_are_valid(text, jsonb)`: retained because SQL constraints depend on it and it mirrors Edge Function payload validation.
+- `public.analytics_events`: retained as the non-tailored behavioral-event store for landing/signup/audio-click telemetry and future maintenance queries; tailored session event names are no longer accepted.
+- `public.analytics_event_props_are_valid(text, jsonb)`: retained because SQL constraints depend on it and it mirrors Edge Function payload validation without tailored `session_mode` branches.
 - `public.set_analytics_event_user_id()` and trigger `analytics_events_set_user`: retained to keep server-sourced timestamps and safe user attribution.
 - `public.audio_play_sessions`: retained as the source of truth for admin audio usage.
 - `public.admin_audio_usage_analytics(text)`: retained as the only active admin dashboard analytics RPC.
@@ -86,6 +91,7 @@ These objects belonged to a previous multi-panel admin dashboard that read from 
 - Triggers: `analytics_events_set_user` and `set_night_streak_progress_updated_at` remain active and required.
 - Indexes: no index was confirmed safe to drop from static code review alone; use production `pg_stat_user_indexes` before pruning.
 - Storage: no Supabase Storage buckets/objects are currently used by the product; no storage objects are created by migrations.
+- Historical migration files still mention tailored-session objects because applied migrations are immutable; the final schema state removes the unused tailored read/ingest surfaces in follow-up migrations.
 
 ## Future maintenance guidance
 
@@ -99,5 +105,5 @@ These objects belonged to a previous multi-panel admin dashboard that read from 
 3. Treat `analytics_events` as raw telemetry, not the current admin audio source of truth.
 4. Keep `audio_play_sessions` and `admin_audio_usage_analytics` in sync with any changes to `audio_start` / `audio_finish` tracking.
 5. Keep both analytics ingest rate-limit RPC overloads until all deployed Edge Functions are known to call only the 4-argument signature.
-6. Do not remove legacy event names from Edge Function validation until old mobile/web deployments can no longer emit them.
-7. Run `pnpm lint`, `pnpm typecheck`, and a Supabase migration dry run or staging apply before production database cleanup.
+6. Do not reintroduce `tailored_session_*` analytics or `session_mode` database validation unless a new product surface is approved and documented end-to-end.
+7. Run `pnpm lint`, `pnpm typecheck`, Edge Function checks, and a Supabase migration dry run or staging apply before production database cleanup.
