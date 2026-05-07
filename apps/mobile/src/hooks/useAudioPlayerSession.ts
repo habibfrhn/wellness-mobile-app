@@ -3,13 +3,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { getTrackById } from "../content/audioCatalog";
 import type { AudioId } from "../content/audioCatalog";
-import { saveNightSessionCompletion, type NightSessionMode } from "../services/nightSessions";
 import { AUDIO_USAGE_FINISH_THRESHOLD, useAudioUsageTracking } from "./useAudioUsageTracking";
 
 const FADE_OUT_SECONDS = 5;
 const SOUNDSCAPE_LOOP_SECONDS = 20;
 const COMPLETION_THRESHOLD = AUDIO_USAGE_FINISH_THRESHOLD;
-const PLAYLIST_SESSION_COMPLETE_THRESHOLD = 0.995;
 
 export const TIMER_OPTIONS = [
   { label: "5 min", seconds: 5 * 60 },
@@ -22,10 +20,9 @@ export const TIMER_OPTIONS = [
 type UseAudioPlayerSessionArgs = {
   audioId: AudioId;
   playlistIds?: AudioId[];
-  sleepMode?: NightSessionMode;
 };
 
-export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAudioPlayerSessionArgs) {
+export function useAudioPlayerSession({ audioId, playlistIds }: UseAudioPlayerSessionArgs) {
   const normalizedPlaylistIds = useMemo(() => {
     const sourceIds = playlistIds && playlistIds.length > 0 ? playlistIds : [audioId];
     return sourceIds.filter((value, index, arr) => arr.indexOf(value) === index);
@@ -44,10 +41,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
 
   const fadeOutIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const retryTimeoutRefs = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const sessionCompletionLockRef = useRef(false);
   const hasInitializedTrackRef = useRef(false);
-  const hasTrackedPlaylistStartRef = useRef(false);
-  const hasTrackedPlaylistEndRef = useRef(false);
 
   const currentAudioId: AudioId = normalizedPlaylistIds[playlistIndex] ?? audioId;
   const track = useMemo(() => getTrackById(currentAudioId), [currentAudioId]);
@@ -202,23 +196,6 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     playWithRetry(primaryPlayer);
   }, [playWithRetry, primaryPlayer, resetAudioUsageSession, resetPlayers]);
 
-  const handleSessionComplete = useCallback(() => {
-    if (!sleepMode || sessionCompletionLockRef.current) {
-      return;
-    }
-
-    sessionCompletionLockRef.current = true;
-    void saveNightSessionCompletion({
-      mode: sleepMode,
-      stressBefore: 3,
-      stressAfter: 3,
-    }).finally(() => {
-      setTimeout(() => {
-        sessionCompletionLockRef.current = false;
-      }, 500);
-    });
-  }, [sleepMode]);
-
   const onTogglePlay = useCallback(() => {
     try {
       if (isPlaylistSession) {
@@ -228,13 +205,8 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
         }
 
         if (!hasSessionStarted) {
-          hasTrackedPlaylistStartRef.current = false;
-          hasTrackedPlaylistEndRef.current = false;
           setHasSessionStarted(true);
           setPendingPlaylistAutoplay(false);
-          if (!hasTrackedPlaylistStartRef.current) {
-            hasTrackedPlaylistStartRef.current = true;
-          }
           startPrimaryFromBeginning();
           return;
         }
@@ -276,14 +248,9 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
 
   const onRestart = useCallback(() => {
     if (isPlaylistSession) {
-      hasTrackedPlaylistStartRef.current = false;
-      hasTrackedPlaylistEndRef.current = false;
       setPlaylistIndex(0);
       setHasSessionStarted(true);
       setPendingPlaylistAutoplay(true);
-      if (!hasTrackedPlaylistStartRef.current) {
-        hasTrackedPlaylistStartRef.current = true;
-      }
       return;
     }
 
@@ -326,14 +293,6 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
 
   const resetSessionState = useCallback(() => {
     closeAudioUsageSession();
-    if (
-      isPlaylistSession &&
-      hasTrackedPlaylistStartRef.current &&
-      !hasTrackedPlaylistEndRef.current &&
-      sessionProgressRatio < PLAYLIST_SESSION_COMPLETE_THRESHOLD
-    ) {
-      hasTrackedPlaylistEndRef.current = true;
-    }
     pauseAll();
     resetPlayers();
     resetAudioUsageSession();
@@ -341,17 +300,7 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     setHasSessionStarted(false);
     setPlaylistIndex(0);
     setTimerRemaining(timerSeconds);
-    hasTrackedPlaylistStartRef.current = false;
-    hasTrackedPlaylistEndRef.current = false;
-  }, [
-    isPlaylistSession,
-    pauseAll,
-    resetAudioUsageSession,
-    resetPlayers,
-    sessionProgressRatio,
-    timerSeconds,
-    closeAudioUsageSession,
-  ]);
+  }, [pauseAll, resetAudioUsageSession, resetPlayers, timerSeconds, closeAudioUsageSession]);
 
   useEffect(() => {
     if (showSoundscapeControls) {
@@ -396,17 +345,12 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     }
 
     trackAudioFinish();
-    if (!hasTrackedPlaylistEndRef.current) {
-      hasTrackedPlaylistEndRef.current = true;
-    }
-    handleSessionComplete();
     resetPlayers();
     setHasSessionStarted(false);
     setPlaylistIndex(0);
   }, [
     activeStatus.playing,
     atEnd,
-    handleSessionComplete,
     hasSessionStarted,
     isPlaylistSession,
     playlistIndex,
@@ -430,20 +374,6 @@ export function useAudioPlayerSession({ audioId, playlistIds, sleepMode }: UseAu
     }
   }, [atEnd, progressRatio, trackAudioFinish]);
 
-  useEffect(() => {
-    if (
-      !isPlaylistSession ||
-      !hasSessionStarted ||
-      hasTrackedPlaylistEndRef.current ||
-      !hasTrackedPlaylistStartRef.current
-    ) {
-      return;
-    }
-
-    if (sessionProgressRatio >= PLAYLIST_SESSION_COMPLETE_THRESHOLD) {
-      hasTrackedPlaylistEndRef.current = true;
-    }
-  }, [hasSessionStarted, isPlaylistSession, sessionProgressRatio]);
 
   useEffect(() => {
     if (!showSoundscapeControls || !activeStatus.playing || !duration) {

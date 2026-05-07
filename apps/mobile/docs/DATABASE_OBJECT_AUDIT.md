@@ -41,6 +41,7 @@ These objects belonged to a previous multi-panel admin dashboard and retired tai
 - App runtime RPC references are limited to:
   - `public.is_admin()` for admin route authorization checks.
   - `public.admin_audio_usage_analytics(range_key)` for dashboard rows.
+- The player route and audio hooks no longer accept or persist `sleepMode`; nightly completion persistence remains isolated to the check-out flow and `record-night-session` Edge Function.
 - Edge Functions reference:
   - `public.increment_analytics_ingest_rate_limit(...)` for analytics, password-reset, and verification-email throttling.
   - `public.increment_rate_limit(...)` for account deletion throttling.
@@ -58,7 +59,7 @@ These objects belonged to a previous multi-panel admin dashboard and retired tai
 
 ### Night sessions and streaks
 
-- `public.night_sessions`: retained because `record-night-session` writes nightly check-out results.
+- `public.night_sessions`: retained because `record-night-session` writes nightly check-out results from the dedicated Night Check Out flow. It is not used for tailored/player-session analytics.
 - `public.night_streak_progress`: retained because the app reads streak progress and the night-session Edge Function updates it.
 - `public.record_night_streak_completion(date)`: retained because it is called by `record-night-session`.
 - `public.set_night_streak_progress_updated_at()` and trigger `set_night_streak_progress_updated_at`: retained because they maintain row freshness.
@@ -92,6 +93,7 @@ These objects belonged to a previous multi-panel admin dashboard and retired tai
 - Indexes: no index was confirmed safe to drop from static code review alone; use production `pg_stat_user_indexes` before pruning.
 - Storage: no Supabase Storage buckets/objects are currently used by the product; no storage objects are created by migrations.
 - Historical migration files still mention tailored-session objects because applied migrations are immutable; the final schema state removes the unused tailored read/ingest surfaces in follow-up migrations.
+- Historical tailored analytics rows are deleted by `20260507130000`; take a production backup/export first if the business needs archived pre-removal product analytics outside the app.
 
 ## Future maintenance guidance
 
@@ -105,5 +107,5 @@ These objects belonged to a previous multi-panel admin dashboard and retired tai
 3. Treat `analytics_events` as raw telemetry, not the current admin audio source of truth.
 4. Keep `audio_play_sessions` and `admin_audio_usage_analytics` in sync with any changes to `audio_start` / `audio_finish` tracking.
 5. Keep both analytics ingest rate-limit RPC overloads until all deployed Edge Functions are known to call only the 4-argument signature.
-6. Do not reintroduce `tailored_session_*` analytics or `session_mode` database validation unless a new product surface is approved and documented end-to-end.
+6. Do not reintroduce `tailored_session_*` analytics, `session_mode` player params, or related database validation unless a new product surface is approved and documented end-to-end.
 7. Run `pnpm lint`, `pnpm typecheck`, Edge Function checks, and a Supabase migration dry run or staging apply before production database cleanup.

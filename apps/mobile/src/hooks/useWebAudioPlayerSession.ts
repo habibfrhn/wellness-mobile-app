@@ -3,7 +3,6 @@ import { Asset } from "expo-asset";
 
 import { getTrackById } from "../content/audioCatalog";
 import type { AudioId } from "../content/audioCatalog";
-import { saveNightSessionCompletion, type NightSessionMode } from "../services/nightSessions";
 import { AUDIO_USAGE_FINISH_THRESHOLD, useAudioUsageTracking } from "./useAudioUsageTracking";
 
 const FADE_OUT_SECONDS = 5;
@@ -14,7 +13,6 @@ const PLAY_RETRY_DELAY_MS = 140;
 const PLAY_RETRY_ATTEMPTS = 5;
 const PLAYLIST_PROGRESS_TICK_MS = 120;
 const COMPLETION_THRESHOLD = AUDIO_USAGE_FINISH_THRESHOLD;
-const PLAYLIST_SESSION_COMPLETE_THRESHOLD = 0.995;
 
 export const TIMER_OPTIONS = [
   { label: "5 min", seconds: 5 * 60 },
@@ -27,7 +25,6 @@ export const TIMER_OPTIONS = [
 type UseWebAudioPlayerSessionArgs = {
   audioId: AudioId;
   playlistIds?: AudioId[];
-  sleepMode?: NightSessionMode;
 };
 
 type PlaylistTrackPlan = {
@@ -65,7 +62,6 @@ function getAssetUri(moduleId: number) {
 export function useWebAudioPlayerSession({
   audioId,
   playlistIds,
-  sleepMode,
 }: UseWebAudioPlayerSessionArgs) {
   const normalizedPlaylistIds = useMemo(() => {
     const sourceIds = playlistIds && playlistIds.length > 0 ? playlistIds : [audioId];
@@ -90,7 +86,6 @@ export function useWebAudioPlayerSession({
   const preloadedAudioRefs = useRef(new Map<string, HTMLAudioElement>());
   const currentSourceRef = useRef<string | null>(null);
   const fadeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const sessionCompletionLockRef = useRef(false);
   const playlistIndexRef = useRef(playlistIndex);
   const hasSessionStartedRef = useRef(hasSessionStarted);
   const transitionRequestRef = useRef(0);
@@ -98,11 +93,7 @@ export function useWebAudioPlayerSession({
   const isPlaylistSessionRef = useRef(isPlaylistSession);
   const normalizedPlaylistIdsRef = useRef(normalizedPlaylistIds);
   const trackAudioFinishRef = useRef<() => void>(() => {});
-  const trackPlaylistCompleteRef = useRef<() => void>(() => {});
-  const handleSessionCompleteRef = useRef<() => void>(() => {});
   const transitionToIndexRef = useRef<(nextIndex: number) => Promise<void>>(async () => {});
-  const hasTrackedPlaylistStartRef = useRef(false);
-  const hasTrackedPlaylistEndRef = useRef(false);
 
   const getOrCreateAudio = useCallback(() => {
     if (audioRef.current) {
@@ -293,38 +284,6 @@ export function useWebAudioPlayerSession({
     setPlaybackError(null);
   }, [clearFadeOutInterval, clearPlaylistProgressInterval, getOrCreateAudio]);
 
-  const handleSessionComplete = useCallback(() => {
-    if (!sleepMode || sessionCompletionLockRef.current) {
-      return;
-    }
-
-    sessionCompletionLockRef.current = true;
-    void saveNightSessionCompletion({
-      mode: sleepMode,
-      stressBefore: 3,
-      stressAfter: 3,
-    }).finally(() => {
-      setTimeout(() => {
-        sessionCompletionLockRef.current = false;
-      }, 500);
-    });
-  }, [sleepMode]);
-
-  const trackPlaylistStart = useCallback(() => {
-    if (!isPlaylistSession || hasTrackedPlaylistStartRef.current) {
-      return;
-    }
-    hasTrackedPlaylistStartRef.current = true;
-    hasTrackedPlaylistEndRef.current = false;
-  }, [isPlaylistSession]);
-
-  const trackPlaylistComplete = useCallback(() => {
-    if (!isPlaylistSession || hasTrackedPlaylistEndRef.current || !hasTrackedPlaylistStartRef.current) {
-      return;
-    }
-    hasTrackedPlaylistEndRef.current = true;
-  }, [isPlaylistSession]);
-
   const transitionToIndex = useCallback(
     async (nextIndex: number) => {
       const nextTrackId = normalizedPlaylistIds[nextIndex];
@@ -402,10 +361,8 @@ export function useWebAudioPlayerSession({
 
   useEffect(() => {
     trackAudioFinishRef.current = trackAudioFinish;
-    trackPlaylistCompleteRef.current = trackPlaylistComplete;
-    handleSessionCompleteRef.current = handleSessionComplete;
     transitionToIndexRef.current = transitionToIndex;
-  }, [handleSessionComplete, trackPlaylistComplete, trackAudioFinish, transitionToIndex]);
+  }, [trackAudioFinish, transitionToIndex]);
 
   useEffect(() => {
     const audio = getOrCreateAudio();
@@ -443,8 +400,6 @@ export function useWebAudioPlayerSession({
 
       if (isPlaylist && hasSessionStartedRef.current) {
         trackAudioFinishRef.current();
-        trackPlaylistCompleteRef.current();
-        handleSessionCompleteRef.current();
         setHasSessionStarted(false);
         setPlaylistIndex(0);
       }
@@ -593,8 +548,6 @@ export function useWebAudioPlayerSession({
       }
 
       trackAudioFinish();
-      trackPlaylistComplete();
-      handleSessionComplete();
       setHasSessionStarted(false);
       setPlaylistIndex(0);
       setIsPlaying(false);
@@ -608,13 +561,11 @@ export function useWebAudioPlayerSession({
     return () => clearPlaylistProgressInterval();
   }, [
     clearPlaylistProgressInterval,
-    handleSessionComplete,
     hasSessionStarted,
     isPlaying,
     isPlaylistSession,
     normalizedPlaylistIds,
     resetAudioUsageSession,
-    trackPlaylistComplete,
     trackAudioFinish,
     transitionToIndex,
   ]);
@@ -669,8 +620,6 @@ export function useWebAudioPlayerSession({
       }
 
       if (isPlaylistSession && !hasSessionStarted) {
-        hasTrackedPlaylistStartRef.current = false;
-        hasTrackedPlaylistEndRef.current = false;
         setHasSessionStarted(true);
         setPlaylistIndex(0);
         const firstTrack = getTrackById(normalizedPlaylistIds[0] ?? audioId);
@@ -678,7 +627,6 @@ export function useWebAudioPlayerSession({
         assignTrackSource(firstTrack);
         audio.currentTime = firstTrackPlan.startOffsetSec;
         audio.volume = firstTrackPlan.fadeInSec > 0 ? 0 : 1;
-        trackPlaylistStart();
       }
 
       if (atEnd) {
@@ -705,7 +653,6 @@ export function useWebAudioPlayerSession({
     playAudio,
     resetAudioUsageSession,
     track,
-    trackPlaylistStart,
     trackAudioStart,
   ]);
 
@@ -713,8 +660,6 @@ export function useWebAudioPlayerSession({
     transitionRequestRef.current += 1;
 
     if (isPlaylistSession) {
-      hasTrackedPlaylistStartRef.current = false;
-      hasTrackedPlaylistEndRef.current = false;
       setHasSessionStarted(true);
       setPlaylistIndex(0);
       const firstTrack = getTrackById(normalizedPlaylistIds[0] ?? audioId);
@@ -725,7 +670,6 @@ export function useWebAudioPlayerSession({
         audio.currentTime = firstTrackPlan.startOffsetSec;
         audio.volume = firstTrackPlan.fadeInSec > 0 ? 0 : 1;
       }
-      trackPlaylistStart();
       resetAudioUsageSession();
       trackAudioStart();
       void playAudio();
@@ -747,7 +691,6 @@ export function useWebAudioPlayerSession({
     resetAudioUsageSession,
     seekTo,
     track,
-    trackPlaylistStart,
     trackAudioStart,
   ]);
 
@@ -776,29 +719,12 @@ export function useWebAudioPlayerSession({
 
   const resetSessionState = useCallback(() => {
     closeAudioUsageSession();
-    if (
-      isPlaylistSession &&
-      hasTrackedPlaylistStartRef.current &&
-      !hasTrackedPlaylistEndRef.current &&
-      sessionProgressRatio < PLAYLIST_SESSION_COMPLETE_THRESHOLD
-    ) {
-      hasTrackedPlaylistEndRef.current = true;
-    }
     setHasSessionStarted(false);
     setPlaylistIndex(0);
     resetPlayers();
     resetAudioUsageSession();
     setTimerRemaining(timerSeconds);
-    hasTrackedPlaylistStartRef.current = false;
-    hasTrackedPlaylistEndRef.current = false;
-  }, [
-    isPlaylistSession,
-    resetAudioUsageSession,
-    resetPlayers,
-    sessionProgressRatio,
-    timerSeconds,
-    closeAudioUsageSession,
-  ]);
+  }, [resetAudioUsageSession, resetPlayers, timerSeconds, closeAudioUsageSession]);
 
   useEffect(() => {
     if (progressRatio >= COMPLETION_THRESHOLD || atEnd) {
@@ -814,20 +740,6 @@ export function useWebAudioPlayerSession({
     trackAudioStart();
   }, [current, isPlaying, trackAudioStart]);
 
-  useEffect(() => {
-    if (
-      !isPlaylistSession ||
-      !hasSessionStarted ||
-      hasTrackedPlaylistEndRef.current ||
-      !hasTrackedPlaylistStartRef.current
-    ) {
-      return;
-    }
-
-    if (sessionProgressRatio >= PLAYLIST_SESSION_COMPLETE_THRESHOLD) {
-      trackPlaylistComplete();
-    }
-  }, [hasSessionStarted, isPlaylistSession, sessionProgressRatio, trackPlaylistComplete]);
 
   useEffect(() => {
     return () => {

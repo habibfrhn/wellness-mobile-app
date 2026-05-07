@@ -36,7 +36,7 @@
 
 ## Component/module structure
 
-- `useAudioUsageTracking`: shared native/web play-session tracking, finish threshold, and immediate flush behavior.
+- `useAudioUsageTracking`: shared native/web individual-audio play-session tracking, finish threshold, and immediate flush behavior.
 - `analytics.ts`: generic analytics queue, payload sanitation, session ID, and network flush logic.
 - `track-analytics-event`: edge ingestion validation, rate limiting via `increment_analytics_ingest_rate_limit`, idempotent `audio_play_sessions` writes, and non-session `analytics_events` persistence.
 - `adminAnalytics.ts`: small RPC fetcher and row normalization.
