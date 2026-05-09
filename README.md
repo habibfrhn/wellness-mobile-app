@@ -54,6 +54,13 @@ Legacy aliases (`/login`, `/signup`, `/privacy-policy`, `/terms-conditions`) are
 4. User must pass email verification (`email_confirmed_at`) to enter the app stack.
 5. Reset-password links route to `/auth/reset` (or Expo prefix equivalent), then the auth reset screen.
 
+## Audio playback behavior
+
+- Standard audio tracks and playlist sessions use the shared player hooks in `apps/mobile/src/hooks`.
+- Soundscapes are timer-based single-track sessions. Native uses the `expo-audio` `loop` flag, and web uses one `HTMLAudioElement` with `loop = true`, so the selected source remains loaded/reused across natural file loop boundaries.
+- The soundscape timer only decides when to fade out and stop. It should never reload or replace the same soundscape source every time the original file duration completes, which keeps playback efficient and avoids unnecessary Vercel static-asset bandwidth.
+- Web soundscape loading is metadata-first and avoids hidden duplicate preload elements. Keep future changes aligned with `apps/mobile/docs/AUDIO_CATALOG_UPDATE_GUIDE.md` before adding eager preloading, crossfade buffers, or layered audio.
+
 ## Admin analytics (current)
 
 - UI route is web-only (`/admin`, plus supported admin query/hash variants).
