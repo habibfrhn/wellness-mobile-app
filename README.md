@@ -56,10 +56,10 @@ Legacy aliases (`/login`, `/signup`, `/privacy-policy`, `/terms-conditions`) are
 
 ## Audio playback behavior
 
-- Standard audio tracks and playlist sessions use the shared player hooks in `apps/mobile/src/hooks`.
-- Soundscapes are timer-based single-track sessions. Native uses the `expo-audio` `loop` flag, and web uses one `HTMLAudioElement` with `loop = true`, so the selected source remains loaded/reused across natural file loop boundaries.
-- The soundscape timer only decides when to fade out and stop. It should never reload or replace the same soundscape source every time the original file duration completes, which keeps playback efficient and avoids unnecessary Vercel static-asset bandwidth.
-- Web soundscape loading is metadata-first and avoids hidden duplicate preload elements. Keep future changes aligned with `apps/mobile/docs/AUDIO_CATALOG_UPDATE_GUIDE.md` before adding eager preloading, crossfade buffers, or layered audio.
+- Standard tracks and playlists use the shared player hooks in `apps/mobile/src/hooks`.
+- Soundscapes are timer-based single-track sessions: native uses one `expo-audio` player with `player.loop`, and web uses one `HTMLAudioElement` with `audio.loop = true`.
+- The selected timer only controls when playback fades out and stops. Do not implement timer length by replacing or reloading the same soundscape source at natural file boundaries.
+- Web playback is metadata-first and avoids hidden duplicate preload elements, reducing unnecessary Vercel static-asset requests before users press play.
 
 ## Admin analytics (current)
 

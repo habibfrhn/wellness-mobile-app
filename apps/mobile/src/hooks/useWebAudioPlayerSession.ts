@@ -1,12 +1,9 @@
-import { Asset } from "expo-asset";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Asset } from "expo-asset";
 
 import { getTrackById } from "../content/audioCatalog";
 import type { AudioId } from "../content/audioCatalog";
-import {
-  AUDIO_USAGE_FINISH_THRESHOLD,
-  useAudioUsageTracking,
-} from "./useAudioUsageTracking";
+import { AUDIO_USAGE_FINISH_THRESHOLD, useAudioUsageTracking } from "./useAudioUsageTracking";
 
 const FADE_OUT_SECONDS = 5;
 const PLAYLIST_TRANSITION_FADE_OUT_MS = 160;
@@ -37,53 +34,24 @@ type PlaylistTrackPlan = {
   fadeOutSec: number;
 };
 
-function getPlaylistTrackPlan(
-  audioId: AudioId,
-  index: number,
-  durationSec: number,
-): PlaylistTrackPlan {
+function getPlaylistTrackPlan(audioId: AudioId, index: number, durationSec: number): PlaylistTrackPlan {
   if (index === 0 && audioId === "terima_diri") {
     return { startOffsetSec: 0, endAtSec: 160, fadeInSec: 0, fadeOutSec: 5 };
   }
 
   if (index === 0 && audioId === "syukuri_hari") {
-    return {
-      startOffsetSec: 0,
-      endAtSec: durationSec,
-      fadeInSec: 0,
-      fadeOutSec: 5,
-    };
+    return { startOffsetSec: 0, endAtSec: durationSec, fadeInSec: 0, fadeOutSec: 5 };
   }
 
   if (index > 0 && audioId === "persiapan_tidur") {
-    return {
-      startOffsetSec: 5,
-      endAtSec: durationSec,
-      fadeInSec: 5,
-      fadeOutSec: 10,
-    };
+    return { startOffsetSec: 5, endAtSec: durationSec, fadeInSec: 5, fadeOutSec: 10 };
   }
 
-  if (
-    index > 0 &&
-    (audioId === "hening" ||
-      audioId === "rintik-hujan" ||
-      audioId === "ombak-laut")
-  ) {
-    return {
-      startOffsetSec: 0,
-      endAtSec: durationSec,
-      fadeInSec: 10,
-      fadeOutSec: 10,
-    };
+  if (index > 0 && (audioId === "hening" || audioId === "rintik-hujan" || audioId === "ombak-laut")) {
+    return { startOffsetSec: 0, endAtSec: durationSec, fadeInSec: 10, fadeOutSec: 10 };
   }
 
-  return {
-    startOffsetSec: 0,
-    endAtSec: durationSec,
-    fadeInSec: 0,
-    fadeOutSec: 0,
-  };
+  return { startOffsetSec: 0, endAtSec: durationSec, fadeInSec: 0, fadeOutSec: 0 };
 }
 
 function getAssetUri(moduleId: number) {
@@ -96,11 +64,8 @@ export function useWebAudioPlayerSession({
   playlistIds,
 }: UseWebAudioPlayerSessionArgs) {
   const normalizedPlaylistIds = useMemo(() => {
-    const sourceIds =
-      playlistIds && playlistIds.length > 0 ? playlistIds : [audioId];
-    return sourceIds.filter(
-      (value, index, arr) => arr.indexOf(value) === index,
-    );
+    const sourceIds = playlistIds && playlistIds.length > 0 ? playlistIds : [audioId];
+    return sourceIds.filter((value, index, arr) => arr.indexOf(value) === index);
   }, [audioId, playlistIds]);
 
   const isPlaylistSession = normalizedPlaylistIds.length > 1;
@@ -123,15 +88,11 @@ export function useWebAudioPlayerSession({
   const playlistIndexRef = useRef(playlistIndex);
   const hasSessionStartedRef = useRef(hasSessionStarted);
   const transitionRequestRef = useRef(0);
-  const playlistProgressIntervalRef = useRef<ReturnType<
-    typeof setInterval
-  > | null>(null);
+  const playlistProgressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isPlaylistSessionRef = useRef(isPlaylistSession);
   const normalizedPlaylistIdsRef = useRef(normalizedPlaylistIds);
   const trackAudioFinishRef = useRef<() => void>(() => {});
-  const transitionToIndexRef = useRef<(nextIndex: number) => Promise<void>>(
-    async () => {},
-  );
+  const transitionToIndexRef = useRef<(nextIndex: number) => Promise<void>>(async () => {});
 
   const getOrCreateAudio = useCallback(() => {
     if (audioRef.current) {
@@ -142,17 +103,15 @@ export function useWebAudioPlayerSession({
     }
 
     const audio = new Audio();
-    // Load metadata before playback; fetch audio data once the user actually plays.
+    // Fetch metadata before playback; defer audio data until the user presses play.
     audio.preload = "metadata";
     audioRef.current = audio;
     return audio;
   }, []);
 
-  const currentAudioId: AudioId =
-    normalizedPlaylistIds[playlistIndex] ?? audioId;
+  const currentAudioId: AudioId = normalizedPlaylistIds[playlistIndex] ?? audioId;
   const track = useMemo(() => getTrackById(currentAudioId), [currentAudioId]);
-  const showSoundscapeControls =
-    track.contentType === "soundscape" && !isPlaylistSession;
+  const showSoundscapeControls = track.contentType === "soundscape" && !isPlaylistSession;
 
   const trackDurations = useMemo(
     () => normalizedPlaylistIds.map((id) => getTrackById(id).durationSec),
@@ -160,24 +119,17 @@ export function useWebAudioPlayerSession({
   );
   const effectiveDuration = duration > 0 ? duration : track.durationSec;
   const atEnd = effectiveDuration > 0 && current >= effectiveDuration - 0.25;
-  const progressRatio =
-    effectiveDuration > 0
-      ? Math.min(Math.max(current / effectiveDuration, 0), 1)
-      : 0;
+  const progressRatio = effectiveDuration > 0 ? Math.min(Math.max(current / effectiveDuration, 0), 1) : 0;
   const {
     closeAudioUsageSession,
     resetAudioUsageSession,
     trackAudioFinish,
     trackAudioStart,
   } = useAudioUsageTracking({ audioId: currentAudioId, progressRatio });
-  const isSessionActive =
-    showSoundscapeControls && (isPlaying || (current > 0 && !atEnd));
+  const isSessionActive = showSoundscapeControls && (isPlaying || (current > 0 && !atEnd));
 
   const elapsedBeforeCurrent = useMemo(
-    () =>
-      trackDurations
-        .slice(0, playlistIndex)
-        .reduce((sum, item) => sum + item, 0),
+    () => trackDurations.slice(0, playlistIndex).reduce((sum, item) => sum + item, 0),
     [playlistIndex, trackDurations],
   );
   const sessionDuration = useMemo(
@@ -189,10 +141,7 @@ export function useWebAudioPlayerSession({
     [current, elapsedBeforeCurrent, sessionDuration],
   );
   const sessionProgressRatio = useMemo(
-    () =>
-      sessionDuration > 0
-        ? Math.min(Math.max(sessionCurrent / sessionDuration, 0), 1)
-        : 0,
+    () => (sessionDuration > 0 ? Math.min(Math.max(sessionCurrent / sessionDuration, 0), 1) : 0),
     [sessionCurrent, sessionDuration],
   );
 
@@ -211,13 +160,7 @@ export function useWebAudioPlayerSession({
   }, []);
 
   const fadeVolume = useCallback(
-    (
-      audio: HTMLAudioElement,
-      from: number,
-      to: number,
-      durationMs: number,
-      requestId?: number,
-    ) => {
+    (audio: HTMLAudioElement, from: number, to: number, durationMs: number, requestId?: number) => {
       clearFadeOutInterval();
 
       if (durationMs <= 0 || from === to) {
@@ -230,10 +173,7 @@ export function useWebAudioPlayerSession({
 
       return new Promise<void>((resolve) => {
         fadeIntervalRef.current = setInterval(() => {
-          if (
-            requestId !== undefined &&
-            transitionRequestRef.current !== requestId
-          ) {
+          if (requestId !== undefined && transitionRequestRef.current !== requestId) {
             clearFadeOutInterval();
             resolve();
             return;
@@ -267,8 +207,7 @@ export function useWebAudioPlayerSession({
 
       audio.pause();
       audio.src = nextSource;
-      audio.loop =
-        targetTrack.contentType === "soundscape" && !isPlaylistSession;
+      audio.loop = targetTrack.contentType === "soundscape" && !isPlaylistSession;
       audio.load();
 
       currentSourceRef.current = nextSource;
@@ -300,9 +239,7 @@ export function useWebAudioPlayerSession({
           setPlaybackError("play_failed");
           return;
         }
-        await new Promise((resolve) =>
-          setTimeout(resolve, PLAY_RETRY_DELAY_MS),
-        );
+        await new Promise((resolve) => setTimeout(resolve, PLAY_RETRY_DELAY_MS));
       }
     }
   }, [getOrCreateAudio]);
@@ -362,13 +299,7 @@ export function useWebAudioPlayerSession({
       const requestId = transitionRequestRef.current;
 
       if (!audio.paused) {
-        await fadeVolume(
-          audio,
-          audio.volume,
-          0,
-          PLAYLIST_TRANSITION_FADE_OUT_MS,
-          requestId,
-        );
+        await fadeVolume(audio, audio.volume, 0, PLAYLIST_TRANSITION_FADE_OUT_MS, requestId);
       }
 
       if (transitionRequestRef.current !== requestId) {
@@ -376,11 +307,7 @@ export function useWebAudioPlayerSession({
       }
 
       const nextTrack = getTrackById(nextTrackId);
-      const nextTrackPlan = getPlaylistTrackPlan(
-        nextTrack.id,
-        nextIndex,
-        nextTrack.durationSec,
-      );
+      const nextTrackPlan = getPlaylistTrackPlan(nextTrack.id, nextIndex, nextTrack.durationSec);
       setPlaylistIndex(nextIndex);
       assignTrackSource(nextTrack);
 
@@ -393,30 +320,12 @@ export function useWebAudioPlayerSession({
       }
 
       if (nextTrackPlan.fadeInSec > 0) {
-        await fadeVolume(
-          audio,
-          0,
-          1,
-          nextTrackPlan.fadeInSec * 1000,
-          requestId,
-        );
+        await fadeVolume(audio, 0, 1, nextTrackPlan.fadeInSec * 1000, requestId);
       } else {
-        await fadeVolume(
-          audio,
-          0,
-          1,
-          PLAYLIST_TRANSITION_FADE_IN_MS,
-          requestId,
-        );
+        await fadeVolume(audio, 0, 1, PLAYLIST_TRANSITION_FADE_IN_MS, requestId);
       }
     },
-    [
-      assignTrackSource,
-      fadeVolume,
-      getOrCreateAudio,
-      normalizedPlaylistIds,
-      playAudio,
-    ],
+    [assignTrackSource, fadeVolume, getOrCreateAudio, normalizedPlaylistIds, playAudio],
   );
 
   useEffect(() => {
@@ -459,11 +368,7 @@ export function useWebAudioPlayerSession({
       const isPlaylist = isPlaylistSessionRef.current;
       const playlist = normalizedPlaylistIdsRef.current;
 
-      if (
-        isPlaylist &&
-        hasSessionStartedRef.current &&
-        currentIndex < playlist.length - 1
-      ) {
+      if (isPlaylist && hasSessionStartedRef.current && currentIndex < playlist.length - 1) {
         trackAudioFinishRef.current();
         resetAudioUsageSession();
         void transitionToIndexRef.current(currentIndex + 1);
@@ -505,12 +410,7 @@ export function useWebAudioPlayerSession({
       audio.removeEventListener("error", handleError);
       audioRef.current = null;
     };
-  }, [
-    clearFadeOutInterval,
-    clearPlaylistProgressInterval,
-    getOrCreateAudio,
-    resetAudioUsageSession,
-  ]);
+  }, [clearFadeOutInterval, clearPlaylistProgressInterval, getOrCreateAudio, resetAudioUsageSession]);
 
   useEffect(() => {
     const preferredIndex = isPlaylistSession
@@ -525,9 +425,7 @@ export function useWebAudioPlayerSession({
     setHasSessionStarted(false);
     currentSourceRef.current = null;
 
-    const initialTrack = getTrackById(
-      normalizedPlaylistIds[preferredIndex] ?? audioId,
-    );
+    const initialTrack = getTrackById(normalizedPlaylistIds[preferredIndex] ?? audioId);
     assignTrackSource(initialTrack);
   }, [assignTrackSource, audioId, isPlaylistSession, normalizedPlaylistIds]);
 
@@ -561,12 +459,7 @@ export function useWebAudioPlayerSession({
   }, [showSoundscapeControls]);
 
   useEffect(() => {
-    if (
-      !showSoundscapeControls ||
-      !timerSeconds ||
-      timerSeconds <= 0 ||
-      !isPlaying
-    ) {
+    if (!showSoundscapeControls || !timerSeconds || timerSeconds <= 0 || !isPlaying) {
       return;
     }
 
@@ -604,22 +497,12 @@ export function useWebAudioPlayerSession({
       }
 
       const currentTrack = getTrackById(currentTrackId);
-      const currentPlan = getPlaylistTrackPlan(
-        currentTrack.id,
-        currentIndex,
-        currentTrack.durationSec,
-      );
+      const currentPlan = getPlaylistTrackPlan(currentTrack.id, currentIndex, currentTrack.durationSec);
       const endAtSec = currentPlan.endAtSec ?? currentTrack.durationSec;
-      const fadeOutStartSec = Math.max(
-        currentPlan.startOffsetSec,
-        endAtSec - currentPlan.fadeOutSec,
-      );
+      const fadeOutStartSec = Math.max(currentPlan.startOffsetSec, endAtSec - currentPlan.fadeOutSec);
 
       if (currentPlan.fadeOutSec > 0 && audio.currentTime >= fadeOutStartSec) {
-        const fadeProgress = Math.min(
-          (audio.currentTime - fadeOutStartSec) / currentPlan.fadeOutSec,
-          1,
-        );
+        const fadeProgress = Math.min((audio.currentTime - fadeOutStartSec) / currentPlan.fadeOutSec, 1);
         audio.volume = Math.max(0, 1 - fadeProgress);
       } else if (audio.volume !== 1) {
         audio.volume = 1;
@@ -685,11 +568,7 @@ export function useWebAudioPlayerSession({
   }, [clearFadeOutInterval, getOrCreateAudio]);
 
   useEffect(() => {
-    if (
-      !showSoundscapeControls ||
-      timerRemaining === null ||
-      timerRemaining > 0
-    ) {
+    if (!showSoundscapeControls || timerRemaining === null || timerRemaining > 0) {
       return;
     }
 
@@ -716,11 +595,7 @@ export function useWebAudioPlayerSession({
         setHasSessionStarted(true);
         setPlaylistIndex(0);
         const firstTrack = getTrackById(normalizedPlaylistIds[0] ?? audioId);
-        const firstTrackPlan = getPlaylistTrackPlan(
-          firstTrack.id,
-          0,
-          firstTrack.durationSec,
-        );
+        const firstTrackPlan = getPlaylistTrackPlan(firstTrack.id, 0, firstTrack.durationSec);
         assignTrackSource(firstTrack);
         audio.currentTime = firstTrackPlan.startOffsetSec;
         audio.volume = firstTrackPlan.fadeInSec > 0 ? 0 : 1;
@@ -760,11 +635,7 @@ export function useWebAudioPlayerSession({
       setHasSessionStarted(true);
       setPlaylistIndex(0);
       const firstTrack = getTrackById(normalizedPlaylistIds[0] ?? audioId);
-      const firstTrackPlan = getPlaylistTrackPlan(
-        firstTrack.id,
-        0,
-        firstTrack.durationSec,
-      );
+      const firstTrackPlan = getPlaylistTrackPlan(firstTrack.id, 0, firstTrack.durationSec);
       assignTrackSource(firstTrack);
       const audio = getOrCreateAudio();
       if (audio) {
@@ -816,12 +687,7 @@ export function useWebAudioPlayerSession({
     resetAudioUsageSession();
     resetPlayers();
     setTimerRemaining(timerSeconds);
-  }, [
-    resetAudioUsageSession,
-    resetPlayers,
-    timerSeconds,
-    closeAudioUsageSession,
-  ]);
+  }, [resetAudioUsageSession, resetPlayers, timerSeconds, closeAudioUsageSession]);
 
   const resetSessionState = useCallback(() => {
     closeAudioUsageSession();
@@ -830,12 +696,7 @@ export function useWebAudioPlayerSession({
     resetPlayers();
     resetAudioUsageSession();
     setTimerRemaining(timerSeconds);
-  }, [
-    resetAudioUsageSession,
-    resetPlayers,
-    timerSeconds,
-    closeAudioUsageSession,
-  ]);
+  }, [resetAudioUsageSession, resetPlayers, timerSeconds, closeAudioUsageSession]);
 
   useEffect(() => {
     if (progressRatio >= COMPLETION_THRESHOLD || atEnd) {
@@ -850,6 +711,7 @@ export function useWebAudioPlayerSession({
 
     trackAudioStart();
   }, [current, isPlaying, trackAudioStart]);
+
 
   useEffect(() => {
     return () => {
