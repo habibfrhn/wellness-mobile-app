@@ -4,12 +4,22 @@ The web home screen is implemented in `apps/mobile/src/screens/App/HomeScreen.we
 
 ## Current structure
 
-- `HomeScreen.web.tsx` owns page width, safe-area spacing, responsive section gaps, the desktop two-column audio layout, and audio navigation/tracking.
+- `HomeScreen.web.tsx` owns page width, safe-area spacing, responsive section gaps, the Sebelum Tidur modal state, scroll-to-audio behavior, the desktop two-column audio layout, and audio navigation/tracking.
+- `BedtimePauseCard.web.tsx` owns the homescreen “Sebelum Tidur” card. Its secondary CTA should scroll/focus users to the existing audio sections without hiding or replacing audio lists.
+- `BedtimePauseFlowModal.web.tsx` owns the short Home → Check-in → Pause instruction → End flow. Keep it non-audio-dependent: one check-in step, one pause instruction step selected from the chosen option, and one end screen.
 - `AudioTrackListSection` owns the section title and track-list spacing; `AudioTrackCard` owns individual audio-card visuals.
 - `HomeFeedbackSection.web.tsx` owns the “Bantu kami berkembang” card content, border, rounded corners, shadow, and external feedback-link CTA.
-- Home greeting, section-title, and feedback-card copy lives in `apps/mobile/src/i18n/strings.ts` under `id.home.*`.
+- Home greeting, Sebelum Tidur, section-title, and feedback-card copy lives in `apps/mobile/src/i18n/strings.ts` under `id.home.*`.
 - Home audio-card titles and descriptions come from `apps/mobile/src/content/audioCatalog.ts`; the rendered grouping is controlled by each track's `contentType` (`soundscape` vs non-soundscape).
 - The canonical copy reference for the landing page and home screen is `apps/mobile/docs/LANDING_AND_HOME_COPY.md`.
+
+## Sebelum Tidur flow guidance
+
+- Keep the card above both current audio sections. The feature is a bedtime pause/check-in flow, not an audio recommendation surface.
+- Preserve both CTAs: “Mulai” opens the modal flow, while “Langsung pilih audio” scrolls to the existing audio sections.
+- Do not add text input, timers, audio-selection logic, or extra steps unless product requirements change.
+- The optional breathing circle is decorative and must not gate progress; users can continue, skip, finish, or close the flow at any time.
+- If the selected-option copy changes, update `BedtimePauseFlowModal.web.tsx`, `apps/mobile/src/i18n/strings.ts`, and `apps/mobile/docs/LANDING_AND_HOME_COPY.md` together.
 
 ## Feedback card styling guidance
 

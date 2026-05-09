@@ -212,6 +212,41 @@ export const id = {
     feedbackTitle: "Bantu kami berkembang",
     feedbackDescription:
       "Masukanmu membantu kami membuat pengalaman tidur yang lebih nyaman dan lebih jelas.",
+    bedtimePauseTitle: "Sebelum Tidur",
+    bedtimePauseDescription:
+      "Luangkan waktu sebentar untuk menutup hari sebelum meletakkan layar.",
+    bedtimePauseStartCta: "Mulai",
+    bedtimePauseAudioCta: "Langsung pilih audio",
+    bedtimePauseCloseLabel: "Tutup flow Sebelum Tidur",
+    bedtimePauseCheckInTitle: "Apa yang paling terasa malam ini?",
+    bedtimePauseCheckInSubtitle: "Pilih yang paling dekat. Tidak perlu dijelaskan.",
+    bedtimePauseCheckInContinueCta: "Lanjut",
+    bedtimePauseOptionBusyMind: "Pikiran ramai",
+    bedtimePauseOptionTenseBody: "Badan tegang",
+    bedtimePauseOptionAnxious: "Cemas",
+    bedtimePauseOptionTired: "Lelah",
+    bedtimePauseOptionUnsure: "Tidak tahu",
+    bedtimePauseBusyMindTitle: "Biarkan pikiran melambat",
+    bedtimePauseBusyMindBody:
+      "Tarik napas pelan. Saat menghembuskan napas, biarkan satu hal menunggu sampai besok.",
+    bedtimePauseTenseBodyTitle: "Buat tubuh sedikit lebih ringan",
+    bedtimePauseTenseBodyBody:
+      "Turunkan bahu. Longgarkan rahang. Biarkan tubuh beristirahat sedikit lebih dalam.",
+    bedtimePauseAnxiousTitle: "Tidak semua harus selesai malam ini",
+    bedtimePauseAnxiousBody:
+      "Hembuskan napas lebih lama. Untuk malam ini, cukup berhenti sejenak.",
+    bedtimePauseTiredTitle: "Kamu tidak perlu melakukan apa-apa lagi",
+    bedtimePauseTiredBody:
+      "Rasakan tubuhmu ditopang. Biarkan malam berjalan pelan-pelan.",
+    bedtimePauseUnsureTitle: "Tidak apa-apa kalau belum jelas",
+    bedtimePauseUnsureBody:
+      "Ambil satu napas pelan. Kamu boleh berhenti sebentar tanpa harus memahami semuanya.",
+    bedtimePauseInstructionContinueCta: "Lanjut",
+    bedtimePauseInstructionSkipCta: "Lewati",
+    bedtimePauseEndTitle: "Cukup untuk malam ini",
+    bedtimePauseEndBody:
+      "Sekarang kamu bisa menutup layar dan memberi tubuh kesempatan untuk beristirahat.",
+    bedtimePauseEndCta: "Selesai",
   },
 
   player: {

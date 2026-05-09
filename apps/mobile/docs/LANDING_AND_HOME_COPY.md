@@ -8,7 +8,7 @@ Use this document as the maintenance reference for the current Lumepo landing pa
 - Landing hero H1 and subheadline live in `apps/mobile/src/i18n/strings.ts` under `id.landing.heroTitle` and `id.landing.heroSubtitle` because the hero title is also used as image alt text.
 - Landing body and CTA wording currently live inline in `LandingScreen.web.tsx`, matching the existing landing-screen pattern.
 - Landing meta descriptions in `apps/mobile/App.tsx`, `apps/mobile/src/web/LandingEntry.web.tsx`, and `apps/mobile/index.html` mirror the landing subheadline for browser and share previews.
-- Home greeting and section titles live in `apps/mobile/src/i18n/strings.ts` under `id.home.*`.
+- Home greeting, Sebelum Tidur flow, and section titles live in `apps/mobile/src/i18n/strings.ts` under `id.home.*`.
 - Home audio-card titles and descriptions live in `apps/mobile/src/content/audioCatalog.ts`; keep existing track IDs, ordering, assets, and `contentType` values unless a separate catalog/route migration requires changing them.
 
 ## Maintenance checklist
@@ -54,6 +54,43 @@ Use this document as the maintenance reference for the current Lumepo landing pa
 
 - Text: Selamat malam, [user name]
 - Subtitle: Pilih satu hal kecil untuk menemani malam ini.
+
+### Sebelum Tidur card
+
+- Title: Sebelum Tidur
+- Description: Luangkan waktu sebentar untuk menutup hari sebelum meletakkan layar.
+- Primary CTA: Mulai
+- Secondary CTA: Langsung pilih audio
+
+### Sebelum Tidur flow
+
+#### Check-in
+
+- Title: Apa yang paling terasa malam ini?
+- Subtitle: Pilih yang paling dekat. Tidak perlu dijelaskan.
+- Options: Pikiran ramai; Badan tegang; Cemas; Lelah; Tidak tahu
+- CTA: Lanjut
+
+#### Pause instruction copy
+
+- Pikiran ramai title: Biarkan pikiran melambat
+- Pikiran ramai body: Tarik napas pelan. Saat menghembuskan napas, biarkan satu hal menunggu sampai besok.
+- Badan tegang title: Buat tubuh sedikit lebih ringan
+- Badan tegang body: Turunkan bahu. Longgarkan rahang. Biarkan tubuh beristirahat sedikit lebih dalam.
+- Cemas title: Tidak semua harus selesai malam ini
+- Cemas body: Hembuskan napas lebih lama. Untuk malam ini, cukup berhenti sejenak.
+- Lelah title: Kamu tidak perlu melakukan apa-apa lagi
+- Lelah body: Rasakan tubuhmu ditopang. Biarkan malam berjalan pelan-pelan.
+- Tidak tahu title: Tidak apa-apa kalau belum jelas
+- Tidak tahu body: Ambil satu napas pelan. Kamu boleh berhenti sebentar tanpa harus memahami semuanya.
+- Primary CTA: Lanjut
+- Secondary CTA: Lewati
+
+#### End screen
+
+- Title: Cukup untuk malam ini
+- Body: Sekarang kamu bisa menutup layar dan memberi tubuh kesempatan untuk beristirahat.
+- Primary CTA: Selesai
 
 ### First content section
 
